@@ -14,7 +14,7 @@
 	<classpathentry kind="src" path="/jsf"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-logging/jars/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/hibernate/jars/hibernate-2.1.8.jar"/>
-	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-1.1.5.jar"/>
+	<classpathentry sourcepath="JAVA_DIR/spring-framework-1.1.5/src" kind="var" path="MAVEN_REPO/springframework/jars/spring-1.1.5.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/commons-lang/jars/commons-lang-2.0.jar"/>
 	<classpathentry sourcepath="JAVA_DIR/myfaces-1.0.9-src" kind="var" path="MAVEN_REPO/myfaces/jars/myfaces-1.0.9.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/jspapi/jars/jsp-api-2.0-20040521.jar"/>
