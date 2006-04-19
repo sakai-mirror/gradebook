@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../../master/project.xml</extend>
+	<extend>../project.xml</extend>
 	<id>sakai-gradebook-app</id>
 	<groupId>sakaiproject</groupId>
 	<name>Sakai Gradebook Tool</name>
@@ -28,18 +28,12 @@
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-gradebook-service-hibernate</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-gradebook-service-impl</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 
 		<dependency>
@@ -274,7 +268,7 @@
 			</properties>
 		</dependency>
 
-<!-- MyFaces JSF -->
+		<!-- MyFaces JSF -->
 		<dependency>
 			<groupId>myfaces</groupId>
 			<artifactId>myfaces-all</artifactId>
@@ -351,83 +345,6 @@
 			gradebook@collab.sakaiproject.org
 		</nagEmailAddress>
 		<sourceDirectory>src/java</sourceDirectory>
-		<resources>
-			<resource>
-				<directory>${basedir}/src/bundle</directory>
-				<includes>
-					<include>**/*.properties</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>${basedir}/src/hibernate</directory>
-				<includes>
-					<include>ehcache.xml</include>
-					<include>**/*.hbm.xml</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>${hibernate.properties.dir}</directory>
-				<includes>
-					<include>hibernate.properties</include>
-				</includes>
-			</resource>
-		</resources>
-
-		<unitTestSourceDirectory>src/test</unitTestSourceDirectory>
-		<unitTest>
-			<includes>
-				<include>**/*Test.java</include>
-<!--
-	With this setup, there's no way to restrict ourselves to a single
-	test on the command line. Instead, this file must be edited. For example,
-	the above line might be replaced with something like:
-				<include>**/GradeManagerTest.java</include>
--->
-<!--
-	Include the following if you want to run the jcoverage goal.  Otherwise,
-	all of the database testing will be missed by the coverage tool.  The
-	TestManagers test assumes that the database is empty, so make sure you run
-	the schema goal before attempting to run jcoverage.
--->
-<!--
-				<include>**/TestManagers.java</include>
--->
-			</includes>
-			<resources>
-				<resource>
-					<directory>${basedir}/src/webapp/common/WEB-INF/</directory>
-					<includes>
-						<include>spring-*.xml</include>
-					</includes>
-				</resource>
-				<resource>
-					<directory>${basedir}/src/webapp/standalone/WEB-INF/</directory>
-					<includes>
-						<include>spring-db.xml</include>
-						<include>spring-facades.xml</include>
-						<include>spring-service.xml</include>
-					</includes>
-				</resource>
-				<resource>
-					<directory>${basedir}/src/test/</directory>
-					<includes>
-						<include>spring-hib-test.xml</include>
-						<include>spring-beans-test.xml</include>
-					</includes>
-				</resource>
-				<!--
-					The hibernate.properties file to be used by testing will be
-					copied to the resource area based on runtime properties.
-					That logic is currently in maven.xml.
-				-->
-				<resource>
-					<directory>${basedir}</directory>
-					<includes>
-						<include>log4j.properties</include>
-					</includes>
-				</resource>
-			</resources>
-		</unitTest>
 	</build>
 </project>
 
