@@ -40,10 +40,11 @@ import org.sakaiproject.tool.gradebook.facades.Authz;
  * An implementation of Gradebook-specific authorization needs based
  * on the shared Section Awareness API.
  */
-public class AuthzSectionsImpl extends AbstractSectionsImpl implements Authz {
+public class AuthzSectionsImpl implements Authz {
     private static final Log log = LogFactory.getLog(AuthzSectionsImpl.class);
 
     private Authn authn;
+    private SectionAwareness sectionAwareness;
 
 	public boolean isUserAbleToGrade(String gradebookUid) {
 		String userUid = authn.getUserUid();
@@ -184,6 +185,12 @@ public class AuthzSectionsImpl extends AbstractSectionsImpl implements Authz {
 	}
 	public void setAuthn(Authn authn) {
 		this.authn = authn;
+	}
+	public SectionAwareness getSectionAwareness() {
+		return sectionAwareness;
+	}
+	public void setSectionAwareness(SectionAwareness sectionAwareness) {
+		this.sectionAwareness = sectionAwareness;
 	}
 
 }

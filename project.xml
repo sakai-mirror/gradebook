@@ -23,4 +23,8 @@
 
 	<build>
 	</build>
+
+	<reports>
+		<report>maven-multiproject-plugin</report>
+	</reports>
 </project>

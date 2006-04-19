@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../../master/project.xml</extend>
-	<id>sakai-gradebook-component-data</id>
+	<extend>../../../master/project.xml</extend>
+	<id>sakai-gradebook-service-hibernate</id>
 	<groupId>sakaiproject</groupId>
 	<name>Sakai Gradebook Component Data</name>
 	<currentVersion>${sakai.version}</currentVersion>
@@ -14,16 +14,14 @@
 
    	<properties>
 		<deploy.type>jar</deploy.type>
-<!--
 		<deploy.target>shared</deploy.target>
--->
 	</properties>
 
 	<dependencies>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-gradebook-service</artifactId>
+			<artifactId>sakai-gradebook-service-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 

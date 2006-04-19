@@ -40,7 +40,7 @@
     <!-- Register jsf tool with sakai -->
     <servlet>
         <servlet-name>sakai.gradebook.tool</servlet-name>
-        <servlet-class>org.sakaiproject.tool.gradebook.facades.sakai2impl.JsfTool</servlet-class>
+        <servlet-class>org.sakaiproject.tool.gradebook.jsf.GradebookJsfTool</servlet-class>
         <init-param>
             <param-name>default</param-name>
             <param-value>overview</param-value>

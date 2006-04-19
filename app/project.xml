@@ -2,7 +2,7 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../master/project.xml</extend>
-	<id>sakai-gradebook-tool</id>
+	<id>sakai-gradebook-app</id>
 	<groupId>sakaiproject</groupId>
 	<name>Sakai Gradebook Tool</name>
 	<currentVersion>${sakai.version}</currentVersion>
@@ -20,13 +20,13 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-gradebook-service</artifactId>
+			<artifactId>sakai-gradebook-service-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-gradebook-component-data</artifactId>
+			<artifactId>sakai-gradebook-service-hibernate</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
@@ -35,7 +35,16 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-gradebook-component</artifactId>
+			<artifactId>sakai-gradebook-service-impl</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-gradebook-app-business</artifactId>
 			<version>${sakai.version}</version>
 			<properties>
 				<war.bundle>true</war.bundle>
@@ -48,62 +57,19 @@
 			<artifactId>sakai-sections-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
-        <!-- TODO Come up with a way to make the dependencies deployment-sensitive. -->
+
 		<!-- Standalone component -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-sections-comp-shared-standalone</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
-		<!-- Sakai-embedded version -->
-        <dependency>
-            <groupId>sakaiproject</groupId>
-            <artifactId>sakai-sections-comp-shared-sakai21</artifactId>
-            <version>${sakai.version}</version>
-            <properties>
-                <war.bundle>true</war.bundle>
-            </properties>
-        </dependency>
+
 		<!-- Used only for test data. -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-sections-comp-shared-standalone-integrationsupport</artifactId>
 			<version>${sakai.version}</version>
-		</dependency>
-
-		<!-- Sakai2 Dependencies -->
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-tool-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-authz-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-site-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-entity-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-user-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 
 		<!-- this is required for any Sakai JSF tool -->
@@ -125,7 +91,7 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-->
+
 		<!-- sakai2 plugin -->
 		<dependency>
 			<groupId>sakaiproject</groupId>

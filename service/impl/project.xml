@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../../master/project.xml</extend>
-	<id>sakai-gradebook-component</id>
+	<extend>../../../master/project.xml</extend>
+	<id>sakai-gradebook-service-impl</id>
 	<groupId>sakaiproject</groupId>
-	<name>Sakai Gradebook Component</name>
+	<name>Sakai Gradebook Component Implementation</name>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>Sakai Project</name>
@@ -20,13 +20,13 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-gradebook-component-data</artifactId>
+			<artifactId>sakai-gradebook-service-hibernate</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-gradebook-service</artifactId>
+			<artifactId>sakai-gradebook-service-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
@@ -35,6 +35,59 @@
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-sections-api</artifactId>
 			<version>${sakai.version}</version>
+		</dependency>
+
+        <!-- TODO Come up with a way to make the dependencies deployment-sensitive. -->
+		<!-- Needed for standalone user directory -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-sections-comp-shared-standalone-integrationsupport</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<!-- JSF needed for standalone authn -->
+		<dependency>
+			<groupId>myfaces</groupId>
+			<artifactId>myfaces-all</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
+			<id>servletapi</id>
+			<version>2.3</version>
+		</dependency>
+
+		<!-- Sakai2 Dependencies -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-tool-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-authz-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-site-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-user-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
 		</dependency>
 
 		<dependency>
@@ -132,13 +185,6 @@
 			<artifactId>xalan</artifactId>
 			<version>2.6.0</version>
 		</dependency>
-<!--
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-java</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
--->
 	</dependencies>
 
 

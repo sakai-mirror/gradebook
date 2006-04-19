@@ -13,7 +13,7 @@
 		<managed-bean-scope>request</managed-bean-scope>
 		<managed-property>
 			<property-name>frameworkManager</property-name>
-			<value>#{org_sakaiproject_tool_gradebook_facades_standalone_FrameworkManager}</value>
+			<value>#{org_sakaiproject_tool_gradebook_ui_standalone_FrameworkManager}</value>
 		</managed-property>
 		<managed-property>
 			<property-name>authnService</property-name>

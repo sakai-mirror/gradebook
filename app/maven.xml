@@ -15,8 +15,10 @@
 		</ant:copy>
 
 		<!-- Copy build specific files -->
+<!--
 		<j:choose>
 			<j:when test="${standalone.equals('true')}">
+-->
 				<ant:echo message="Copying standalone resources into webapp"/>
 
 				<!-- Standalone webapp files -->
@@ -38,6 +40,7 @@
 				<ant:copy file="${basedir}/log4j.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
 				<ant:echo message="Copying ${hibernate.properties.dir}/hibernate.properties to ${maven.war.webapp.dir}/WEB-INF/classes"/>
 				<ant:copy file="${hibernate.properties.dir}/hibernate.properties" todir="${maven.war.webapp.dir}/WEB-INF/classes" overwrite="true" />
+<!--
 
 			</j:when>
 			<j:otherwise>
@@ -50,6 +53,7 @@
 				</ant:copy>
 			</j:otherwise>
 		</j:choose>
+-->
 
 	</preGoal>
 

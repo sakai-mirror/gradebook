@@ -31,8 +31,8 @@
 	</bean>
 
 	<!-- Framework Manager when running standalone -->
-	<bean id="org_sakaiproject_tool_gradebook_facades_standalone_FrameworkManager"
-		class="org.sakaiproject.tool.gradebook.facades.sections.FrameworkManagerSectionsImpl">
+	<bean id="org_sakaiproject_tool_gradebook_ui_standalone_FrameworkManager"
+		class="org.sakaiproject.tool.gradebook.ui.standalone.FrameworkManagerSectionsImpl">
 		<property name="integrationSupport"><ref bean="org.sakaiproject.component.section.support.IntegrationSupport"/></property>
 		<property name="gradebookManager"><ref bean="org_sakaiproject_tool_gradebook_business_GradebookManager"/></property>
 	</bean>
