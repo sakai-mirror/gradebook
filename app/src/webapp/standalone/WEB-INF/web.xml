@@ -57,7 +57,7 @@
 		<filter-class>org.sakaiproject.tool.gradebook.ui.standalone.AuthnFilter</filter-class>
 		<init-param>
 			<param-name>authnRedirect</param-name>
-			<param-value>/sakai-gradebook-app/test/login.jsf</param-value>
+			<param-value>/sakai-gradebook-standalone-app/test/login.jsf</param-value>
 		</init-param>
 		<init-param>
 			<param-name>authnServiceBean</param-name>
@@ -90,7 +90,7 @@
 		</init-param>
 		<init-param>
 			<param-name>selectGradebookRedirect</param-name>
-			<param-value>/sakai-gradebook-app/test/logout.jsf</param-value>
+			<param-value>/sakai-gradebook-standalone-app/test/logout.jsf</param-value>
 		</init-param>
 	</filter>
 	<filter-mapping>

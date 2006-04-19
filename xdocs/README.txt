@@ -61,7 +61,7 @@ build:
 After starting your test Tomcat server, you can then go to the following URL
 and browse the test data as an instructor, student, or teaching assistant:
 
-  http://localhost:8080/sakai-gradebook-app/
+  http://localhost:8080/sakai-gradebook-standalone-app/
 
 
 Standalone database settings
