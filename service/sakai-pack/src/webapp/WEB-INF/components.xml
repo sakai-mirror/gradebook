@@ -2,4 +2,12 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
+	<!-- Hibernate mappings -->
+
+	<!-- Service implementation hook-up with Sakai DB -->
+
+	<!-- Facade definitions -->
+
+	<!-- ContextObserver to take action when the Gradebook is added to or removed from a site -->
+
 </beans>

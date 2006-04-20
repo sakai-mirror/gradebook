@@ -2,7 +2,7 @@
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>../project.xml</extend>
+	<extend>../../../master/project.xml</extend>
     <name>Sakai Gradebook Component Package</name>
     <groupId>sakaiproject</groupId>
     <id>sakai-gradebook-service-pack</id>
@@ -27,15 +27,6 @@
             </properties>
     	</dependency>
     </dependencies>
-
-	<dependency>
-		<groupId>sakaiproject</groupId>
-		<artifactId>sakai-gradebook-app-business</artifactId>
-		<version>${sakai.version}</version>
-		<properties>
-			<war.bundle>true</war.bundle>
-		</properties>
-	</dependency>
 
     <build/>
 
