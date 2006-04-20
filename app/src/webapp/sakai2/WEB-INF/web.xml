@@ -24,6 +24,7 @@
     </listener>
 
     <!-- Initialize external services -->
+<!--
     <servlet>
         <servlet-name>sakai.gradebook.services</servlet-name>
         <servlet-class>org.sakaiproject.tool.gradebook.ui.InitializeServicesServlet</servlet-class>
@@ -36,6 +37,7 @@
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
+-->
 
     <!-- Register jsf tool with sakai -->
     <servlet>
