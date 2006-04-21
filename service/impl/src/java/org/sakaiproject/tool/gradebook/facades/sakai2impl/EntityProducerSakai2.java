@@ -4,20 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+* Copyright (c) 2005, 2006 The Regents of the University of California, The MIT Corporation
 *
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
+* Licensed under the Educational Community License, Version 1.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
 *
-*      http://cvs.sakaiproject.org/licenses/license_1_0.html
+*      http://www.opensource.org/licenses/ecl1.php
 *
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
 *
 **********************************************************************************/
 
@@ -30,6 +29,9 @@ import org.apache.commons.logging.LogFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import org.sakaiproject.entity.api.ContextObserver;
+
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -46,96 +48,53 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
  * Implements the Sakai 2.1 EntityProducer approach to integration of tool-specific
  * storage with site management.
  */
-public class EntityProducerSakai2 implements EntityProducer {
+public class EntityProducerSakai2 extends BaseEntityProducer implements ContextObserver {
     private static final Log log = LogFactory.getLog(EntityProducerSakai2.class);
 
-	private GradebookService gradebookService;
-	private String toolId;
+    private String[] toolIds;
+    private GradebookService gradebookService;
 
-	public void init() {
-		EntityManager.registerEntityProducer(this, null);
+	public void setToolIds(List toolIds) {
+		this.toolIds = (String[])toolIds.toArray();
 	}
 
-	public void syncWithSiteChange(Site site, ChangeType change) {
-		String gradebookUid = site.getId();
-		boolean isGradebookDefined = gradebookService.isGradebookDefined(gradebookUid);
+	public String[] myToolIds() {
+		return toolIds;
+	}
 
-		if ((change == EntityProducer.ChangeType.ADD) || (change == EntityProducer.ChangeType.UPDATE)) {
-			// See if this tool is now in the site.
-			String[] toolsToSearchFor = {getToolId()};
-			Collection matchingTools = site.getTools(toolsToSearchFor);
-			if (matchingTools.isEmpty() && isGradebookDefined) {
-				// We've been directed to leave Gradebook data in place when
-				// the tool is removed from a site.
-				if (log.isInfoEnabled()) log.info("Gradebook being removed from site " + gradebookUid + " but associated data will remain until site deletion");
-			} else if (!matchingTools.isEmpty() && !isGradebookDefined) {
-				if (log.isInfoEnabled()) log.info("Gradebook being added to site " + gradebookUid);
-				gradebookService.addGradebook(gradebookUid, gradebookUid);
-			}
-		} else if ((change == EntityProducer.ChangeType.REMOVE) && isGradebookDefined) {
+	public void startContext(String context) {
+		if (!gradebookService.isGradebookDefined(context)) {
+			if (log.isInfoEnabled()) log.info("Gradebook being added to site " + context);
+			gradebookService.addGradebook(context, context);
+		}
+	}
+
+	public void endContext(String context) {
+		if (gradebookService.isGradebookDefined(context)) {
 			try {
-				gradebookService.deleteGradebook(gradebookUid);
+				gradebookService.deleteGradebook(context);
 			} catch (GradebookNotFoundException e) {
 				if (log.isWarnEnabled()) log.warn(e);
 			}
 		}
-	}
-
-	// The following EntityProducer methods are currently unused.
-	public String getLabel() {
-		return null;
-	}
-	public boolean willArchiveMerge() {
-		return false;
-	}
-	public boolean willImport() {
-		return false;
-	}
-	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments) {
-		return null;
-	}
-	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport) {
-		return null;
-	}
-	public void importEntities(String fromContext, String toContext, List ids) {
-	}
-	public boolean parseEntityReference(String reference, Reference ref) {
-		return false;
-	}
-	public String getEntityDescription(Reference ref) {
-		return null;
-	}
-	public ResourceProperties getEntityResourceProperties(Reference ref) {
-		return null;
-	}
-	public Entity getEntity(Reference ref) {
-		return null;
-	}
-	public String getEntityUrl(Reference ref) {
-		return null;
-	}
-	public Collection getEntityAuthzGroups(Reference ref) {
-		return null;
+/*
+		boolean isGradebookDefined = gradebookService.isGradebookDefined(context);
+		// See if this tool is now in the site.
+		String[] toolsToSearchFor = {getToolId()};
+		Collection matchingTools = site.getTools(myToolIds());
+		if (matchingTools.isEmpty() && isGradebookDefined) {
+			// We've been directed to leave Gradebook data in place when
+			// the tool is removed from a site.
+			if (log.isInfoEnabled()) log.info("Gradebook being removed from site " + gradebookUid + " but associated data will remain until site deletion");
+		} else if (!matchingTools.isEmpty() && !isGradebookDefined) {
+			if (log.isInfoEnabled()) log.info("Gradebook being added to site " + gradebookUid);
+			gradebookService.addGradebook(gradebookUid, gradebookUid);
+		}
+*/
 	}
 
 	public void setGradebookService(GradebookService gradebookService) {
-		if (log.isDebugEnabled()) log.debug("setGradebookService " + gradebookService);
 		this.gradebookService = gradebookService;
 	}
 
-	public String getToolId() {
-		return toolId;
-	}
-
-	/**
-	 * Since this string is otherwise used only in XML configuration
-	 * files, we get it from one too.
-	 */
-	public void setToolId(String toolId) {
-		this.toolId = toolId;
-	}
-
-	public HttpAccess getHttpAccess() {
-		return null;
-	}
 }
