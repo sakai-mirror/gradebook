@@ -4,17 +4,14 @@
 	<extend>../project.xml</extend>
 	<id>sakai-gradebook-app</id>
 	<groupId>sakaiproject</groupId>
-	<name>Sakai Gradebook Tool</name>
+	<name>sakai-gradebook-app</name>
+	<shortDescription>Gradebook Application</shortDescription>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>Sakai Project</name>
 		<url>http://sakaiproject.org/</url>
 	</organization>
 	<inceptionYear>2004</inceptionYear>
-
-   	<properties>
-		<deploy.type>jar</deploy.type>
-	</properties>
 
 	<dependencies>
 
@@ -33,12 +30,6 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-gradebook-service-impl</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-gradebook-app-business</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 

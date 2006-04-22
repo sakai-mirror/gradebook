@@ -6,4 +6,11 @@
 	xmlns:maven="jelly:maven"
 	xmlns:u="jelly:util">
 
+	<postGoal name="war:war-resources">
+		<!-- Files common to both standalone and embedded builds -->
+		<ant:copy todir="${maven.war.webapp.dir}">
+			<ant:fileset dir="${basedir}/../ui/src/webapp/common" />
+		</ant:copy>
+	</postGoal>
+
 </project>
