@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <pomVersion>3</pomVersion>
-  <extend>../../../master/project.xml</extend>
+  <extend>../project.xml</extend>
   <id>sakai-gradebook-service-api</id>
   <name>sakai-gradebook-service-api</name>
-  <groupId>sakaiproject</groupId>
   <shortDescription>Sakai Gradebook Service</shortDescription>
-  <currentVersion>${sakai.version}</currentVersion>
-  <organization>
-      <name>Sakai Project</name>
-      <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2004</inceptionYear>
 
   <properties>
     <deploy.type>jar</deploy.type>
@@ -26,16 +19,5 @@
       <version>${sakai.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-    </dependency>
-
   </dependencies>
-
-  <build>
-    <nagEmailAddress>gradebook@collab.sakaiproject.org</nagEmailAddress>
-    <sourceDirectory>src/java</sourceDirectory>
-  </build>
 </project>

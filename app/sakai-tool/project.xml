@@ -2,8 +2,8 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../project.xml</extend>
-	<id>sakai-gradebook-app-tool</id>
-	<name>sakai-gradebook-app-tool</name>
+	<id>sakai-gradebook-tool</id>
+	<name>sakai-gradebook-tool</name>
 	<shortDescription>Gradebook Sakai Tool</shortDescription>
 
    	<properties>

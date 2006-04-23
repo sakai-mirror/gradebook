@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project>
     <pomVersion>3</pomVersion>
-	<extend>../../../master/project.xml</extend>
-    <name>Sakai Gradebook Component Package</name>
-    <groupId>sakaiproject</groupId>
+	<extend>../project.xml</extend>
     <id>sakai-gradebook-service-pack</id>
-	<currentVersion>${sakai.version}</currentVersion>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2005</inceptionYear>
+    <name>sakai-gradebook-service-pack</name>
+    <shortDescription>Sakai Gradebook Component Package</shortDescription>
 
 	<properties>
 		<deploy.type>components</deploy.type>
@@ -27,7 +20,5 @@
             </properties>
     	</dependency>
     </dependencies>
-
-    <build/>
 
 </project>

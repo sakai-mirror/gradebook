@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../../../master/project.xml</extend>
+	<extend>../project.xml</extend>
 	<id>sakai-gradebook-service-impl</id>
-	<groupId>sakaiproject</groupId>
-	<name>Sakai Gradebook Component Implementation</name>
-	<currentVersion>${sakai.version}</currentVersion>
-	<organization>
-		<name>Sakai Project</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2004</inceptionYear>
+	<name>sakai-gradebook-service-impl</name>
+	<shortDescription>Sakai Gradebook Component Implementation</shortDescription>
 
    	<properties>
 		<deploy.type>jar</deploy.type>
@@ -139,12 +133,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>2.0</version>
-		</dependency>
-
-		<dependency>
 			<groupId>commons-collections</groupId>
 			<artifactId>commons-collections</artifactId>
 			<version>3.1</version>
@@ -163,18 +151,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.0.4</version>
-		</dependency>
-
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.8</version>
-		</dependency>
-
-		<dependency>
 			<groupId>dom4j</groupId>
 			<artifactId>dom4j</artifactId>
 			<version>1.4</version>
@@ -187,12 +163,5 @@
 		</dependency>
 	</dependencies>
 
-
-	<build>
-		<nagEmailAddress>
-			gradebook@collab.sakaiproject.org
-		</nagEmailAddress>
-		<sourceDirectory>src/java</sourceDirectory>
-	</build>
 </project>
 

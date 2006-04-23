@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
 	<pomVersion>3</pomVersion>
-	<extend>../../master/project.xml</extend>
+	<extend>../project.xml</extend>
 	<id>sakai-gradebook-testservice</id>
 	<name>sakai-gradebook-testservice</name>
-	<groupId>sakaiproject</groupId>
 	<shortDescription>Sakai Gradebook Service Test Tool</shortDescription>
-	<currentVersion>${sakai.version}</currentVersion>
-	<organization>
-		<name>Sakai Project</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2004</inceptionYear>
 
    	<properties>
 		<deploy.type>war</deploy.type>
@@ -36,29 +29,6 @@
 			</properties>
 		</dependency>
 
-<!--
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-legacy-service</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-session</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-session-component</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-tool</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
--->
-
 		<!-- this is required for any Sakai JSF tool -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
@@ -78,16 +48,7 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-<!--
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-web</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency>
--->
+
 		<!-- sakai2 plugin -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
@@ -151,12 +112,5 @@
 		</dependency>
 
 	</dependencies>
-
-	<build>
-
-		<!-- java source -->
-		<sourceDirectory>src/java</sourceDirectory>
-
-	</build>
 
 </project>

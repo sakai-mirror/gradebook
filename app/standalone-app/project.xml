@@ -31,7 +31,7 @@
 				</includes>
 			</resource>
 			<resource>
-				<directory>${basedir}/src/resource</directory>
+				<directory>src/resources</directory>
 			</resource>
 		</resources>
 

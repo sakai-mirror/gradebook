@@ -6,12 +6,6 @@
 	<groupId>sakaiproject</groupId>
 	<name>sakai-gradebook-app</name>
 	<shortDescription>Gradebook Application</shortDescription>
-	<currentVersion>${sakai.version}</currentVersion>
-	<organization>
-		<name>Sakai Project</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2004</inceptionYear>
 
 	<dependencies>
 
@@ -327,12 +321,5 @@
 			</properties>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<nagEmailAddress>
-			gradebook@collab.sakaiproject.org
-		</nagEmailAddress>
-		<sourceDirectory>src/java</sourceDirectory>
-	</build>
 </project>
 
