@@ -6,10 +6,6 @@
 	<name>sakai-gradebook-standalone-app</name>
 	<shortDescription>Gradebook Standalone Application</shortDescription>
 
-   	<properties>
-		<deploy.type>war</deploy.type>
-	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>sakaiproject</groupId>

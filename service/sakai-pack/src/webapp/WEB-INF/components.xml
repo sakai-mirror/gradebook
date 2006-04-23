@@ -49,6 +49,7 @@
 
 	<bean id="org_sakaiproject_service_gradebook_GradebookService"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		name="org.sakaiproject.service.gradebook.GradebookService"
 		singleton="true">
 		<property name="transactionManager">
 			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
@@ -66,18 +67,18 @@
 	</bean>
 
 	<!-- ContextObserver to take action when the Gradebook is added to or removed from a site -->
-	<!-- Sakai EntityProducer service to tie application data to site management -->
-<!--
 	<bean id="org_sakaiproject_service_gradebook_EntityProducer"
-		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.EntityProducerSakai2"
+		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.GradebookEntityProducer"
 		init-method="init">
+		<property name="label" value="gradebook"/>
 		<property name="gradebookService">
 			<ref bean="org_sakaiproject_service_gradebook_GradebookService" />
 		</property>
-		<property name="toolId">
-			<value>sakai.gradebook.tool</value>
+		<property name="toolIds">
+		    <list>
+				<value>sakai.gradebook.tool</value>
+			</list>
 		</property>
 	</bean>
--->
 
 </beans>

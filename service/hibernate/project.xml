@@ -3,8 +3,9 @@
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
 	<id>sakai-gradebook-service-hibernate</id>
+	<name>sakai-gradebook-service-hibernate</name>
 	<groupId>sakaiproject</groupId>
-	<name>Sakai Gradebook Component Data</name>
+	<shortDescription>Sakai Gradebook Component Data</shortDescription>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>Sakai Project</name>

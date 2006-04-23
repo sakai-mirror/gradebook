@@ -8,8 +8,10 @@
 		properties.
 	-->
 
-	<bean id="gradebookSessionFactory" parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
+	<alias name="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" alias="gradebookSessionFactory"/>
 
+<!--
+	<bean id="gradebookSessionFactory" parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
 		<property name="mappingResources">
 		    <list>
 				<value>org/sakaiproject/tool/gradebook/Gradebook.hbm.xml</value>
@@ -19,6 +21,8 @@
 				<value>org/sakaiproject/tool/gradebook/GradeMapping.hbm.xml</value>
 			</list>
 		</property>
+	</bean>
+-->
 
 <!-- This doesn't work; we get a FileNotFoundException:
 		<property name="mappingJarLocations">
@@ -43,6 +47,5 @@
 			</list>
 		</property>
 -->
-	</bean>
 
 </beans>

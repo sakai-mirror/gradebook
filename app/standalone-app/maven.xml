@@ -5,6 +5,10 @@
 	xmlns:maven="jelly:maven"
 	xmlns:u="jelly:util">
 
+	<goal name="sakai:sakai.build">
+		<attainGoal name="war:install" />
+	</goal>
+
 	<preGoal name="war:webapp">
 		<!--
 			Some JAR dependencies are shared between the standalone application and the

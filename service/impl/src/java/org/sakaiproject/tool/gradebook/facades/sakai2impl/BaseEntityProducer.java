@@ -24,6 +24,9 @@ package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
 import java.util.*;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -42,6 +45,8 @@ import org.sakaiproject.entity.cover.EntityManager;
  * used to register as an EntityProducer.
  */
 public class BaseEntityProducer implements EntityProducer {
+    private static final Log log = LogFactory.getLog(BaseEntityProducer.class);
+
 	private String label;	// This should always be set.
 	private String referenceRoot = null;
 	private String serviceName = null;
@@ -50,6 +55,7 @@ public class BaseEntityProducer implements EntityProducer {
 	 * Register this class as an EntityProducer.
 	 */
 	public void init() {
+		log.warn("In BaseEntityProducer init");
 		EntityManager.registerEntityProducer(this, referenceRoot);
 	}
 

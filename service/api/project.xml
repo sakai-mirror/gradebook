@@ -3,8 +3,9 @@
   <pomVersion>3</pomVersion>
   <extend>../../../master/project.xml</extend>
   <id>sakai-gradebook-service-api</id>
+  <name>sakai-gradebook-service-api</name>
   <groupId>sakaiproject</groupId>
-  <name>Sakai Gradebook Service</name>
+  <shortDescription>Sakai Gradebook Service</shortDescription>
   <currentVersion>${sakai.version}</currentVersion>
   <organization>
       <name>Sakai Project</name>

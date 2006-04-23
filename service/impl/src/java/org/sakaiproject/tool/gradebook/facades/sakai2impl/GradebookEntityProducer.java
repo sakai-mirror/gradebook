@@ -31,8 +31,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import org.sakaiproject.entity.api.ContextObserver;
-
-
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -48,29 +46,33 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
  * Implements the Sakai 2.1 EntityProducer approach to integration of tool-specific
  * storage with site management.
  */
-public class EntityProducerSakai2 extends BaseEntityProducer implements ContextObserver {
-    private static final Log log = LogFactory.getLog(EntityProducerSakai2.class);
+public class GradebookEntityProducer extends BaseEntityProducer implements ContextObserver {
+    private static final Log log = LogFactory.getLog(GradebookEntityProducer.class);
 
-    private String[] toolIds;
+    private String[] toolIdArray;
     private GradebookService gradebookService;
 
 	public void setToolIds(List toolIds) {
-		this.toolIds = (String[])toolIds.toArray();
+		if (log.isDebugEnabled()) log.debug("setToolIds(" + toolIds + ")");
+		if (toolIds != null) {
+			toolIdArray = (String[])toolIds.toArray(new String[0]);
+		}
 	}
 
 	public String[] myToolIds() {
-		return toolIds;
+		return toolIdArray;
 	}
 
 	public void startContext(String context) {
 		if (!gradebookService.isGradebookDefined(context)) {
-			if (log.isInfoEnabled()) log.info("Gradebook being added to site " + context);
+			if (log.isInfoEnabled()) log.info("Gradebook being added to context " + context);
 			gradebookService.addGradebook(context, context);
 		}
 	}
 
 	public void endContext(String context) {
 		if (gradebookService.isGradebookDefined(context)) {
+			if (log.isInfoEnabled()) log.info("Gradebook being deleted from context " + context);
 			try {
 				gradebookService.deleteGradebook(context);
 			} catch (GradebookNotFoundException e) {
@@ -96,5 +98,4 @@ public class EntityProducerSakai2 extends BaseEntityProducer implements ContextO
 	public void setGradebookService(GradebookService gradebookService) {
 		this.gradebookService = gradebookService;
 	}
-
 }

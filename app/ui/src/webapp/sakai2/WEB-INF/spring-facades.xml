@@ -4,7 +4,7 @@
 <beans>
 
 	<!--
-		This Spring configuration file specifies a Sakai 2.0 / SectionAwareness implementation of the facades.
+		This Spring configuration file specifies a Sakai + SectionAwareness implementation of the facades.
 	-->
 
 	<!-- External User Directory Service -->
@@ -28,18 +28,6 @@
 	<!-- External Context Management Service -->
 	<bean id="org_sakaiproject_tool_gradebook_facades_ContextManagement"
 		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.ContextManagementSakai2Impl">
-	</bean>
-
-	<!-- Sakai EntityProducer service to tie application data to site management -->
-	<bean id="org_sakaiproject_service_gradebook_EntityProducer"
-		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.EntityProducerSakai2"
-		init-method="init">
-		<property name="gradebookService">
-			<ref bean="org_sakaiproject_service_gradebook_GradebookService" />
-		</property>
-		<property name="toolId">
-			<value>sakai.gradebook.tool</value>
-		</property>
 	</bean>
 
 </beans>

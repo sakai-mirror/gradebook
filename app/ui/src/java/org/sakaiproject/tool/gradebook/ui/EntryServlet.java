@@ -42,8 +42,6 @@ import org.sakaiproject.tool.gradebook.facades.ContextManagement;
 
 /**
  * Redirects the request to the role-appropriate initial view of the gradebook.
- *
- * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman </a>
  */
 public class EntryServlet extends HttpServlet {
     private static final Log logger = LogFactory.getLog(EntryServlet.class);
@@ -67,19 +65,26 @@ public class EntryServlet extends HttpServlet {
             if (gradebookUid != null) {
                 StringBuffer path = new StringBuffer(request.getContextPath());
                 if (authzService.isUserAbleToGrade(gradebookUid)) {
-                    path.append("/overview.jsf?");
+		            if(logger.isDebugEnabled()) logger.debug("Sending user to the overview page");
+                    path.append("/overview.jsf");
                 } else if (authzService.isUserAbleToViewOwnGrades(gradebookUid)) {
-                    path.append("/studentView.jsf?");
+		            if(logger.isDebugEnabled()) logger.debug("Sending user to the student view page");
+                    path.append("/studentView.jsf");
                 } else {
-                    path.append("/error.jsf?");
+					// The role filter has not been invoked yet, so this could happen here
+					throw new RuntimeException("User " + authnService.getUserUid() + " attempted to access gradebook " + gradebookUid + " without any role");
                 }
-                path.append(request.getQueryString());
+                String queryString = request.getQueryString();
+                if (queryString != null) {
+					path.append("?").append(queryString);
+				}
                 response.sendRedirect(path.toString());
             }
         } catch (IOException ioe) {
             logger.fatal("Could not redirect user: " + ioe);
         }
 	}
+
 }
 
 

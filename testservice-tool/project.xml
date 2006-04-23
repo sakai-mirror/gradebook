@@ -3,8 +3,9 @@
 	<pomVersion>3</pomVersion>
 	<extend>../../master/project.xml</extend>
 	<id>sakai-gradebook-testservice</id>
+	<name>sakai-gradebook-testservice</name>
 	<groupId>sakaiproject</groupId>
-	<name>Sakai Gradebook Service Test Tool</name>
+	<shortDescription>Sakai Gradebook Service Test Tool</shortDescription>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>Sakai Project</name>
@@ -21,12 +22,8 @@
 		<!-- Gradebook service -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-gradebook-service</artifactId>
+			<artifactId>sakai-gradebook-service-api</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<deploy.type>jar</deploy.type>
-				<deploy.target>shared</deploy.target>
-			</properties>
 		</dependency>
 
 		<!-- Sakai2 Dependencies -->
