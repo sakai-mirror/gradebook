@@ -57,26 +57,26 @@
 			</includes>
 			<resources>
 				<resource>
-					<directory>${basedir}/../ui/src/webapp/common/WEB-INF/</directory>
+					<directory>${basedir}/../ui/src/webapp/WEB-INF</directory>
 					<includes>
 						<include>spring-*.xml</include>
 					</includes>
 				</resource>
 				<resource>
-					<directory>${basedir}/../ui/src/webapp/standalone/WEB-INF/</directory>
+					<directory>src/webapp/WEB-INF</directory>
 					<includes>
 						<include>spring-*.xml</include>
 					</includes>
 				</resource>
 				<resource>
-					<directory>${basedir}/src/test/</directory>
+					<directory>src/test</directory>
 					<includes>
 						<include>spring-hib-test.xml</include>
 						<include>spring-beans-test.xml</include>
 					</includes>
 				</resource>
 				<resource>
-					<directory>${basedir}/src/resource</directory>
+					<directory>src/resource</directory>
 				</resource>
 				<!--
 					The hibernate.properties file to be used by testing will be
