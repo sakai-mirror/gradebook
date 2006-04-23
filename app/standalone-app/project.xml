@@ -65,8 +65,7 @@
 				<resource>
 					<directory>${basedir}/../ui/src/webapp/standalone/WEB-INF/</directory>
 					<includes>
-						<include>spring-db.xml</include>
-						<include>spring-facades.xml</include>
+						<include>spring-*.xml</include>
 					</includes>
 				</resource>
 				<resource>
