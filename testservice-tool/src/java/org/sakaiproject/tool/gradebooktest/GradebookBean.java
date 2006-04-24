@@ -23,9 +23,6 @@
 
 package org.sakaiproject.tool.gradebooktest;
 
-import java.io.*;
-import java.util.*;
-
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.logging.Log;

@@ -76,7 +76,7 @@ public class BaseEntityProducer implements EntityProducer {
 	public String getServiceName() {
 		return serviceName;
 	}
-	public void setServiceName() {
+	public void setServiceName(String serviceName) {
 		this.serviceName = serviceName;
 	}
 
