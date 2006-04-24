@@ -55,7 +55,6 @@ public class BaseEntityProducer implements EntityProducer {
 	 * Register this class as an EntityProducer.
 	 */
 	public void init() {
-		log.warn("In BaseEntityProducer init");
 		EntityManager.registerEntityProducer(this, referenceRoot);
 	}
 

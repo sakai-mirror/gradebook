@@ -20,12 +20,12 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/user-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/site-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sections-impl"/>
-	<classpathentry kind="src" path="service/hibernate/src/java"/>
-	<classpathentry kind="src" path="service/api/src/java"/>
-	<classpathentry kind="src" path="service/impl/src/java"/>
-	<classpathentry kind="src" path="app/business/src/java"/>
-	<classpathentry kind="src" path="app/sakai-tool/src/webapp/WEB-INF"/>
-	<classpathentry kind="src" path="app/ui/src/java"/>
-	<classpathentry kind="src" path="testservice-tool/src/java"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" kind="src" path="service/hibernate/src/java"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" kind="src" path="service/api/src/java"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" kind="src" path="service/impl/src/java"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" kind="src" path="app/business/src/java"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" kind="src" path="app/sakai-tool/src/webapp/WEB-INF"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" kind="src" path="app/ui/src/java"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" kind="src" path="testservice-tool/src/java"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
