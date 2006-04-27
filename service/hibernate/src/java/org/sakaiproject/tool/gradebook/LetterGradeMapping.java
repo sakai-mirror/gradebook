@@ -34,28 +34,28 @@ import java.util.ArrayList;
  */
 public class LetterGradeMapping extends GradeMapping {
 
-    public LetterGradeMapping() {
-        grades = new ArrayList();
-        grades.add("A");
-        grades.add("B");
-        grades.add("C");
-        grades.add("D");
-        grades.add("F");
-
-        defaultValues = new ArrayList();
-        defaultValues.add(new Double(90));
-        defaultValues.add(new Double(80));
-        defaultValues.add(new Double(70));
-        defaultValues.add(new Double(60));
-        defaultValues.add(new Double(00));
-    }
-
-	/**
-	 * @see org.sakaiproject.tool.gradebook.GradeMapping#getName()
-	 */
-	public String getName() {
-		return "Letter Grades";
-	}
+//    public LetterGradeMapping() {
+//        grades = new ArrayList();
+//        grades.add("A");
+//        grades.add("B");
+//        grades.add("C");
+//        grades.add("D");
+//        grades.add("F");
+//
+//        defaultValues = new ArrayList();
+//        defaultValues.add(new Double(90));
+//        defaultValues.add(new Double(80));
+//        defaultValues.add(new Double(70));
+//        defaultValues.add(new Double(60));
+//        defaultValues.add(new Double(00));
+//    }
+//
+//	/**
+//	 * @see org.sakaiproject.tool.gradebook.GradeMapping#getName()
+//	 */
+//	public String getName() {
+//		return "Letter Grades";
+//	}
 }
 
 

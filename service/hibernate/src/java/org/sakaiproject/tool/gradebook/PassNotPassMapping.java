@@ -34,22 +34,22 @@ import java.util.ArrayList;
  */
 public class PassNotPassMapping extends GradeMapping {
 
-    public PassNotPassMapping() {
-        grades = new ArrayList();
-        grades.add("P");
-        grades.add("NP");
-
-        defaultValues = new ArrayList();
-        defaultValues.add(new Double(75));
-        defaultValues.add(new Double(0));
-    }
-
-	/**
-	 * @see org.sakaiproject.tool.gradebook.GradeMapping#getName()
-	 */
-	public String getName() {
-        return "Pass / Not Pass";
-	}
+//    public PassNotPassMapping() {
+//        grades = new ArrayList();
+//        grades.add("P");
+//        grades.add("NP");
+//
+//        defaultValues = new ArrayList();
+//        defaultValues.add(new Double(75));
+//        defaultValues.add(new Double(0));
+//    }
+//
+//	/**
+//	 * @see org.sakaiproject.tool.gradebook.GradeMapping#getName()
+//	 */
+//	public String getName() {
+//        return "Pass / Not Pass";
+//	}
 
 }
 
