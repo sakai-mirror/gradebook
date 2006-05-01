@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<!-- Gradebook Service with initialized grade mappings -->
+	<bean id="org_sakaiproject_service_gradebook_GradebookService"
+		class="org.sakaiproject.component.gradebook.GradebookServiceHibernateImpl"
+		name="org.sakaiproject.service.gradebook.GradebookService">
+		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+		<property name="sectionAwareness">
+			<ref bean="org.sakaiproject.api.section.SectionAwareness" />
+		</property>
+		<property name="authn">
+			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
+		</property>
+		<property name="authz">
+			<ref bean="org_sakaiproject_tool_gradebook_facades_Authz" />
+		</property>
+
+		<!-- Set up default system-wide grading scales. -->
+		<property name="availableGradeMappings">
+			<list>
+				<bean class="org.sakaiproject.service.gradebook.shared.GradeMappingDefinition">
+					<property name="uid" value="LetterGradePlusMinusMapping"/>
+					<property name="name" value="Letter Grades with +/-"/>
+					<property name="grades">
+						<list>
+							<value>A+</value>
+							<value>A</value>
+							<value>A-</value>
+							<value>B+</value>
+							<value>B</value>
+							<value>B-</value>
+							<value>C+</value>
+							<value>C</value>
+							<value>C-</value>
+							<value>D+</value>
+							<value>D</value>
+							<value>D-</value>
+							<value>F</value>
+						</list>
+					</property>
+					<property name="defaultBottomScores">
+						<list>
+							<value>100.0</value>
+							<value>95.0</value>
+							<value>90.0</value>
+							<value>87.0</value>
+							<value>83.0</value>
+							<value>80.0</value>
+							<value>77.0</value>
+							<value>73.0</value>
+							<value>70.0</value>
+							<value>67.0</value>
+							<value>63.0</value>
+							<value>60.0</value>
+							<value>00.0</value>
+						</list>
+					</property>
+				</bean>
+				<bean class="org.sakaiproject.service.gradebook.shared.GradeMappingDefinition">
+					<property name="uid" value="LetterGradeMapping"/>
+					<property name="name" value="Letter Grades"/>
+					<property name="grades">
+						<list>
+							<value>A</value>
+							<value>B</value>
+							<value>C</value>
+							<value>D</value>
+							<value>F</value>
+						</list>
+					</property>
+					<property name="defaultBottomScores">
+						<list>
+							<value>90.0</value>
+							<value>80.0</value>
+							<value>70.0</value>
+							<value>60.0</value>
+							<value>00.0</value>
+						</list>
+					</property>
+				</bean>
+				<bean class="org.sakaiproject.service.gradebook.shared.GradeMappingDefinition">
+					<property name="uid" value=""/>
+					<property name="name" value=""/>
+					<property name="grades">
+						<list>
+							<value></value>
+						</list>
+					</property>
+					<property name="defaultBottomScores">
+						<list>
+							<value></value>
+						</list>
+					</property>
+				</bean>
+			</list>
+		</property>
+<!--
+
+-->
+
+	</bean>
+</beans>

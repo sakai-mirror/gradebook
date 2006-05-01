@@ -108,6 +108,11 @@ public class CourseGradeRecord extends AbstractGradeRecord {
         this.gradableObject = courseGrade;
         this.studentId = studentId;
         this.enteredGrade = grade;
+
+log.warn("grade=" + grade + ", courseGrade.getGradebook()=" + courseGrade.getGradebook());
+log.warn("courseGrade.getGradebook().getSelectedGradeMapping()=" + courseGrade.getGradebook().getSelectedGradeMapping());
+log.warn("courseGrade.getGradebook().getSelectedGradeMapping().getValue(grade)=" + courseGrade.getGradebook().getSelectedGradeMapping().getValue(grade));
+
         this.sortGrade = courseGrade.getGradebook().getSelectedGradeMapping().getValue(grade);
 	}
 

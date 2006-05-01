@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook">
+	<class name="org.sakaiproject.tool.gradebook.GradeMappingTemplate" table="GB_GRADE_MAP_TMPL_T" discriminator-value="0">
+
+		<id name="id" column="ID" type="long">
+			<generator class="native">
+				<param name="sequence">GB_GRADE_MAP_TMPL_S</param>
+			</generator>
+		</id>
+
+		<discriminator type="integer" column="OBJECT_TYPE_ID" />
+
+		<version type="integer" name="version" column="VERSION"/>
+
+		<property name="uid" column="UID" type="string" unique="true" not-null="true"/>
+
+		<property name="name" column="NAME" type="string" not-null="true"/>
+
+		<list name="grades" table="GB_GRADE_MAP_GRADES_T" cascade="all" lazy="false">
+			<key column="GRADE_MAP_ID"/>
+			<index column="GRADE_IDX"/>
+			<element column="LETTER_GRADE" type="string"/>
+		</list>
+
+		<list name="defaultBottomScores" table="GB_GRADE_MAP_SCORES_T" cascade="all" lazy="false">
+			<key column="GRADE_MAP_ID"/>
+			<index column="GRADE_IDX"/>
+			<element column="PERCENT" type="double"/>
+		</list>
+
+		<property name="unavailable" column="UNAVAILABLE" type="boolean" />
+
+	</class>
+</hibernate-mapping>

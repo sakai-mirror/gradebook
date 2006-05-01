@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2006 The Regents of the University of California, The MIT Corporation
+* Copyright (c) 2006 The Regents of the University of California
 *
 * Licensed under the Educational Community License, Version 1.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,25 +19,41 @@
 * limitations under the License.
 *
 **********************************************************************************/
-package org.sakaiproject.tool.gradebook.test;
+package org.sakaiproject.service.gradebook.shared;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import java.util.*;
 
-public class GradebookTestSuite extends TestCase {
-	public static Test suite() {
-		TestSuite suite = new TestSuite();
-		suite.addTestSuite(AssignmentSortingTest.class);
-		suite.addTestSuite(CalculationsTest.class);
-		suite.addTestSuite(GradableObjectManagerTest.class);
-		suite.addTestSuite(GradeManagerTest.class);
-		suite.addTestSuite(GradebookManagerTest.class);
-		suite.addTestSuite(GradebookServiceInternalTest.class);
-		suite.addTestSuite(GradebookServiceTest.class);
-/*
-*/
-		suite.addTestSuite(GradeMappingTest.class);
-		return suite;
+/**
+ */
+public class GradeMappingDefinition {
+	private String uid;
+	private String name;
+	private List grades;
+	private List defaultBottomScores;
+
+	public String getUid() {
+		return uid;
 	}
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public List getGrades() {
+		return grades;
+	}
+	public void setGrades(List grades) {
+		this.grades = grades;
+	}
+	public List getDefaultBottomScores() {
+		return defaultBottomScores;
+	}
+	public void setDefaultBottomScores(List defaultBottomScores) {
+		this.defaultBottomScores = defaultBottomScores;
+	}
+
 }

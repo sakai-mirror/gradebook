@@ -23,10 +23,7 @@
 package org.sakaiproject.tool.gradebook;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -45,6 +42,7 @@ public class GradeMapping implements Serializable, Comparable {
 
 	protected Gradebook gradebook;
 	protected Map gradeMap;
+	private transient String cachedName;
 
 	/*
 	protected List grades;
@@ -58,28 +56,39 @@ public class GradeMapping implements Serializable, Comparable {
 		<subclass name="org.sakaiproject.tool.gradebook.LetterGradeMapping" discriminator-value="2" />
 		<subclass name="org.sakaiproject.tool.gradebook.LetterGradePlusMinusMapping" discriminator-value="3" />
 	*/
-	// TODO Replace with GradeMappingManager singleton.
-	public static Long
-		PASS_NOT_PASS_MAPPING_ID = new Long(1),
-		LETTER_GRADE_MAPPING_ID = new Long(2),
-		LETTER_GRADE_PLUS_MINUS_MAPPING_ID = new Long(3);
-	public static Long
-		DEFAULT_GRADE_MAPPING_ID = LETTER_GRADE_PLUS_MINUS_MAPPING_ID;
+
+	public GradeMapping() {
+	}
+
+	public GradeMapping(GradeMappingTemplate gradeMappingTemplate) {
+		setGradeMappingTemplate(gradeMappingTemplate);
+		gradeMap = new LinkedHashMap();
+		Iterator gradesIter = getGradeMappingTemplate().getGrades().iterator();
+		Iterator defaultValuesIter = getGradeMappingTemplate().getDefaultBottomScores().iterator();
+		while (gradesIter.hasNext()) {
+			String grade = (String)gradesIter.next();
+			Double value = (Double)defaultValuesIter.next();
+			gradeMap.put(grade, value);
+		}
+	}
+
 
 	public String getName() {
-		return getGradeMappingTemplate().getName();
+		if (cachedName == null) {
+			cachedName = getGradeMappingTemplate().getName();
+		}
+		return cachedName;
 	}
 
 	/**
 	 * Sets the percentage values for this GradeMapping to their default values.
 	 */
 	public void setDefaultValues() {
-		gradeMap = new HashMap();
-		List defaultValues = getDefaultValues();
-		List grades = getGrades();
-		for (int i = 0; i < grades.size(); i++) {
-			String grade = (String) grades.get(i);
-			gradeMap.put(grade, defaultValues.get(i));
+		Iterator defaultValuesIter = getDefaultValues().iterator();
+		Iterator gradesIter = getGrades().iterator();
+		while (gradesIter.hasNext()) {
+			String grade = (String)gradesIter.next();
+			gradeMap.put(grade, value);
 		}
 	}
 
@@ -88,32 +97,34 @@ public class GradeMapping implements Serializable, Comparable {
 	 *
 	 * @return Whether this is the default mapping for the gradebook
 	 */
-	/**
-	 * TODO - REPLACE WITH GradeMappingManager isDefaultGradeMapping(gradeMapping) and
-	 * set/getDefaultGradeMappingTemplate.
-	 */
+	/*
 	public boolean isDefault() {
 		return (getGradeMappingTemplate().getId().equals(DEFAULT_GRADE_MAPPING_ID));
 		// return this.getClass().equals(getGradebook().getDefaultGradeMapping());
 	}
+	 */
 
 	/**
 	 *
-	 * @return A List of the available grade values
+	 * @return An (ordered) collection of the available grade values
 	 */
-	public List getGrades() {
-		return getGradeMappingTemplate().getGrades();
+	public Collection getGrades() {
+		// The gradeMap is stored in a predictable iteration order.
+		return gradeMap.keySet();
 	}
 
+    // TODO Move this display-control logic to the UI layer where it belongs.
+    // (What's really important is whether the score value is 0 or null.)
     public String getLowestGrade() {
-        return (String)getGrades().get(getGrades().size()-1);
+    	Object[] grades = getGrades().toArray();
+        return (String)grades[grades.length - 1];
     }
 	/**
 	 *
 	 * @return A List of the default grade values
 	 */
 	public List getDefaultValues() {
-        return getGradeMappingTemplate().getDefaultValues();
+        return getGradeMappingTemplate().getDefaultBottomScores();
     }
 
 	/**
@@ -260,6 +271,3 @@ public class GradeMapping implements Serializable, Comparable {
 		this.gradeMappingTemplate = gradeMappingTemplate;
 	}
 }
-
-
-
