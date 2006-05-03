@@ -19,41 +19,22 @@
 * limitations under the License.
 *
 **********************************************************************************/
+package org.sakaiproject.service.gradebook.shared;
 
-package org.sakaiproject.tool.gradebook;
+import java.util.*;
 
-import java.io.Serializable;
-import java.util.List;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class GradeMappingTemplate implements Serializable, Comparable {
-	private static final Log log = LogFactory.getLog(GradeMappingTemplate.class);
-
-	private Long id;
-	private int version;
-
+/**
+ */
+public class GradingScaleDefinition {
+    private static final Log log = LogFactory.getLog(GradingScaleDefinition.class);
 	private String uid;
 	private String name;
 	private List grades;
-	private List defaultBottomScores;
-	private boolean unavailable;
+	private List defaultBottomPercents;
 
-    public int compareTo(Object o) {
-        return getName().compareTo(((GradeMappingTemplate)o).getName());
-    }
-    public String toString() {
-        return new ToStringBuilder(this).
-            append(getName()).toString();
-    }
-	public List getDefaultBottomScores() {
-		return defaultBottomScores;
-	}
-	public void setDefaultBottomScores(List defaultBottomScores) {
-		this.defaultBottomScores = defaultBottomScores;
-	}
 	public String getUid() {
 		return uid;
 	}
@@ -72,22 +53,21 @@ public class GradeMappingTemplate implements Serializable, Comparable {
 	public void setGrades(List grades) {
 		this.grades = grades;
 	}
-	public boolean isUnavailable() {
-		return unavailable;
+	public List getDefaultBottomPercents() {
+		return defaultBottomPercents;
 	}
-	public void setUnavailable(boolean unavailable) {
-		this.unavailable = unavailable;
+	public void setDefaultBottomPercents(List defaultBottomPercents) {
+		// Depending on how this was called, the list may
+		// be of Double or String objects. Convert the strings.
+		List doubleScores = new ArrayList();
+		for (Iterator iter = defaultBottomPercents.iterator(); iter.hasNext(); ) {
+			Object obj = iter.next();
+			if (obj instanceof String) {
+				obj = new Double((String)obj);
+			}
+			doubleScores.add(obj);
+		}
+		this.defaultBottomPercents = doubleScores;
 	}
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-	public int getVersion() {
-		return version;
-	}
-	public void setVersion(int version) {
-		this.version = version;
-	}
+
 }

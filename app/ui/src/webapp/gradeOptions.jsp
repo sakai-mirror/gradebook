@@ -69,9 +69,9 @@
 					<h:outputText value="#{msgs.feedback_options_percent_header}"/>
 				</f:facet>
 				<h:outputText value="#{feedbackOptionsBean.localGradebook.selectedGradeMapping.gradeMap[grade]}"
-					rendered="#{grade == feedbackOptionsBean.localGradebook.selectedGradeMapping.lowestGrade}"/>
+					rendered="#{!feedbackOptionsBean.localGradebook.selectedGradeMapping.gradeEditable[grade]}"/>
 				<h:inputText id="mappingValue" value="#{feedbackOptionsBean.localGradebook.selectedGradeMapping.gradeMap[grade]}"
-					rendered="#{grade != feedbackOptionsBean.localGradebook.selectedGradeMapping.lowestGrade}"
+					rendered="#{feedbackOptionsBean.localGradebook.selectedGradeMapping.gradeEditable[grade]}"
 					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 				<h:message for="mappingValue" styleClass="validationEmbedded" />
 			</h:column>

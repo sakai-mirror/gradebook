@@ -41,7 +41,7 @@ import org.springframework.orm.hibernate.HibernateCallback;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
-import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
+import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExistsException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -52,7 +52,7 @@ import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.GradeMapping;
-import org.sakaiproject.tool.gradebook.GradeMappingTemplate;
+import org.sakaiproject.tool.gradebook.GradingScale;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.LetterGradeMapping;
 import org.sakaiproject.tool.gradebook.LetterGradePlusMinusMapping;
@@ -65,7 +65,7 @@ import org.sakaiproject.tool.gradebook.facades.Authz;
 public class GradebookServiceHibernateImpl extends BaseHibernateManager implements GradebookService {
     private static final Log log = LogFactory.getLog(GradebookServiceHibernateImpl.class);
 
-	public static final String UID_OF_DEFAULT_GRADE_MAPPING_TEMPLATE_PROPERTY = "uidOfDefaultGradeMappingTemplate";
+	public static final String UID_OF_DEFAULT_GRADING_SCALE_PROPERTY = "uidOfDefaultGradingScale";
 
     private Authz authz;
 
@@ -79,15 +79,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				// Get available grade mapping templates.
-				List gmts = session.find("from GradeMappingTemplate as gmt where gmt.unavailable=false");
-log.warn("gmts=" + gmts);
+				List gradingScales = session.find("from GradingScale as gradingScale where gradingScale.unavailable=false");
 
 				// The application won't be able to run without grade mapping
 				// templates, so if for some reason none have been defined yet,
 				// do that now.
-				if (gmts.isEmpty()) {
-					if (log.isWarnEnabled()) log.warn("No GradeMappingTemplate defined yet. Defaults will be created.");
-					gmts = GradebookServiceHibernateImpl.this.addDefaultGradeMappingTemplates(session);
+				if (gradingScales.isEmpty()) {
+					if (log.isWarnEnabled()) log.warn("No GradingScale defined yet. Defaults will be created.");
+					gradingScales = GradebookServiceHibernateImpl.this.addDefaultGradingScales(session);
 				}
 
 				// Create and save the gradebook
@@ -105,27 +104,27 @@ log.warn("gmts=" + gmts);
 				gradebook.setAssignmentsDisplayed(true);
 				gradebook.setCourseGradeDisplayed(false);
 
-				String defaultTemplateUid = GradebookServiceHibernateImpl.this.getPropertyValue(UID_OF_DEFAULT_GRADE_MAPPING_TEMPLATE_PROPERTY);
+				String defaultScaleUid = GradebookServiceHibernateImpl.this.getPropertyValue(UID_OF_DEFAULT_GRADING_SCALE_PROPERTY);
 
 				// Add and save grade mappings based on the templates.
 				GradeMapping defaultGradeMapping = null;
-				Set gms = new HashSet();
-				for (Iterator iter = gmts.iterator(); iter.hasNext();) {
-					GradeMappingTemplate gmt = (GradeMappingTemplate)iter.next();
-					GradeMapping gradeMapping = new GradeMapping(gmt);
+				Set gradeMappings = new HashSet();
+				for (Iterator iter = gradingScales.iterator(); iter.hasNext();) {
+					GradingScale gradingScale = (GradingScale)iter.next();
+					GradeMapping gradeMapping = new GradeMapping(gradingScale);
 					gradeMapping.setGradebook(gradebook);
-//					gm.setId((Long)session.save(gm)); // grab the new id
 					session.save(gradeMapping);
-log.warn("gradeMapping.getGrades()=" + Arrays.asList(gradeMapping.getGrades().toArray(new String[0])));
-log.warn("  getGradeMap()=" + gradeMapping.getGradeMap());
-					gms.add(gradeMapping);
-log.warn("gmt.getName()=" + gmt.getName() + ", gmt.getUid()=" + gmt.getUid() + ", defaultTemplateUid=" + defaultTemplateUid);
-					if (gmt.getUid().equals(defaultTemplateUid)) {
+					gradeMappings.add(gradeMapping);
+					if (gradingScale.getUid().equals(defaultScaleUid)) {
 						defaultGradeMapping = gradeMapping;
 					}
 				}
-				session.flush();
-				// TODO Check for null default.
+
+				// Check for null default.
+				if (defaultGradeMapping == null) {
+					defaultGradeMapping = (GradeMapping)gradeMappings.iterator().next();
+					if (log.isWarnEnabled()) log.warn("No default GradeMapping found for new Gradebook=" + gradebook.getUid() + "; will set default to " + defaultGradeMapping.getName());
+				}
 				gradebook.setSelectedGradeMapping(defaultGradeMapping);
 
 				// The Hibernate mapping as of Sakai 2.2 makes this next
@@ -133,13 +132,10 @@ log.warn("gmt.getName()=" + gmt.getName() + ", gmt.getUid()=" + gmt.getUid() + "
 				// the end of the transaction. It is, however, needed for
 				// the mappings to be seen while the transaction remains
 				// uncommitted.
-				gradebook.setGradeMappings(gms);
+				gradebook.setGradeMappings(gradeMappings);
 
 				// Update the gradebook with the new selected grade mapping
 				session.update(gradebook);
-
-				log.warn("gradebook.getGradeMappings()=" + gradebook.getGradeMappings());
-				log.warn("defaultGradeMapping.getGradebook()=" + defaultGradeMapping.getGradebook());
 
 				return null;
 
@@ -147,8 +143,8 @@ log.warn("gmt.getName()=" + gmt.getName() + ", gmt.getUid()=" + gmt.getUid() + "
 		});
 	}
 
-    private List addDefaultGradeMappingTemplates(Session session) throws HibernateException {
-    	List gmts = new ArrayList();
+    private List addDefaultGradingScales(Session session) throws HibernateException {
+    	List gradingScales = new ArrayList();
 
     	// Base the default set of templates on the old
     	// statically defined GradeMapping classes.
@@ -160,49 +156,57 @@ log.warn("gmt.getName()=" + gmt.getName() + ", gmt.getUid()=" + gmt.getUid() + "
 
     	for (int i = 0; i < oldGradeMappings.length; i++) {
     		GradeMapping sampleMapping = oldGradeMappings[i];
-			GradeMappingTemplate gmt = new GradeMappingTemplate();
+    		sampleMapping.setDefaultValues();
+			GradingScale gradingScale = new GradingScale();
 			String uid = sampleMapping.getClass().getName();
 			uid = uid.substring(uid.lastIndexOf('.') + 1);
-			gmt.setUid(uid);
-			gmt.setUnavailable(false);
-			gmt.setName(sampleMapping.getName());
-			gmt.setGrades(new ArrayList(sampleMapping.getGrades()));
-			gmt.setDefaultBottomScores(sampleMapping.getDefaultValues());
-			session.save(gmt);
-			if (log.isInfoEnabled()) log.info("Added Grade Mapping " + gmt.getUid());
-log.warn("  getGrades()=" + gmt.getGrades());
-			gmts.add(gmt);
+			gradingScale.setUid(uid);
+			gradingScale.setUnavailable(false);
+			gradingScale.setName(sampleMapping.getName());
+			gradingScale.setGrades(new ArrayList(sampleMapping.getGrades()));
+			gradingScale.setDefaultBottomPercents(new HashMap(sampleMapping.getGradeMap()));
+			session.save(gradingScale);
+			if (log.isInfoEnabled()) log.info("Added Grade Mapping " + gradingScale.getUid());
+			gradingScales.add(gradingScale);
 		}
-		setDefaultGradeMapping("LetterGradePlusMinusMapping");
+		setDefaultGradingScale("LetterGradePlusMinusMapping");
 		session.flush();
-		return gmts;
+		return gradingScales;
 	}
 
-	public void setAvailableGradeMappings(final Collection gradeMappingDefinitions) {
+	public void setAvailableGradingScales(final Collection gradingScaleDefinitions) {
         getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
-				mergeGradeMappings(gradeMappingDefinitions, session);
+				mergeGradeMappings(gradingScaleDefinitions, session);
 				return null;
 			}
 		});
 	}
 
-	public void setDefaultGradeMapping(String uid) {
-		setPropertyValue(UID_OF_DEFAULT_GRADE_MAPPING_TEMPLATE_PROPERTY, uid);
+	public void setDefaultGradingScale(String uid) {
+		setPropertyValue(UID_OF_DEFAULT_GRADING_SCALE_PROPERTY, uid);
 	}
 
-	private void copyDefinitionToTemplate(GradeMappingDefinition bean, GradeMappingTemplate gmt) {
-		gmt.setUnavailable(false);
-		gmt.setName(bean.getName());
-		gmt.setGrades(bean.getGrades());
-		gmt.setDefaultBottomScores(bean.getDefaultBottomScores());
+	private void copyDefinitionToScale(GradingScaleDefinition bean, GradingScale gradingScale) {
+		gradingScale.setUnavailable(false);
+		gradingScale.setName(bean.getName());
+		gradingScale.setGrades(bean.getGrades());
+		Map defaultBottomPercents = new HashMap();
+		Iterator gradesIter = bean.getGrades().iterator();
+		Iterator defaultBottomPercentsIter = bean.getDefaultBottomPercents().iterator();
+		while (gradesIter.hasNext() && defaultBottomPercentsIter.hasNext()) {
+			String grade = (String)gradesIter.next();
+			Double value = (Double)defaultBottomPercentsIter.next();
+			defaultBottomPercents.put(grade, value);
+		}
+		gradingScale.setDefaultBottomPercents(defaultBottomPercents);
 	}
 
-	private void mergeGradeMappings(Collection gradeMappingDefinitions, Session session) throws HibernateException {
+	private void mergeGradeMappings(Collection gradingScaleDefinitions, Session session) throws HibernateException {
 		Map newMappingDefinitionsMap = new HashMap();
 		HashSet uidsToSet = new HashSet();
-		for (Iterator iter = gradeMappingDefinitions.iterator(); iter.hasNext(); ) {
-			GradeMappingDefinition bean = (GradeMappingDefinition)iter.next();
+		for (Iterator iter = gradingScaleDefinitions.iterator(); iter.hasNext(); ) {
+			GradingScaleDefinition bean = (GradingScaleDefinition)iter.next();
 			newMappingDefinitionsMap.put(bean.getUid(), bean);
 			uidsToSet.add(bean.getUid());
 		}
@@ -211,39 +215,40 @@ log.warn("  getGrades()=" + gmt.getGrades());
 		Query q;
 		List gmtList;
 
-		// Toggle any templates that are no longer specified.
-		q = session.createQuery("from GradeMappingTemplate as gmt where gmt.uid not in (:uidList) and gmt.unavailable=false");
+		// Toggle any scales that are no longer specified.
+		q = session.createQuery("from GradingScale as gradingScale where gradingScale.uid not in (:uidList) and gradingScale.unavailable=false");
 		q.setParameterList("uidList", uidsToSet);
 		gmtList = q.list();
 		for (Iterator iter = gmtList.iterator(); iter.hasNext(); ) {
-			GradeMappingTemplate gmt = (GradeMappingTemplate)iter.next();
-			gmt.setUnavailable(true);
-			session.update(gmt);
-			if (log.isInfoEnabled()) log.info("Set Grade Mapping " + gmt.getUid() + " unavailable");
+			GradingScale gradingScale = (GradingScale)iter.next();
+			gradingScale.setUnavailable(true);
+			session.update(gradingScale);
+			if (log.isInfoEnabled()) log.info("Set Grading Scale " + gradingScale.getUid() + " unavailable");
 		}
 
-		// Modify any specified templates that already exist.
-		q = session.createQuery("from GradeMappingTemplate as gmt where gmt.uid in (:uidList)");
+		// Modify any specified scales that already exist.
+		q = session.createQuery("from GradingScale as gradingScale where gradingScale.uid in (:uidList)");
 		q.setParameterList("uidList", uidsToSet);
 		gmtList = q.list();
 		for (Iterator iter = gmtList.iterator(); iter.hasNext(); ) {
-			GradeMappingTemplate gmt = (GradeMappingTemplate)iter.next();
-			copyDefinitionToTemplate((GradeMappingDefinition)newMappingDefinitionsMap.get(gmt.getUid()), gmt);
-			uidsToSet.remove(gmt.getUid());
-			session.update(gmt);
-			if (log.isInfoEnabled()) log.info("Updated Grade Mapping " + gmt.getUid());
+			GradingScale gradingScale = (GradingScale)iter.next();
+			copyDefinitionToScale((GradingScaleDefinition)newMappingDefinitionsMap.get(gradingScale.getUid()), gradingScale);
+			uidsToSet.remove(gradingScale.getUid());
+			session.update(gradingScale);
+			if (log.isInfoEnabled()) log.info("Updated Grading Scale " + gradingScale.getUid());
 		}
 
-		// Add any new templates.
+		// Add any new scales.
 		for (Iterator iter = uidsToSet.iterator(); iter.hasNext(); ) {
 			String uid = (String)iter.next();
-			GradeMappingTemplate gmt = new GradeMappingTemplate();
-			gmt.setUid(uid);
-			GradeMappingDefinition bean = (GradeMappingDefinition)newMappingDefinitionsMap.get(uid);
-			copyDefinitionToTemplate(bean, gmt);
-			session.save(gmt);
-			if (log.isInfoEnabled()) log.info("Added Grade Mapping " + gmt.getUid());
+			GradingScale gradingScale = new GradingScale();
+			gradingScale.setUid(uid);
+			GradingScaleDefinition bean = (GradingScaleDefinition)newMappingDefinitionsMap.get(uid);
+			copyDefinitionToScale(bean, gradingScale);
+			session.save(gradingScale);
+			if (log.isInfoEnabled()) log.info("Added Grading Scale " + gradingScale.getUid());
 		}
+		session.flush();
 	}
 
 

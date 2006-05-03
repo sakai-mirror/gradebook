@@ -19,18 +19,34 @@
 * limitations under the License.
 *
 **********************************************************************************/
-package org.sakaiproject.service.gradebook.shared;
 
+package org.sakaiproject.tool.gradebook;
+
+import java.io.Serializable;
 import java.util.*;
 
-/**
- */
-public class GradeMappingDefinition {
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+public class GradingScale implements Serializable, Comparable {
+	private static final Log log = LogFactory.getLog(GradingScale.class);
+
+	private Long id;
+	private int version;
+
 	private String uid;
 	private String name;
 	private List grades;
-	private List defaultBottomScores;
+	private Map defaultBottomPercents;	// From grade to percentage
+	private boolean unavailable;
 
+	public Map getDefaultBottomPercents() {
+		return defaultBottomPercents;
+	}
+	public void setDefaultBottomPercents(Map defaultBottomPercents) {
+		this.defaultBottomPercents = defaultBottomPercents;
+	}
 	public String getUid() {
 		return uid;
 	}
@@ -49,11 +65,30 @@ public class GradeMappingDefinition {
 	public void setGrades(List grades) {
 		this.grades = grades;
 	}
-	public List getDefaultBottomScores() {
-		return defaultBottomScores;
+	public boolean isUnavailable() {
+		return unavailable;
 	}
-	public void setDefaultBottomScores(List defaultBottomScores) {
-		this.defaultBottomScores = defaultBottomScores;
+	public void setUnavailable(boolean unavailable) {
+		this.unavailable = unavailable;
+	}
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public int getVersion() {
+		return version;
+	}
+	public void setVersion(int version) {
+		this.version = version;
 	}
 
+    public int compareTo(Object o) {
+        return getName().compareTo(((GradingScale)o).getName());
+    }
+    public String toString() {
+        return new ToStringBuilder(this).
+            append(getUid()).toString();
+    }
 }

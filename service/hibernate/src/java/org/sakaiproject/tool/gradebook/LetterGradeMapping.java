@@ -58,6 +58,8 @@ public class LetterGradeMapping extends GradeMapping {
         defaultValues.add(new Double(70));
         defaultValues.add(new Double(60));
         defaultValues.add(new Double(00));
+
+        setDefaultValues();
     }
 
 	public String getName() {

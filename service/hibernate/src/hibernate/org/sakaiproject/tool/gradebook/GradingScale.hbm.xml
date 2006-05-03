@@ -2,11 +2,11 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
 <hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook">
-	<class name="org.sakaiproject.tool.gradebook.GradeMappingTemplate" table="GB_GRADE_MAP_TMPL_T" discriminator-value="0">
+	<class name="org.sakaiproject.tool.gradebook.GradingScale" table="GB_GRADING_SCALE_T" discriminator-value="0">
 
 		<id name="id" column="ID" type="long">
 			<generator class="native">
-				<param name="sequence">GB_GRADE_MAP_TMPL_S</param>
+				<param name="sequence">GB_GRADING_SCALE_S</param>
 			</generator>
 		</id>
 
@@ -18,17 +18,17 @@
 
 		<property name="name" column="NAME" type="string" not-null="true"/>
 
-		<list name="grades" table="GB_GRADE_MAP_GRADES_T" cascade="all" lazy="false">
-			<key column="GRADE_MAP_ID"/>
+		<list name="grades" table="GB_GRADING_SCALE_GRADES_T" cascade="all" lazy="false">
+			<key column="GRADING_SCALE_ID"/>
 			<index column="GRADE_IDX"/>
 			<element column="LETTER_GRADE" type="string"/>
 		</list>
 
-		<list name="defaultBottomScores" table="GB_GRADE_MAP_SCORES_T" cascade="all" lazy="false">
-			<key column="GRADE_MAP_ID"/>
-			<index column="GRADE_IDX"/>
+		<map name="defaultBottomPercents" table="GB_GRADING_SCALE_PERCENTS_T" cascade="all" lazy="false">
+			<key column="GRADING_SCALE_ID"/>
+			<index column="LETTER_GRADE" type="string"/>
 			<element column="PERCENT" type="double"/>
-		</list>
+		</map>
 
 		<property name="unavailable" column="UNAVAILABLE" type="boolean" />
 

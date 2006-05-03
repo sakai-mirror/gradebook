@@ -18,9 +18,9 @@
 		</property>
 
 		<!-- Set up default system-wide grading scales. -->
-		<property name="availableGradeMappings">
+		<property name="availableGradingScales">
 			<list>
-				<bean class="org.sakaiproject.service.gradebook.shared.GradeMappingDefinition">
+				<bean class="org.sakaiproject.service.gradebook.shared.GradingScaleDefinition">
 					<property name="uid" value="LetterGradePlusMinusMapping"/>
 					<property name="name" value="Letter Grades with +/-"/>
 					<property name="grades">
@@ -40,7 +40,7 @@
 							<value>F</value>
 						</list>
 					</property>
-					<property name="defaultBottomScores">
+					<property name="defaultBottomPercents">
 						<list>
 							<value>100.0</value>
 							<value>95.0</value>
@@ -58,7 +58,7 @@
 						</list>
 					</property>
 				</bean>
-				<bean class="org.sakaiproject.service.gradebook.shared.GradeMappingDefinition">
+				<bean class="org.sakaiproject.service.gradebook.shared.GradingScaleDefinition">
 					<property name="uid" value="LetterGradeMapping"/>
 					<property name="name" value="Letter Grades"/>
 					<property name="grades">
@@ -70,7 +70,7 @@
 							<value>F</value>
 						</list>
 					</property>
-					<property name="defaultBottomScores">
+					<property name="defaultBottomPercents">
 						<list>
 							<value>90.0</value>
 							<value>80.0</value>
@@ -80,25 +80,26 @@
 						</list>
 					</property>
 				</bean>
-				<bean class="org.sakaiproject.service.gradebook.shared.GradeMappingDefinition">
-					<property name="uid" value=""/>
-					<property name="name" value=""/>
+				<bean class="org.sakaiproject.service.gradebook.shared.GradingScaleDefinition">
+					<property name="uid" value="PassNotPassMapping"/>
+					<property name="name" value="Pass / Not Pass"/>
 					<property name="grades">
 						<list>
-							<value></value>
+							<value>P</value>
+							<value>NP</value>
 						</list>
 					</property>
-					<property name="defaultBottomScores">
+					<property name="defaultBottomPercents">
 						<list>
-							<value></value>
+							<value>75.0</value>
+							<value>0.0</value>
 						</list>
 					</property>
 				</bean>
 			</list>
 		</property>
-<!--
 
--->
+		<property name="defaultGradingScale" value="LetterGradePlusMinusMapping"/>
 
 	</bean>
 </beans>

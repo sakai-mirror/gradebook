@@ -75,7 +75,7 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 	 */
 	protected void init() {
 		if (!workInProgress) {
-			localGradebook = getGradebook();
+			localGradebook = getGradebookManager().getGradebookWithGradeMappings(getGradebookId());
 
 			// Load the grade mappings, sorted by name.
 			List gradeMappings = new ArrayList(localGradebook.getGradeMappings());
@@ -117,16 +117,6 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 	public void resetMappingValues(ActionEvent event) {
 		localGradebook.getSelectedGradeMapping().setDefaultValues();
 	}
-
-//	private void updateMappingRow(GradeMapping gradeMapping) {
-//		List rows = new ArrayList();
-//		for (Iterator iter = gradeMapping.getGrades().iterator(); iter.hasNext(); ) {
-//			String grade = (String)iter.next();
-//			boolean readOnly = !(iter.hasNext());
-//			rows.add(new GradeMappingRow(grade, gradeMapping.getValue(grade), readOnly));
-//		}
-//		gradeMappingRowsMap.put(gradeMapping.getId().toString(), rows);
-//	}
 
 	/**
 	 * Updates the gradebook to reflect the currently selected grade type and mapping.

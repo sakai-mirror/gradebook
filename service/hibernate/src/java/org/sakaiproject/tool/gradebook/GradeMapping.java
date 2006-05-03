@@ -42,14 +42,13 @@ public class GradeMapping implements Serializable, Comparable {
 
 	protected Gradebook gradebook;
 	protected Map gradeMap;
-	private transient String cachedName;
 
 	/*
 	protected List grades;
 	protected List defaultValues;
 	*/
 
-	private GradeMappingTemplate gradeMappingTemplate;
+	private GradingScale gradingScale;
 
 	/*
 		<subclass name="org.sakaiproject.tool.gradebook.PassNotPassMapping" discriminator-value="1" />
@@ -60,71 +59,73 @@ public class GradeMapping implements Serializable, Comparable {
 	public GradeMapping() {
 	}
 
-	public GradeMapping(GradeMappingTemplate gradeMappingTemplate) {
-		setGradeMappingTemplate(gradeMappingTemplate);
-		gradeMap = new LinkedHashMap();
-		Iterator gradesIter = getGradeMappingTemplate().getGrades().iterator();
-		Iterator defaultValuesIter = getGradeMappingTemplate().getDefaultBottomScores().iterator();
+	public GradeMapping(GradingScale gradingScale) {
+		setGradingScale(gradingScale);
+		gradeMap = new HashMap(gradingScale.getDefaultBottomPercents());
+/*
+		Iterator gradesIter = getGradingScale().getGrades().iterator();
+		Iterator defaultValuesIter = getGradingScale().getDefaultBottomPercents().iterator();
 		while (gradesIter.hasNext()) {
 			String grade = (String)gradesIter.next();
 			Double value = (Double)defaultValuesIter.next();
 			gradeMap.put(grade, value);
 		}
+*/
 	}
 
 
 	public String getName() {
-		if (cachedName == null) {
-			cachedName = getGradeMappingTemplate().getName();
-		}
-		return cachedName;
+		return getGradingScale().getName();
 	}
 
 	/**
 	 * Sets the percentage values for this GradeMapping to their default values.
 	 */
 	public void setDefaultValues() {
-		Iterator defaultValuesIter = getDefaultValues().iterator();
-		Iterator gradesIter = getGrades().iterator();
-		while (gradesIter.hasNext()) {
-			String grade = (String)gradesIter.next();
-			gradeMap.put(grade, value);
+		GradingScale gradingScale = getGradingScale();
+		if (gradingScale != null) {
+			gradeMap = new HashMap(gradingScale.getDefaultBottomPercents());
+		} else {
+			// Backward compatibility with pre-grading-scale mappings.
+			gradeMap = new HashMap();
+			Iterator defaultValuesIter = getDefaultValues().iterator();
+			Iterator gradesIter = getGrades().iterator();
+			while (gradesIter.hasNext()) {
+				String grade = (String)gradesIter.next();
+				Double value = (Double)defaultValuesIter.next();
+				gradeMap.put(grade, value);
+			}
 		}
 	}
-
-	/**
-	 * Determines whether this grade mapping is the gradebook's default
-	 *
-	 * @return Whether this is the default mapping for the gradebook
-	 */
-	/*
-	public boolean isDefault() {
-		return (getGradeMappingTemplate().getId().equals(DEFAULT_GRADE_MAPPING_ID));
-		// return this.getClass().equals(getGradebook().getDefaultGradeMapping());
-	}
-	 */
 
 	/**
 	 *
 	 * @return An (ordered) collection of the available grade values
 	 */
 	public Collection getGrades() {
-		// The gradeMap is stored in a predictable iteration order.
-		return gradeMap.keySet();
+		return getGradingScale().getGrades();
+	}
+
+	public boolean isGradeEditable(String grade) {
+		Double bottomPercent = (Double)gradeMap.get(grade);
+		return ((bottomPercent != null) && (bottomPercent.doubleValue() != 0.0d));
 	}
 
     // TODO Move this display-control logic to the UI layer where it belongs.
     // (What's really important is whether the score value is 0 or null.)
+/*
     public String getLowestGrade() {
     	Object[] grades = getGrades().toArray();
         return (String)grades[grades.length - 1];
     }
+*/
 	/**
 	 *
-	 * @return A List of the default grade values
+	 * @return A List of the default grade values. Only used for backward
+	 * compatibility to pre-grading-scale mappings.
 	 */
 	public List getDefaultValues() {
-        return getGradeMappingTemplate().getDefaultBottomScores();
+		throw new UnsupportedOperationException("getDefaultValues called for GradeMapping " + getName() + " in Gradebook " + getGradebook());
     }
 
 	/**
@@ -263,11 +264,11 @@ public class GradeMapping implements Serializable, Comparable {
     	return standardizedGrade;
     }
 
-	public GradeMappingTemplate getGradeMappingTemplate() {
-		return gradeMappingTemplate;
+	public GradingScale getGradingScale() {
+		return gradingScale;
 	}
 
-	public void setGradeMappingTemplate(GradeMappingTemplate gradeMappingTemplate) {
-		this.gradeMappingTemplate = gradeMappingTemplate;
+	public void setGradingScale(GradingScale gradingScale) {
+		this.gradingScale = gradingScale;
 	}
 }

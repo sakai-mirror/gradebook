@@ -230,11 +230,11 @@ public interface GradebookService {
         throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
-     * @param gradeMappingDefinitions
-     *	A collection of GradeMappingDefinition beans.
+     * @param gradingScaleDefinitions
+     *	A collection of GradingScaleDefinition beans.
 	 */
 
-	public void setAvailableGradeMappings(Collection gradeMappingDefinitions);
+	public void setAvailableGradingScales(Collection gradingScaleDefinitions);
 
-	public void setDefaultGradeMapping(String uid);
+	public void setDefaultGradingScale(String uid);
 }
