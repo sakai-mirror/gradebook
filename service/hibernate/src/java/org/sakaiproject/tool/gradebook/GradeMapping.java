@@ -106,11 +106,6 @@ public class GradeMapping implements Serializable, Comparable {
 		return getGradingScale().getGrades();
 	}
 
-	public boolean isGradeEditable(String grade) {
-		Double bottomPercent = (Double)gradeMap.get(grade);
-		return ((bottomPercent != null) && (bottomPercent.doubleValue() != 0.0d));
-	}
-
     // TODO Move this display-control logic to the UI layer where it belongs.
     // (What's really important is whether the score value is 0 or null.)
 /*

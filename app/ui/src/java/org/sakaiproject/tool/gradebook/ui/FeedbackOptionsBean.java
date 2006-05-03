@@ -67,6 +67,36 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
     /** The list of select box items */
     private List gradeMappingsSelectItems;
 
+    // A transient list to give JSF a way to request row-specific data.
+    private transient List gradeRows;
+
+    public class GradeRow {
+    	private GradeMapping gradeMapping;
+    	private String grade;
+    	public GradeRow() {
+    	}
+    	public GradeRow(GradeMapping gradeMapping, String grade) {
+    		this.gradeMapping = gradeMapping;
+    		this.grade = grade;
+    	}
+
+    	public String getGrade() {
+    		return grade;
+    	}
+
+    	public Double getMappingValue() {
+    		return (Double)gradeMapping.getGradeMap().get(grade);
+    	}
+    	public void setMappingValue(Double value) {
+    		gradeMapping.getGradeMap().put(grade, value);
+    	}
+
+    	public boolean isGradeEditable() {
+			Double bottomPercent = (Double)gradeMapping.getGradeMap().get(grade);
+			return ((bottomPercent != null) && (bottomPercent.doubleValue() != 0.0d));
+		}
+	}
+
     public Gradebook getLocalGradebook() {
         return localGradebook;
     }
@@ -88,11 +118,23 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 				gradeMappingsSelectItems.add(new SelectItem(gradeMapping.getId().toString(), gradeMapping.getName()));
 			}
             // set the selected grade mapping
-            selectedGradeMappingId = localGradebook.getSelectedGradeMapping().getId();
+            GradeMapping selectedGradeMapping = localGradebook.getSelectedGradeMapping();
+            selectedGradeMappingId = selectedGradeMapping.getId();
+
+            // Set up UI table view.
+            gradeRows = new ArrayList();
+            for (Iterator iter = selectedGradeMapping.getGrades().iterator(); iter.hasNext(); ) {
+            	String grade = (String)iter.next();
+            	gradeRows.add(new GradeRow(selectedGradeMapping, grade));
+            }
 		}
 
 		// Set the view state.
 		workInProgress = true;
+	}
+
+	public List getGradeRows() {
+		return gradeRows;
 	}
 
 	/**
