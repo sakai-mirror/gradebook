@@ -70,7 +70,7 @@
 				</f:facet>
 				<h:outputText value="#{gradeRow.mappingValue}"
 					rendered="#{!gradeRow.gradeEditable}"/>
-				<h:inputText id="mappingValue" value="#{fgradeRow.mappingValue}"
+				<h:inputText id="mappingValue" value="#{gradeRow.mappingValue}"
 					rendered="#{gradeRow.gradeEditable}"
 					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 				<h:message for="mappingValue" styleClass="validationEmbedded" />
