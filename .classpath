@@ -12,7 +12,6 @@
 	<classpathentry kind="var" path="MAVEN_REPO/junit/jars/junit-3.8.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/servletapi/jars/servletapi-2.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/springframework/jars/spring-mock-1.2.6.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/authz-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/entity-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sections-api"/>
@@ -27,5 +26,7 @@
 	<classpathentry excluding="**/.DS_Store" kind="src" path="app/sakai-tool/src/webapp/WEB-INF"/>
 	<classpathentry excluding="**/.DS_Store" kind="src" path="app/ui/src/java"/>
 	<classpathentry excluding="**/.DS_Store" kind="src" path="testservice-tool/src/java"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/util-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/util-util"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
