@@ -14,7 +14,8 @@
 
 		<version type="integer" name="version" column="VERSION"/>
 
-		<property name="uid" column="UID" type="string" unique="true" not-null="true"/>
+		<!-- UID is a reserved word in Oracle. -->
+		<property name="uid" column="SCALE_UID" type="string" unique="true" not-null="true"/>
 
 		<property name="name" column="NAME" type="string" not-null="true"/>
 
