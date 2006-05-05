@@ -151,6 +151,7 @@ public class GradeMappingTest extends GradebookTestBase {
         gradebookService.setDefaultGradingScale("NoSuchGradeMapping");
 
         String gradebook1Name = "SetGradeMappingsTest1";
+        if (log.isInfoEnabled()) log.info("Ignore the upcoming warning about no default...");
         gradebookService.addGradebook(gradebook1Name, gradebook1Name);
         Gradebook gradebook1 = gradebookManager.getGradebook(gradebook1Name);
         GradeMapping gradeMapping = gradebook1.getSelectedGradeMapping();
