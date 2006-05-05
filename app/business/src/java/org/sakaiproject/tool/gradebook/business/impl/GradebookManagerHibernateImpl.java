@@ -25,12 +25,12 @@ package org.sakaiproject.tool.gradebook.business.impl;
 import java.sql.SQLException;
 import java.util.*;
 
-import net.sf.hibernate.Hibernate;
-import net.sf.hibernate.HibernateException;
-import net.sf.hibernate.Query;
-import net.sf.hibernate.Session;
-import net.sf.hibernate.StaleObjectStateException;
-import net.sf.hibernate.type.Type;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.StaleObjectStateException;
+import org.hibernate.type.Type;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,8 +50,8 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
-import org.springframework.orm.hibernate.HibernateCallback;
-import org.springframework.orm.hibernate.HibernateOptimisticLockingFailureException;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
 /**
  * Manages Gradebook persistence via hibernate.
@@ -385,8 +385,10 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     public boolean isEnteredAssignmentScores(final Long assignmentId) {
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
-				String hql = "select count(agr) from AssignmentGradeRecord as agr where agr.gradableObject.id=? and agr.pointsEarned is not null";
-                Integer total = (Integer)session.iterate(hql, assignmentId, Hibernate.LONG).next();
+				Integer total = (Integer)session.createQuery(
+					"select count(agr) from AssignmentGradeRecord as agr where agr.gradableObject.id=? and agr.pointsEarned is not null").
+					setLong(0, assignmentId.longValue()).
+					uniqueResult();
                 if (log.isInfoEnabled()) log.info("assignment " + assignmentId + " has " + total + " entered scores");
                 return total;
             }
@@ -399,9 +401,11 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 	public List getStudentGradeRecords(final Long gradebookId, final String studentId) {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-				return session.find("from AssignmentGradeRecord as agr where agr.studentId=? and agr.gradableObject.removed=false and agr.gradableObject.gradebook.id=?",
-					new Object[] {studentId, gradebookId},
-					new Type[] {Hibernate.STRING, Hibernate.LONG});
+				return session.createQuery(
+					"from AssignmentGradeRecord as agr where agr.studentId=? and agr.gradableObject.removed=false and agr.gradableObject.gradebook.id=?").
+					setString(0, studentId).
+					setLong(1, gradebookId.longValue()).
+					list();
             }
         };
         return (List)getHibernateTemplate().execute(hc);
@@ -597,16 +601,12 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         throws ConflictingAssignmentNameException, StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-                Gradebook gb = (Gradebook)(session.find(
-                        "from Gradebook as gb where gb.id=?",
-                        gradebookId, Hibernate.LONG).get(0));
-
-                int numNameConflicts = ((Integer)session.iterate(
-                        "select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false",
-                        new Object[] {name, gb},
-                        new Type[] {Hibernate.STRING, Hibernate.entity(Gradebook.class)}
-                ).next()).intValue();
-
+                Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+                int numNameConflicts = ((Integer)session.createQuery(
+                        "select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+                        setString(0, name).
+                        setEntity(1, gb).
+                        uniqueResult()).intValue();
                 if(numNameConflicts > 0) {
                     throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
                 }
@@ -646,13 +646,12 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 boolean pointsChanged = false;
 
                 Assignment asnFromDb = (Assignment)session.load(Assignment.class, assignment.getId());
-
-                int numNameConflicts = ((Integer)session.iterate(
-                        "select count(go) from GradableObject as go where go.removed=false and go.name = ? and go.gradebook = ? and go.id != ?",
-                        new Object[] {assignment.getName(), assignment.getGradebook(), assignment.getId()},
-                        new Type[] {Hibernate.STRING, Hibernate.entity(Gradebook.class), Hibernate.LONG}
-                ).next()).intValue();
-
+                int numNameConflicts = ((Integer)session.createQuery(
+                        "select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false and go.id != ?").
+                        setString(0, assignment.getName()).
+                        setEntity(1, assignment.getGradebook()).
+                        setLong(2, assignment.getId().longValue()).
+                        uniqueResult()).intValue();
                 if(numNameConflicts > 0) {
                     throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
                 }
@@ -724,7 +723,10 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 }
                 hql.append("null and cgr.gradableObject.gradebook.id=?");
 
-                List gradeRecords = session.find(hql.toString(), gradebookId, Hibernate.LONG);
+                List gradeRecords = session.createQuery(hql.toString()).
+                	setLong(0, gradebookId.longValue()).
+                	list();
+
                 for(Iterator gradeRecordIterator = gradeRecords.iterator(); gradeRecordIterator.hasNext();) {
                     CourseGradeRecord cgr = (CourseGradeRecord)gradeRecordIterator.next();
                     if(manuallyEnteredRecords) {
@@ -743,8 +745,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     /**
      * Gets the total number of points possible in a gradebook.
      */
-    public double getTotalPoints(Long gradebookId) {
-        List assignmentPoints = getHibernateTemplate().find("select asn.pointsPossible from Assignment as asn where asn.removed=false and asn.notCounted=false and asn.gradebook.id=?", gradebookId, Hibernate.LONG);
+     public double getTotalPoints(Long gradebookId) {
+        List assignmentPoints = getHibernateTemplate().find("select asn.pointsPossible from Assignment as asn where asn.removed=false and asn.notCounted=false and asn.gradebook.id=?", gradebookId);
         double totalPoints = 0;
         for(Iterator iter = assignmentPoints.iterator(); iter.hasNext();) {
             Double points = (Double)iter.next();
