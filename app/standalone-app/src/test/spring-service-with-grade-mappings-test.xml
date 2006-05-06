@@ -16,6 +16,15 @@
 		<property name="authz">
 			<ref bean="org_sakaiproject_tool_gradebook_facades_Authz" />
 		</property>
+	</bean>
+
+	<!-- Simple configuration handler. -->
+	<bean id="org_sakaiproject_service_gradebook_GradebookConfiguration"
+		class="org.sakaiproject.service.gradebook.shared.GradebookConfiguration"
+		init-method="init">
+		<property name="gradebookService">
+			<ref bean="org_sakaiproject_service_gradebook_GradebookService" />
+		</property>
 
 		<!-- Set up default system-wide grading scales. -->
 		<property name="availableGradingScales">
