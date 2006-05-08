@@ -177,7 +177,10 @@
 		<property name="defaultGradingScale" value="LetterGradePlusMinusMapping"/>
 -->
 
-		<!-- Here's an alternative, to show how it's done. -->
+		<!--
+			You could use a configuration like this to disable the plus-minus scale,
+			add a new scale, and change the name displayed for "Letter Grades".
+		-->
 <!--
 		<property name="availableGradingScales">
 			<list>
