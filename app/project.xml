@@ -113,6 +113,7 @@
 			<version>1.7.3.0</version>
 		</dependency>
 
+
 		<!-- Since none of these JDBC libraries will be used except in standalone test -->
 		<!-- builds, we specify the '_g' Oracle JAR to obtain more debugging information. -->
 		<!-- The normal 'ojdbc14.jar' can be used instead, however. -->
@@ -122,13 +123,13 @@
 			<artifactId>oracle</artifactId>
 			<jar>ojdbc14_g.jar</jar>
 		</dependency>
-
+-->
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>3.1.12-bin</version>
+			<version>3.1.12</version>
 		</dependency>
--->
+
 
 <!-- End database dependencies -->
 
@@ -226,6 +227,12 @@
 			<artifactId>commons-logging</artifactId>
 			<version>1.0.4</version>
 		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.2</version>
+		</dependency>
+
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
