@@ -26,6 +26,8 @@ public class SpreadsheetUploadPreviewBean extends GradebookDependentBean impleme
     private Map selectedAssignment;
     private List assignmentColumnSelectItems;
     private boolean saved = false;
+    private String columnCount;
+    private String rowCount;
 
     private FacesContext facesContext;
     private HttpServletRequest request;
@@ -66,6 +68,7 @@ public class SpreadsheetUploadPreviewBean extends GradebookDependentBean impleme
             }
            rowcount++;
         }
+        rowCount = String.valueOf(rowcount);
 
 
         //create a numeric list of assignment headers
@@ -74,8 +77,8 @@ public class SpreadsheetUploadPreviewBean extends GradebookDependentBean impleme
         for(int i = 0;i<assignmentHeaders.size();i++){
             assignmentList.add(new Integer(i));
             SpreadsheetUploadPreviewBean.logger.debug("col added" + i);
-
         }
+        columnCount = String.valueOf(assignmentHeaders.size());
 
 
         for(int i = 0;i<assignmentHeaders.size();i++){
@@ -354,6 +357,21 @@ public class SpreadsheetUploadPreviewBean extends GradebookDependentBean impleme
     }
 
 
+    public String getColumnCount() {
+        return FacesUtil.getLocalizedString("upload_preview_column_count",new String[] {columnCount});
+    }
+
+    public void setColumnCount(String columCount) {
+        this.columnCount = columnCount;
+    }
+
+    public String getRowCount() {
+        return FacesUtil.getLocalizedString("upload_preview_row_count",new String[] {rowCount});
+    }
+
+    public void setRowCount(String rowCount) {
+        this.rowCount = rowCount;
+    }
 
 
 }

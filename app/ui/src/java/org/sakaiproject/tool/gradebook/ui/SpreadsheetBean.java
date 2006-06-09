@@ -62,7 +62,7 @@ public class SpreadsheetBean extends GradebookDependentBean implements Serializa
     }
 
     public String getDisplayName() {
-        return displayName;
+        return getUserDirectoryService().getUserDisplayName(getUserId());
     }
 
     public void setDisplayName(String displayName) {

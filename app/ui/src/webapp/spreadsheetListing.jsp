@@ -4,68 +4,63 @@
     <div class="portletBody">
         <h:form id="gbForm">
             <%@include file="/inc/appMenu.jspf"%>
-            <h2><h:outputText value="File Uploads"/></h2>
+            <h2><h:outputText value="#{msgs.loading_dock_page_title}"/></h2>
             <div class="instruction">
-                <h:outputText value="instructions here" escape="false"/>
+                <h:outputText value="#{msgs.loading_dock_instructions}" escape="false"/>
             </div>
 
             <h:panelGroup rendered="#{overviewBean.userAbleToEditAssessments}">
-                <f:verbatim><p></f:verbatim>
                 <h:commandLink action="spreadsheetUpload" immediate="true">
-                    <h:outputText value="upload new spreadsheet"/>
+                    <h:outputText value="#{msgs.loading_dock_upload_link_text}"/>
                 </h:commandLink>
-                <f:verbatim></p></f:verbatim>
-        </h:panelGroup>
-        <%@include file="/inc/globalMessages.jspf"%>
-        <h4><h:outputText value="Loading Dock"/></h4>
+            </h:panelGroup>
+            <p/>
+            <p/>
+            <%@include file="/inc/globalMessages.jspf"%>
+            <h4><h:outputText value="#{msgs.loading_dock_table_header}"/></h4>
+            <t:dataTable id="table1" value="#{spreadsheetListingBean.spreadSheets}" var="row" rowIndexVar="rowIndex" styleClass="listHier" columnClasses="center">
 
-        <t:dataTable id="table1" value="#{spreadsheetListingBean.spreadSheets}" var="row" rowIndexVar="rowIndex" styleClass="listHier" columnClasses="center">
+                <t:column>
+                    <f:facet name="header">
+                        <h:outputText value="#{msgs.loading_dock_table_title}"/>
+                    </f:facet>
+                    <h:outputText value="#{row.title}"/>
+                </t:column>
+                <t:column>
+                    <f:facet name="header">
+                        <h:outputText value="#{msgs.loading_dock_table_creator}"/>
+                    </f:facet>
+                    <h:outputText value="#{row.displayName}"/>
+                </t:column>
 
-            <t:column>
-                <h:outputText value="#{rowIndex + 1}"/>
-            </t:column>
+                <t:column>
+                    <f:facet name="header">
+                        <h:outputText value="#{msgs.loading_dock_table_modifiedby}"/>
+                    </f:facet>
+                    <h:outputText value="#{row.userId}"/>
+                </t:column>
+                <t:column>
+                    <f:facet name="header">
+                        <h:outputText value="#{msgs.loading_dock_table_lastmodified}"/>
+                    </f:facet>
+                    <h:outputText value="#{row.date}">
+                        <f:convertDateTime pattern="d MMM yyyy  H:m:s"/>
+                    </h:outputText>
+                </t:column>
 
-            <t:column>
-                <f:facet name="header">
-                    <h:outputText value="Title"/>
-                </f:facet>
-                <h:outputText value="#{row.title}"/>
-            </t:column>
-            <t:column>
-                <f:facet name="header">
-                    <h:outputText value="creator"/>
-                </f:facet>
-                <h:outputText value="#{row.userId}"/>
-            </t:column>
-
-            <t:column>
-                <f:facet name="header">
-                    <h:outputText value="modified by"/>
-                </f:facet>
-                <h:outputText value="#{row.userId}"/>
-            </t:column>
-            <t:column>
-                <f:facet name="header">
-                    <h:outputText value="last modified"/>
-                </f:facet>
-                <h:outputText value="#{row.date}">
-                    <f:convertDateTime pattern="d MMM yyyy  H:m:s"/>
-                </h:outputText>
-            </t:column>
-
-            <t:column>
-                <h:commandLink action="#{spreadsheetListingBean.viewItem}">
-                    <h:outputText value="view"/>
-                    <f:param name="spreadsheetId" value="#{rowIndex}"/>
-                </h:commandLink>
-            </t:column>
-            <t:column>
-                <h:commandLink action="#{spreadsheetListingBean.deleteItem}">
-                    <h:outputText value="delete"/>
-                    <f:param name="spreadsheetId" value="#{rowIndex}"/>
-                </h:commandLink>
-            </t:column>
-        </t:dataTable>
-    </h:form>
-</div>
+                <t:column>
+                    <h:commandLink action="#{spreadsheetListingBean.viewItem}">
+                        <h:outputText value="#{msgs.loading_dock_table_view}"/>
+                        <f:param name="spreadsheetId" value="#{rowIndex}"/>
+                    </h:commandLink>
+                </t:column>
+                <t:column>
+                    <h:commandLink action="#{spreadsheetListingBean.deleteItem}">
+                        <h:outputText value="#{msgs.loading_dock_table_delete}"/>
+                        <f:param name="spreadsheetId" value="#{rowIndex}"/>
+                    </h:commandLink>
+                </t:column>
+            </t:dataTable>
+        </h:form>
+    </div>
 </f:view>

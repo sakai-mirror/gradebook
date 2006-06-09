@@ -7,14 +7,14 @@
             <%@include file="/inc/appMenu.jspf"%>
 
 
-            <h2><h:outputText value="Upload Spreadsheet"/></h2>
+            <h2><h:outputText value="#{msgs.upload_view_page_title}"/></h2>
 
-            <div class="instruction"><h:outputText value="instructions here" escape="false"/></div>
+            <div class="instruction">
+                <h:outputText value="#{msgs.upload_view_instructions}" escape="false"/>
+                <h:outputText value="#{msgs.upload_view_instructions_text}" escape="false"/>
+            </div>
             <%@include file="/inc/globalMessages.jspf"%>
-            <p class="instruction"><h:outputText value="instructions here"/></p>
-
-            <h4><h:outputText value="Spreadsheet Upload"/></h4>
-
+            <p/>
             <h:panelGrid cellpadding="0" cellspacing="0" columns="3" columnClasses="itemName" styleClass="itemSummary">
                 <h:outputLabel for="title" id="titleLabel" value="Title"/>
                 <h:inputText id="title" value="#{spreadsheetUploadBean.title}" required="true">
@@ -28,17 +28,15 @@
                 <t:inputFileUpload id="fileupload" value="#{spreadsheetUploadBean.upFile}" storage="file"required="true" accept="ms-excel/*.*"/>
                 <h:message for="fileupload" styleClass="validationEmbedded" />
             </h:panelGrid>
-
-
             <p>
                 <h:commandButton
                         id="saveButton"
                         styleClass="active"
-                        value="Submit"
+                        value="#{msgs.upload_view_save}"
                         action="#{spreadsheetUploadBean.processFile}"/>
                 <h:commandButton
-                        value="Cancel"
-                        action="overview" immediate="true"/>
+                        value="#{msgs.upload_view_cancel}"
+                        action="#{msgs.upload_view_cancel}" immediate="true"/>
             </p>
         </h:form>
     </div>
