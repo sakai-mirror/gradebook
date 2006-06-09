@@ -3,7 +3,9 @@
 <f:view>
     <div class="portletBody">
         <h:form id="gbForm">
-            <%@include file="/inc/appMenu.jspf"%>
+            <x:aliasBean alias="#{bean}" value="#{spreadsheetListingBean}">
+                <%@include file="/inc/appMenu.jspf"%>
+            </x:aliasBean>
             <h2><h:outputText value="#{msgs.loading_dock_page_title}"/></h2>
             <div class="instruction">
                 <h:outputText value="#{msgs.loading_dock_instructions}" escape="false"/>
@@ -37,7 +39,7 @@
                     <f:facet name="header">
                         <h:outputText value="#{msgs.loading_dock_table_modifiedby}"/>
                     </f:facet>
-                    <h:outputText value="#{row.userId}"/>
+                    <h:outputText value="#{row.displayName}"/>
                 </t:column>
                 <t:column>
                     <f:facet name="header">

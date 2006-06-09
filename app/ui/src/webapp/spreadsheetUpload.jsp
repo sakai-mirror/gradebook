@@ -9,8 +9,9 @@
 
             <h2><h:outputText value="#{msgs.upload_view_page_title}"/></h2>
 
+
+            <h:outputText value="#{msgs.upload_view_instructions}" escape="false"/>
             <div class="instruction">
-                <h:outputText value="#{msgs.upload_view_instructions}" escape="false"/>
                 <h:outputText value="#{msgs.upload_view_instructions_text}" escape="false"/>
             </div>
             <%@include file="/inc/globalMessages.jspf"%>
@@ -36,7 +37,7 @@
                         action="#{spreadsheetUploadBean.processFile}"/>
                 <h:commandButton
                         value="#{msgs.upload_view_cancel}"
-                        action="#{msgs.upload_view_cancel}" immediate="true"/>
+                        action="spreadsheetListing" immediate="true"/>
             </p>
         </h:form>
     </div>
