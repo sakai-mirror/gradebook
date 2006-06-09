@@ -6,19 +6,20 @@
 
             <%@include file="/inc/appMenu.jspf"%>
 
-            <h2><h:outputText value="Preview Spreadsheet"/></h2>
+            <h2><h:outputText value="#{msgs.import_preview_page_title}"/></h2>
 
-            <div class="instruction"><h:outputText value="instructions here" escape="false"/></div>
-            <p class="instruction"><h:outputText value="instructions here"/></p>
+            <div class="instruction">
+                <h:outputText value="#{msgs.import_preview_instructions}" escape="false"/>
+            </div>
+            <p class="instruction">
+                <h:outputText value="#{msgs.import_preview_additional_text}" escape="false"/>
+            </p>
             <%@include file="/inc/globalMessages.jspf"%>
-            <h4><h:outputText value="Preview Spreadsheet"/></h4>
-
+            <p/>
             <t:selectOneRadio id="assignment" layout="spread" converter="javax.faces.Integer">
                 <f:selectItems  value="#{spreadsheetPreviewBean.assignmentColumnSelectItems}" />
             </t:selectOneRadio>
-
             <t:dataTable id="table1" value="#{spreadsheetPreviewBean.studentRows}" var="row" rowIndexVar="rowIndex" styleClass="listHier" columnClasses="center">
-
                 <t:column styleClass="left">
                     <f:facet name="header">
                         <t:outputText value="Student ID"/>
@@ -47,11 +48,11 @@
                 <h:commandButton
                         id="importButton"
                         styleClass="active"
-                        value="Import Selected"
+                        value="#{msgs.import_preview_import_selected}"
                         action="#{spreadsheetPreviewBean.processFile}"/>
 
                 <h:commandButton
-                        value="Cancel"
+                        value="#{msgs.import_preview_cancel}"
                         action="spreadsheetListing" immediate="true"/>
 
                 <t:outputText value="#{param.spreadsheetId}"/>

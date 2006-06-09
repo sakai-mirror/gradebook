@@ -8,8 +8,10 @@
 
             <div class="instruction">
                 <h:outputText value="#{msgs.upload_preview_instructions}" escape="false"/>
+                <f:verbatim><ul></f:verbatim>
                 <h:outputText value="#{spreadsheetUploadPreviewBean.columnCount}" escape="false"/>
                 <h:outputText value="#{spreadsheetUploadPreviewBean.rowCount}" escape="false"/>
+                <f:verbatim><ul></f:verbatim>
             </div>
             <p class="instruction">
                 <h:outputText value="#{msgs.upload_preview_additional_text}" escape="false"/>

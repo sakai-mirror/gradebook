@@ -68,7 +68,7 @@ public class SpreadsheetUploadPreviewBean extends GradebookDependentBean impleme
             }
            rowcount++;
         }
-        rowCount = String.valueOf(rowcount);
+        rowCount = String.valueOf(rowcount - 1);
 
 
         //create a numeric list of assignment headers
@@ -78,7 +78,7 @@ public class SpreadsheetUploadPreviewBean extends GradebookDependentBean impleme
             assignmentList.add(new Integer(i));
             SpreadsheetUploadPreviewBean.logger.debug("col added" + i);
         }
-        columnCount = String.valueOf(assignmentHeaders.size());
+        columnCount = String.valueOf(assignmentHeaders.size() - 1);
 
 
         for(int i = 0;i<assignmentHeaders.size();i++){
