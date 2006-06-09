@@ -173,7 +173,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
             } catch (UnknownUserException e) {
                 logger.debug("User " + tokens[0] + " is unknown to this gradebook ");
                 logger.error(e);
-                userDisplayName = "unknown student";
+                userDisplayName = getLocalizedString("import_preview_unknownuser");
                 userId = tokens[0];
                 //FacesUtil.addErrorMessage("The Student with userid "+userId + " is not known to sakai");
             }
@@ -235,7 +235,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
             selectedAssignment.put("Assignment", assignmentHeaders.get(Integer.parseInt(selectedColumn) - 1));
         }catch(Exception e){
             logger.debug("no assignment selected");
-            FacesUtil.addErrorMessage("No Assignment Selected");
+            FacesUtil.addErrorMessage(getLocalizedString("import_preview_assignment_selection_failure"));
             return null;
         }
 
@@ -271,38 +271,6 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         logger.debug("session info" +  map);
 
         return "spreadsheetImport";
-    }
-
-
-
-    public String saveFile(){
-
-        StringBuffer sb = new StringBuffer();
-        List contents =  (ArrayList) session.getAttribute("filecontents");
-        Iterator it = contents.iterator();
-        while(it.hasNext()){
-            String line = (String) it.next();
-            sb.append(line);
-        }
-
-        String filename = (String) session.getAttribute("filename");
-
-        logger.debug("string to save "+sb.toString());
-        SpreadsheetBean spt = new SpreadsheetBean(filename,new Date(),getUserUid(),sb.toString());
-
-        try{
-            logger.debug("store raw spreadsheet content");
-            List spreadsheets = (ArrayList) session.getAttribute("spreadsheets");
-            spreadsheets.add(spt);
-        }catch(Exception e){
-            logger.error(e);
-            logger.debug("variable storage doesnt exist create one");
-            List spreadsheets = new ArrayList();
-            spreadsheets.add(spt);
-            session.setAttribute("spreadsheets",spreadsheets);
-        }
-        FacesUtil.addRedirectSafeMessage(filename + " has been saved");
-        return "spreadsheetListing";
     }
 
 

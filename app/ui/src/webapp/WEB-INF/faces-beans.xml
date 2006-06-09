@@ -189,6 +189,12 @@
     </managed-bean>
 
     <managed-bean>
+        <managed-bean-name>spreadsheetBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+   </managed-bean>
+
+    <managed-bean>
         <managed-bean-name>spreadsheetImportBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetImportBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>

@@ -16,6 +16,8 @@ public class SpreadsheetBean extends GradebookDependentBean implements Serializa
     private String contents;
     private String displayName;
     private Long gradebookId;
+    private String filename;
+
 
 
     public SpreadsheetBean(String title, Date date, String userId, String contents) {
@@ -75,6 +77,15 @@ public class SpreadsheetBean extends GradebookDependentBean implements Serializa
 
     public void setGradebookId(Long gradebookId) {
         this.gradebookId = gradebookId;
+    }
+
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
 }

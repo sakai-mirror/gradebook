@@ -218,65 +218,6 @@ public class SpreadsheetUploadPreviewBean extends GradebookDependentBean impleme
 
     }
 
-
-
-
-
-    public String processFile(){
-
-
-        SpreadsheetUploadPreviewBean.logger.debug("processFile()");
-
-
-        String selectedColumn =  request.getParameter("form:assignment");
-        SpreadsheetUploadPreviewBean.logger.debug("the selected column is " + selectedColumn);
-
-        selectedAssignment = new HashMap();
-
-        try{
-            selectedAssignment.put("Assignment", assignmentHeaders.get(Integer.parseInt(selectedColumn) - 1));
-        }catch(Exception e){
-            SpreadsheetUploadPreviewBean.logger.debug("no assignment selected");
-            FacesUtil.addErrorMessage("No Assignment Selected");
-            return null;
-        }
-
-        Iterator it = studentRows.iterator();
-        SpreadsheetUploadPreviewBean.logger.debug("number of student rows "+studentRows.size() );
-        int i = 0;
-        while(it.hasNext()){
-
-            SpreadsheetUploadPreviewBean.logger.debug("row " + i);
-            SpreadsheetUploadPreviewBean.SpreadsheetRow row = (SpreadsheetUploadPreviewBean.SpreadsheetRow) it.next();
-            List line = row.getRowcontent();
-
-            String user = (String)line.get(0);
-            String points;
-            try{
-                points = (String) line.get(Integer.parseInt(selectedColumn));
-            }catch(Exception e){
-                SpreadsheetUploadPreviewBean.logger.error(e);
-                points = "";
-
-            }
-            SpreadsheetUploadPreviewBean.logger.debug("user "+user + " points "+points);
-            if(!points.equals("")){
-                selectedAssignment.put(user,points);
-            }
-            i++;
-        }
-
-        session.setAttribute("selectedAssignment",selectedAssignment);
-        SpreadsheetUploadPreviewBean.logger.debug("save map in session");
-        Map map = (Map) session.getAttribute("selectedAssignment");
-        SpreadsheetUploadPreviewBean.logger.debug("retrive map from session");
-        SpreadsheetUploadPreviewBean.logger.debug("session info" +  map);
-
-        return "spreadsheetImport";
-    }
-
-
-
     public String saveFile(){
 
         StringBuffer sb = new StringBuffer();
@@ -303,7 +244,7 @@ public class SpreadsheetUploadPreviewBean extends GradebookDependentBean impleme
             spreadsheets.add(spt);
             session.setAttribute("spreadsheets",spreadsheets);
         }
-        FacesUtil.addRedirectSafeMessage(filename + " has been saved");
+        FacesUtil.addRedirectSafeMessage(getLocalizedString("upload_preview_save_confirmation", new String[] {filename}));
         return "spreadsheetListing";
     }
 

@@ -38,10 +38,8 @@ public class SpreadsheetListingBean extends GradebookDependentBean implements Se
         logger.debug("loading spreadsheetListingBean()");
         spreadSheets = (ArrayList) session.getAttribute("spreadsheets");
 
-
         logger.debug("trying to find the valud of spreadsheet id");
         logger.debug("spreadsheet id is  "+spreadsheetId);
-
 
     }
 
