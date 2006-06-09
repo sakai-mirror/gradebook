@@ -198,7 +198,7 @@
         <managed-bean-name>spreadsheetImportBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetImportBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
-   </managed-bean>
+    </managed-bean>
 
     <managed-bean>
         <managed-bean-name>spreadsheetListingBean</managed-bean-name>
@@ -207,6 +207,10 @@
         <managed-property>
             <property-name>spreadsheetId</property-name>
             <value>#{param.spreadsheetId}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>pageName</property-name>
+            <value>spreadsheetListing</value>
         </managed-property>
     </managed-bean>
 </faces-config>
