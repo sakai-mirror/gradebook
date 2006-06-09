@@ -8,9 +8,7 @@
 
 
             <h2><h:outputText value="#{msgs.upload_view_page_title}"/></h2>
-
-
-            <h:outputText value="#{msgs.upload_view_instructions}" escape="false"/>
+            <h3><h:outputText value="#{msgs.upload_view_instructions}" escape="false"/></h3>
             <div class="instruction">
                 <h:outputText value="#{msgs.upload_view_instructions_text}" escape="false"/>
             </div>
