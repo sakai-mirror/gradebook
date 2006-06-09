@@ -24,8 +24,10 @@
         </h:commandLink>
         <h:outputText value=" | "/>
         <h:commandLink action="spreadsheetListing" immediate="true">
-            <h:outputText value="Upload/Import"/>
+            <h:outputText value="#{msgs.appmenu_import_upload}" rendered="#{bean.pageName eq 'spreadsheetListing'}"/>
         </h:commandLink>
+        <h:outputText value="#{msgs.appmenu_import_upload}" rendered="#{bean.pageName ne 'spreadsheetListing'}"/>
+
         <h:outputText value=" | " rendered="#{bean.pageName eq 'feedbackOptions'}"/>
         <h:outputText value="#{msgs.appmenu_feedback_options}" rendered="#{bean.pageName eq 'feedbackOptions'}" styleClass="currentView" />
 	</h:panelGroup>
