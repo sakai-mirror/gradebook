@@ -23,11 +23,16 @@ public class SpreadsheetListingBean extends GradebookDependentBean implements Se
     private List spreadSheets;
     private static final Log logger = LogFactory.getLog(SpreadsheetListingBean.class);
     private Long spreadsheetId;
+    private String pageName;
+
     FacesContext facesContext;
     HttpServletRequest request;
     HttpSession session;
 
 
+    /**
+     * TODO database presristence not yet implement
+     */
 
     public SpreadsheetListingBean() {
 
@@ -96,7 +101,12 @@ public class SpreadsheetListingBean extends GradebookDependentBean implements Se
         this.spreadsheetId = spreadsheetId;
     }
 
+    public String getPageName() {
+        return pageName;
+    }
 
-
+    public void setPageName(String pageName) {
+        this.pageName = pageName;
+    }
 
 }

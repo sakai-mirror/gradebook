@@ -36,7 +36,11 @@ public class SpreadsheetUploadPreviewBean extends GradebookDependentBean impleme
 
     private static final Log logger = LogFactory.getLog(SpreadsheetUploadPreviewBean.class);
 
-
+    /**
+     * TODO this  class is very similar to SpreadsheetPreviewBean once i figure out the session handling
+     * and request forwarding issue probably consolidate the two into one class
+     * 
+     */
     public SpreadsheetUploadPreviewBean() {
 
         facesContext = FacesContext.getCurrentInstance();

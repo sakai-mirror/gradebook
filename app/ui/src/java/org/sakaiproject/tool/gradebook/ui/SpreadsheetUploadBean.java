@@ -58,8 +58,12 @@ public class SpreadsheetUploadBean implements Serializable {
     }
 
     public String processFile() throws Exception {
-        logger.debug("processFile()-----------------------------------------");
 
+        /**
+         * TODO this needs revision espceially the session stuff next item online
+         */
+
+        logger.debug("processFile()-----------------------------------------");
         FacesContext facesContext = FacesContext.getCurrentInstance();
         HttpSession session = (HttpSession) facesContext.getExternalContext().getSession(true);
 
@@ -93,6 +97,10 @@ public class SpreadsheetUploadBean implements Serializable {
      */
     private List csvtoArray(InputStream inputStream) throws IOException{
 
+        /**
+         * TODO this well probably be removed
+         */
+    
         logger.debug("csvtoArray()");
         List contents = new ArrayList();
 
