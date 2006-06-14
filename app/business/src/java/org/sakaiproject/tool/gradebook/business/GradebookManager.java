@@ -34,6 +34,7 @@ import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.GradeRecordSet;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvents;
+import org.sakaiproject.tool.gradebook.Spreadsheet;
 
 /**
  * Manages Gradebook persistence.
@@ -271,5 +272,15 @@ public interface GradebookManager {
     public CourseGrade getCourseGradeWithStats(Long gradebookId);
 
     public double getTotalPoints(Long gradebookId);
+
+    public Spreadsheet getSpreadsheet(Long spreadsheetId);
+
+    public List getSpreadsheets(Long gradebookId);
+
+    public void removeSpreadsheet(Long spreadsheetid) throws StaleObjectModificationException;
+
+    public void updateSpreadsheet(Spreadsheet spreadsheet)throws StaleObjectModificationException;
+
+    public Long createSpreadsheet(Long gradebookId, String name, String creator, Date dateCreated, String content) throws Exception;
 
 }
