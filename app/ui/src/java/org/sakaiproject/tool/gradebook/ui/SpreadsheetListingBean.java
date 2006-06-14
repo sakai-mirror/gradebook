@@ -1,8 +1,25 @@
+/*******************************************************************************
+ * Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+ *
+ *  Licensed under the Educational Community License, Version 1.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *       http://www.opensource.org/licenses/ecl1.php
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ******************************************************************************/
+
 package org.sakaiproject.tool.gradebook.ui;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
+import org.sakaiproject.tool.gradebook.Spreadsheet;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +41,7 @@ public class SpreadsheetListingBean extends GradebookDependentBean implements Se
     private static final Log logger = LogFactory.getLog(SpreadsheetListingBean.class);
     private Long spreadsheetId;
     private String pageName;
+    private SpreadsheetBean spreadsheet;
 
     FacesContext facesContext;
     HttpServletRequest request;
@@ -37,20 +55,18 @@ public class SpreadsheetListingBean extends GradebookDependentBean implements Se
     public SpreadsheetListingBean() {
 
         facesContext = FacesContext.getCurrentInstance();
-        request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
-        session = (HttpSession) facesContext.getExternalContext().getSession(true);
+        try{
+            spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
+        }catch(Exception e){
+            logger.debug("unable to load");
+        }
 
-        logger.debug("loading spreadsheetListingBean()");
-        spreadSheets = (ArrayList) session.getAttribute("spreadsheets");
-
-        logger.debug("trying to find the valud of spreadsheet id");
-        logger.debug("spreadsheet id is  "+spreadsheetId);
 
     }
 
 
     public List getSpreadSheets() {
-        return spreadSheets;
+        return getGradebookManager().getSpreadsheets(getGradebookId());
     }
 
     public void setSpreadSheets(List spreadSheets) {
@@ -58,29 +74,18 @@ public class SpreadsheetListingBean extends GradebookDependentBean implements Se
     }
 
     public String deleteItem(){
-
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        HttpSession session = (HttpSession) facesContext.getExternalContext().getSession(true);
-
-        List spreadsheets = (ArrayList)session.getAttribute("spreadsheets");
-        spreadsheets.remove(getSpreadsheetId().intValue());
-        FacesUtil.addErrorMessage("Item removed ");
-
-        return null;
+        return "spreadsheetRemove";
     }
 
     public String viewItem(){
 
         logger.debug("loading viewItem()");
 
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        HttpSession session = (HttpSession) facesContext.getExternalContext().getSession(true);
+        Spreadsheet sp = getGradebookManager().getSpreadsheet(spreadsheetId);
 
-        List spreadsheets = (ArrayList)session.getAttribute("spreadsheets");
-        logger.debug("spreadsheetid "+getSpreadsheetId());
-        SpreadsheetBean sp = (SpreadsheetBean) spreadsheets.get(getSpreadsheetId().intValue());
+
         StringBuffer sb = new StringBuffer();
-        sb.append(sp.getContents());
+        sb.append(sp.getContent());
 
         List contents = new ArrayList();
 
@@ -89,7 +94,12 @@ public class SpreadsheetListingBean extends GradebookDependentBean implements Se
            logger.debug("line item contents \n" + lineitems[i]);
           contents.add(lineitems[i]);
         }
-        session.setAttribute("filecontents",contents);
+
+        spreadsheet.setTitle(sp.getName());
+        spreadsheet.setDate(sp.getDateCreated());
+        spreadsheet.setUserId(sp.getCreator());
+        spreadsheet.setLineitems(contents);
+        
         return "spreadsheetPreview";
     }
 

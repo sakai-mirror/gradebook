@@ -20,32 +20,29 @@
             <p/>
             <%@include file="/inc/globalMessages.jspf"%>
             <h4><h:outputText value="#{msgs.loading_dock_table_header}"/></h4>
-            <t:dataTable id="table1" value="#{spreadsheetListingBean.spreadSheets}" var="row" rowIndexVar="rowIndex" styleClass="listHier" columnClasses="center">
+            <t:dataTable id="table1" value="#{spreadsheetListingBean.spreadSheets}" var="row" rowIndexVar="rowIndex"
+                         columnClasses="left,left,rightpadded,rightpadded,rightpadded"                         
+                         styleClass="listHier narrowTable">
 
                 <t:column>
                     <f:facet name="header">
                         <h:outputText value="#{msgs.loading_dock_table_title}"/>
                     </f:facet>
-                    <h:outputText value="#{row.title}"/>
+                    <h:outputText value="#{row.name}"/>
                 </t:column>
                 <t:column>
                     <f:facet name="header">
                         <h:outputText value="#{msgs.loading_dock_table_creator}"/>
                     </f:facet>
-                    <h:outputText value="#{row.displayName}"/>
+                    <h:outputText value="#{row.creator}"/>
                 </t:column>
+
 
                 <t:column>
                     <f:facet name="header">
-                        <h:outputText value="#{msgs.loading_dock_table_modifiedby}"/>
+                        <h:outputText value="#{msgs.loading_dock_table_datecreated}"/>
                     </f:facet>
-                    <h:outputText value="#{row.displayName}"/>
-                </t:column>
-                <t:column>
-                    <f:facet name="header">
-                        <h:outputText value="#{msgs.loading_dock_table_lastmodified}"/>
-                    </f:facet>
-                    <h:outputText value="#{row.date}">
+                    <h:outputText value="#{row.dateCreated}">
                         <f:convertDateTime pattern="d MMM yyyy  H:m:s"/>
                     </h:outputText>
                 </t:column>
@@ -53,13 +50,13 @@
                 <t:column>
                     <h:commandLink action="#{spreadsheetListingBean.viewItem}">
                         <h:outputText value="#{msgs.loading_dock_table_view}"/>
-                        <f:param name="spreadsheetId" value="#{rowIndex}"/>
+                        <f:param name="spreadsheetId" value="#{row.id}"/>
                     </h:commandLink>
                 </t:column>
                 <t:column>
-                    <h:commandLink action="#{spreadsheetListingBean.deleteItem}">
+                    <h:commandLink action="spreadsheetRemove">
                         <h:outputText value="#{msgs.loading_dock_table_delete}"/>
-                        <f:param name="spreadsheetId" value="#{rowIndex}"/>
+                        <f:param name="spreadsheetId" value="#{row.id}"/>
                     </h:commandLink>
                 </t:column>
             </t:dataTable>

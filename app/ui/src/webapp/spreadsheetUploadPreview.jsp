@@ -23,7 +23,7 @@
                     </f:facet>
                     <h:outputText value="#{row.userId}"/>
                 </t:column>
-                <t:columns value="#{spreadsheetPreviewBean.assignmentList}" var="colIndex" >
+                <t:columns value="#{spreadsheetUploadPreviewBean.assignmentList}" var="colIndex" >
                     <f:facet name="header">
                         <h:panelGrid>
                             <t:outputText value="#{spreadsheetUploadPreviewBean.assignmentHeaders[colIndex]}" />

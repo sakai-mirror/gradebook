@@ -1,3 +1,19 @@
+/*******************************************************************************
+ * Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+ *
+ *  Licensed under the Educational Community License, Version 1.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *       http://www.opensource.org/licenses/ecl1.php
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ******************************************************************************/
+
 package org.sakaiproject.tool.gradebook.ui;
 
 import org.apache.commons.logging.Log;
@@ -28,6 +44,7 @@ public class SpreadsheetUploadPreviewBean extends GradebookDependentBean impleme
     private boolean saved = false;
     private String columnCount;
     private String rowCount;
+    private SpreadsheetBean spreadsheet;
 
     private FacesContext facesContext;
     private HttpServletRequest request;
@@ -39,7 +56,7 @@ public class SpreadsheetUploadPreviewBean extends GradebookDependentBean impleme
     /**
      * TODO this  class is very similar to SpreadsheetPreviewBean once i figure out the session handling
      * and request forwarding issue probably consolidate the two into one class
-     * 
+     *
      */
     public SpreadsheetUploadPreviewBean() {
 
@@ -48,7 +65,13 @@ public class SpreadsheetUploadPreviewBean extends GradebookDependentBean impleme
         session = (HttpSession) facesContext.getExternalContext().getSession(true);
 
 
-        List contents =  (ArrayList) session.getAttribute("filecontents");
+        //List contents =  (ArrayList) session.getAttribute("filecontents");
+        try{
+            spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
+        }catch(Exception e){
+            logger.debug("unable to load");
+        }
+
 
 
         assignmentList = new ArrayList();
@@ -56,12 +79,12 @@ public class SpreadsheetUploadPreviewBean extends GradebookDependentBean impleme
         assignmentColumnSelectItems = new ArrayList();
         assignmentHeaders = new ArrayList();
 
-        SpreadsheetUploadPreviewBean.SpreadsheetHeader header = new SpreadsheetUploadPreviewBean.SpreadsheetHeader((String) contents.get(0),",");
+        SpreadsheetUploadPreviewBean.SpreadsheetHeader header = new SpreadsheetUploadPreviewBean.SpreadsheetHeader((String) spreadsheet.getLineitems().get(0),",");
         assignmentHeaders = header.getHeaderWithoutUser();
 
 
         //generate spreadsheet rows
-        Iterator it = contents.iterator();
+        Iterator it = spreadsheet.getLineitems().iterator();
         int rowcount = 0;
         while(it.hasNext()){
             String line = (String) it.next();
@@ -82,7 +105,7 @@ public class SpreadsheetUploadPreviewBean extends GradebookDependentBean impleme
             assignmentList.add(new Integer(i));
             SpreadsheetUploadPreviewBean.logger.debug("col added" + i);
         }
-        columnCount = String.valueOf(assignmentHeaders.size() - 1);
+        columnCount = String.valueOf(assignmentHeaders.size());
 
 
         for(int i = 0;i<assignmentHeaders.size();i++){
@@ -225,28 +248,25 @@ public class SpreadsheetUploadPreviewBean extends GradebookDependentBean impleme
     public String saveFile(){
 
         StringBuffer sb = new StringBuffer();
-        List contents =  (ArrayList) session.getAttribute("filecontents");
+        List contents =  spreadsheet.getLineitems();
         Iterator it = contents.iterator();
         while(it.hasNext()){
             String line = (String) it.next();
             sb.append(line + '\n');
         }
 
-        String filename = (String) session.getAttribute("filename");
+        String filename = spreadsheet.getFilename();
 
-        SpreadsheetUploadPreviewBean.logger.debug("string to save "+sb.toString());
-        SpreadsheetBean spt = new SpreadsheetBean(filename,new Date(),getUserUid(),sb.toString());
-
+        /** temporary presistence code
+         *
+         */
+        SpreadsheetUploadPreviewBean.logger.debug("string to save "+sb.toString());       
         try{
-            SpreadsheetUploadPreviewBean.logger.debug("store raw spreadsheet content");
-            List spreadsheets = (ArrayList) session.getAttribute("spreadsheets");
-            spreadsheets.add(spt);
+            getGradebookManager().createSpreadsheet(getGradebookId(),spreadsheet.getTitle(),getUserUid(),new Date(),sb.toString());
         }catch(Exception e){
-            SpreadsheetUploadPreviewBean.logger.error(e);
-            SpreadsheetUploadPreviewBean.logger.debug("variable storage doesnt exist create one");
-            List spreadsheets = new ArrayList();
-            spreadsheets.add(spt);
-            session.setAttribute("spreadsheets",spreadsheets);
+            logger.debug(e);
+            FacesUtil.addErrorMessage(getLocalizedString("upload_preview_save_failure"));
+            return null;
         }
         FacesUtil.addRedirectSafeMessage(getLocalizedString("upload_preview_save_confirmation", new String[] {filename}));
         return "spreadsheetListing";

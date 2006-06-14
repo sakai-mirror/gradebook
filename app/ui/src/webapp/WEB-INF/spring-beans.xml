@@ -39,6 +39,7 @@
                 <value>spreadsheetUpload</value>
                 <value>spreadsheetImport</value>
                 <value>spreadsheetListing</value>
+                <value>spreadsheetRemove</value>
             </list>
 		</property>
 		<property name="userAbleToGradePages">

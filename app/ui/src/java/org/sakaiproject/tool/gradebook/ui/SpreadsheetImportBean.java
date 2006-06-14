@@ -1,3 +1,19 @@
+/*******************************************************************************
+ * Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+ *
+ *  Licensed under the Educational Community License, Version 1.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *       http://www.opensource.org/licenses/ecl1.php
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ******************************************************************************/
+
 package org.sakaiproject.tool.gradebook.ui;
 
 import org.apache.commons.logging.Log;
@@ -26,6 +42,8 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
     private Assignment assignment;
     private GradeRecordSet graderecords;
     private Long assignmentId;
+    private SpreadsheetBean spreadsheet;
+
     FacesContext facesContext;
     HttpServletRequest request;
     HttpSession session;
@@ -44,13 +62,14 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
         facesContext = FacesContext.getCurrentInstance();
         session = (HttpSession) facesContext.getExternalContext().getSession(true);
 
+        try{
+            spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
+        }catch(Exception e){
+            logger.debug("unable to load");
+        }
 
-        scores =  (HashMap) session.getAttribute("selectedAssignment");
 
-        logger.debug("retrieve selectedAssignment from session");
-        logger.debug("score contents " + scores);
-        logger.debug("get Assignment title which is first key");
-
+        scores =  spreadsheet.getSelectedAssignment();
         assignment.setName((String) scores.get("Assignment"));
 
     }

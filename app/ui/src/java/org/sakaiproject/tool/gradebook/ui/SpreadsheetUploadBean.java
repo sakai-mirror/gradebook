@@ -1,8 +1,25 @@
+/*******************************************************************************
+ * Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+ *
+ *  Licensed under the Educational Community License, Version 1.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *       http://www.opensource.org/licenses/ecl1.php
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ******************************************************************************/
+
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.apache.commons.logging.Log;
@@ -25,8 +42,21 @@ public class SpreadsheetUploadBean implements Serializable {
     private String title;
     private UploadedFile upFile;
     private static final Log logger = LogFactory.getLog(SpreadsheetUploadBean.class);
-    private List contents;
+    private SpreadsheetBean spreadsheet;
 
+
+    public SpreadsheetUploadBean() {
+
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        HttpSession session = (HttpSession) facesContext.getExternalContext().getSession(true);
+
+        try{
+            spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
+        }catch(Exception e){
+            logger.debug("unable to load");
+        }
+
+    }
 
     public String getTitle() {
 
@@ -43,19 +73,11 @@ public class SpreadsheetUploadBean implements Serializable {
     }
 
     public void setUpFile(UploadedFile upFile) {
-         logger.debug("setUpFile() " + upFile);
+        logger.debug("setUpFile() " + upFile);
         if(upFile!=null) logger.debug("file name: " + upFile.getName() +"");
         this.upFile = upFile;
     }
 
-
-    public List getContents() {
-        return contents;
-    }
-
-    public void setContents(List contents) {
-        this.contents = contents;
-    }
 
     public String processFile() throws Exception {
 
@@ -75,15 +97,15 @@ public class SpreadsheetUploadBean implements Serializable {
         InputStream inputStream = new BufferedInputStream(upFile.getInputStream());
         logger.debug("inputstream contents : "+inputStream.toString() );
 
-        contents = csvtoArray(inputStream);
+        List contents = csvtoArray(inputStream);
 
-       logger.debug("total lines in file:" +contents.size());
-       logger.debug("end processFile()----------------------------------------");
+        spreadsheet.setDate(new Date());
+        spreadsheet.setTitle(this.getTitle());
+        spreadsheet.setFilename(upFile.getName());
+        spreadsheet.setLineitems(contents);
 
-      session.setAttribute("filecontents",contents);
-      session.setAttribute("filename",this.getTitle());
 
-      return "spreadsheetUploadPreview";
+        return "spreadsheetUploadPreview";
 
 
     }

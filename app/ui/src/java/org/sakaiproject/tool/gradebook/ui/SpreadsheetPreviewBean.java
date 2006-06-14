@@ -1,3 +1,19 @@
+/*******************************************************************************
+ * Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+ *
+ *  Licensed under the Educational Community License, Version 1.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *       http://www.opensource.org/licenses/ecl1.php
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ******************************************************************************/
+
 package org.sakaiproject.tool.gradebook.ui;
 
 import org.apache.commons.logging.Log;
@@ -27,6 +43,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
     private Map selectedAssignment;
     private List assignmentColumnSelectItems;
     private boolean saved = false;
+    private SpreadsheetBean spreadsheet;
 
     private FacesContext facesContext;
     private HttpServletRequest request;
@@ -43,7 +60,13 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         session = (HttpSession) facesContext.getExternalContext().getSession(true);
 
 
-        List contents =  (ArrayList) session.getAttribute("filecontents");
+        //List contents =  (ArrayList) session.getAttribute("filecontents");
+        try{
+            spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
+        }catch(Exception e){
+            logger.debug("unable to load");
+        }
+
 
 
         assignmentList = new ArrayList();
@@ -51,12 +74,12 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         assignmentColumnSelectItems = new ArrayList();
         assignmentHeaders = new ArrayList();
 
-        SpreadsheetHeader header = new SpreadsheetHeader((String) contents.get(0),",");
+        SpreadsheetHeader header = new SpreadsheetHeader((String) spreadsheet.getLineitems().get(0),",");
         assignmentHeaders = header.getHeaderWithoutUser();
 
 
         //generate spreadsheet rows
-        Iterator it = contents.iterator();
+        Iterator it = spreadsheet.getLineitems().iterator();
         int rowcount = 0;
         while(it.hasNext()){
             String line = (String) it.next();
@@ -67,8 +90,6 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
             }
            rowcount++;
         }
-
-
         //create a numeric list of assignment headers
 
         logger.debug("creating assignment List ---------");
@@ -161,8 +182,6 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
                 logger.debug("token value using split "+tokens[x]);
                 rowcontent.add(tokens[x]);
             }
-
-
 
             try {
                 logger.debug("getuser name for "+ tokens[0]);
@@ -264,11 +283,13 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
             i++;
         }
 
-        session.setAttribute("selectedAssignment",selectedAssignment);
-        logger.debug("save map in session");
-        Map map = (Map) session.getAttribute("selectedAssignment");
-        logger.debug("retrive map from session");
-        logger.debug("session info" +  map);
+
+        spreadsheet.setSelectedAssignment(selectedAssignment);
+        //session.setAttribute("selectedAssignment",selectedAssignment);
+        //logger.debug("save map in session");
+        ///Map map = (Map) session.getAttribute("selectedAssignment");
+        //logger.debug("retrive map from session");
+        //logger.debug("session info" +  map);
 
         return "spreadsheetImport";
     }
