@@ -240,13 +240,22 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     }
 
     protected String getUserUid() {
-    	return authn.getUserUid();
+        return authn.getUserUid();
     }
 
-	protected SectionAwareness getSectionAwareness() {
-		return sectionAwareness;
-	}
-	public void setSectionAwareness(SectionAwareness sectionAwareness) {
-		this.sectionAwareness = sectionAwareness;
-	}
+    protected SectionAwareness getSectionAwareness() {
+        return sectionAwareness;
+    }
+    public void setSectionAwareness(SectionAwareness sectionAwareness) {
+        this.sectionAwareness = sectionAwareness;
+    }
+
+
+    protected List getSpreadsheets(Long gradebookId, Session session) throws HibernateException {
+        List spreadsheets = session.createQuery(
+                "from Spreadsheet as spt where spt.gradebook.id=? ").
+                setLong(0, gradebookId.longValue()).
+                list();
+        return spreadsheets;
+    }
 }
