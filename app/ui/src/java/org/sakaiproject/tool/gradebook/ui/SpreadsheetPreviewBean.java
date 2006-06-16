@@ -18,14 +18,12 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
-
+import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.util.*;
 
@@ -43,22 +41,20 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
     private Map selectedAssignment;
     private List assignmentColumnSelectItems;
     private boolean saved = false;
+    private String columnCount;
+    private String rowCount;
     private SpreadsheetBean spreadsheet;
-
-    private FacesContext facesContext;
-    private HttpServletRequest request;
-    private HttpSession session;
-
 
     private static final Log logger = LogFactory.getLog(SpreadsheetPreviewBean.class);
 
-
+    /**
+     * TODO this  class is very similar to SpreadsheetPreviewBean once i figure out the session handling
+     * and request forwarding issue probably consolidate the two into one class
+     *
+     */
     public SpreadsheetPreviewBean() {
 
-        facesContext = FacesContext.getCurrentInstance();
-        request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
-        session = (HttpSession) facesContext.getExternalContext().getSession(true);
-
+         FacesContext facesContext = FacesContext.getCurrentInstance();
 
         //List contents =  (ArrayList) session.getAttribute("filecontents");
         try{
@@ -67,14 +63,12 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
             logger.debug("unable to load");
         }
 
-
-
         assignmentList = new ArrayList();
         studentRows = new ArrayList();
         assignmentColumnSelectItems = new ArrayList();
         assignmentHeaders = new ArrayList();
 
-        SpreadsheetHeader header = new SpreadsheetHeader((String) spreadsheet.getLineitems().get(0),",");
+        SpreadsheetPreviewBean.SpreadsheetHeader header = new SpreadsheetPreviewBean.SpreadsheetHeader((String) spreadsheet.getLineitems().get(0),",");
         assignmentHeaders = header.getHeaderWithoutUser();
 
 
@@ -84,30 +78,33 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         while(it.hasNext()){
             String line = (String) it.next();
             if(rowcount > 0){
-                SpreadsheetRow  row = new SpreadsheetRow(line,",");
+                SpreadsheetPreviewBean.SpreadsheetRow  row = new SpreadsheetPreviewBean.SpreadsheetRow(line,",");
                 studentRows.add(row);
-                logger.debug("row added" + rowcount);
+                SpreadsheetPreviewBean.logger.debug("row added" + rowcount);
             }
            rowcount++;
         }
+        rowCount = String.valueOf(rowcount - 1);
+
+
         //create a numeric list of assignment headers
 
-        logger.debug("creating assignment List ---------");
+        SpreadsheetPreviewBean.logger.debug("creating assignment List ---------");
         for(int i = 0;i<assignmentHeaders.size();i++){
             assignmentList.add(new Integer(i));
-            logger.debug("col added" + i);
-
+            SpreadsheetPreviewBean.logger.debug("col added" + i);
         }
+        columnCount = String.valueOf(assignmentHeaders.size());
 
 
         for(int i = 0;i<assignmentHeaders.size();i++){
             SelectItem item = new  SelectItem(new Integer(i + 1),(String)assignmentHeaders.get(i));
-            logger.debug("creating selectItems "+ item.getValue());
+            SpreadsheetPreviewBean.logger.debug("creating selectItems "+ item.getValue());
             assignmentColumnSelectItems.add(item);
         }
-                
-        logger.debug("Map initialized " +studentRows.size());
-        logger.debug("assignmentList " +assignmentList.size());
+
+        SpreadsheetPreviewBean.logger.debug("Map initialized " +studentRows.size());
+        SpreadsheetPreviewBean.logger.debug("assignmentList " +assignmentList.size());
 
 
     }
@@ -149,12 +146,12 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
 
         public SpreadsheetHeader(String source, String delim) {
 
-            logger.debug("creating header from "+source);
+            SpreadsheetPreviewBean.logger.debug("creating header from "+source);
 
             header = new ArrayList();
             String tokens[] = source.split(delim);
             for(int x =0;x<tokens.length;x++){
-                logger.debug("token value using split "+tokens[x]);
+                SpreadsheetPreviewBean.logger.debug("token value using split "+tokens[x]);
                 header.add(tokens[x]);
 
             }
@@ -175,24 +172,26 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
 
         public SpreadsheetRow(String source, String delim) {
 
-            logger.debug("creating row from string " + source);
+            SpreadsheetPreviewBean.logger.debug("creating row from string " + source);
             rowcontent = new ArrayList();
             String tokens[] = source.split(delim);
             for(int x =0;x<tokens.length;x++){
-                logger.debug("token value using split "+tokens[x]);
+                SpreadsheetPreviewBean.logger.debug("token value using split "+tokens[x]);
                 rowcontent.add(tokens[x]);
             }
 
+
+
             try {
-                logger.debug("getuser name for "+ tokens[0]);
+                SpreadsheetPreviewBean.logger.debug("getuser name for "+ tokens[0]);
                 userDisplayName = getUserDirectoryService().getUserDisplayName(tokens[0]);
                 userId = tokens[0];
-                logger.debug("get userid "+tokens[0] + "username is "+userDisplayName);
+                SpreadsheetPreviewBean.logger.debug("get userid "+tokens[0] + "username is "+userDisplayName);
 
             } catch (UnknownUserException e) {
-                logger.debug("User " + tokens[0] + " is unknown to this gradebook ");
-                logger.error(e);
-                userDisplayName = getLocalizedString("import_preview_unknownuser");
+                SpreadsheetPreviewBean.logger.debug("User " + tokens[0] + " is unknown to this gradebook ");
+                SpreadsheetPreviewBean.logger.error(e);
+                userDisplayName = "unknown student";
                 userId = tokens[0];
                 //FacesUtil.addErrorMessage("The Student with userid "+userId + " is not known to sakai");
             }
@@ -235,21 +234,44 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
 
     }
 
+    public String saveFile(){
+
+        StringBuffer sb = new StringBuffer();
+        List contents =  spreadsheet.getLineitems();
+        Iterator it = contents.iterator();
+        while(it.hasNext()){
+            String line = (String) it.next();
+            sb.append(line + '\n');
+        }
+
+        String filename = spreadsheet.getFilename();
+
+        /** temporary presistence code
+         *
+         */
+        SpreadsheetPreviewBean.logger.debug("string to save "+sb.toString());
+        try{
+            getGradebookManager().createSpreadsheet(getGradebookId(),spreadsheet.getTitle(),getUserUid(),new Date(),sb.toString());
+        }catch(Exception e){
+            logger.debug(e);
+            FacesUtil.addErrorMessage(getLocalizedString("upload_preview_save_failure"));
+            return null;
+        }
+        FacesUtil.addRedirectSafeMessage(getLocalizedString("upload_preview_save_confirmation", new String[] {filename}));
+        return "spreadsheetListing";
+    }
 
 
+     public String processFile(){
 
-
-    public String processFile(){
-
+         FacesContext facesContext = FacesContext.getCurrentInstance();
+         HttpServletRequest request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
 
         logger.debug("processFile()");
-
-
         String selectedColumn =  request.getParameter("form:assignment");
         logger.debug("the selected column is " + selectedColumn);
 
         selectedAssignment = new HashMap();
-
         try{
             selectedAssignment.put("Assignment", assignmentHeaders.get(Integer.parseInt(selectedColumn) - 1));
         }catch(Exception e){
@@ -283,14 +305,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
             i++;
         }
 
-
         spreadsheet.setSelectedAssignment(selectedAssignment);
-        //session.setAttribute("selectedAssignment",selectedAssignment);
-        //logger.debug("save map in session");
-        ///Map map = (Map) session.getAttribute("selectedAssignment");
-        //logger.debug("retrive map from session");
-        //logger.debug("session info" +  map);
-
         return "spreadsheetImport";
     }
 
@@ -344,6 +359,21 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
     }
 
 
+    public String getColumnCount() {
+        return FacesUtil.getLocalizedString("upload_preview_column_count",new String[] {columnCount});
+    }
+
+    public void setColumnCount(String columCount) {
+        this.columnCount = columnCount;
+    }
+
+    public String getRowCount() {
+        return FacesUtil.getLocalizedString("upload_preview_row_count",new String[] {rowCount});
+    }
+
+    public void setRowCount(String rowCount) {
+        this.rowCount = rowCount;
+    }
 
 
 }

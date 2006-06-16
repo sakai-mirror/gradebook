@@ -24,7 +24,7 @@
                 <h:outputLabel for="fileupload">
                     <h:outputText id="fileuploadLabel" value="Choose a File"/>
                 </h:outputLabel>
-                <t:inputFileUpload id="fileupload" value="#{spreadsheetUploadBean.upFile}" storage="file"required="true" accept="ms-excel/*.*"/>
+                <t:inputFileUpload id="fileupload" value="#{spreadsheetUploadBean.upFile}" storage="file"required="true" accept="text/csv"/>
                 <h:message for="fileupload" styleClass="validationEmbedded" />
             </h:panelGrid>
             <p>

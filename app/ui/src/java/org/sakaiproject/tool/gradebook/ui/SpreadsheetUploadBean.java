@@ -24,19 +24,10 @@ import java.util.Date;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-
+import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import javax.faces.context.FacesContext;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-/**
- * User: louis
- * Date: Apr 26, 2006
- * Time: 10:10:23 AM
- */
-public class SpreadsheetUploadBean implements Serializable {
+public class SpreadsheetUploadBean extends GradebookDependentBean implements Serializable {
 
 
     private String title;
@@ -47,19 +38,19 @@ public class SpreadsheetUploadBean implements Serializable {
 
     public SpreadsheetUploadBean() {
 
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        HttpSession session = (HttpSession) facesContext.getExternalContext().getSession(true);
 
+        FacesContext facesContext = FacesContext.getCurrentInstance();
         try{
             spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
         }catch(Exception e){
-            logger.debug("unable to load");
+            logger.debug("unable to load spreadsheetBean");
+            FacesUtil.addErrorMessage(getLocalizedString("upload_view_config_error"));
+
         }
 
     }
 
     public String getTitle() {
-
         return title;
     }
 
@@ -68,37 +59,41 @@ public class SpreadsheetUploadBean implements Serializable {
     }
 
     public UploadedFile getUpFile() {
-        logger.debug("getUpFile()" +upFile);
         return upFile;
     }
 
     public void setUpFile(UploadedFile upFile) {
-        logger.debug("setUpFile() " + upFile);
-        if(upFile!=null) logger.debug("file name: " + upFile.getName() +"");
+        logger.debug("upload file name " + upFile.getName());
         this.upFile = upFile;
     }
 
 
     public String processFile() throws Exception {
 
-        /**
-         * TODO this needs revision espceially the session stuff next item online
-         */
+        logger.debug("check if upFile is intialized");
+        if(upFile == null){
+            logger.debug("upFile not initialized");
+            FacesUtil.addErrorMessage(getLocalizedString("Upload_view_failure"));
+            return null;
+        }
 
-        logger.debug("processFile()-----------------------------------------");
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        HttpSession session = (HttpSession) facesContext.getExternalContext().getSession(true);
+        if(logger.isDebugEnabled()){
+            logger.debug("file size " + upFile.getSize() + "file name " + upFile.getName() + "file Content Type " + upFile.getContentType() + "");
+        }
 
-        logger.debug("file size " + upFile.getSize() + "");
-        logger.debug("file name " + upFile.getName() + "");
-        logger.debug("file Content Type " + upFile.getContentType() + "");
-
-
+        logger.debug("check that the file is csv file");
+        if(!upFile.getName().endsWith("csv")){
+            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error",new String[] {upFile.getName()}));
+            return null;
+        }
+        logger.debug("check that file content type");
+        if(!upFile.getContentType().equalsIgnoreCase("application/vnd.ms-excel")){
+            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error",new String[] {upFile.getName()}));
+            return null;
+        }
         InputStream inputStream = new BufferedInputStream(upFile.getInputStream());
-        logger.debug("inputstream contents : "+inputStream.toString() );
-
-        List contents = csvtoArray(inputStream);
-
+        List contents;
+        contents = csvtoArray(inputStream);
         spreadsheet.setDate(new Date());
         spreadsheet.setTitle(this.getTitle());
         spreadsheet.setFilename(upFile.getName());
@@ -122,13 +117,10 @@ public class SpreadsheetUploadBean implements Serializable {
         /**
          * TODO this well probably be removed
          */
-    
+
         logger.debug("csvtoArray()");
         List contents = new ArrayList();
-
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-        contents = new ArrayList();
         String line;
         while((line = reader.readLine())!=null){
             logger.debug("contents of line: "+line);

@@ -177,13 +177,7 @@
 	</managed-bean>
 
     <managed-bean>
-		<managed-bean-name>spreadsheetUploadPreviewBean</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetUploadPreviewBean</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-    </managed-bean>
-
-    <managed-bean>
-        <managed-bean-name>spreadsheetPreviewBean</managed-bean-name>
+		<managed-bean-name>spreadsheetPreviewBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetPreviewBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>

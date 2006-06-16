@@ -18,7 +18,7 @@
             <h:outputText value="#{msgs.appmenu_add_assignment}"/>
         </h:commandLink>
         <h:outputText value="#{msgs.appmenu_add_assignment}" rendered="#{bean.pageName eq 'addAssignment'}" styleClass="currentView" />
-        <h:outputText value=" | "/>
+        <h:outputText value=" | " rendered="#{bean.pageName ne 'feedbackOptions'}"/>
         <h:commandLink action="feedbackOptions" immediate="true" rendered="#{bean.pageName ne 'feedbackOptions'}">
             <h:outputText value="#{msgs.appmenu_feedback_options}"/>
         </h:commandLink>
