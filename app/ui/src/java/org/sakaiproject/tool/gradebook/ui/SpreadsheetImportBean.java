@@ -94,30 +94,6 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
 
     public String saveGrades(){
 
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        HttpServletRequest request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
-
-        logger.debug("read all the request parameters------------");
-
-        Enumeration paramNames = request.getParameterNames();
-        while(paramNames.hasMoreElements()){
-
-            String param = (String) paramNames.nextElement();
-            String[] paramValues = request.getParameterValues(param);
-            if(paramValues.length == 1){
-                logger.debug("parameter: "+param +" is "+paramValues[0]);
-            }
-            if(paramValues.length == 0){
-                logger.debug("parameter: "+param +" has no value ");
-            }
-            if(paramValues.length > 1){
-                for(int i = 0;i< paramValues.length;i++)
-                    logger.debug("parameter: "+param +" is "+paramValues[i]);
-            }
-
-        }
-        logger.debug("end parameter read----------------");
-
         logger.debug("create assignment and save grades");
 
         try {
