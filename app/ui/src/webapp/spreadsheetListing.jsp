@@ -43,7 +43,7 @@
                         <h:outputText value="#{msgs.loading_dock_table_datecreated}"/>
                     </f:facet>
                     <h:outputText value="#{row.dateCreated}">
-                        <f:convertDateTime pattern="d MMM yyyy  H:m:s"/>
+                        <f:convertDateTime pattern="d MMM yyyy  H:m:ss"/>
                     </h:outputText>
                 </t:column>
 
