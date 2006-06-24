@@ -43,15 +43,10 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
     private GradeRecordSet graderecords;
     private Long assignmentId;
     private SpreadsheetBean spreadsheet;
-
-    FacesContext facesContext;
-    HttpServletRequest request;
-    HttpSession session;
-
     private static final Log logger = LogFactory.getLog(SpreadsheetImportBean.class);
 
 
-    public SpreadsheetImportBean() {
+    public void init() {
 
         logger.debug("spreadsheetImporBean()");
 
@@ -59,11 +54,10 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
             assignment = new Assignment();
         }
 
-        facesContext = FacesContext.getCurrentInstance();
-        session = (HttpSession) facesContext.getExternalContext().getSession(true);
-
+        FacesContext facesContext = FacesContext.getCurrentInstance();
         try{
             spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
+            logger.debug(spreadsheet.toString());
         }catch(Exception e){
             logger.debug("unable to load");
         }
@@ -126,15 +120,12 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
             Set mismatchedScores  = getGradebookManager().updateAssignmentGradeRecords(graderecords);
 
             return  "spreadsheetPreview";
-
         } catch (ConflictingAssignmentNameException e) {
             logger.error(e);
             FacesUtil.addErrorMessage(getLocalizedString("add_assignment_name_conflict_failure"));
 
         }
-
         return null;
     }
-
 
 }

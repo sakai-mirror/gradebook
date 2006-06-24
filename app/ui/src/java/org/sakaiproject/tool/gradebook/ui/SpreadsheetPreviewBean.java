@@ -20,6 +20,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
+import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.api.section.coursemanagement.User;
 
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -44,24 +46,36 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
     private String columnCount;
     private String rowCount;
     private SpreadsheetBean spreadsheet;
+    private Map rosterMap;
+    private String rowStyles;
 
     private static final Log logger = LogFactory.getLog(SpreadsheetPreviewBean.class);
 
-    /**
-     * TODO this  class is very similar to SpreadsheetPreviewBean once i figure out the session handling
-     * and request forwarding issue probably consolidate the two into one class
-     *
-     */
-    public SpreadsheetPreviewBean() {
 
-         FacesContext facesContext = FacesContext.getCurrentInstance();
+    public void init() {
 
-        //List contents =  (ArrayList) session.getAttribute("filecontents");
+        FacesContext facesContext = FacesContext.getCurrentInstance();
         try{
             spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
         }catch(Exception e){
             logger.debug("unable to load");
         }
+
+
+        //initialize rosteMap which is map of displayid and user objects
+        rosterMap = new HashMap();
+        List  enrollments = getAvailableEnrollments();
+        logger.debug("enrollmenst size " +enrollments.size());
+
+        Iterator iter;
+        iter = enrollments.iterator();
+        while(iter.hasNext()){
+            EnrollmentRecord enr;
+            enr = (EnrollmentRecord)iter.next();
+            logger.debug("displayid "+enr.getUser().getDisplayId() + "  userid "+enr.getUser().getUserUid());
+            rosterMap.put(enr.getUser().getDisplayId(),enr.getUser());
+        }
+
 
         assignmentList = new ArrayList();
         studentRows = new ArrayList();
@@ -75,17 +89,22 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         //generate spreadsheet rows
         Iterator it = spreadsheet.getLineitems().iterator();
         int rowcount = 0;
+        int unknownusers = 0;
         while(it.hasNext()){
             String line = (String) it.next();
             if(rowcount > 0){
                 SpreadsheetPreviewBean.SpreadsheetRow  row = new SpreadsheetPreviewBean.SpreadsheetRow(line,",");
                 studentRows.add(row);
+                //check the number of unkonw users in spreadsheet
+                if(!row.isKnown())unknownusers = unknownusers + 1;
                 SpreadsheetPreviewBean.logger.debug("row added" + rowcount);
             }
            rowcount++;
         }
         rowCount = String.valueOf(rowcount - 1);
-
+        if(unknownusers > 0){
+            FacesUtil.addUniqueErrorMessage(getLocalizedString("import_preview_nomatch"));
+        }
 
         //create a numeric list of assignment headers
 
@@ -103,9 +122,10 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
             assignmentColumnSelectItems.add(item);
         }
 
+
+
         SpreadsheetPreviewBean.logger.debug("Map initialized " +studentRows.size());
         SpreadsheetPreviewBean.logger.debug("assignmentList " +assignmentList.size());
-
 
     }
 
@@ -167,8 +187,8 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         private int columnCount;
         private String userDisplayName;
         private String userId;
-
-
+        private String userUid;
+        private boolean isKnown;
 
         public SpreadsheetRow(String source, String delim) {
 
@@ -184,16 +204,21 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
 
             try {
                 SpreadsheetPreviewBean.logger.debug("getuser name for "+ tokens[0]);
-                userDisplayName = getUserDirectoryService().getUserDisplayName(tokens[0]);
+                //userDisplayName = getUserDirectoryService().getUserDisplayName(tokens[0]);
                 userId = tokens[0];
+                userDisplayName = ((User)rosterMap.get(tokens[0])).getDisplayName();
+                userUid = ((User)rosterMap.get(tokens[0])).getUserUid();
+                isKnown  = true;
                 SpreadsheetPreviewBean.logger.debug("get userid "+tokens[0] + "username is "+userDisplayName);
 
-            } catch (UnknownUserException e) {
+            } catch (Exception e) {
                 SpreadsheetPreviewBean.logger.debug("User " + tokens[0] + " is unknown to this gradebook ");
                 SpreadsheetPreviewBean.logger.error(e);
                 userDisplayName = "unknown student";
                 userId = tokens[0];
-                //FacesUtil.addErrorMessage("The Student with userid "+userId + " is not known to sakai");
+                userUid = null;
+                isKnown = false;
+
             }
 
         }
@@ -232,6 +257,21 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
             this.userId = userId;
         }
 
+        public String getUserUid() {
+            return userUid;
+        }
+
+        public void setUserUid(String userUid) {
+            this.userUid = userUid;
+        }
+
+        public boolean isKnown() {
+            return isKnown;
+        }
+
+        public void setKnown(boolean known) {
+            isKnown = known;
+        }
     }
 
     public String saveFile(){
@@ -282,32 +322,41 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
 
         Iterator it = studentRows.iterator();
         logger.debug("number of student rows "+studentRows.size() );
-        int i = 0;
-        while(it.hasNext()){
+         int i = 0;
+         while(it.hasNext()){
 
-            logger.debug("row " + i);
-            SpreadsheetRow row = (SpreadsheetRow) it.next();
-            List line = row.getRowcontent();
+             logger.debug("row " + i);
+             SpreadsheetRow row = (SpreadsheetRow) it.next();
+             List line = row.getRowcontent();
 
-            String user = (String)line.get(0);
-            String points;
-            try{
-                points = (String) line.get(Integer.parseInt(selectedColumn));
-            }catch(Exception e){
-                logger.error(e);
-                points = "";
+             String userid = "";
+             String user = (String)line.get(0);
+             try{
+                 userid = ((User)rosterMap.get(line.get(0))).getUserUid();
+             }catch(Exception e){
+                 logger.debug("user "+ user + "is not known to the system");
+                 userid = "";
+             }
+             String points;
+             try{
+                 points = (String) line.get(Integer.parseInt(selectedColumn));
+             }catch(Exception e){
+                 logger.error(e);
+                 points = "";
 
-            }
-            logger.debug("user "+user + " points "+points);
-            if(!points.equals("")){
-                selectedAssignment.put(user,points);
-            }
-            i++;
-        }
+             }
+             logger.debug("user "+user + " userid " + userid +" points "+points);
+             if(!points.equals("") && (!userid.equals(""))){
+                 selectedAssignment.put(userid,points);
+             }
+             i++;
+         }
+         logger.debug("scores to import "+ i);
 
-        spreadsheet.setSelectedAssignment(selectedAssignment);
-        return "spreadsheetImport";
-    }
+         //spreadsheet.setSelectedAssignment(selectedAssignment);
+         ((SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext)).setSelectedAssignment(selectedAssignment);
+         return "spreadsheetImport";
+     }
 
 
     public List getAssignmentList() {
@@ -373,6 +422,33 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
 
     public void setRowCount(String rowCount) {
         this.rowCount = rowCount;
+    }
+
+    public Map getRosterMap() {
+        return rosterMap;
+    }
+
+    public void setRosterMap(Map rosterMap) {
+        this.rosterMap = rosterMap;
+    }
+
+
+    public String getRowStyles() {
+        StringBuffer sb = new StringBuffer();
+        for(Iterator iter = studentRows.iterator(); iter.hasNext();){
+            SpreadsheetRow row = (SpreadsheetRow)iter.next();
+            if(row.isKnown()){
+               sb.append("internal,");
+            }else{
+               sb.append("external,");
+            }
+        }
+        logger.debug(sb.toString());
+        return sb.toString();
+    }
+
+    public void setRowStyles(String rowStyles) {
+        this.rowStyles = rowStyles;
     }
 
 

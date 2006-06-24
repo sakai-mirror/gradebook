@@ -6,6 +6,8 @@
 
             <%@include file="/inc/appMenu.jspf"%>
 
+            <sakai:flowState bean="#{spreadsheetPreviewBean}" />  
+
             <h2><h:outputText value="#{msgs.import_preview_page_title}"/></h2>
 
             <div class="instruction">
@@ -19,7 +21,13 @@
             <t:selectOneRadio id="assignment" layout="spread" converter="javax.faces.Integer">
                 <f:selectItems  value="#{spreadsheetPreviewBean.assignmentColumnSelectItems}" />
             </t:selectOneRadio>
-            <t:dataTable id="table1" value="#{spreadsheetPreviewBean.studentRows}" var="row" rowIndexVar="rowIndex" styleClass="listHier" columnClasses="center">
+            <t:dataTable id="table1"
+                         value="#{spreadsheetPreviewBean.studentRows}"
+                         var="row"
+                         rowIndexVar="rowIndex"
+                         styleClass="listHier"
+                         columnClasses="center"
+                         rowClasses="#{spreadsheetPreviewBean.rowStyles}">
                 <t:column styleClass="left">
                     <f:facet name="header">
                         <t:outputText value="Student ID"/>
