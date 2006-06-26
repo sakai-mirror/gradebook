@@ -41,8 +41,9 @@ public class SpreadsheetRemoveBean extends GradebookDependentBean implements Ser
 
     public void init() {
 
-        logger.debug("loading spreadsheetRemove()");
+        logger.debug("loading spreadsheetRemove().init()");
         if (spreadsheetId != null) {
+            logger.debug("spreadsheet id is "+ spreadsheetId);
             spreadsheet = getGradebookManager().getSpreadsheet(spreadsheetId);
             if (spreadsheet == null) {
                 // The assignment might have been removed since this link was set up.

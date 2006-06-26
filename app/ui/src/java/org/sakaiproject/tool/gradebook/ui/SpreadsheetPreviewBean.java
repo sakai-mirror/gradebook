@@ -48,6 +48,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
     private SpreadsheetBean spreadsheet;
     private Map rosterMap;
     private String rowStyles;
+    private boolean hasUnknownUser;
 
     private static final Log logger = LogFactory.getLog(SpreadsheetPreviewBean.class);
 
@@ -103,7 +104,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         }
         rowCount = String.valueOf(rowcount - 1);
         if(unknownusers > 0){
-            FacesUtil.addUniqueErrorMessage(getLocalizedString("import_preview_nomatch"));
+            this.hasUnknownUser = true;
         }
 
         //create a numeric list of assignment headers
@@ -451,5 +452,20 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         this.rowStyles = rowStyles;
     }
 
+    public SpreadsheetBean getSpreadsheet() {
+        return spreadsheet;
+    }
+
+    public void setSpreadsheet(SpreadsheetBean spreadsheet) {
+        this.spreadsheet = spreadsheet;
+    }
+
+    public boolean getHasUnknownUser() {
+        return hasUnknownUser;
+    }
+
+    public void setHasUnknownUser(boolean hasUnknownUser) {
+        this.hasUnknownUser = hasUnknownUser;
+    }
 
 }
