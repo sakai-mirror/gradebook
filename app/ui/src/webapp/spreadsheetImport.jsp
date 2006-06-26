@@ -2,6 +2,7 @@
     <div class="portletBody">
         <h:form id="gbForm">
             <%@include file="/inc/appMenu.jspf"%>
+            <sakai:flowState bean="#{spreadsheetImportBean}" />
             <h2><h:outputText value="#{msgs.import_assignment_page_title}"/></h2>
             <div class="instruction">
                 <h:outputText value="#{msgs.import_assignment_instruction}" escape="false"/>

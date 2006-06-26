@@ -6,6 +6,8 @@
             <%@include file="/inc/appMenu.jspf"%>
             <h2><h:outputText value="#{msgs.upload_preview_page_title}"/></h2>
 
+            <sakai:flowState bean="#{spreadsheetPreviewBean}" />
+
             <div class="instruction">
                 <h:outputText value="#{msgs.upload_preview_instructions}" escape="false"/>
                 <f:verbatim><ul></f:verbatim>
@@ -20,6 +22,7 @@
             <t:dataTable id="table1" value="#{spreadsheetPreviewBean.studentRows}" var="row" rowIndexVar="rowIndex" styleClass="listHier" columnClasses="center">
                 <t:column styleClass="left">
                     <f:facet name="header">
+                        <t:outputText value="Student ID"/>
                     </f:facet>
                     <h:outputText value="#{row.userId}"/>
                 </t:column>

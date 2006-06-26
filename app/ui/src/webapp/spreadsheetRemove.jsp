@@ -20,7 +20,7 @@
 		<x:aliasBean alias="#{bean}" value="#{spreadsheetRemoveBean}">
 			<%@include file="/inc/appMenu.jspf"%>
 		</x:aliasBean>
-        <sakai:flowState bean="#{spreadsheetRemoveBean}" />  
+         <sakai:flowState bean="#{spreadsheetRemoveBean}" />         
         <h2><h:outputText value="#{msgs.remove_spreadsheet_page_title}"/></h2>
 
 		<div class="instruction"><h:outputText value="#{msgs.remove_spreadsheet_instruction}" escape="false"/></div>

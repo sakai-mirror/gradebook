@@ -118,12 +118,11 @@ public class BaseEntityProducer implements EntityProducer {
 		return null;
 	}
 
+	public Collection getEntityAuthzGroups(Reference ref, String userId) {
+		return null;
+	}
 
-    public Collection getEntityAuthzGroups(Reference ref, String userId) {
-        return null;
-    }
-
-    public HttpAccess getHttpAccess() {
+	public HttpAccess getHttpAccess() {
 		return null;
 	}
 }

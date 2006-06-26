@@ -23,13 +23,14 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 /**
  * User: louis
  * Date: Jun 6, 2006
  * Time: 12:11:01 PM
  */
-public class SpreadsheetBean extends GradebookDependentBean implements Serializable {
+public class SpreadsheetBean  implements Serializable {
 
     private String title;
     private Date date;
@@ -57,9 +58,7 @@ public class SpreadsheetBean extends GradebookDependentBean implements Serializa
     }
 
     public SpreadsheetBean() {
-
         logger.debug("loading SpreadsheetBean()");
-
     }
 
     public String getUserId() {
@@ -95,7 +94,7 @@ public class SpreadsheetBean extends GradebookDependentBean implements Serializa
     }
 
     public String getDisplayName() {
-        return getUserDirectoryService().getUserDisplayName(getUserId());
+        return displayName;
     }
 
     public void setDisplayName(String displayName) {
@@ -130,12 +129,27 @@ public class SpreadsheetBean extends GradebookDependentBean implements Serializa
 
 
     public Map getSelectedAssignment() {
+        //logger.debug(this.selectedAssignment);
         return selectedAssignment;
     }
 
     public void setSelectedAssignment(Map selectedAssignment) {
         this.selectedAssignment = selectedAssignment;
+        //logger.debug(selectedAssignment);
     }
 
 
+    public String toString() {
+        return "SpreadsheetBean{" +
+                "title='" + title + '\'' +
+                ", date=" + date +
+                ", userId='" + userId + '\'' +
+                ", contents='" + contents + '\'' +
+                ", displayName='" + displayName + '\'' +
+                ", gradebookId=" + gradebookId +
+                ", filename='" + filename + '\'' +
+                ", lineitems=" + lineitems +
+                ", selectedAssignment=" + selectedAssignment +
+                '}';
+    }
 }
