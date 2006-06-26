@@ -16,6 +16,11 @@
             <p class="instruction">
                 <h:outputText value="#{msgs.import_preview_additional_text}" escape="false"/>
             </p>
+
+             <p class="instruction">
+                <h:outputText value="#{msgs.import_preview_nomatch}" escape="false" rendered="spreadsheetPreviewBean.hasUnKnownUser"/>
+            </p>
+
             <%@include file="/inc/globalMessages.jspf"%>
             <p/>
             <t:selectOneRadio id="assignment" layout="spread" converter="javax.faces.Integer">
