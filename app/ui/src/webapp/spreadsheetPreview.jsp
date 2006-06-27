@@ -18,7 +18,7 @@
             </p>
 
              <p class="instruction">
-                <h:outputText value="#{msgs.import_preview_nomatch}" escape="false" rendered="spreadsheetPreviewBean.hasUnKnownUser"/>
+                <h:outputText value="#{msgs.import_preview_nomatch}" escape="false" rendered="#{spreadsheetPreviewBean.hasUnknownUser}"/>
             </p>
 
             <%@include file="/inc/globalMessages.jspf"%>
