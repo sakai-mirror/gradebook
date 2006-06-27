@@ -226,29 +226,37 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             assignmentGradeRows = new ArrayList();
         } else {
             List assignments = getGradebookManager().getAssignments(gradebook.getId());
+            logger.debug(assignments.size() + " total assignments");
             List gradeRecords = getGradebookManager().getStudentGradeRecords(gradebook.getId(), getUserUid());
+            logger.debug(gradeRecords.size()  +"  grade records");
 
             // Create a map of assignments to assignment grade rows
             Map asnMap = new HashMap();
             for(Iterator iter = assignments.iterator(); iter.hasNext();) {
+
                 Assignment asn = (Assignment)iter.next();
                 asnMap.put(asn, new AssignmentGradeRow(asn));
+
                 if (asn.isNotCounted()) {
-                	anyNotCounted = true;
+                    anyNotCounted = true;
                 }
+
             }
 
             for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
                 AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
-				if(asnGr.getPointsEarned() != null) {
-                    if(asnGr.getAssignment().isCounted()){
-					    if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
+                //removed released assignments
+               // if(asnGr.getAssignment().isReleased()) iter.remove();
+
+                if(asnGr.getPointsEarned() != null) {
+                    //check if tha assignment counts and is released
+                    if(asnGr.getAssignment().isCounted() && asnGr.getAssignment().isReleased()){
+                        if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
                         totalPointsEarned += asnGr.getPointsEarned().doubleValue();
                         if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getAssignment().getPointsPossible() + " to totalPointsPossible");
                         totalPointsScored += asnGr.getAssignment().getPointsPossible().doubleValue();
                     }
                 }
-
 
 				// Update the AssignmentGradeRow in the map
 				AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
@@ -256,6 +264,13 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             }
 
             assignmentGradeRows = new ArrayList(asnMap.values());
+
+            //remove assignments that are not released
+            Iterator i = assignmentGradeRows.iterator();
+            while(i.hasNext()){
+                AssignmentGradeRow assignmentGradeRow = (AssignmentGradeRow)i.next();
+                if(!(assignmentGradeRow.getAssignment().isReleased())) i.remove();
+            }
 
             Collections.sort(assignmentGradeRows, (Comparator)columnSortMap.get(sortColumn));
             if(!sortAscending) {

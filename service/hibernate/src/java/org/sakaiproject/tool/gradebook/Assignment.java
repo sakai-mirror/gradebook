@@ -54,6 +54,7 @@ public class Assignment extends GradableObject {
     private String externalInstructorLink;
     private String externalId;
     private String externalAppName;
+    private boolean released;
 
     static {
         dateComparator = new Comparator() {
@@ -135,7 +136,24 @@ public class Assignment extends GradableObject {
         this.name = name;
         this.pointsPossible = pointsPossible;
         this.dueDate = dueDate;
-	}
+    }
+
+
+    /**
+     * constructor to support selective release
+     * @param gradebook
+     * @param name
+     * @param pointsPossible
+     * @param dueDate
+     * @param released
+     */
+    public Assignment(Gradebook gradebook, String name, Double pointsPossible, Date dueDate, boolean released) {
+        this.gradebook = gradebook;
+        this.name = name;
+        this.pointsPossible = pointsPossible;
+        this.dueDate = dueDate;
+        this.released = released;
+    }
 
     public Assignment() {
     	super();
@@ -265,7 +283,25 @@ public class Assignment extends GradableObject {
 		this.externalAppName = externalAppName;
 	}
 
-	/**
+
+    /**
+     *
+     * @return selective release true or false
+     */
+
+    public boolean isReleased() {
+        return released;
+    }
+
+    /**
+     *
+     * @param released returns wther the assignment has been released to users
+     */
+    public void setReleased(boolean released) {
+        this.released = released;
+    }
+
+    /**
      * returns the mean score for students with entered grades.
 	 */
     protected Double calculateMean(Collection grades, int numEnrollments) {

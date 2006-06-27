@@ -55,4 +55,6 @@ public interface Assignment {
 	 *         other than the Gradebook itself.
 	 */
 	public boolean isExternallyMaintained();
+
+    public boolean isReleased();
 }

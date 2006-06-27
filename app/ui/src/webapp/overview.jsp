@@ -30,7 +30,7 @@
 			var="gradableObject"
 			sortColumn="#{overviewBean.assignmentSortColumn}"
             sortAscending="#{overviewBean.assignmentSortAscending}"
-            columnClasses="left,left,rightpadded,rightpadded,external"
+            columnClasses="left,left,rightpadded,rightpadded,rightpadded,external"
             rowClasses="#{overviewBean.rowStyles}"
 			styleClass="listHier narrowTable">
 			<h:column>
@@ -61,7 +61,18 @@
 				<h:outputText value="#{gradableObject.dueDate}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate != null}"/>
 				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate == null}"/>
 			</h:column>
-			<h:column rendered="#{overviewBean.userAbleToGradeAll}">
+
+            <!---selective release -->
+            <h:column>
+				<f:facet name="header">
+						<h:outputText value="#{msgs.overview_released}"/>
+		        </f:facet>
+				<h:outputText value="Y" rendered="#{gradableObject.released == true}"/>
+				<h:outputText value="N" rendered="#{gradableObject.released == false}"/>
+
+			</h:column>
+            <!-- end selective release -->
+            <h:column rendered="#{overviewBean.userAbleToGradeAll}">
 				<f:facet name="header">
 		            <x:commandSortHeader columnName="mean" immediate="true" arrow="true">
 						<h:outputText value="#{msgs.overview_assignments_header_average}"/>
