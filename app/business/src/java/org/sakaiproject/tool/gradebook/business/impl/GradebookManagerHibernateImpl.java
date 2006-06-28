@@ -528,6 +528,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
             comp = Assignment.meanComparator;
         } else if(Assignment.SORT_BY_POINTS.equals(sortBy)) {
             comp = Assignment.pointsComparator;
+        }else if(Assignment.releasedComparator.equals(sortBy)){
+            comp = Assignment.releasedComparator;
         } else {
             comp = Assignment.dateComparator;
         }

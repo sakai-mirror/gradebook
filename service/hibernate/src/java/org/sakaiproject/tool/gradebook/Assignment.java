@@ -35,16 +35,19 @@ import java.util.Iterator;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class Assignment extends GradableObject {
+
     public static String SORT_BY_DATE = "dueDate";
     public static String SORT_BY_NAME = "name";
     public static String SORT_BY_MEAN = "mean";
     public static String SORT_BY_POINTS = "pointsPossible";
+    public static String SORT_BY_RELEASED ="released";
     public static String DEFAULT_SORT = SORT_BY_DATE;
 
     public static Comparator dateComparator;
     public static Comparator nameComparator;
     public static Comparator pointsComparator;
     public static Comparator meanComparator;
+    public static Comparator releasedComparator;
 
     private Double pointsPossible;
     private Date dueDate;
@@ -122,6 +125,38 @@ public class Assignment extends GradableObject {
                     return -1;
                 }
                 int comp = mean1.compareTo(mean2);
+                if(comp == 0) {
+                    return one.getName().compareTo(two.getName());
+                } else {
+                    return comp;
+                }
+            }
+        };
+
+
+           pointsComparator = new Comparator() {
+            public int compare(Object o1, Object o2) {
+                if(log.isDebugEnabled()) log.debug("Comparing assignment + " + o1 + " to " + o2 + " by points");
+                Assignment one = (Assignment)o1;
+                Assignment two = (Assignment)o2;
+
+                int comp = one.getPointsPossible().compareTo(two.getPointsPossible());
+                if(comp == 0) {
+                    return one.getName().compareTo(two.getName());
+                } else {
+                    return comp;
+                }
+            }
+        };
+
+
+        releasedComparator = new Comparator() {
+            public int compare(Object o1, Object o2) {
+                if(log.isDebugEnabled()) log.debug("Comparing assignment + " + o1 + " to " + o2 + " by release");
+                Assignment one = (Assignment)o1;
+                Assignment two = (Assignment)o2;
+
+                int comp = String.valueOf(one.isReleased()).compareTo(String.valueOf(two.isReleased()));
                 if(comp == 0) {
                     return one.getName().compareTo(two.getName());
                 } else {

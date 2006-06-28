@@ -86,7 +86,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error",new String[] {upFile.getName()}));
             return null;
         }
-        logger.debug("check that file content type");
+        
+        logger.debug("check the file content type");
         if(!upFile.getContentType().equalsIgnoreCase("application/vnd.ms-excel")){
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error",new String[] {upFile.getName()}));
             return null;
@@ -123,7 +124,6 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line;
         while((line = reader.readLine())!=null){
-            logger.debug("contents of line: "+line);
             contents.add(line);
         }
         return contents;

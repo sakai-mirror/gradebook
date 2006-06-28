@@ -245,8 +245,6 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
 
             for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
                 AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
-                //removed released assignments
-               // if(asnGr.getAssignment().isReleased()) iter.remove();
 
                 if(asnGr.getPointsEarned() != null) {
                     //check if tha assignment counts and is released

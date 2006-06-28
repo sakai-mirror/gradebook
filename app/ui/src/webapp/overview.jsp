@@ -30,7 +30,7 @@
 			var="gradableObject"
 			sortColumn="#{overviewBean.assignmentSortColumn}"
             sortAscending="#{overviewBean.assignmentSortAscending}"
-            columnClasses="left,left,rightpadded,rightpadded,rightpadded,external"
+            columnClasses="left,left,center,rightpadded,rightpadded,external"
             rowClasses="#{overviewBean.rowStyles}"
 			styleClass="listHier narrowTable">
 			<h:column>
@@ -62,16 +62,17 @@
 				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate == null}"/>
 			</h:column>
 
-            <!---selective release -->
             <h:column>
 				<f:facet name="header">
-						<h:outputText value="#{msgs.overview_released}"/>
-		        </f:facet>
-				<h:outputText value="Y" rendered="#{gradableObject.released == true}"/>
-				<h:outputText value="N" rendered="#{gradableObject.released == false}"/>
+                    <x:commandSortHeader columnName="released" immediate="true" arrow="true">
+                        <h:outputText value="#{msgs.overview_released}"/>
+                    </x:commandSortHeader>
+                </f:facet>
+				<h:outputText value="#{msgs.overview_released_true}" rendered="#{gradableObject.released == true && gradableObject.released!=null}"/>
+				<h:outputText value="#{msgs.overview_released_false}" rendered="#{gradableObject.released == false &&  gradableObject.released!=null}"/>
 
 			</h:column>
-            <!-- end selective release -->
+
             <h:column rendered="#{overviewBean.userAbleToGradeAll}">
 				<f:facet name="header">
 		            <x:commandSortHeader columnName="mean" immediate="true" arrow="true">
