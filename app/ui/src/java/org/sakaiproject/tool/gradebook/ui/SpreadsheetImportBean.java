@@ -48,7 +48,7 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
 
     public void init() {
 
-        logger.debug("spreadsheetImporBean()");
+        if(logger.isDebugEnabled())logger.debug("spreadsheetImporBean()");
 
         if(assignment == null) {
             assignment = new Assignment();
@@ -57,11 +57,10 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
         FacesContext facesContext = FacesContext.getCurrentInstance();
         try{
             spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
-            logger.debug(spreadsheet.toString());
+            if(logger.isDebugEnabled())logger.debug(spreadsheet.toString());
         }catch(Exception e){
-            logger.debug("unable to load");
+            if(logger.isDebugEnabled())logger.debug("unable to load SpreadsheetBean");
         }
-
 
         scores =  spreadsheet.getSelectedAssignment();
         assignment.setName((String) scores.get("Assignment"));
@@ -87,22 +86,17 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
 
 
     public String saveGrades(){
-
-        logger.debug("create assignment and save grades");
-
+        if(logger.isDebugEnabled())logger.debug("create assignment and save grades");
         try {
-
             assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()));
             FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", new String[] {assignment.getName()}));
-
 
             assignment = getGradebookManager().getAssignmentWithStats(assignmentId);
             graderecords = new GradeRecordSet(assignment);
 
-            logger.debug("remove title entry form map");
+            if(logger.isDebugEnabled())logger.debug("remove title entry form map");
             scores.remove("Assignment");
-            logger.debug("iterate through scores and and save assignment grades");
-
+            if(logger.isDebugEnabled())logger.debug("iterate through scores and and save assignment grades");
 
             Iterator it = scores.entrySet().iterator();
             while(it.hasNext()){
@@ -112,18 +106,17 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
                 String points = (String) entry.getValue();
                 AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,uid,Double.valueOf(points));
                 graderecords.addGradeRecord(asnGradeRecord);
-                logger.debug("added grades for " + uid + " - points scored " +points);
+                if(logger.isDebugEnabled())logger.debug("added grades for " + uid + " - points scored " +points);
 
             }
 
-            logger.debug("persist grade records to database");
+            if(logger.isDebugEnabled())logger.debug("persist grade records to database");
             Set mismatchedScores  = getGradebookManager().updateAssignmentGradeRecords(graderecords);
 
             return  "spreadsheetPreview";
         } catch (ConflictingAssignmentNameException e) {
-            logger.error(e);
+            if(logger.isErrorEnabled())logger.error(e);
             FacesUtil.addErrorMessage(getLocalizedString("add_assignment_name_conflict_failure"));
-
         }
         return null;
     }

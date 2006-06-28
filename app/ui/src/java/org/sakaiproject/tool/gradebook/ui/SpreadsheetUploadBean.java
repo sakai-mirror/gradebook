@@ -43,7 +43,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         try{
             spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
         }catch(Exception e){
-            logger.debug("unable to load spreadsheetBean");
+            if(logger.isDebugEnabled()) logger.debug("unable to load spreadsheetBean");
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_config_error"));
 
         }
@@ -63,16 +63,16 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     }
 
     public void setUpFile(UploadedFile upFile) {
-        logger.debug("upload file name " + upFile.getName());
+        if(logger.isDebugEnabled()) logger.debug("upload file name " + upFile.getName());
         this.upFile = upFile;
     }
 
 
     public String processFile() throws Exception {
 
-        logger.debug("check if upFile is intialized");
+        if(logger.isDebugEnabled()) logger.debug("check if upFile is intialized");
         if(upFile == null){
-            logger.debug("upFile not initialized");
+            if(logger.isDebugEnabled()) logger.debug("upFile not initialized");
             FacesUtil.addErrorMessage(getLocalizedString("Upload_view_failure"));
             return null;
         }
@@ -81,7 +81,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             logger.debug("file size " + upFile.getSize() + "file name " + upFile.getName() + "file Content Type " + upFile.getContentType() + "");
         }
 
-        logger.debug("check that the file is csv file");
+        if(logger.isDebugEnabled()) logger.debug("check that the file is csv file");
         if(!upFile.getName().endsWith("csv")){
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error",new String[] {upFile.getName()}));
             return null;
@@ -121,7 +121,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
          * TODO this well probably be removed
          */
 
-        logger.debug("csvtoArray()");
+        if(logger.isDebugEnabled()) logger.debug("csvtoArray()");
         List contents = new ArrayList();
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line;

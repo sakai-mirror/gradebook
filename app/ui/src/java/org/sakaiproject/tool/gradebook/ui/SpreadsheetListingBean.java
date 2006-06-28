@@ -58,7 +58,7 @@ public class SpreadsheetListingBean extends GradebookDependentBean implements Se
         try{
             spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
         }catch(Exception e){
-            logger.debug("unable to load");
+            if(logger.isDebugEnabled())logger.debug("unable to load SpreadsheetBean");
         }
 
 
@@ -79,10 +79,9 @@ public class SpreadsheetListingBean extends GradebookDependentBean implements Se
 
     public String viewItem(){
 
-        logger.debug("loading viewItem()");
+        if(logger.isDebugEnabled())logger.debug("loading viewItem()");
 
         Spreadsheet sp = getGradebookManager().getSpreadsheet(spreadsheetId);
-
 
         StringBuffer sb = new StringBuffer();
         sb.append(sp.getContent());
@@ -91,8 +90,8 @@ public class SpreadsheetListingBean extends GradebookDependentBean implements Se
 
         String lineitems[] = sb.toString().split("\n");
         for(int i = 0;i<lineitems.length;i++){
-           logger.debug("line item contents \n" + lineitems[i]);
-          contents.add(lineitems[i]);
+            if(logger.isDebugEnabled())logger.debug("line item contents \n" + lineitems[i]);
+            contents.add(lineitems[i]);
         }
 
         spreadsheet.setTitle(sp.getName());

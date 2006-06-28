@@ -42,15 +42,11 @@ public class SpreadsheetBean  implements Serializable {
     private List lineitems;
     private Map selectedAssignment;
 
-
     private static final Log logger = LogFactory.getLog(SpreadsheetBean.class);
-
-
 
     public SpreadsheetBean(String title, Date date, String userId, String contents) {
 
-        logger.debug("loading SpreadsheetBean()");
-
+        if(logger.isDebugEnabled())logger.debug("loading SpreadsheetBean()");
         this.title = title;
         this.date = date;
         this.userId = userId;
@@ -58,7 +54,7 @@ public class SpreadsheetBean  implements Serializable {
     }
 
     public SpreadsheetBean() {
-        logger.debug("loading SpreadsheetBean()");
+        if(logger.isDebugEnabled())logger.debug("loading SpreadsheetBean()");
     }
 
     public String getUserId() {
@@ -137,7 +133,6 @@ public class SpreadsheetBean  implements Serializable {
         this.selectedAssignment = selectedAssignment;
         //logger.debug(selectedAssignment);
     }
-
 
     public String toString() {
         return "SpreadsheetBean{" +

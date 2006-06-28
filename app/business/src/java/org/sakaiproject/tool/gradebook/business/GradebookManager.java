@@ -273,14 +273,47 @@ public interface GradebookManager {
 
     public double getTotalPoints(Long gradebookId);
 
+    /**
+     * Fetches a spreadsheet that has been saved
+     *
+      * @param spreadsheetId
+     * @return  The saved spreadsheet object
+     */
     public Spreadsheet getSpreadsheet(Long spreadsheetId);
 
+    /**
+     *
+     * @param gradebookId
+     * @return  a Collection of spreadsheets
+     */
     public List getSpreadsheets(Long gradebookId);
+
+    /**
+     *
+     * @param spreadsheetid
+     * @throws StaleObjectModificationException
+     */
 
     public void removeSpreadsheet(Long spreadsheetid) throws StaleObjectModificationException;
 
+    /** update existing spreadsheet
+     *
+     * @param spreadsheet
+     * @throws StaleObjectModificationException
+     */
     public void updateSpreadsheet(Spreadsheet spreadsheet)throws StaleObjectModificationException;
 
+    /**
+     * create a net spreadsheet
+     *
+     * @param gradebookId
+     * @param name
+     * @param creator
+     * @param dateCreated
+     * @param content
+     * @return
+     * @throws Exception
+     */
     public Long createSpreadsheet(Long gradebookId, String name, String creator, Date dateCreated, String content) throws Exception;
 
 }

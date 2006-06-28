@@ -59,21 +59,21 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         try{
             spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
         }catch(Exception e){
-            logger.debug("unable to load");
+            if(logger.isDebugEnabled()) logger.debug("unable to load spreadsheetBean");
         }
 
 
         //initialize rosteMap which is map of displayid and user objects
         rosterMap = new HashMap();
         List  enrollments = getAvailableEnrollments();
-        logger.debug("enrollmenst size " +enrollments.size());
+        if(logger.isDebugEnabled()) logger.debug("enrollmenst size " +enrollments.size());
 
         Iterator iter;
         iter = enrollments.iterator();
         while(iter.hasNext()){
             EnrollmentRecord enr;
             enr = (EnrollmentRecord)iter.next();
-            logger.debug("displayid "+enr.getUser().getDisplayId() + "  userid "+enr.getUser().getUserUid());
+            if(logger.isDebugEnabled()) logger.debug("displayid "+enr.getUser().getDisplayId() + "  userid "+enr.getUser().getUserUid());
             rosterMap.put(enr.getUser().getDisplayId(),enr.getUser());
         }
 
@@ -98,9 +98,9 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
                 studentRows.add(row);
                 //check the number of unkonw users in spreadsheet
                 if(!row.isKnown())unknownusers = unknownusers + 1;
-                SpreadsheetPreviewBean.logger.debug("row added" + rowcount);
+                if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("row added" + rowcount);
             }
-           rowcount++;
+            rowcount++;
         }
         rowCount = String.valueOf(rowcount - 1);
         if(unknownusers > 0){
@@ -112,21 +112,19 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         SpreadsheetPreviewBean.logger.debug("creating assignment List ---------");
         for(int i = 0;i<assignmentHeaders.size();i++){
             assignmentList.add(new Integer(i));
-            SpreadsheetPreviewBean.logger.debug("col added" + i);
+            if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("col added" + i);
         }
         columnCount = String.valueOf(assignmentHeaders.size());
 
 
         for(int i = 0;i<assignmentHeaders.size();i++){
             SelectItem item = new  SelectItem(new Integer(i + 1),(String)assignmentHeaders.get(i));
-            SpreadsheetPreviewBean.logger.debug("creating selectItems "+ item.getValue());
+            if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("creating selectItems "+ item.getValue());
             assignmentColumnSelectItems.add(item);
         }
 
-
-
-        SpreadsheetPreviewBean.logger.debug("Map initialized " +studentRows.size());
-        SpreadsheetPreviewBean.logger.debug("assignmentList " +assignmentList.size());
+        if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("Map initialized " +studentRows.size());
+        if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("assignmentList " +assignmentList.size());
 
     }
 
@@ -167,12 +165,11 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
 
         public SpreadsheetHeader(String source, String delim) {
 
-            SpreadsheetPreviewBean.logger.debug("creating header from "+source);
-
+            if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("creating header from "+source);
             header = new ArrayList();
             String tokens[] = source.split(delim);
             for(int x =0;x<tokens.length;x++){
-                SpreadsheetPreviewBean.logger.debug("token value using split "+tokens[x]);
+                if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("token value using split "+tokens[x]);
                 header.add(tokens[x]);
 
             }
@@ -193,18 +190,18 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
 
         public SpreadsheetRow(String source, String delim) {
 
-            SpreadsheetPreviewBean.logger.debug("creating row from string " + source);
+            if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("creating row from string " + source);
             rowcontent = new ArrayList();
             String tokens[] = source.split(delim);
             for(int x =0;x<tokens.length;x++){
-                SpreadsheetPreviewBean.logger.debug("token value using split "+tokens[x]);
+                if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("token value using split "+tokens[x]);
                 rowcontent.add(tokens[x]);
             }
 
 
 
             try {
-                SpreadsheetPreviewBean.logger.debug("getuser name for "+ tokens[0]);
+                if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("getuser name for "+ tokens[0]);
                 //userDisplayName = getUserDirectoryService().getUserDisplayName(tokens[0]);
                 userId = tokens[0];
                 userDisplayName = ((User)rosterMap.get(tokens[0])).getDisplayName();
@@ -213,8 +210,8 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
                 SpreadsheetPreviewBean.logger.debug("get userid "+tokens[0] + "username is "+userDisplayName);
 
             } catch (Exception e) {
-                SpreadsheetPreviewBean.logger.debug("User " + tokens[0] + " is unknown to this gradebook ");
-                SpreadsheetPreviewBean.logger.error(e);
+                if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("User " + tokens[0] + " is unknown to this gradebook ");
+                if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.error(e);
                 userDisplayName = "unknown student";
                 userId = tokens[0];
                 userUid = null;
@@ -294,7 +291,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         try{
             getGradebookManager().createSpreadsheet(getGradebookId(),spreadsheet.getTitle(),getUserUid(),new Date(),sb.toString());
         }catch(Exception e){
-            logger.debug(e);
+            if(logger.isDebugEnabled())logger.debug(e);
             FacesUtil.addErrorMessage(getLocalizedString("upload_preview_save_failure"));
             return null;
         }
@@ -308,25 +305,25 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
          FacesContext facesContext = FacesContext.getCurrentInstance();
          HttpServletRequest request = (HttpServletRequest) facesContext.getExternalContext().getRequest();
 
-        logger.debug("processFile()");
+        if(logger.isDebugEnabled())logger.debug("processFile()");
         String selectedColumn =  request.getParameter("form:assignment");
-        logger.debug("the selected column is " + selectedColumn);
+        if(logger.isDebugEnabled())logger.debug("the selected column is " + selectedColumn);
 
         selectedAssignment = new HashMap();
         try{
             selectedAssignment.put("Assignment", assignmentHeaders.get(Integer.parseInt(selectedColumn) - 1));
         }catch(Exception e){
-            logger.debug("no assignment selected");
+            if(logger.isDebugEnabled())logger.debug("no assignment selected");
             FacesUtil.addErrorMessage(getLocalizedString("import_preview_assignment_selection_failure"));
             return null;
         }
 
         Iterator it = studentRows.iterator();
-        logger.debug("number of student rows "+studentRows.size() );
+        if(logger.isDebugEnabled())logger.debug("number of student rows "+studentRows.size() );
          int i = 0;
          while(it.hasNext()){
 
-             logger.debug("row " + i);
+             if(logger.isDebugEnabled())logger.debug("row " + i);
              SpreadsheetRow row = (SpreadsheetRow) it.next();
              List line = row.getRowcontent();
 
@@ -335,24 +332,24 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
              try{
                  userid = ((User)rosterMap.get(line.get(0))).getUserUid();
              }catch(Exception e){
-                 logger.debug("user "+ user + "is not known to the system");
+                 if(logger.isDebugEnabled())logger.debug("user "+ user + "is not known to the system");
                  userid = "";
              }
              String points;
              try{
                  points = (String) line.get(Integer.parseInt(selectedColumn));
              }catch(Exception e){
-                 logger.error(e);
+                 if(logger.isDebugEnabled())logger.error(e);
                  points = "";
 
              }
-             logger.debug("user "+user + " userid " + userid +" points "+points);
+             if(logger.isDebugEnabled())logger.debug("user "+user + " userid " + userid +" points "+points);
              if(!points.equals("") && (!userid.equals(""))){
                  selectedAssignment.put(userid,points);
              }
              i++;
          }
-         logger.debug("scores to import "+ i);
+         if(logger.isDebugEnabled())logger.debug("scores to import "+ i);
 
          //spreadsheet.setSelectedAssignment(selectedAssignment);
          ((SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext)).setSelectedAssignment(selectedAssignment);
