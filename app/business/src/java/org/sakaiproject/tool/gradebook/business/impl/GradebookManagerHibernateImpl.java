@@ -528,6 +528,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
             comp = Assignment.meanComparator;
         } else if(Assignment.SORT_BY_POINTS.equals(sortBy)) {
             comp = Assignment.pointsComparator;
+        }else if(Assignment.releasedComparator.equals(sortBy)){
+            comp = Assignment.releasedComparator;
         } else {
             comp = Assignment.dateComparator;
         }
@@ -630,6 +632,49 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         };
 
         return (Long)getHibernateTemplate().execute(hc);
+    }
+
+
+    public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased) throws ConflictingAssignmentNameException, StaleObjectModificationException {
+
+        HibernateCallback hc = new HibernateCallback() {
+               public Object doInHibernate(Session session) throws HibernateException {
+                   Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+                   int numNameConflicts = ((Integer)session.createQuery(
+                           "select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+                           setString(0, name).
+                           setEntity(1, gb).
+                           uniqueResult()).intValue();
+                   if(numNameConflicts > 0) {
+                       throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+                   }
+
+                   Assignment asn = new Assignment();
+                   asn.setGradebook(gb);
+                   asn.setName(name);
+                   asn.setPointsPossible(points);
+                   asn.setDueDate(dueDate);
+                   if (isNotCounted != null) {
+                       asn.setNotCounted(isNotCounted.booleanValue());
+                   }
+
+                   if(isReleased!=null){
+                       asn.setReleased(isReleased.booleanValue());
+                   }
+
+                   // Save the new assignment
+                   Long id = (Long)session.save(asn);
+
+                   // Recalculate the course grades
+                   recalculateCourseGradeRecords(asn.getGradebook(), session);
+
+                   return id;
+               }
+           };
+
+           return (Long)getHibernateTemplate().execute(hc);
+
+
     }
 
     /**

@@ -88,7 +88,7 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
     public String saveGrades(){
         if(logger.isDebugEnabled())logger.debug("create assignment and save grades");
         try {
-            assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()));
+            assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
             FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", new String[] {assignment.getName()}));
 
             assignment = getGradebookManager().getAssignmentWithStats(assignmentId);

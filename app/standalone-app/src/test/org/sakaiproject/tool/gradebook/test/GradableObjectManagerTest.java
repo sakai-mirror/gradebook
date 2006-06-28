@@ -103,6 +103,43 @@ public class GradableObjectManagerTest extends GradebookTestBase {
         Assert.assertTrue(errorThrown);
     }
 
+     public void testCreateAndUpdateAssignmentWithSelectiveRelease() throws Exception {
+
+        Long asnId = gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), new Date(), Boolean.FALSE, Boolean.FALSE);
+        Assignment asn = (Assignment)gradebookManager.getGradableObject(asnId);
+        asn.setPointsPossible(new Double(20));
+        gradebookManager.updateAssignment(asn);
+
+        // Fetch the updated assignment with statistics
+        Assignment persistentAssignment = gradebookManager.getAssignmentWithStats(asnId);
+        // Ensure the DB update was successful
+        Assert.assertEquals(persistentAssignment.getPointsPossible(), new Double(20));
+
+        // Try to save a new assignment with the same name
+        boolean errorThrown = false;
+        try {
+            gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(20), new Date(), Boolean.FALSE);
+        } catch (ConflictingAssignmentNameException e) {
+            errorThrown = true;
+        }
+        Assert.assertTrue(errorThrown);
+
+        // Save a second assignment
+        Long secondId = gradebookManager.createAssignment(gradebook.getId(), ASN2_NAME, new Double(10), new Date(), Boolean.FALSE,Boolean.TRUE);
+        Assignment asn2 = (Assignment)gradebookManager.getGradableObject(secondId);
+
+        errorThrown = false;
+
+        // Try to update its name to that of the first
+        asn2.setName(ASN1_NAME);
+        try {
+            gradebookManager.updateAssignment(asn2);
+        } catch (ConflictingAssignmentNameException e) {
+            errorThrown = true;
+        }
+        Assert.assertTrue(errorThrown);
+    }
+
     public void testGradableObjectSorting() throws Exception {
         // Create an assignment with a null date
         Long id1 = gradebookManager.createAssignment(gradebook.getId(), ASN1_NAME, new Double(10), null, Boolean.FALSE);

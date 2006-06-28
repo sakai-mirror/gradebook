@@ -88,6 +88,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         }
         /**
         logger.debug("check that file content type");
+        
+        logger.debug("check the file content type");
         if(!upFile.getContentType().equalsIgnoreCase("application/vnd.ms-excel")){
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error",new String[] {upFile.getName()}));
             return null;

@@ -40,6 +40,9 @@
             <h:panelGrid columns="2" columnClasses="prefixedCheckbox">
                 <h:selectBooleanCheckbox id="countAssignment" value="#{spreadsheetImportBean.assignment.counted}"/>
                 <h:outputLabel for="countAssignment" value="#{msgs.import_assignment_counted}" />
+
+               <h:selectBooleanCheckbox id="released" value="#{spreadsheetImportBean.assignment.released}"/>
+                <h:outputLabel for="released" value="#{msgs.add_assignment_released}" />
             </h:panelGrid>
 
             <p class="act calendarPadding">

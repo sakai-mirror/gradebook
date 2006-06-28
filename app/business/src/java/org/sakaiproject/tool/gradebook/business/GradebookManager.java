@@ -248,6 +248,25 @@ public interface GradebookManager {
     public Long createAssignment(Long gradebookId, String name, Double points, Date dueDate, Boolean isNotCounted)
         throws ConflictingAssignmentNameException, StaleObjectModificationException;
 
+
+    /**
+     * overloaded method to support selective release
+     *
+     * @param gradebookId
+     * @param name
+     * @param points
+     * @param dueDate
+     * @param isNotCounted
+     * @param isReleased is the assignment released to students
+     * @return
+     * @throws ConflictingAssignmentNameException
+     * @throws StaleObjectModificationException
+     */
+
+    public Long createAssignment(Long gradebookId, String name, Double points, Date dueDate, Boolean isNotCounted, Boolean isReleased)
+            throws ConflictingAssignmentNameException, StaleObjectModificationException;
+
+
     /**
      * Updates an existing assignment
      */
