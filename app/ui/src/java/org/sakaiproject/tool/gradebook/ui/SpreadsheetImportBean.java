@@ -86,7 +86,26 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
 
 
     public String saveGrades(){
+
         if(logger.isDebugEnabled())logger.debug("create assignment and save grades");
+        if(logger.isDebugEnabled()) logger.debug("first check if all avariable are numeric");
+
+        Iterator iter = scores.entrySet().iterator();
+        while(iter.hasNext()){
+            Map.Entry entry  = (Map.Entry) iter.next();
+            String points =  (String) entry.getValue();
+            try{
+                if(logger.isDebugEnabled()) logger.debug("checking if " +points +" is a numeric value");
+                if(!entry.getKey().equals("Assignment"))Double.parseDouble(points);
+            }catch(Exception e){
+                if(logger.isDebugEnabled()) logger.debug(points + " is not a numeric value");
+                FacesUtil.addRedirectSafeMessage(getLocalizedString("import_assignment_notsupported"));
+                return "spreadsheetPreview";
+            }
+
+        }
+
+
         try {
             assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
             FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", new String[] {assignment.getName()}));
