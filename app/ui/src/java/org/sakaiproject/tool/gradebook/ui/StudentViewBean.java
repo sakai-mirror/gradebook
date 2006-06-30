@@ -55,6 +55,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
     private int percent;
     private boolean courseGradeReleased;
     private String courseGrade;
+    private String cumulativeCourseGrade;
     private boolean assignmentsReleased;
     private boolean anyNotCounted;
 
@@ -218,7 +219,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
         	CourseGradeRecord gradeRecord = getGradebookManager().getStudentCourseGradeRecord(gradebook, getUserUid());
         	if (gradeRecord != null) {
 	        	courseGrade = gradeRecord.getDisplayGrade();
-	        }
+            }
         }
 
         // Don't display any assignments if they have not been released
@@ -294,6 +295,8 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
                 percent = (int)(totalPointsEarned / totalPointsScored * 100);
             }
         }
+        //set the cumulative grade
+         cumulativeCourseGrade = getGradebook().getSelectedGradeMapping().getGrade(new Double(percent));
     }
 
 	/**
@@ -387,6 +390,16 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
      */
     public boolean isAnyNotCounted() {
     	return anyNotCounted;
+    }
+
+
+    public String getCumulativeCourseGrade() {
+        return cumulativeCourseGrade;
+    }
+
+    public void setCumulativeCourseGrade(String cumulativeCourseGrade) {
+
+        this.cumulativeCourseGrade = cumulativeCourseGrade;
     }
 
 }

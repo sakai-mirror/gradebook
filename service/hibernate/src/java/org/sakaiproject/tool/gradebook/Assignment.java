@@ -171,6 +171,7 @@ public class Assignment extends GradableObject {
         this.name = name;
         this.pointsPossible = pointsPossible;
         this.dueDate = dueDate;
+        this.released = true;
     }
 
 

@@ -158,10 +158,19 @@ public abstract class GradableObject implements Serializable {
         this.removed = removed;
     }
 
+    /**  selective release support
+     *
+     * @return true or false
+     */
+
     public boolean isReleased() {
         return released;
     }
 
+    /** selective release support
+     *
+     * @param released true or false
+     */
     public void setReleased(boolean released) {
         this.released = released;
     }

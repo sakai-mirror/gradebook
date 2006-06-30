@@ -317,8 +317,8 @@ public class GradeManagerTest extends GradebookTestBase {
 		});
 		addUsersEnrollments(gradebook, studentUidsList);
 
-        Long id1 = gradebookManager.createAssignment(gradebook.getId(), "asn1", new Double(10), null, Boolean.FALSE);
-        Long id2 = gradebookManager.createAssignment(gradebook.getId(), "asn2", new Double(20), new Date(10), Boolean.FALSE);
+        Long id1 = gradebookManager.createAssignment(gradebook.getId(), "asn1", new Double(10), null, Boolean.FALSE,Boolean.TRUE);
+        Long id2 = gradebookManager.createAssignment(gradebook.getId(), "asn2", new Double(20), new Date(10), Boolean.FALSE,Boolean.TRUE);
 
         Assignment asn1 = gradebookManager.getAssignmentWithStats(id1);
         Assignment asn2 = gradebookManager.getAssignmentWithStats(id2);

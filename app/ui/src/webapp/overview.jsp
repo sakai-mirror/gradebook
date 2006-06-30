@@ -68,8 +68,8 @@
                         <h:outputText value="#{msgs.overview_released}"/>
                     </x:commandSortHeader>
                 </f:facet>
-				<h:outputText value="#{msgs.overview_released_true}" rendered="#{gradableObject.released == true && gradableObject.released!=null}"/>
-				<h:outputText value="#{msgs.overview_released_false}" rendered="#{gradableObject.released == false &&  gradableObject.released!=null}"/>
+				<h:outputText value="#{msgs.overview_released_true}" rendered="#{!gradableObject.courseGrade && gradableObject.released == true }"/>
+				<h:outputText value="#{msgs.overview_released_false}" rendered="#{!gradableObject.courseGrade && gradableObject.released == false}"/>
 
 			</h:column>
 
