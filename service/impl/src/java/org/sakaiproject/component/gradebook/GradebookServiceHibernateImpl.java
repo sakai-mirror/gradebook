@@ -538,6 +538,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUid);
         }
 		final Set studentIds = studentUidsToScores.keySet();
+		if (studentIds.isEmpty()) {
+			return;
+		}
 		final Date now = new Date();
 		final String graderId = getUserUid();
 
@@ -607,6 +610,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		});
         return (assignment != null);
     }
+
+	public boolean isExternalAssignmentDefined(String gradebookUid, String externalId) throws GradebookNotFoundException {
+        Assignment assignment = getExternalAssignment(gradebookUid, externalId);
+        return (assignment != null);
+	}
 
 	public boolean isUserAbleToGradeStudent(String gradebookUid, String studentUid) {
 		return getAuthz().isUserAbleToGradeStudent(gradebookUid, studentUid);
