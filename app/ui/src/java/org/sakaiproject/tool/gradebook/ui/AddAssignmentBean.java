@@ -38,6 +38,7 @@ public class AddAssignmentBean extends GradebookDependentBean implements Seriali
 	protected void init() {
         if(assignment == null) {
             assignment = new Assignment();
+            assignment.setReleased(true);
         }
 	}
 

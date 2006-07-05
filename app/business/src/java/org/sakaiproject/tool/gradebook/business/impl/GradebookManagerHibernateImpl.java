@@ -483,7 +483,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     }
 
     private List getAssignmentsWithStatsInternal(final Long gradebookId, final String sortBy, final boolean ascending, final Set studentUids) {
-    	List assignments;
+        logger.debug("sort by is "+sortBy);
+        List assignments;
     	if (studentUids.isEmpty()) {
     		// Hibernate 2.1.8 generates invalid SQL if an empty collection is used
     		// as a parameter list.

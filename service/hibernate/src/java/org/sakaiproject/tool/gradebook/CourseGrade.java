@@ -102,9 +102,6 @@ public class CourseGrade extends GradableObject {
             if (asn.isNotCounted()) {
             	continue;
             }
-            if(!asn.isReleased()){
-               continue; 
-            }
             totalPoints+=asn.getPointsPossible().doubleValue();
         }
         this.totalPoints = new Double(totalPoints);

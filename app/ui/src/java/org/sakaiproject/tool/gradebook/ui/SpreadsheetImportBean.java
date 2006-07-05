@@ -52,6 +52,7 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
 
         if(assignment == null) {
             assignment = new Assignment();
+            assignment.setReleased(true);
         }
 
         FacesContext facesContext = FacesContext.getCurrentInstance();
