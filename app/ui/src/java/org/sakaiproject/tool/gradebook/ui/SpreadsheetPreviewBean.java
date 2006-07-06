@@ -289,7 +289,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
          */
         SpreadsheetPreviewBean.logger.debug("string to save "+sb.toString());
         try{
-            getGradebookManager().createSpreadsheet(getGradebookId(),spreadsheet.getTitle(),getUserUid(),new Date(),sb.toString());
+            getGradebookManager().createSpreadsheet(getGradebookId(),spreadsheet.getTitle(),this.getUserDirectoryService().getUserDisplayName(getUserUid()),new Date(),sb.toString());
         }catch(Exception e){
             if(logger.isDebugEnabled())logger.debug(e);
             FacesUtil.addErrorMessage(getLocalizedString("upload_preview_save_failure"));
