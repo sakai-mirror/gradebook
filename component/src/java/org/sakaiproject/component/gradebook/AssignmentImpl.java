@@ -47,18 +47,22 @@ public class AssignmentImpl implements org.sakaiproject.service.gradebook.shared
 	}
 
 	/**
-	 * @return Returns the due date for the assignment, or null if none is defined.
-	 */
-	public Date getDueDate() {
-		return assignment.getDueDate();
-	}
+     * @return Returns the due date for the assignment, or null if none is defined.
+     */
+    public Date getDueDate() {
+        return assignment.getDueDate();
+    }
 
-	/**
-	 * @return Returns true if the assignment is maintained by some software
-	 *         other than the Gradebook itself.
-	 */
-	public boolean isExternallyMaintained() {
-		return assignment.isExternallyMaintained();
-	}
+    /**
+     * @return Returns true if the assignment is maintained by some software
+     *         other than the Gradebook itself.
+     */
+    public boolean isExternallyMaintained() {
+        return assignment.isExternallyMaintained();
+    }
+
+    public boolean isReleased() {
+        return assignment.isReleased();
+    }
 
 }

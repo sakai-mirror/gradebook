@@ -58,6 +58,8 @@ public abstract class GradableObject implements Serializable {
                                 // delete the assignment.  Instead, we should hide the "removed" assignments
                                 // from the app by filtering the removed assignments in the hibernate queries
 
+    protected boolean released;
+
     /**
      * @return Whether this gradable object is a course grade
      */
@@ -156,6 +158,15 @@ public abstract class GradableObject implements Serializable {
      */
     public void setRemoved(boolean removed) {
         this.removed = removed;
+    }
+
+
+    public boolean isReleased() {
+        return released;
+    }
+
+    public void setReleased(boolean released) {
+        this.released = released;
     }
 
     /**

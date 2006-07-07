@@ -198,24 +198,26 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				// Get the gradebook
 				Gradebook gradebook = gradebookManager.getGradebook(gradebookUid);
 
-				// Create the external assignment
-				Assignment asn = new Assignment(gradebook, title, new Double(points), dueDate);
-				asn.setExternallyMaintained(true);
-				asn.setExternalId(externalId);
-				asn.setExternalInstructorLink(externalUrl);
-				asn.setExternalStudentLink(externalUrl);
-				asn.setExternalAppName(externalServiceDescription);
+                // Create the external assignment
+                Assignment asn = new Assignment(gradebook, title, new Double(points), dueDate);
+                asn.setExternallyMaintained(true);
+                asn.setExternalId(externalId);
+                asn.setExternalInstructorLink(externalUrl);
+                asn.setExternalStudentLink(externalUrl);
+                asn.setExternalAppName(externalServiceDescription);
+                //set released to be true to support selective release
+                asn.setReleased(true);
 
-				session.save(asn);
-				recalculateCourseGradeRecords(gradebook, session);
-				return null;
-			}
-		});
+                session.save(asn);
+                recalculateCourseGradeRecords(gradebook, session);
+                return null;
+            }
+        });
         if (log.isInfoEnabled()) log.info("External assessment added to gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + " from externalApp=" + externalServiceDescription);
-	}
+    }
 
-	/**
-	 * @see org.sakaiproject.service.gradebook.shared.GradebookService#updateExternalAssessment(java.lang.String, java.lang.String, java.lang.String, java.lang.String, long, java.util.Date)
+    /**
+     * @see org.sakaiproject.service.gradebook.shared.GradebookService#updateExternalAssessment(java.lang.String, java.lang.String, java.lang.String, java.lang.String, long, java.util.Date)
      */
     public void updateExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
                                          final String title, final double points, final Date dueDate) throws GradebookNotFoundException, AssessmentNotFoundException,AssignmentHasIllegalPointsException {
@@ -245,6 +247,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                 asn.setExternalStudentLink(externalUrl);
                 asn.setName(title);
                 asn.setDueDate(dueDate);
+                //set released to be true to support selective release
+                asn.setReleased(true);
                 // If the points possible changes, we need to update the course grade sort values
                 if(!asn.getPointsPossible().equals(new Double(points))) {
                     updateCourseGradeSortScore = true;

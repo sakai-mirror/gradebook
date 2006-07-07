@@ -39,13 +39,14 @@ public class AddAssignmentBean extends GradebookDependentBean implements Seriali
 	protected void init() {
         if(assignment == null) {
             assignment = new Assignment();
+            assignment.setReleased(true);
         }
 	}
 
 	public String saveNewAssignment() {
 		Long assignmentId;
 		try {
-			assignmentId = getGradeManager().createAssignment(getGradebookId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()));
+			assignmentId = getGradeManager().createAssignment(getGradebookId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()), new Boolean(assignment.isReleased()));
             FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", new String[] {assignment.getName()}));
 		} catch (ConflictingAssignmentNameException e) {
 			logger.error(e);

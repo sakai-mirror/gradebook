@@ -40,19 +40,26 @@ public interface Assignment {
 	 */
 	public String getName();
 
-	/**
-	 * @return Returns the total points the assignment is worth.
-	 */
-	public Double getPoints();
+    /**
+     * @return Returns the total points the assignment is worth.
+     */
+    public Double getPoints();
 
-	/**
-	 * @return Returns the due date for the assignment, or null if none is defined.
-	 */
-	public Date getDueDate();
+    /**
+     * @return Returns the due date for the assignment, or null if none is defined.
+     */
+    public Date getDueDate();
 
-	/**
-	 * @return Returns true if the assignment is maintained by some software
-	 *         other than the Gradebook itself.
-	 */
-	public boolean isExternallyMaintained();
+    /**
+     * @return Returns true if the assignment is maintained by some software
+     *         other than the Gradebook itself.
+     */
+    public boolean isExternallyMaintained();
+
+    /**
+     *
+     * @return true if the assignment has been released for view to students
+     */
+
+    public boolean isReleased();
 }

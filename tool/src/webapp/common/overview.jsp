@@ -50,43 +50,56 @@
 				<h:commandLink action="courseGradeDetails" rendered="#{gradableObject.courseGrade}"  styleClass="courseGrade">
 					<h:outputText value="#{gradableObject.name}" />
 				</h:commandLink>
-			</h:column>
-			<h:column>
-				<f:facet name="header">
-		            <x:commandSortHeader columnName="dueDate" immediate="true" arrow="true">
-						<h:outputText value="#{msgs.overview_assignments_header_due_date}"/>
-		            </x:commandSortHeader>
-		        </f:facet>
+            </h:column>
+            <h:column>
+                <f:facet name="header">
+                    <x:commandSortHeader columnName="dueDate" immediate="true" arrow="true">
+                        <h:outputText value="#{msgs.overview_assignments_header_due_date}"/>
+                    </x:commandSortHeader>
+                </f:facet>
 
-				<h:outputText value="#{gradableObject.dueDate}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate != null}"/>
-				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate == null}"/>
-			</h:column>
-			<h:column rendered="#{overviewBean.userAbleToGradeAll}">
-				<f:facet name="header">
-		            <x:commandSortHeader columnName="mean" immediate="true" arrow="true">
-						<h:outputText value="#{msgs.overview_assignments_header_average}"/>
-		            </x:commandSortHeader>
-		        </f:facet>
+                <h:outputText value="#{gradableObject.dueDate}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate != null}"/>
+                <h:outputText value="#{msgs.score_null_placeholder}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate == null}"/>
+            </h:column>
 
-				<h:outputText value="#{gradableObject.formattedMean}">
-					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE"/>
-				</h:outputText>
-			</h:column>
-			<h:column>
-				<f:facet name="header">
-		            <x:commandSortHeader columnName="pointsPossible" immediate="true" arrow="true">
-						<h:outputText value="#{msgs.overview_assignments_header_points}"/>
-		            </x:commandSortHeader>
-		        </f:facet>
-				<h:outputText value="#{gradableObject}" escape="false">
-					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.ASSIGNMENT_POINTS"/>
-				</h:outputText>
-			</h:column>
-			<h:column>
-				<h:outputText value="from #{gradableObject.externalAppName}" rendered="#{! gradableObject.courseGrade && ! empty gradableObject.externalAppName}"/>
-			</h:column>
-		</x:dataTable>
 
-	  </h:form>
-	</div>
+            <h:column>
+                <f:facet name="header">
+                    <x:commandSortHeader columnName="released" immediate="true" arrow="true">
+                        <h:outputText value="#{msgs.overview_released}"/>
+                    </x:commandSortHeader>
+                </f:facet>
+                <h:outputText value="#{msgs.overview_released_true}" rendered="#{!gradableObject.courseGrade && gradableObject.released == true }"/>
+                <h:outputText value="#{msgs.overview_released_false}" rendered="#{!gradableObject.courseGrade && gradableObject.released == false}"/>
+
+            </h:column>
+
+            <h:column rendered="#{overviewBean.userAbleToGradeAll}">
+                <f:facet name="header">
+                    <x:commandSortHeader columnName="mean" immediate="true" arrow="true">
+                        <h:outputText value="#{msgs.overview_assignments_header_average}"/>
+                    </x:commandSortHeader>
+                </f:facet>
+
+                <h:outputText value="#{gradableObject.formattedMean}">
+                    <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE"/>
+                </h:outputText>
+            </h:column>
+            <h:column>
+                <f:facet name="header">
+                    <x:commandSortHeader columnName="pointsPossible" immediate="true" arrow="true">
+                        <h:outputText value="#{msgs.overview_assignments_header_points}"/>
+                    </x:commandSortHeader>
+                </f:facet>
+                <h:outputText value="#{gradableObject}" escape="false">
+                    <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.ASSIGNMENT_POINTS"/>
+                </h:outputText>
+            </h:column>
+            <h:column>
+                <h:outputText value="from #{gradableObject.externalAppName}" rendered="#{! gradableObject.courseGrade && ! empty gradableObject.externalAppName}"/>
+            </h:column>
+        </x:dataTable>
+
+</h:form>
+</div>
 </f:view>

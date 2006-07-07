@@ -23,7 +23,7 @@
 			<h:outputText value="#{msgs.student_view_course_grade}" />
 			<h:panelGroup>
 				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!studentViewBean.courseGradeReleased}"/>
-				<h:outputText value="#{studentViewBean.courseGrade}" rendered="#{studentViewBean.courseGradeReleased}"/>
+				<h:outputText value="#{studentViewBean.cumulativeCourseGrade}" rendered="#{studentViewBean.courseGradeReleased}"/>
 				<h:outputText value="#{msgs.student_view_not_counted_assignments}" rendered="#{studentViewBean.anyNotCounted && studentViewBean.courseGradeReleased}" escape="false"/>
 			</h:panelGroup>
 		</h:panelGrid>
@@ -92,15 +92,8 @@
                     </h:outputText>
 
                 </h:column>
-				<h:column rendered="#{studentViewBean.courseGradeReleased}">
-					<f:facet name="header">
-						<x:commandSortHeader columnName="grade" immediate="true" arrow="true">
-							<h:outputText value="#{msgs.student_view_grade}"/>
-						</x:commandSortHeader>
-					</f:facet>
-					<h:outputText value="#{row.displayGrade}" />
 
-                </h:column>
+
 				<h:column>
 					<h:outputText value="#{row.assignment.externalAppName}" />
 				</h:column>

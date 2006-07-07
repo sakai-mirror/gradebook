@@ -47,6 +47,7 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
  *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
+
 public class StudentViewBean extends GradebookDependentBean implements Serializable {
 	private static Log logger = LogFactory.getLog(StudentViewBean.class);
 
@@ -57,6 +58,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
     private int percent;
     private boolean courseGradeReleased;
     private String courseGrade;
+    private String cumulativeCourseGrade;
     private boolean assignmentsReleased;
     private boolean anyNotCounted;
 
@@ -198,7 +200,6 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
     public void init() {
         // Get the active gradebook
         Gradebook gradebook = getGradebook();
-        GradeMapping gradeMapping = gradebook.getSelectedGradeMapping();
 
         // Set the display name
         try {
@@ -221,7 +222,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
         	CourseGradeRecord gradeRecord = getGradeManager().getStudentCourseGradeRecord(gradebook, getUserUid());
         	if (gradeRecord != null) {
 	        	courseGrade = gradeRecord.getDisplayGrade();
-	        }
+            }
         }
 
         // Don't display any assignments if they have not been released
@@ -229,31 +230,35 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             assignmentGradeRows = new ArrayList();
         } else {
             List assignments = getGradeManager().getAssignments(gradebook.getId());
+            logger.debug(assignments.size() + " total assignments");
             List gradeRecords = getGradeManager().getStudentGradeRecords(gradebook.getId(), getUserUid());
+            logger.debug(gradeRecords.size()  +"  grade records");
 
             // Create a map of assignments to assignment grade rows
             Map asnMap = new HashMap();
             for(Iterator iter = assignments.iterator(); iter.hasNext();) {
+
                 Assignment asn = (Assignment)iter.next();
                 asnMap.put(asn, new AssignmentGradeRow(asn));
+
                 if (asn.isNotCounted()) {
-                	anyNotCounted = true;
+                    anyNotCounted = true;
                 }
+
             }
 
             for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
                 AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
-				if(asnGr.getPointsEarned() != null) {
-                    if(asnGr.getAssignment().isCounted()){
-					    if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
+
+                if(asnGr.getPointsEarned() != null) {
+                    //check if tha assignment counts and is released
+                    if(asnGr.getAssignment().isCounted() && asnGr.getAssignment().isReleased()){
+                        if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
                         totalPointsEarned += asnGr.getPointsEarned().doubleValue();
                         if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getAssignment().getPointsPossible() + " to totalPointsPossible");
                         totalPointsScored += asnGr.getAssignment().getPointsPossible().doubleValue();
                     }
                 }
-
-				// Put the letter grade into the grade record
-				asnGr.setDisplayGrade(gradeMapping.getGrade(asnGr.getGradeAsPercentage()));
 
 				// Update the AssignmentGradeRow in the map
 				AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
@@ -261,6 +266,13 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             }
 
             assignmentGradeRows = new ArrayList(asnMap.values());
+
+            //remove assignments that are not released
+            Iterator i = assignmentGradeRows.iterator();
+            while(i.hasNext()){
+                AssignmentGradeRow assignmentGradeRow = (AssignmentGradeRow)i.next();
+                if(!(assignmentGradeRow.getAssignment().isReleased())) i.remove();
+            }
 
             Collections.sort(assignmentGradeRows, (Comparator)columnSortMap.get(sortColumn));
             if(!sortAscending) {
@@ -286,6 +298,8 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
                 percent = (int)(totalPointsEarned / totalPointsScored * 100);
             }
         }
+        //set the cumulative grade
+         cumulativeCourseGrade = getGradebook().getSelectedGradeMapping().getGrade(new Double(percent));
     }
 
 	/**
@@ -381,7 +395,16 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
     	return anyNotCounted;
     }
 
-}
 
+    public String getCumulativeCourseGrade() {
+        return cumulativeCourseGrade;
+    }
+
+    public void setCumulativeCourseGrade(String cumulativeCourseGrade) {
+
+        this.cumulativeCourseGrade = cumulativeCourseGrade;
+    }
+
+}
 
 

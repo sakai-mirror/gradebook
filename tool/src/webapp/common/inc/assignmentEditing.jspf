@@ -42,7 +42,11 @@
 	only JSF supported "colspan"....
 */%>
 <h:panelGrid columns="2" columnClasses="prefixedCheckbox">
-	<h:selectBooleanCheckbox id="countAssignment" value="#{bean.assignment.counted}"
-		onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
-	<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" />
+    <h:selectBooleanCheckbox id="countAssignment" value="#{bean.assignment.counted}"
+                             onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
+    <h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" />
+
+    <h:selectBooleanCheckbox id="released" value="#{bean.assignment.released}"
+                             onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
+    <h:outputLabel for="released" value="#{msgs.add_assignment_released}" />
 </h:panelGrid>
