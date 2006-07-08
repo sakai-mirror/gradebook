@@ -66,7 +66,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         //initialize rosteMap which is map of displayid and user objects
         rosterMap = new HashMap();
         List  enrollments = getAvailableEnrollments();
-        if(logger.isDebugEnabled()) logger.debug("enrollmenst size " +enrollments.size());
+        if(logger.isDebugEnabled()) logger.debug("enrollment size " +enrollments.size());
 
         Iterator iter;
         iter = enrollments.iterator();
@@ -195,7 +195,8 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
             String tokens[] = source.split(delim);
             for(int x =0;x<tokens.length;x++){
                 if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("token value using split "+tokens[x]);
-                rowcontent.add(tokens[x]);
+                //String item =  tokens[x].replaceAll(","," ");
+                rowcontent.add(tokens[x].replaceAll(","," "));
             }
 
 
