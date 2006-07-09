@@ -27,15 +27,17 @@ import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.legacy.entity.EntityProducer;
+import org.sakaiproject.service.legacy.entity.EntityProducer.ChangeType;
+import org.sakaiproject.service.legacy.site.Site;
 
 /**
  * Implements the Sakai EntityProducer approach to integration of tool-specific
  * storage with site management.
  */
-public class GradebookEntityProducer extends BaseEntityProducer implements ContextObserver {
+public class GradebookEntityProducer extends BaseEntityProducer {
     private static final Log log = LogFactory.getLog(GradebookEntityProducer.class);
 
     private String[] toolIdArray;
@@ -52,13 +54,32 @@ public class GradebookEntityProducer extends BaseEntityProducer implements Conte
 		return toolIdArray;
 	}
 
-	public void contextCreated(String context, boolean toolPlacement) {
-		// Only create Gradebook storage if the Gradebook tool is actually
-		// part of the new site.
-		if (toolPlacement && !gradebookService.isGradebookDefined(context)) {
-			if (log.isInfoEnabled()) log.info("Gradebook being added to context " + context);
-			gradebookService.addGradebook(context, context);
+	public void syncWithSiteChange(Site site, ChangeType change) {
+		String gradebookUid = site.getId();
+		boolean isGradebookDefined = gradebookService.isGradebookDefined(gradebookUid);
+
+		if ((change == ChangeType.ADD) || (change == ChangeType.UPDATE)) {
+			// See if this tool is now in the site.
+			String[] toolsToSearchFor = toolIdArray;
+			Collection matchingTools = site.getTools(toolsToSearchFor);
+			if (matchingTools.isEmpty() && isGradebookDefined) {
+				// We've been directed to leave Gradebook data in place when
+				// the tool is removed from a site.
+				if (log.isInfoEnabled()) log.info("Gradebook being removed from site " + gradebookUid + " but associated data will remain until site deletion");
+			} else if (!matchingTools.isEmpty() && !isGradebookDefined) {
+				if (log.isInfoEnabled()) log.info("Gradebook being added to site " + gradebookUid);
+				gradebookService.addGradebook(gradebookUid, gradebookUid);
+			}
+		} else if ((change == EntityProducer.ChangeType.REMOVE) && isGradebookDefined) {
+			try {
+				gradebookService.deleteGradebook(gradebookUid);
+			} catch (GradebookNotFoundException e) {
+				if (log.isWarnEnabled()) log.warn(e);
+			}
 		}
+	}
+
+	public void contextCreated(String context, boolean toolPlacement) {
 	}
 
 	public void contextUpdated(String context, boolean toolPlacement) {

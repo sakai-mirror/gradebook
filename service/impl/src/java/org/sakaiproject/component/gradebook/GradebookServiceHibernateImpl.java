@@ -25,10 +25,10 @@ package org.sakaiproject.component.gradebook;
 
 import java.util.*;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.StaleObjectStateException;
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
+import net.sf.hibernate.Session;
+import net.sf.hibernate.StaleObjectStateException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -54,8 +54,8 @@ import org.sakaiproject.tool.gradebook.LetterGradePlusMinusMapping;
 import org.sakaiproject.tool.gradebook.PassNotPassMapping;
 import org.sakaiproject.tool.gradebook.facades.Authz;
 
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate.HibernateCallback;
+import org.springframework.orm.hibernate.HibernateTemplate;
 
 /**
  * A Hibernate implementation of GradebookService.
@@ -645,7 +645,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new SecurityException("You do not have permission to perform this operation");
 		}
 
-		Double assignmentScore = assignmentScore = (Double)getHibernateTemplate().execute(new HibernateCallback() {
+		Double assignmentScore = (Double)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentName, session);
 				if (assignment == null) {

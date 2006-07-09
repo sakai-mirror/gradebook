@@ -25,9 +25,9 @@ package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.user.api.UserNotDefinedException;
-
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
+import org.sakaiproject.service.legacy.user.User;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 
 /**
@@ -37,12 +37,12 @@ public class UserDirectoryServiceSakai2Impl implements UserDirectoryService {
     private static final Log log = LogFactory.getLog(UserDirectoryServiceSakai2Impl.class);
 
     public String getUserDisplayName(String userUid) throws UnknownUserException {
-        try {
-            org.sakaiproject.user.api.User sakaiUser =
-            	org.sakaiproject.user.cover.UserDirectoryService.getUser(userUid);
+            User sakaiUser;
+			try {
+				sakaiUser = org.sakaiproject.service.legacy.user.cover.UserDirectoryService.getUser(userUid);
+			} catch (IdUnusedException e) {
+	            throw new UnknownUserException("Unknown uid: " + userUid);
+			}
             return sakaiUser.getDisplayName();
-        } catch (UserNotDefinedException e) {
-            throw new UnknownUserException("Unknown uid: " + userUid);
-        }
     }
 }

@@ -23,8 +23,8 @@ package org.sakaiproject.component.gradebook;
 
 import java.util.*;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,7 +37,7 @@ import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradebookProperty;
 import org.sakaiproject.tool.gradebook.facades.Authn;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate.support.HibernateDaoSupport;
 
 /**
  * Provides methods which are shared between service business logic and application business

@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
-	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook"
-	default-lazy="false">
+	"http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook">
 	<class name="org.sakaiproject.tool.gradebook.GradableObject" table="GB_GRADABLE_OBJECT_T"  discriminator-value="0">
 
 		<id name="id" column="ID" type="long">
@@ -38,16 +37,4 @@
 
 	</class>
 
-	<database-object>
-		<create>create index GB_GRADABLE_OBJ_GB_IDX on GB_GRADABLE_OBJECT_T (GRADEBOOK_ID)</create>
-		<drop></drop>
-		<!-- For MySQL and hsqldb, the index will be created automatically to enforce a constraint. -->
-		<dialect-scope name="org.hibernate.dialect.Oracle9Dialect"/>
-		<dialect-scope name="org.hibernate.dialect.OracleDialect"/>
-	</database-object>
-	<database-object>
-		<create>create index GB_GRADABLE_OBJ_ASN_IDX on GB_GRADABLE_OBJECT_T (OBJECT_TYPE_ID, GRADEBOOK_ID, NAME, REMOVED)</create>
-		<!-- <drop>drop index GB_GRADABLE_OBJECT_T.GB_GRADABLE_OBJ_ASN_IDX</drop> -->
-		<drop></drop>
-	</database-object>
 </hibernate-mapping>

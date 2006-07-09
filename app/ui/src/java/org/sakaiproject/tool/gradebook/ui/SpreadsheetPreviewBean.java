@@ -411,7 +411,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         return FacesUtil.getLocalizedString("upload_preview_column_count",new String[] {columnCount});
     }
 
-    public void setColumnCount(String columCount) {
+    public void setColumnCount(String columnCount) {
         this.columnCount = columnCount;
     }
 

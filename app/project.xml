@@ -84,12 +84,12 @@
         <!-- Uuid generator -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-api</artifactId>
+			<artifactId>sakai-common-uuid-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-util-impl</artifactId>
+			<artifactId>sakai-common-uuid-component</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 	    <dependency>
@@ -123,12 +123,12 @@
 			<artifactId>oracle</artifactId>
 			<jar>ojdbc14_g.jar</jar>
 		</dependency>
--->
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>3.1.12</version>
 		</dependency>
+-->
 
 
 <!-- End database dependencies -->
@@ -157,11 +157,11 @@
 			<version>h2.1.8</version>
 		</dependency>
 
-		<dependency>
-			<groupId>${sakai.hibernate.groupId}</groupId>
-			<artifactId>${sakai.hibernate.artifactId}</artifactId>
-			<version>${sakai.hibernate.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>hibernate</groupId>
+            <artifactId>hibernate</artifactId>
+            <version>2.1.8</version>
+        </dependency>
 
 		<dependency>
 			<groupId>ehcache</groupId>
@@ -169,11 +169,11 @@
 			<version>1.1</version>
 		</dependency>
 
-		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib-nodep</artifactId>
-			<version>2.1_3</version>
-		</dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-full</artifactId>
+            <version>2.0.2</version>
+        </dependency>
 
 		<dependency>
 			<groupId>odmg</groupId>
@@ -196,7 +196,7 @@
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
-			<version>${sakai.commons.lang.version}</version>
+			<version>2.0</version>
 		</dependency>
 
 		<dependency>

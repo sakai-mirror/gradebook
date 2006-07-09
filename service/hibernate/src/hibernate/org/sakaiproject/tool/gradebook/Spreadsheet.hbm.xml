@@ -17,8 +17,7 @@
 
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook"
-	default-lazy="false">
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook">
 	<class name="org.sakaiproject.tool.gradebook.Spreadsheet" table="GB_SPREADSHEET_T">
 
 		<id name="id" column="ID" type="long">

@@ -25,11 +25,11 @@ package org.sakaiproject.tool.gradebook.business.impl;
 import java.sql.SQLException;
 import java.util.*;
 
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.StaleObjectStateException;
+import net.sf.hibernate.Hibernate;
+import net.sf.hibernate.HibernateException;
+import net.sf.hibernate.Query;
+import net.sf.hibernate.Session;
+import net.sf.hibernate.StaleObjectStateException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,8 +49,8 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.Spreadsheet;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
+import org.springframework.orm.hibernate.HibernateCallback;
+import org.springframework.orm.hibernate.HibernateOptimisticLockingFailureException;
 
 /**
  * Manages Gradebook persistence via hibernate.
@@ -369,7 +369,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-            	Query q = q = session.createQuery(
+            	Query q = session.createQuery(
             		"select count(cgr) from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=:gradebookId and cgr.studentId in (:studentUids)");
             	q.setLong("gradebookId", gradebookId.longValue());
             	q.setParameterList("studentUids", studentUids);

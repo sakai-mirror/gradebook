@@ -24,8 +24,7 @@ package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.db.api.SqlService;
-
+import org.sakaiproject.service.framework.sql.SqlService;
 import org.sakaiproject.service.gradebook.shared.GradebookConfiguration;
 
 /**

@@ -27,15 +27,15 @@ import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.service.legacy.entity.Entity;
+import org.sakaiproject.service.legacy.entity.EntityProducer;
+import org.sakaiproject.service.legacy.entity.HttpAccess;
+import org.sakaiproject.service.legacy.entity.Reference;
+import org.sakaiproject.service.legacy.entity.ResourceProperties;
+import org.sakaiproject.service.legacy.resource.cover.EntityManager;
+import org.sakaiproject.service.legacy.site.Site;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.entity.api.HttpAccess;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
 
 /**
  * Utility class that provides safe defaults for all EntityProducer methods.
@@ -80,49 +80,50 @@ public class BaseEntityProducer implements EntityProducer {
 	}
 
 	// EntityProducer methods begin here.
-
+	
 	public String getLabel() {
 		return label;
 	}
-
 	public boolean willArchiveMerge() {
 		return false;
 	}
-
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments) {
 		return null;
 	}
-
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
 			Set userListAllowImport) {
 		return null;
 	}
-
 	public boolean parseEntityReference(String reference, Reference ref) {
 		return false;
 	}
-
 	public String getEntityDescription(Reference ref) {
 		return null;
 	}
-
 	public ResourceProperties getEntityResourceProperties(Reference ref) {
 		return null;
 	}
-
 	public Entity getEntity(Reference ref) {
 		return null;
 	}
-
 	public String getEntityUrl(Reference ref) {
 		return null;
 	}
-
 	public Collection getEntityAuthzGroups(Reference ref, String userId) {
 		return null;
 	}
-
 	public HttpAccess getHttpAccess() {
 		return null;
 	}
+	public Collection getEntityAuthzGroups(Reference ref) {
+		return null;
+	}
+	public void importEntities(String fromContext, String toContext, List ids) {
+	}
+	public void syncWithSiteChange(Site site, ChangeType change) {
+	}
+	public boolean willImport() {
+		return false;
+	}
+
 }

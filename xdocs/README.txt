@@ -98,11 +98,11 @@ Here's a sample for MySQL:
   hibernate.connection.url=jdbc:mysql://localhost/sakaigb
   hibernate.connection.username=root
   hibernate.connection.password=root
-  hibernate.dialect=org.hibernate.dialect.MySQLDialect
+  hibernate.dialect=net.sf.hibernate.dialect.MySQLDialect
   hibernate.show_sql=false
   hibernate.hbm2ddl.auto=update
-  hibernate.cache.provider_class=org.hibernate.cache.EhCacheProvider
-  hibernate.query.factory_class=org.hibernate.hql.classic.ClassicQueryTranslatorFactory
+  hibernate.cache.provider_class=net.sf.hibernate.cache.EhCacheProvider
+  hibernate.query.factory_class=net.sf.hibernate.hql.classic.ClassicQueryTranslatorFactory
 
   # java.sql.Connection.TRANSACTION_READ_COMMITTED
   hibernate.connection.isolation=2
@@ -113,8 +113,8 @@ And one for Oracle:
   hibernate.connection.url=jdbc:oracle:thin:myschool.edu:1521:dbname
   hibernate.connection.username=gbname
   hibernate.connection.password=gbpwd
-  hibernate.dialect=org.hibernate.dialect.Oracle9Dialect
+  hibernate.dialect=net.sf.hibernate.dialect.Oracle9Dialect
   hibernate.show_sql=false
   hibernate.hbm2ddl.auto=update
-  hibernate.cache.provider_class=org.hibernate.cache.EhCacheProvider
-  hibernate.query.factory_class=org.hibernate.hql.classic.ClassicQueryTranslatorFactory
+  hibernate.cache.provider_class=net.sf.hibernate.cache.EhCacheProvider
+  hibernate.query.factory_class=net.sf.hibernate.hql.classic.ClassicQueryTranslatorFactory
