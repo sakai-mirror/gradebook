@@ -23,11 +23,15 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,7 +63,7 @@ public class EntryServlet extends HttpServlet {
 
         authnService.setAuthnContext(request);
         String gradebookUid = contextMgm.getGradebookUid(request);
-
+        
         try {
             if (gradebookUid != null) {
                 StringBuffer path = new StringBuffer(request.getContextPath());
@@ -84,7 +88,6 @@ public class EntryServlet extends HttpServlet {
             logger.fatal("Could not redirect user: " + ioe);
         }
 	}
-
 }
 
 

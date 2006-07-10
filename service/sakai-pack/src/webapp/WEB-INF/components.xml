@@ -90,7 +90,7 @@
 		init-method="init">
 
 		<property name="autoDdl" value="${auto.ddl}"/>
-		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+		<property name="sqlService" ref="org.sakaiproject.service.framework.sql.SqlService"/>
 
 		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
 
