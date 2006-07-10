@@ -84,7 +84,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         assignmentColumnSelectItems = new ArrayList();
         assignmentHeaders = new ArrayList();
 
-        SpreadsheetPreviewBean.SpreadsheetHeader header = new SpreadsheetPreviewBean.SpreadsheetHeader((String) spreadsheet.getLineitems().get(0),",");
+        SpreadsheetPreviewBean.SpreadsheetHeader header = new SpreadsheetPreviewBean.SpreadsheetHeader((String) spreadsheet.getLineitems().get(0));
         assignmentHeaders = header.getHeaderWithoutUser();
 
 
@@ -95,7 +95,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         while(it.hasNext()){
             String line = (String) it.next();
             if(rowcount > 0){
-                SpreadsheetPreviewBean.SpreadsheetRow  row = new SpreadsheetPreviewBean.SpreadsheetRow(line,",");
+                SpreadsheetPreviewBean.SpreadsheetRow  row = new SpreadsheetPreviewBean.SpreadsheetRow(line);
                 studentRows.add(row);
                 //check the number of unkonw users in spreadsheet
                 if(!row.isKnown())unknownusers = unknownusers + 1;
@@ -164,7 +164,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         }
 
 
-        public SpreadsheetHeader(String source, String delim) {
+        public SpreadsheetHeader(String source) {
 
 
             if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("creating header from "+source);
@@ -186,7 +186,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         private String userUid;
         private boolean isKnown;
 
-        public SpreadsheetRow(String source, String delim) {
+        public SpreadsheetRow(String source) {
 
 
             if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("creating row from string " + source);
