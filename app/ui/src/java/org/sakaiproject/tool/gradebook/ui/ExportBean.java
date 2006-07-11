@@ -231,7 +231,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 			Map studentMap = (Map)scoresMap.get(enr.getUser().getUserUid());
 			HSSFRow row = sheet.createRow(sheet.getLastRowNum() + 1);
             row.createCell((short)0).setCellValue(enr.getUser().getDisplayId());
-            row.createCell((short)1).setCellValue(enr.getUser().getSortName().replaceAll(","," "));
+            row.createCell((short)1).setCellValue(enr.getUser().getSortName());
 			for(short j=0; j < gradableObjects.size(); j++) {
 				GradableObject go = (GradableObject)gradableObjects.get(j);
 				HSSFCell cell = row.createCell((short)(j+2));
@@ -299,7 +299,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
             }
             appendQuoted(sb, enr.getUser().getDisplayId());
             sb.append(",");
-            appendQuoted(sb, enr.getUser().getSortName().replaceAll(",", " "));
+            appendQuoted(sb, enr.getUser().getSortName());
             sb.append(",");
 
 
