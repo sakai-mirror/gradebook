@@ -247,15 +247,17 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
                 AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
 
-                if(asnGr.getPointsEarned() != null) {
+
                     //check if tha assignment counts and is released
                     if(asnGr.getAssignment().isCounted() && asnGr.getAssignment().isReleased()){
                         if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
+                        if(asnGr.getPointsEarned()!=null){
                         totalPointsEarned += asnGr.getPointsEarned().doubleValue();
+                        }
                         if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getAssignment().getPointsPossible() + " to totalPointsPossible");
                         totalPointsScored += asnGr.getAssignment().getPointsPossible().doubleValue();
                     }
-                }
+
 
 				// Update the AssignmentGradeRow in the map
 				AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
