@@ -246,23 +246,28 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
 
             for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
                 AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
-
-
-                    //check if tha assignment counts and is released
-                    if(asnGr.getAssignment().isCounted() && asnGr.getAssignment().isReleased()){
-                        if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
-                        if(asnGr.getPointsEarned()!=null){
-                        totalPointsEarned += asnGr.getPointsEarned().doubleValue();
-                        }
-                        if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getAssignment().getPointsPossible() + " to totalPointsPossible");
-                        totalPointsScored += asnGr.getAssignment().getPointsPossible().doubleValue();
-                    }
-
-
-				// Update the AssignmentGradeRow in the map
-				AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
-				asnGradeRow.setGradeRecord(asnGr);
+                if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
+                if(asnGr.getPointsEarned()!=null && asnGr.getAssignment().isCounted() && asnGr.getAssignment().isReleased()){
+                    totalPointsEarned += asnGr.getPointsEarned().doubleValue();
+                }
+                // Update the AssignmentGradeRow in the map
+                AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
+                asnGradeRow.setGradeRecord(asnGr);
             }
+
+
+            if(logger.isDebugEnabled())logger.debug("calculating total points scored from " +assignments.size() + "assignments");
+            for(Iterator it = assignments.iterator(); it.hasNext();){
+                Assignment assignment  = (Assignment)it.next();
+                if(assignment.isCounted()){
+                    totalPointsScored = totalPointsScored +assignment.getPointsPossible().doubleValue();
+                }
+                if(logger.isDebugEnabled()) logger.debug("total points scored " + totalPointsScored);
+            }
+
+            if(logger.isDebugEnabled())logger.debug("total points scored is " +totalPointsScored);
+
+
 
             assignmentGradeRows = new ArrayList(asnMap.values());
 
