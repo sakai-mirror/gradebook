@@ -259,7 +259,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             if(logger.isDebugEnabled())logger.debug("calculating total points scored from " +assignments.size() + "assignments");
             for(Iterator it = assignments.iterator(); it.hasNext();){
                 Assignment assignment  = (Assignment)it.next();
-                if(assignment.isCounted()){
+                if(assignment.isCounted() && assignment.isReleased()){
                     totalPointsScored = totalPointsScored +assignment.getPointsPossible().doubleValue();
                 }
                 if(logger.isDebugEnabled()) logger.debug("total points scored " + totalPointsScored);
