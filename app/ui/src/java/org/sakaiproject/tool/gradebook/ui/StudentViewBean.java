@@ -52,7 +52,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
     private String userDisplayName;
     private double totalPointsEarned;
     private double totalPointsScored;
-    private int percent;
+    private double percent;
     private boolean courseGradeReleased;
     private String courseGrade;
     private String cumulativeCourseGrade;
@@ -330,8 +330,8 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
 	/**
 	 * @return Returns the percent.
 	 */
-	public int getPercent() {
-		return percent;
+	public double getPercent() {
+		return Math.round(percent*10)/10d;
 	}
 	/**
 	 * @return Returns the totalPointsEarned.
