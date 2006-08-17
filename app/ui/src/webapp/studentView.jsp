@@ -23,7 +23,7 @@
 			<h:outputText value="#{msgs.student_view_course_grade}" />
 			<h:panelGroup>
 				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!studentViewBean.courseGradeReleased}"/>
-				<h:outputText value="#{studentViewBean.cumulativeCourseGrade}" rendered="#{studentViewBean.courseGradeReleased}"/>
+				<h:outputText value="#{studentViewBean.courseGrade}" rendered="#{studentViewBean.courseGradeReleased}"/>
 				<h:outputText value="#{msgs.student_view_not_counted_assignments}" rendered="#{studentViewBean.anyNotCounted && studentViewBean.courseGradeReleased}" escape="false"/>
 			</h:panelGroup>
 		</h:panelGrid>
