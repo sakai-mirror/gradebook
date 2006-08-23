@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+ * Copyright (c) 2006 The Regents of the University of California
  *
  *  Licensed under the Educational Community License, Version 1.0 (the "License");
  *  you may not use this file except in compliance with the License.
