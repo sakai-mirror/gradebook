@@ -11,7 +11,7 @@
                 <h:outputText value="#{msgs.loading_dock_instructions}" escape="false"/>
             </div>
 
-            <h:panelGroup rendered="#{overviewBean.userAbleToEditAssessments}">
+            <h:panelGroup rendered="#{spreadsheetListingBean.userAbleToEditAssessments}">
                 <h:commandLink action="spreadsheetUpload" immediate="true">
                     <h:outputText value="#{msgs.loading_dock_upload_link_text}"/>
                 </h:commandLink>
@@ -20,7 +20,7 @@
             <p/>
             <%@include file="/inc/globalMessages.jspf"%>
             <h4><h:outputText value="#{msgs.loading_dock_table_header}"/></h4>
-            <t:dataTable id="table1" value="#{spreadsheetListingBean.spreadSheets}" var="row" rowIndexVar="rowIndex"
+            <t:dataTable id="table1" value="#{spreadsheetListingBean.spreadsheets}" var="row" rowIndexVar="rowIndex"
                          columnClasses="left,left,rightpadded,rightpadded,rightpadded"                         
                          styleClass="listHier narrowTable">
 

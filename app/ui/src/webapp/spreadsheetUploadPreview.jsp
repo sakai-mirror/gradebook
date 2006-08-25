@@ -22,7 +22,7 @@
             <t:dataTable id="table1" value="#{spreadsheetPreviewBean.studentRows}" var="row" rowIndexVar="rowIndex" styleClass="listHier" columnClasses="center">
                 <t:column styleClass="left">
                     <f:facet name="header">
-                        <t:outputText value="Student ID"/>
+                        <t:outputText value="#{upload_preview_student_id}"/>
                     </f:facet>
                     <h:outputText value="#{row.userId}"/>
                 </t:column>

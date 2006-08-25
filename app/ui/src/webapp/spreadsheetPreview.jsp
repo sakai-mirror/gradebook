@@ -35,13 +35,13 @@
                          rowClasses="#{spreadsheetPreviewBean.rowStyles}">
                 <t:column styleClass="left">
                     <f:facet name="header">
-                        <t:outputText value="Student ID"/>
+                        <t:outputText value="#{msgs.upload_preview_student_id}"/>
                     </f:facet>
                     <h:outputText value="#{row.userId}"/>
                 </t:column>
                 <t:column styleClass="left" >
                     <f:facet name="header">
-                        <t:outputText value="Student Name"/>
+                        <t:outputText value="#{msgs.upload_preview_student_name}"/>
                     </f:facet>
                     <h:outputText value="#{row.userDisplayName}"/>
                 </t:column>
@@ -68,7 +68,6 @@
                         value="#{msgs.import_preview_cancel}"
                         action="spreadsheetListing" immediate="true"/>
 
-                <t:outputText value="#{param.spreadsheetId}"/>
             </p>
         </h:form>
     </div>

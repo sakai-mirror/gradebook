@@ -53,7 +53,7 @@
                         action="#{spreadsheetImportBean.saveGrades}"/>
                 <h:commandButton
                         value="#{msgs.import_assignment_cancel}"
-                        action="spreadsheetPreview" immediate="true"/>
+                        action="spreadsheetListing" />
             </p>
         </h:form>
     </div>
