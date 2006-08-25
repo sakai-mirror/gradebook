@@ -234,20 +234,6 @@ public interface GradebookManager {
      */
     public Assignment getAssignmentWithStats(Long assignmentId);
 
-    /**
-     * Add a new assignment to a gradebook
-     *
-     * @param gradebookId The gradebook ID to which this new assignment belongs
-     * @param name The assignment's name (must be unique in the gradebook and not be null)
-     * @param points The number of points possible for this assignment (must not be null)
-     * @param dueDate The due date for the assignment (optional)
-     * @param isNotCounted True if the assignment should not count towards the final course grade (optional)
-     *
-     * @return The ID of the new assignment
-     */
-    public Long createAssignment(Long gradebookId, String name, Double points, Date dueDate, Boolean isNotCounted)
-        throws ConflictingAssignmentNameException, StaleObjectModificationException;
-
 
     /**
      * overloaded method to support selective release
@@ -314,14 +300,7 @@ public interface GradebookManager {
      */
 
     public void removeSpreadsheet(Long spreadsheetid) throws StaleObjectModificationException;
-
-    /** update existing spreadsheet
-     *
-     * @param spreadsheet
-     * @throws StaleObjectModificationException
-     */
-    public void updateSpreadsheet(Spreadsheet spreadsheet)throws StaleObjectModificationException;
-
+   
     /**
      * create a net spreadsheet
      *
