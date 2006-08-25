@@ -38,7 +38,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
     public SpreadsheetUploadBean() {
 
-
+        /**
         FacesContext facesContext = FacesContext.getCurrentInstance();
         try{
             spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
@@ -48,7 +48,14 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
         }
 
+         **/
+
     }
+
+    public void setSpreadsheetBean(SpreadsheetBean spreadsheet) {
+        this.spreadsheet = spreadsheet;
+    }
+
 
     public String getTitle() {
         return title;
@@ -99,10 +106,14 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         InputStream inputStream = new BufferedInputStream(upFile.getInputStream());
         List contents;
         contents = csvtoArray(inputStream);
+        spreadsheet = new SpreadsheetBean();
         spreadsheet.setDate(new Date());
         spreadsheet.setTitle(this.getTitle());
         spreadsheet.setFilename(upFile.getName());
         spreadsheet.setLineitems(contents);
+
+        FacesContext context = FacesContext.getCurrentInstance();
+        context.getExternalContext().getRequestMap().put("spreadsheet", spreadsheet);
 
 
         return "spreadsheetUploadPreview";

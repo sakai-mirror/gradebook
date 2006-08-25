@@ -196,7 +196,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
         try {
 	        userDisplayName = getUserDirectoryService().getUserDisplayName(getUserUid());
 	    } catch (UnknownUserException e) {
-	    	logger.error("User " + getUserUid() + " is unknown but logged in as student in gradebook " + gradebook.getUid());
+	    	if(logger.isErrorEnabled())logger.error("User " + getUserUid() + " is unknown but logged in as student in gradebook " + gradebook.getUid());
 	    	userDisplayName = "";
 	    }
         courseGradeReleased = gradebook.isCourseGradeDisplayed();
@@ -221,9 +221,9 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             assignmentGradeRows = new ArrayList();
         } else {
             List assignments = getGradebookManager().getAssignments(gradebook.getId());
-            logger.debug(assignments.size() + " total assignments");
+            if(logger.isDebugEnabled())logger.debug(assignments.size() + " total assignments");
             List gradeRecords = getGradebookManager().getStudentGradeRecords(gradebook.getId(), getUserUid());
-            logger.debug(gradeRecords.size()  +"  grade records");
+            if(logger.isDebugEnabled())logger.debug(gradeRecords.size()  +"  grade records");
 
             // Create a map of assignments to assignment grade rows
             Map asnMap = new HashMap();

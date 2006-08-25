@@ -18,17 +18,15 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.service.gradebook.shared.UnknownUserException;
-import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
+import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * User: louis
@@ -56,12 +54,16 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
 
     public void init() {
 
+
         FacesContext facesContext = FacesContext.getCurrentInstance();
         try{
-            spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
+           logger.debug(facesContext.getExternalContext().getRequestMap());
+            spreadsheet  = (SpreadsheetBean) facesContext.getExternalContext().getRequestMap().get("spreadsheet");
         }catch(Exception e){
             if(logger.isDebugEnabled()) logger.debug("unable to load spreadsheetBean");
         }
+
+
 
 
         //initialize rosteMap which is map of displayid and user objects
@@ -82,9 +84,10 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         assignmentList = new ArrayList();
         studentRows = new ArrayList();
         assignmentColumnSelectItems = new ArrayList();
-        assignmentHeaders = new ArrayList();
+        //
+        // assignmentHeaders = new ArrayList();
 
-        SpreadsheetPreviewBean.SpreadsheetHeader header = new SpreadsheetPreviewBean.SpreadsheetHeader((String) spreadsheet.getLineitems().get(0));
+        SpreadsheetHeader header = new SpreadsheetHeader((String) spreadsheet.getLineitems().get(0));
         assignmentHeaders = header.getHeaderWithoutUser();
 
 
@@ -95,11 +98,11 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         while(it.hasNext()){
             String line = (String) it.next();
             if(rowcount > 0){
-                SpreadsheetPreviewBean.SpreadsheetRow  row = new SpreadsheetPreviewBean.SpreadsheetRow(line);
+                SpreadsheetRow  row = new SpreadsheetRow(line);
                 studentRows.add(row);
                 //check the number of unkonw users in spreadsheet
                 if(!row.isKnown())unknownusers = unknownusers + 1;
-                if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("row added" + rowcount);
+                if(logger.isDebugEnabled()) logger.debug("row added" + rowcount);
             }
             rowcount++;
         }
@@ -110,29 +113,28 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
 
         //create a numeric list of assignment headers
 
-        SpreadsheetPreviewBean.logger.debug("creating assignment List ---------");
+        if(logger.isDebugEnabled())logger.debug("creating assignment List ---------");
         for(int i = 0;i<assignmentHeaders.size();i++){
             assignmentList.add(new Integer(i));
-            if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("col added" + i);
+            if(logger.isDebugEnabled()) logger.debug("col added" + i);
         }
         columnCount = String.valueOf(assignmentHeaders.size());
 
 
         for(int i = 0;i<assignmentHeaders.size();i++){
             SelectItem item = new  SelectItem(new Integer(i + 1),(String)assignmentHeaders.get(i));
-            if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("creating selectItems "+ item.getValue());
+            if(logger.isDebugEnabled()) logger.debug("creating selectItems "+ item.getValue());
             assignmentColumnSelectItems.add(item);
         }
 
-        if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("Map initialized " +studentRows.size());
-        if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("assignmentList " +assignmentList.size());
+        if(logger.isDebugEnabled()) logger.debug("Map initialized " +studentRows.size());
+        if(logger.isDebugEnabled()) logger.debug("assignmentList " +assignmentList.size());
 
     }
 
     public class SpreadsheetHeader implements Serializable{
 
         private List header;
-        private List headerWithoutUser;
         private int columnCount;
 
         public List getHeader() {
@@ -155,19 +157,14 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         public List getHeaderWithoutUser() {
             List head = header;
             head.remove(0);
-            headerWithoutUser = head;
             return head;
-        }
-
-        public void setHeaderWithoutUser(List headerWithoutUser) {
-            this.headerWithoutUser = headerWithoutUser;
         }
 
 
         public SpreadsheetHeader(String source) {
 
 
-            if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("creating header from "+source);
+            if(logger.isDebugEnabled()) logger.debug("creating header from "+source);
             header = new ArrayList();
             CSV csv = new CSV();
             header = csv.parse(source);
@@ -189,23 +186,23 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         public SpreadsheetRow(String source) {
 
 
-            if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("creating row from string " + source);
+            if(logger.isDebugEnabled()) logger.debug("creating row from string " + source);
             rowcontent = new ArrayList();
              CSV csv = new CSV();
              rowcontent = csv.parse(source);
 
             try {
-                if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("getuser name for "+ rowcontent.get(0));
+                if(logger.isDebugEnabled()) logger.debug("getuser name for "+ rowcontent.get(0));
                 //userDisplayName = getUserDirectoryService().getUserDisplayName(tokens[0]);
                 userId = (String) rowcontent.get(0);
                 userDisplayName = ((User)rosterMap.get(rowcontent.get(0))).getDisplayName();
                 userUid = ((User)rosterMap.get(rowcontent.get(0))).getUserUid();
                 isKnown  = true;
-                SpreadsheetPreviewBean.logger.debug("get userid "+ rowcontent.get(0) + "username is "+userDisplayName);
+                if(logger.isDebugEnabled())logger.debug("get userid "+ rowcontent.get(0) + "username is "+userDisplayName);
 
             } catch (Exception e) {
-                if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.debug("User " + rowcontent.get(0) + " is unknown to this gradebook ");
-                if(logger.isDebugEnabled()) SpreadsheetPreviewBean.logger.error(e);
+                if(logger.isDebugEnabled()) logger.debug("User " + rowcontent.get(0) + " is unknown to this gradebook ");
+                if(logger.isDebugEnabled()) logger.error(e);
                 userDisplayName = "unknown student";
                 userId = (String) rowcontent.get(0);
                 userUid = null;
@@ -281,7 +278,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
         /** temporary presistence code
          *
          */
-        SpreadsheetPreviewBean.logger.debug("string to save "+sb.toString());
+        if(logger.isDebugEnabled())logger.debug("string to save "+sb.toString());
         try{
             getGradebookManager().createSpreadsheet(getGradebookId(),spreadsheet.getTitle(),this.getUserDirectoryService().getUserDisplayName(getUserUid()),new Date(),sb.toString());
         }catch(Exception e){
@@ -346,9 +343,18 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
          if(logger.isDebugEnabled())logger.debug("scores to import "+ i);
 
          //spreadsheet.setSelectedAssignment(selectedAssignment);
-         ((SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext)).setSelectedAssignment(selectedAssignment);
+         //((SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext)).setSelectedAssignment(selectedAssignment);
+         spreadsheet.setSelectedAssignment(selectedAssignment);
+         FacesContext context = FacesContext.getCurrentInstance();
+         context.getExternalContext().getRequestMap().put("spreadsheet", spreadsheet);
+
          return "spreadsheetImport";
      }
+
+
+    public void setSpreadsheetBean(SpreadsheetBean spreadsheet) {
+        this.spreadsheet = spreadsheet;
+    }
 
 
     public List getAssignmentList() {
@@ -435,7 +441,7 @@ public class SpreadsheetPreviewBean extends GradebookDependentBean implements Se
                sb.append("external,");
             }
         }
-        logger.debug(sb.toString());
+        if(logger.isDebugEnabled())logger.debug(sb.toString());
         return sb.toString();
     }
 

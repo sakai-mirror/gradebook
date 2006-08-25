@@ -57,16 +57,24 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
 
         FacesContext facesContext = FacesContext.getCurrentInstance();
         try{
-            spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
-            if(logger.isDebugEnabled())logger.debug(spreadsheet.toString());
+            logger.debug(facesContext.getExternalContext().getRequestMap());
+            spreadsheet  = (SpreadsheetBean) facesContext.getExternalContext().getRequestMap().get("spreadsheet");
         }catch(Exception e){
-            if(logger.isDebugEnabled())logger.debug("unable to load SpreadsheetBean");
+            if(logger.isDebugEnabled()) logger.debug("unable to load spreadsheetBean");
         }
 
-        scores =  spreadsheet.getSelectedAssignment();
-        assignment.setName((String) scores.get("Assignment"));
-
+        try{
+            scores =  spreadsheet.getSelectedAssignment();
+            assignment.setName((String) scores.get("Assignment"));
+        }catch(NullPointerException npe){
+            if(logger.isDebugEnabled()) logger.debug("scores not set");
+        }
     }
+
+    public void setSpreadsheetBean(SpreadsheetBean spreadsheet) {
+        this.spreadsheet = spreadsheet;
+    }
+
 
 
     public Map getScores() {
@@ -85,11 +93,18 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
         this.assignment = assignment;
     }
 
+    public String cancel(){
+
+        FacesContext context = FacesContext.getCurrentInstance();
+        context.getExternalContext().getRequestMap().put("spreadsheet", spreadsheet);
+
+        return "spreadsheetPreview";
+    }
 
     public String saveGrades(){
 
         if(logger.isDebugEnabled())logger.debug("create assignment and save grades");
-        if(logger.isDebugEnabled()) logger.debug("first check if all avariable are numeric");
+        if(logger.isDebugEnabled()) logger.debug("first check if all variables are numeric");
 
         Iterator iter = scores.entrySet().iterator();
         while(iter.hasNext()){
@@ -101,6 +116,10 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
             }catch(Exception e){
                 if(logger.isDebugEnabled()) logger.debug(points + " is not a numeric value");
                 FacesUtil.addRedirectSafeMessage(getLocalizedString("import_assignment_notsupported"));
+
+                FacesContext context = FacesContext.getCurrentInstance();
+                context.getExternalContext().getRequestMap().put("spreadsheet", spreadsheet);
+
                 return "spreadsheetPreview";
             }
 
@@ -133,11 +152,20 @@ public class SpreadsheetImportBean extends GradebookDependentBean implements Ser
             if(logger.isDebugEnabled())logger.debug("persist grade records to database");
             Set mismatchedScores  = getGradebookManager().updateAssignmentGradeRecords(graderecords);
 
+            FacesContext context = FacesContext.getCurrentInstance();
+            context.getExternalContext().getRequestMap().put("spreadsheet", spreadsheet);
+
+
             return  "spreadsheetPreview";
         } catch (ConflictingAssignmentNameException e) {
             if(logger.isErrorEnabled())logger.error(e);
             FacesUtil.addErrorMessage(getLocalizedString("add_assignment_name_conflict_failure"));
         }
+
+        FacesContext context = FacesContext.getCurrentInstance();
+        context.getExternalContext().getRequestMap().put("spreadsheet", spreadsheet);
+
+
         return null;
     }
 

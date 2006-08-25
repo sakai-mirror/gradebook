@@ -317,7 +317,7 @@ public class ExportBean extends GradebookDependentBean implements Serializable {
 			sb.append("\n");
 		}
 
-        logger.debug(sb.toString());
+        if(logger.isDebugEnabled())logger.debug(sb.toString());
         return sb.toString();
 	}
 

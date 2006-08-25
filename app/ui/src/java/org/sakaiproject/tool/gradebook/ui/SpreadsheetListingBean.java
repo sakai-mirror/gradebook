@@ -37,7 +37,7 @@ import java.util.ArrayList;
 public class SpreadsheetListingBean extends GradebookDependentBean implements Serializable {
 
 
-    private List spreadSheets;
+    private List spreadsheets;
     private static final Log logger = LogFactory.getLog(SpreadsheetListingBean.class);
     private Long spreadsheetId;
     private String pageName;
@@ -48,30 +48,26 @@ public class SpreadsheetListingBean extends GradebookDependentBean implements Se
     HttpSession session;
 
 
-    /**
-     * TODO database presristence not yet implement
-     */
 
     public SpreadsheetListingBean() {
 
-        facesContext = FacesContext.getCurrentInstance();
-        try{
-            spreadsheet  = (SpreadsheetBean) facesContext.getApplication().createValueBinding("#{spreadsheetBean}").getValue(facesContext);
-        }catch(Exception e){
-            if(logger.isDebugEnabled())logger.debug("unable to load SpreadsheetBean");
-        }
-
 
     }
 
+    public void setSpreadsheetBean(SpreadsheetBean spreadsheetBean) {
+        this.spreadsheet = spreadsheetBean;
+    }
 
-    public List getSpreadSheets() {
+
+
+    public List getSpreadsheets() {
         return getGradebookManager().getSpreadsheets(getGradebookId());
     }
 
-    public void setSpreadSheets(List spreadSheets) {
-        this.spreadSheets = spreadSheets;
+    public void setSpreadsheets(List spreadsheets) {
+        this.spreadsheets = spreadsheets;
     }
+
 
     public String deleteItem(){
         return "spreadsheetRemove";
@@ -94,11 +90,15 @@ public class SpreadsheetListingBean extends GradebookDependentBean implements Se
             contents.add(lineitems[i]);
         }
 
+        spreadsheet = new SpreadsheetBean();
         spreadsheet.setTitle(sp.getName());
         spreadsheet.setDate(sp.getDateCreated());
         spreadsheet.setUserId(sp.getCreator());
         spreadsheet.setLineitems(contents);
-        
+
+        FacesContext context = FacesContext.getCurrentInstance();
+        context.getExternalContext().getRequestMap().put("spreadsheet", spreadsheet);
+                        
         return "spreadsheetPreview";
     }
 
