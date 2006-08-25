@@ -251,11 +251,5 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     }
 
 
-    protected List getSpreadsheets(Long gradebookId, Session session) throws HibernateException {
-        List spreadsheets = session.createQuery(
-                "from Spreadsheet as spt where spt.gradebook.id=? ").
-                setLong(0, gradebookId.longValue()).
-                list();
-        return spreadsheets;
-    }
+    
 }
