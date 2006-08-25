@@ -161,37 +161,41 @@
 			<property-name>pageName</property-name>
 			<value>overview</value>
 		</managed-property>
-	</managed-bean>
-
-	<managed-bean>
-		<managed-bean-name>exportBean</managed-bean-name>
-		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.ExportBean</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-	</managed-bean>
-
+    </managed-bean>
 
     <managed-bean>
-		<managed-bean-name>spreadsheetUploadBean</managed-bean-name>
-		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetUploadBean</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-	</managed-bean>
-
-    <managed-bean>
-		<managed-bean-name>spreadsheetPreviewBean</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetPreviewBean</managed-bean-class>
+        <managed-bean-name>exportBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.ExportBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
+
 
     <managed-bean>
         <managed-bean-name>spreadsheetBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetBean</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
-   </managed-bean>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+
+    
+    <managed-bean>
+        <managed-bean-name>spreadsheetUploadBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetUploadBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <managed-bean-name>spreadsheetPreviewBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetPreviewBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
 
     <managed-bean>
         <managed-bean-name>spreadsheetImportBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetImportBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
+
     </managed-bean>
 
     <managed-bean>
@@ -206,6 +210,7 @@
             <property-name>pageName</property-name>
             <value>spreadsheetListing</value>
         </managed-property>
+
     </managed-bean>
 
 
@@ -222,5 +227,6 @@
             <value>removeSpreadsheet</value>
         </managed-property>
     </managed-bean>
+
 </faces-config>
 

@@ -43,25 +43,21 @@
         <navigation-case>
             <from-outcome>spreadsheetUpload</from-outcome>
             <to-view-id>/spreadsheetUpload.jsp</to-view-id>
-            <redirect/>
         </navigation-case>
 
         <navigation-case>
             <from-outcome>spreadsheetPreview</from-outcome>
             <to-view-id>/spreadsheetPreview.jsp</to-view-id>
-            <redirect/>
         </navigation-case>
 
          <navigation-case>
             <from-outcome>spreadsheetUploadPreview</from-outcome>
             <to-view-id>/spreadsheetUploadPreview.jsp</to-view-id>
-             <redirect/>
          </navigation-case>
 
         <navigation-case>
             <from-outcome>spreadsheetImport</from-outcome>
             <to-view-id>/spreadsheetImport.jsp</to-view-id>
-            <redirect/>
         </navigation-case>
 
         <navigation-case>
