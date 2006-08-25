@@ -483,7 +483,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     }
 
     private List getAssignmentsWithStatsInternal(final Long gradebookId, final String sortBy, final boolean ascending, final Set studentUids) {
-        logger.debug("sort by is "+sortBy);
+        if(logger.isDebugEnabled())logger.debug("sort by is "+sortBy);
         List assignments;
     	if (studentUids.isEmpty()) {
     		// Hibernate 2.1.8 generates invalid SQL if an empty collection is used
@@ -599,43 +599,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
     /**
      */
-    public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted)
-        throws ConflictingAssignmentNameException, StaleObjectModificationException {
-        HibernateCallback hc = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-                int numNameConflicts = ((Integer)session.createQuery(
-                        "select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
-                        setString(0, name).
-                        setEntity(1, gb).
-                        uniqueResult()).intValue();
-                if(numNameConflicts > 0) {
-                    throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
-                }
-
-                Assignment asn = new Assignment();
-                asn.setGradebook(gb);
-                asn.setName(name);
-                asn.setPointsPossible(points);
-                asn.setDueDate(dueDate);
-                if (isNotCounted != null) {
-	                asn.setNotCounted(isNotCounted.booleanValue());
-	            }
-
-                // Save the new assignment
-                Long id = (Long)session.save(asn);
-
-                // Recalculate the course grades
-                recalculateCourseGradeRecords(asn.getGradebook(), session);
-
-                return id;
-            }
-        };
-
-        return (Long)getHibernateTemplate().execute(hc);
-    }
-
-
+  
     public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased) throws ConflictingAssignmentNameException, StaleObjectModificationException {
 
         HibernateCallback hc = new HibernateCallback() {
@@ -919,6 +883,14 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
         return (Long)getHibernateTemplate().execute(hc);
 
+    }
+
+    protected List getSpreadsheets(Long gradebookId, Session session) throws HibernateException {
+        List spreadsheets = session.createQuery(
+                "from Spreadsheet as spt where spt.gradebook.id=? ").
+                setLong(0, gradebookId.longValue()).
+                list();
+        return spreadsheets;
     }
 
 }
