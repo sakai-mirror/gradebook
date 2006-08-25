@@ -3,7 +3,7 @@
 
 
 /*******************************************************************************
- * Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+ * Copyright (c) 2006 The Regents of the University of California
  *
  *  Licensed under the Educational Community License, Version 1.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -67,14 +67,11 @@ public class SpreadsheetTest extends GradebookTestBase {
     public void testCreateAndUpdateSpreadsheet() throws Exception {
 
         Long sptId = gradebookManager.createSpreadsheet(gradebook.getId(),SPT_NAME,"test_uid",new Date(),CONTENT);
-        Spreadsheet spt = (Spreadsheet)gradebookManager.getSpreadsheet(sptId);
-        spt.setCreator("test_uid2");
-        gradebookManager.updateSpreadsheet(spt);
 
-        // Fetch the updated assignment with statistics
+        // Fetch the updated spreadsheet
         Spreadsheet  persistentSpreadsheet = gradebookManager.getSpreadsheet(sptId);
         // Ensure the DB update was successful
-        Assert.assertEquals(persistentSpreadsheet.getCreator(), "test_uid2");
+        Assert.assertEquals(persistentSpreadsheet.getCreator(), "test_uid");
 
         // Try to save a new assignment with the same name
         boolean errorThrown = false;
@@ -83,22 +80,8 @@ public class SpreadsheetTest extends GradebookTestBase {
         } catch (ConflictingAssignmentNameException e) {
             errorThrown = true;
         }
-        Assert.assertTrue(errorThrown);
+        Assert.assertTrue(errorThrown);        
 
-        // Save a second assignment
-        Long secondId = gradebookManager.createSpreadsheet(gradebook.getId(),SPT_NAME2,"test_uid",new Date(),CONTENT);
-        Spreadsheet spt2 = (Spreadsheet)gradebookManager.getSpreadsheet(secondId);
-
-        errorThrown = false;
-
-        // Try to update its name to that of the first
-        spt2.setName(SPT_NAME);
-        try {
-            gradebookManager.updateSpreadsheet(spt2);
-        } catch (ConflictingAssignmentNameException e) {
-            errorThrown = true;
-        }
-        Assert.assertTrue(errorThrown);
     }
 
 
