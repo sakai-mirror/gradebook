@@ -133,23 +133,6 @@ public class Assignment extends GradableObject {
             }
         };
 
-
-           pointsComparator = new Comparator() {
-            public int compare(Object o1, Object o2) {
-                if(log.isDebugEnabled()) log.debug("Comparing assignment + " + o1 + " to " + o2 + " by points");
-                Assignment one = (Assignment)o1;
-                Assignment two = (Assignment)o2;
-
-                int comp = one.getPointsPossible().compareTo(two.getPointsPossible());
-                if(comp == 0) {
-                    return one.getName().compareTo(two.getName());
-                } else {
-                    return comp;
-                }
-            }
-        };
-
-
         releasedComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
                 if(log.isDebugEnabled()) log.debug("Comparing assignment + " + o1 + " to " + o2 + " by release");
