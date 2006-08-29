@@ -169,50 +169,15 @@
         <managed-bean-scope>request</managed-bean-scope>
     </managed-bean>
 
-
-    <managed-bean>
-        <managed-bean-name>spreadsheetBean</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetBean</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-    </managed-bean>
-
-
-    
     <managed-bean>
         <managed-bean-name>spreadsheetUploadBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetUploadBean</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-    </managed-bean>
-
-    <managed-bean>
-        <managed-bean-name>spreadsheetPreviewBean</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetPreviewBean</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-    </managed-bean>
-
-
-    <managed-bean>
-        <managed-bean-name>spreadsheetImportBean</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetImportBean</managed-bean-class>
-        <managed-bean-scope>request</managed-bean-scope>
-
-    </managed-bean>
-
-    <managed-bean>
-        <managed-bean-name>spreadsheetListingBean</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.tool.gradebook.ui.SpreadsheetListingBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
         <managed-property>
             <property-name>spreadsheetId</property-name>
             <value>#{param.spreadsheetId}</value>
         </managed-property>
-        <managed-property>
-            <property-name>pageName</property-name>
-            <value>spreadsheetListing</value>
-        </managed-property>
-
     </managed-bean>
-
 
     <managed-bean>
         <managed-bean-name>spreadsheetRemoveBean</managed-bean-name>

@@ -6,7 +6,7 @@
 
             <%@include file="/inc/appMenu.jspf"%>
 
-            <sakai:flowState bean="#{spreadsheetPreviewBean}" />  
+            <sakai:flowState bean="#{spreadsheetUploadBean}" />
 
             <h2><h:outputText value="#{msgs.import_preview_page_title}"/></h2>
 
@@ -18,21 +18,21 @@
             </p>
 
              <p class="instruction">
-                <h:outputText value="#{msgs.import_preview_nomatch}" escape="false" rendered="#{spreadsheetPreviewBean.hasUnknownUser}"/>
+                <h:outputText value="#{msgs.import_preview_nomatch}" escape="false" rendered="#{spreadsheetUploadBean.hasUnknownUser}"/>
             </p>
 
             <%@include file="/inc/globalMessages.jspf"%>
             <p/>
             <t:selectOneRadio id="assignment" layout="spread" converter="javax.faces.Integer">
-                <f:selectItems  value="#{spreadsheetPreviewBean.assignmentColumnSelectItems}" />
+                <f:selectItems  value="#{spreadsheetUploadBean.assignmentColumnSelectItems}" />
             </t:selectOneRadio>
             <t:dataTable id="table1"
-                         value="#{spreadsheetPreviewBean.studentRows}"
+                         value="#{spreadsheetUploadBean.studentRows}"
                          var="row"
                          rowIndexVar="rowIndex"
                          styleClass="listHier"
                          columnClasses="center"
-                         rowClasses="#{spreadsheetPreviewBean.rowStyles}">
+                         rowClasses="#{spreadsheetUploadBean.rowStyles}">
                 <t:column styleClass="left">
                     <f:facet name="header">
                         <t:outputText value="#{msgs.upload_preview_student_id}"/>
@@ -46,7 +46,7 @@
                     <h:outputText value="#{row.userDisplayName}"/>
                 </t:column>
 
-                <t:columns value="#{spreadsheetPreviewBean.assignmentList}" var="colIndex" >
+                <t:columns value="#{spreadsheetUploadBean.assignmentList}" var="colIndex" >
                     <f:facet name="header">
                         <h:panelGrid>
                             <t:radio for=":form:assignment" index="#{colIndex}" />
@@ -62,8 +62,8 @@
                         id="importButton"
                         styleClass="active"
                         value="#{msgs.import_preview_import_selected}"
-                        action="#{spreadsheetPreviewBean.processFile}"/>
-
+                        action="#{spreadsheetUploadBean.importData}"/>
+                    
                 <h:commandButton
                         value="#{msgs.import_preview_cancel}"
                         action="spreadsheetListing" immediate="true"/>
