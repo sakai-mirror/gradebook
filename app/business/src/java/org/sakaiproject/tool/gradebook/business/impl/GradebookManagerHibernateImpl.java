@@ -35,6 +35,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
+
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.component.gradebook.BaseHibernateManager;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -854,7 +856,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     }
 
 
-    public Long createSpreadsheet(final Long gradebookId, final String name, final String creator, Date dateCreated, final String content) throws Exception {
+    public Long createSpreadsheet(final Long gradebookId, final String name, final String creator, Date dateCreated, final String content) throws ConflictingSpreadsheetNameException,StaleObjectModificationException {
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
