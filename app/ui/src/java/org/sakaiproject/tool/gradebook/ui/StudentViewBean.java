@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
+import java.math.BigDecimal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
@@ -205,14 +205,15 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
         // Reset the points, percentages, and row styles
         totalPointsEarned = 0;
         totalPointsScored = 0;
-        percent = 0;
+        //percent = 0;
         rowStyles = new StringBuffer();
 
         // Display course grade if we've been instructed to.
         if (gradebook.isCourseGradeDisplayed()) {
-        	CourseGradeRecord gradeRecord = getGradebookManager().getStudentCourseGradeRecord(gradebook, getUserUid());
-        	if (gradeRecord != null) {
-	        	courseGrade = gradeRecord.getDisplayGrade();
+            CourseGradeRecord gradeRecord = getGradebookManager().getStudentCourseGradeRecord(gradebook, getUserUid());
+            if (gradeRecord != null) {
+                courseGrade = gradeRecord.getDisplayGrade();
+                percent = gradeRecord.getSortGrade().doubleValue();
             }
         }
 
@@ -241,7 +242,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
                 AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
                 if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
-                if(asnGr.getPointsEarned()!=null && asnGr.getAssignment().isCounted() && asnGr.getAssignment().isReleased()){
+                if(asnGr.getPointsEarned()!=null && asnGr.getAssignment().isCounted()){
                     totalPointsEarned += asnGr.getPointsEarned().doubleValue();
                 }
                 // Update the AssignmentGradeRow in the map
@@ -253,7 +254,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
             if(logger.isDebugEnabled())logger.debug("calculating total points scored from " +assignments.size() + "assignments");
             for(Iterator it = assignments.iterator(); it.hasNext();){
                 Assignment assignment  = (Assignment)it.next();
-                if(assignment.isCounted() && assignment.isReleased()){
+                if(assignment.isCounted()){
                     totalPointsScored = totalPointsScored +assignment.getPointsPossible().doubleValue();
                 }
                 if(logger.isDebugEnabled()) logger.debug("total points scored " + totalPointsScored);
@@ -290,14 +291,9 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
                 }
             }
 
-            // Protect from division by zero
-            if(totalPointsScored != 0) {
-                if(logger.isDebugEnabled()) logger.debug("totalPointsEarned / totalPointsScored = " + totalPointsEarned + "/" + totalPointsScored);
-                percent = (int)(totalPointsEarned / totalPointsScored * 100);
-            }
+
         }
-        //set the cumulative grade
-         cumulativeCourseGrade = getGradebook().getSelectedGradeMapping().getGrade(new Double(percent));
+
     }
 
 	/**
@@ -325,7 +321,12 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
 	 * @return Returns the percent.
 	 */
 	public double getPercent() {
-		return Math.round(percent*10)/10d;
+        double pct = 0;
+        BigDecimal bd = new BigDecimal(percent);
+        bd = bd.setScale(2,BigDecimal.ROUND_DOWN);
+        logger.debug("value"+bd.doubleValue());
+        pct = bd.doubleValue();
+        return pct;
 	}
 	/**
 	 * @return Returns the totalPointsEarned.
