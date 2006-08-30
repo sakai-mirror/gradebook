@@ -25,6 +25,7 @@ package org.sakaiproject.tool.gradebook.business;
 import java.util.*;
 
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -310,8 +311,8 @@ public interface GradebookManager {
      * @param dateCreated
      * @param content
      * @return
-     * @throws Exception
+     * @throws ConflictingSpreadsheetNameException,StaleObjectModificationException
      */
-    public Long createSpreadsheet(Long gradebookId, String name, String creator, Date dateCreated, String content) throws Exception;
+    public Long createSpreadsheet(Long gradebookId, String name, String creator, Date dateCreated, String content) throws ConflictingSpreadsheetNameException, StaleObjectModificationException;
 
 }
