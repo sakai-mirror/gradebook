@@ -29,6 +29,7 @@ import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.api.section.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.api.section.coursemanagement.User;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.faces.model.SelectItem;
@@ -477,12 +478,14 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         if(logger.isDebugEnabled())logger.debug("string to save "+sb.toString());
         try{
             getGradebookManager().createSpreadsheet(getGradebookId(),spreadsheet.getTitle(),this.getUserDirectoryService().getUserDisplayName(getUserUid()),new Date(),sb.toString());
-        }catch(Exception e){
+        }catch(ConflictingSpreadsheetNameException e){
             if(logger.isDebugEnabled())logger.debug(e);
             FacesUtil.addErrorMessage(getLocalizedString("upload_preview_save_failure"));
             return null;
         }
         FacesUtil.addRedirectSafeMessage(getLocalizedString("upload_preview_save_confirmation", new String[] {filename}));
+
+        this.setPageName("spreadsheetListing");
         return "spreadsheetListing";
     }
 
@@ -524,7 +527,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
              String points;
              try{
                  points = (String) line.get(Integer.parseInt(selectedColumn));
-             }catch(Exception e){
+             }catch(NumberFormatException e){
                  if(logger.isDebugEnabled())logger.error(e);
                  points = "";
 
@@ -553,10 +556,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
         return "spreadsheetImport";
     }
-
-
     //save grades
-
     public String saveGrades(){
 
         if(logger.isDebugEnabled())logger.debug("create assignment and save grades");
@@ -569,7 +569,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             try{
                 if(logger.isDebugEnabled()) logger.debug("checking if " +points +" is a numeric value");
                 if(!entry.getKey().equals("Assignment"))Double.parseDouble(points);
-            }catch(Exception e){
+            }catch(NumberFormatException e){
                 if(logger.isDebugEnabled()) logger.debug(points + " is not a numeric value");
                 FacesUtil.addRedirectSafeMessage(getLocalizedString("import_assignment_notsupported"));
 
@@ -614,7 +614,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         return null;
     }
 
-
+    /**
+     *
+     */
 
     public class Spreadsheet  implements Serializable {
 
@@ -813,7 +815,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                 isKnown  = true;
                 if(logger.isDebugEnabled())logger.debug("get userid "+ rowcontent.get(0) + "username is "+userDisplayName);
 
-            } catch (Exception e) {
+            } catch (NullPointerException e) {
                 if(logger.isDebugEnabled()) logger.debug("User " + rowcontent.get(0) + " is unknown to this gradebook ");
                 if(logger.isDebugEnabled()) logger.error(e);
                 userDisplayName = "unknown student";
