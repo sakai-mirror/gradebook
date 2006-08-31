@@ -324,7 +324,6 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
         double pct = 0;
         BigDecimal bd = new BigDecimal(percent);
         bd = bd.setScale(2,BigDecimal.ROUND_DOWN);
-        logger.debug("value"+bd.doubleValue());
         pct = bd.doubleValue();
         return pct;
 	}
