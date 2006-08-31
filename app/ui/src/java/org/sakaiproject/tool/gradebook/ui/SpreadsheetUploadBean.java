@@ -124,6 +124,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
 
     public List getSpreadsheets() {
+        this.setPageName("spreadsheetListing");
         return getGradebookManager().getSpreadsheets(getGradebookId());
     }
 
