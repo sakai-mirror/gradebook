@@ -309,7 +309,7 @@ public interface GradebookManager {
      * @param dateCreated
      * @param content
      * @return
-     * @throws ConflictingSpreadsheetNameException,StaleObjectModificationException
+     * @throws ConflictingSpreadsheetNameException StaleObjectModificationException
      */
     public Long createSpreadsheet(Long gradebookId, String name, String creator, Date dateCreated, String content) throws ConflictingSpreadsheetNameException, StaleObjectModificationException;
 
