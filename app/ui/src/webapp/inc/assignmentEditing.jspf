@@ -1,0 +1,42 @@
+<%/*
+	Assignment creation and editing.
+	Accessed via <x:aliasBean alias="#{bean}" value="#{realPageBean}">...</x:aliasBean> .
+*/%>
+<%@include file="/inc/globalMessages.jspf"%>
+
+<h:panelGrid cellpadding="0" cellspacing="0" columns="3" columnClasses="itemName" styleClass="itemSummary">
+	<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}"/>
+	<h:inputText id="title" value="#{bean.assignment.name}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+		<f:validateLength minimum="1" maximum="255"/>
+	</h:inputText>
+	<h:message for="title" styleClass="validationEmbedded" />
+
+	<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}"/>
+	<h:inputText id="points" value="#{bean.assignment.pointsPossible}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+		<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+		<f:validateDoubleRange minimum="0.01" />
+		<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
+	</h:inputText>
+	<h:message for="points" styleClass="validationEmbedded" />
+
+	<h:panelGroup>
+		<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.add_assignment_due_date}"/>
+		<h:outputText style="font-weight:normal;" value=" #{msgs.date_entry_format_description}"/>
+	</h:panelGroup>
+    <x:inputCalendar id="dueDate" value="#{bean.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true" popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
+	<h:message for="dueDate" styleClass="validationEmbedded" />
+</h:panelGrid>
+
+<%/*
+	This would be positioned directly under the Point Value entry if
+	only JSF supported "colspan"....
+*/%>
+<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
+	<h:selectBooleanCheckbox id="countAssignment" value="#{bean.assignment.counted}"
+		onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
+	<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" />
+
+   <h:selectBooleanCheckbox id="released" value="#{bean.assignment.released}"
+		onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
+	<h:outputLabel for="released" value="#{msgs.add_assignment_released}" />
+</h:panelGrid>
