@@ -206,9 +206,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
      */
     public Set updateAssignmentGradeRecords(final Assignment assignment, final Collection gradeRecordsFromCall)
             throws StaleObjectModificationException {
-
-        final Set studentIds = getStudentIdsFromGradeRecords(gradeRecordsFromCall);
-
         // If no grade records are sent, don't bother doing anything with the db
         if(gradeRecordsFromCall.size() == 0) {
             log.debug("updateAssignmentGradeRecords called for zero grade records");
@@ -219,11 +216,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-                // Evict the grade records from the session so we can check for point changes
-                for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
-                    session.evict(iter.next());
-                }
-
                 Date now = new Date();
                 Gradebook gb = assignment.getGradebook();
                 String graderId = authn.getUserUid();
@@ -231,84 +223,30 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 Set studentsWithUpdatedAssignmentGradeRecords = new HashSet();
                 Set studentsWithExcessiveScores = new HashSet();
 
-                // In the following queries, we retrieve column values instead of
-                // mapped Java objects. This is to avoid a Hibernate NonUniqueObjectException
-                // due to conflicts with the input grade records.
-                List persistentGradeRecords;
-                if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
-                    String hql = "select gr.studentId, gr.pointsEarned from AssignmentGradeRecord as gr where gr.gradableObject=:go and gr.studentId in (:studentIds)";
-                    Query q = session.createQuery(hql);
-                    q.setParameter("go", assignment);
-                    q.setParameterList("studentIds", studentIds);
-                    persistentGradeRecords = q.list();
-                } else {
-                    String hql = "select gr.studentId, gr.pointsEarned from AssignmentGradeRecord as gr where gr.gradableObject=:go";
-                    Query q = session.createQuery(hql);
-                    q.setParameter("go", assignment);
-                    persistentGradeRecords = new ArrayList();
-                    for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
-                        Object[] oa = (Object[])iter.next();
-                        if (studentIds.contains(oa[0])) {
-                            persistentGradeRecords.add(oa);
-                        }
-                    }
-                }
-
-                // Construct a map of student id to persistent grade record scores
-                Map scoreMap = new HashMap();
-                for(Iterator iter = persistentGradeRecords.iterator(); iter.hasNext();) {
-                    Object[] oa = (Object[])iter.next();
-                    scoreMap.put(oa[0], oa[1]);
-                }
-
                 for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
-                    // Keep track of whether this grade record needs to be updated
-                    boolean performUpdate = false;
+                	AssignmentGradeRecord gradeRecordFromCall = (AssignmentGradeRecord)iter.next();
+                	gradeRecordFromCall.setGraderId(graderId);
+                	gradeRecordFromCall.setDateRecorded(now);
+                	try {
+                		session.saveOrUpdate(gradeRecordFromCall);
+                	} catch (TransientObjectException e) {
+                		// It's possible that a previously unscored student
+                		// was scored behind the current user's back before
+                		// the user saved the new score. This translates
+                		// that case into an optimistic locking failure.
+                		if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to add a new assignment grade record");
+                		throw new StaleObjectModificationException(e);
+                	}
 
-                    AssignmentGradeRecord gradeRecordFromCall = (AssignmentGradeRecord)iter.next();
-                    if(scoreMap.containsKey(gradeRecordFromCall.getStudentId())) {
-                        // The student already has a grade record, only perform an update if the grade has changed
-                        Double pointsInDb = (Double)scoreMap.get(gradeRecordFromCall.getStudentId());
+                	// Check for excessive (AKA extra credit) scoring.
+                	if (gradeRecordFromCall.getPointsEarned() != null &&
+                			gradeRecordFromCall.getPointsEarned().compareTo(assignment.getPointsPossible()) > 0) {
+                 		studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
+                	}
 
-                        if( (pointsInDb != null && !pointsInDb.equals(gradeRecordFromCall.getPointsEarned())) ||
-                                (pointsInDb == null && gradeRecordFromCall.getPointsEarned() != null)) {
-                            // The grade record's value has changed
-                            gradeRecordFromCall.setGraderId(graderId);
-                            gradeRecordFromCall.setDateRecorded(now);
-                            try {
-	                            session.update(gradeRecordFromCall);
-							} catch (TransientObjectException e) {
-								// It's possible that a previously unscored student
-								// was scored behind the current user's back before
-								// the user saved the new score. This translates
-								// that case into an optimistic locking failure.
-								if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to add a new assignment grade record");
-								throw new StaleObjectModificationException(e);
-							}
-                            performUpdate = true;
-                        }
-                    } else {
-                        // This is a new grade record
-                        if(gradeRecordFromCall.getPointsEarned() != null) {
-                            gradeRecordFromCall.setGraderId(graderId);
-                            gradeRecordFromCall.setDateRecorded(now);
-                            session.save(gradeRecordFromCall);
-                            performUpdate = true;
-                        }
-                    }
-
-                    // Check for excessive (AKA extra credit) scoring.
-                    if (performUpdate &&
-                            gradeRecordFromCall.getPointsEarned() != null &&
-                            gradeRecordFromCall.getPointsEarned().compareTo(assignment.getPointsPossible()) > 0) {
-                        studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
-                    }
-
-                    // Log the grading event, and keep track of the students with saved/updated grades
-                    if(performUpdate) {
-                        session.save(new GradingEvent(assignment, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getPointsEarned()));
-                        studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
-                    }
+                	// Log the grading event, and keep track of the students with saved/updated grades
+                	session.save(new GradingEvent(assignment, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getPointsEarned()));
+                	studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
                 }
                 try {
 					// Fix any data contention before calling the recalculation.

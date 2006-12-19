@@ -185,24 +185,6 @@ public class GradeManagerTest extends GradebookTestBase {
         Set excessives = gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
         Assert.assertTrue(excessives.size() == 1);
         Assert.assertTrue(excessives.contains("excessiveStudent"));
-
-        List persistentGradeRecords = gradebookManager.getPointsEarnedSortedGradeRecords(asn, studentIds);
-        gradeRecords = new ArrayList();
-
-        for(Iterator iter = persistentGradeRecords.iterator(); iter.hasNext();) {
-            AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)iter.next();
-            if(gradeRecord.getStudentId().equals("goodStudent")) {
-                gradeRecord.setPointsEarned(new Double(12));
-            }
-            // Always add the grade record to ensure that records that have not changed are not updated in the db
-            gradeRecords.add(gradeRecord);
-        }
-
-        // Only updates should be reported.
-        excessives = gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
-
-        Assert.assertTrue(excessives.contains("goodStudent"));
-        Assert.assertEquals(1, excessives.size());
     }
 
     public void testAssignmentScoresEntered() throws Exception {
