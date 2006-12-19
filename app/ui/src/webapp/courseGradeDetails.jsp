@@ -109,7 +109,7 @@
 				<x:div styleClass="shorttext">
 					<h:inputText
 						id="Grade"
-						value="#{scoreRow.courseGradeRecord.enteredGrade}"
+						value="#{scoreRow.enteredGrade}"
 						size="4"
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.COURSE_GRADE" />

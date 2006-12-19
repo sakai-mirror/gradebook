@@ -28,11 +28,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -339,54 +337,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 // Find the number of points possible in this gradebook
                 double totalPointsPossibleInGradebook = getTotalPoints(gb.getId());
 
-                // Find the grade records for these students on this gradable object
-                // In the following queries, we retrieve column values instead of
-                // mapped Java objects. This is to avoid a Hibernate NonUniqueObjectException
-                // due to conflicts with the input grade records.
-                Set studentIds = getStudentIdsFromGradeRecords(gradeRecordsFromCall);
-                List persistentGradeRecords;
-                if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
-                    String hql = "select gr.studentId, gr.enteredGrade from CourseGradeRecord as gr where gr.gradableObject=:go and gr.studentId in (:studentIds)";
-                    Query q = session.createQuery(hql);
-                    q.setParameter("go", courseGrade);
-                    q.setParameterList("studentIds", studentIds);
-                    persistentGradeRecords = q.list();
-                } else {
-                    String hql = "select gr.studentId, gr.enteredGrade from CourseGradeRecord as gr where gr.gradableObject=:go";
-                    Query q = session.createQuery(hql);
-                    q.setParameter("go", courseGrade);
-                    persistentGradeRecords = new ArrayList();
-                    for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
-                        Object[] oa = (Object[])iter.next();
-                        if (studentIds.contains(oa[0])) {
-                            persistentGradeRecords.add(oa);
-                        }
-                    }
-                }
-
-                // Construct a map of student id to persistent grade record scores
-                Map scoreMap = new HashMap();
-                for(Iterator iter = persistentGradeRecords.iterator(); iter.hasNext();) {
-                    Object[] oa = (Object[])iter.next();
-                    scoreMap.put(oa[0], oa[1]);
-                }
-
                 for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
-                    // The possibly modified course grade record
+                    // The modified course grade record
                     CourseGradeRecord gradeRecordFromCall = (CourseGradeRecord)iter.next();
-
-                    // The entered grade in the db for this grade record
-                    String grade = (String)scoreMap.get(gradeRecordFromCall.getStudentId());
-
-                    // Update the existing record
-
-                    // If the entered grade hasn't changed, just move on
-                    if(gradeRecordFromCall.getEnteredGrade() == null && grade == null) {
-                        continue;
-                    }
-                    if(gradeRecordFromCall.getEnteredGrade() != null && grade != null && gradeRecordFromCall.getEnteredGrade().equals(grade)) {
-                        continue;
-                    }
 
                     // Update the sort grade
                     if(gradeRecordFromCall.getEnteredGrade() == null) {
