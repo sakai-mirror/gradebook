@@ -21,7 +21,7 @@
 			columnClasses="itemName"
 			styleClass="itemSummary">
 			<h:outputText id="pointsLabel" value="#{msgs.course_grade_details_points}"/>
-			<h:outputText id="points" value="#{courseGradeDetailsBean.courseGrade.pointsForDisplay}">
+			<h:outputText id="points" value="#{courseGradeDetailsBean.totalPoints}">
 				<f:convertNumber maxFractionDigits="2"/>
 			</h:outputText>
 

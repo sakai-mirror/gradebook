@@ -118,7 +118,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
 		// Clear view state.
 		scoreRows = new ArrayList();
-		courseGrade = getGradebookManager().getCourseGradeWithStats(getGradebookId());
+		courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
 		updatedGradeRecords = new ArrayList();
 
         gradeMapping = getGradebook().getSelectedGradeMapping();
@@ -127,7 +127,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 		// Set up score rows.
 		Map enrollmentMap = getOrderedEnrollmentMap();
 		List studentUids = new ArrayList(enrollmentMap.keySet());
-		List gradeRecords = getGradebookManager().getPointsEarnedSortedGradeRecords(courseGrade, studentUids);
+		List gradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecordsWithStats(courseGrade, studentUids);
 		
 		if (!isEnrollmentSort()) {
 			// Need to sort and page based on a scores column.
@@ -182,7 +182,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 			EnrollmentRecord enrollment = (EnrollmentRecord)enrollmentMap.get(studentUid);
 			CourseGradeRecord gradeRecord = (CourseGradeRecord)gradeRecordMap.get(studentUid);
             if(gradeRecord == null) {
-                gradeRecord = new CourseGradeRecord(courseGrade, studentUid, null);
+                gradeRecord = new CourseGradeRecord(courseGrade, studentUid);
                 gradeRecords.add(gradeRecord);
             }
 			

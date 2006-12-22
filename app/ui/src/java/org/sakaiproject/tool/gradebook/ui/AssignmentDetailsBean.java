@@ -172,7 +172,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				// Set up score rows.
 				Map enrollmentMap = getOrderedEnrollmentMap();
 				List studentUids = new ArrayList(enrollmentMap.keySet());
-				List gradeRecords = getGradebookManager().getPointsEarnedSortedGradeRecords(assignment, studentUids);
+				List gradeRecords = getGradebookManager().getAssignmentGradeRecords(assignment, studentUids);
 
 				if (!isEnrollmentSort()) {
 					// Need to sort and page based on a scores column.
