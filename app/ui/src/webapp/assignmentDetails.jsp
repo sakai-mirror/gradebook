@@ -19,6 +19,7 @@
 			<h:commandButton
 				disabled="#{assignmentDetailsBean.first}"
 				actionListener="#{assignmentDetailsBean.processAssignmentIdChange}"
+				immediate="true"
 				value="#{msgs.assignment_details_previous_assignment}"
 				title="#{assignmentDetailsBean.previousAssignment.name}"
 				accesskey="p"
@@ -27,12 +28,14 @@
 			</h:commandButton>
 			<h:commandButton
 				action="overview"
+				immediate="true"
 				value="#{msgs.assignment_details_return_to_overview}"
 				accesskey="l"
 				tabindex="6"/>
 			<h:commandButton
 				disabled="#{assignmentDetailsBean.last}"
 				actionListener="#{assignmentDetailsBean.processAssignmentIdChange}"
+				immediate="true"
 				value="#{msgs.assignment_details_next_assignment}"
 				title="#{assignmentDetailsBean.nextAssignment.name}"
 				accesskey="n"
