@@ -53,7 +53,8 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="dueDate" immediate="true" arrow="true">
+		            <x:commandSortHeader columnName="dueDate" immediate="true" arrow="true"
+		            	propertyName="dueDate">
 						<h:outputText value="#{msgs.overview_assignments_header_due_date}"/>
 		            </x:commandSortHeader>
 		        </f:facet>
@@ -66,7 +67,8 @@
 
             <h:column>
 				<f:facet name="header">
-                    <x:commandSortHeader columnName="released" immediate="true" arrow="true">
+                    <x:commandSortHeader columnName="released" immediate="true" arrow="true"
+                    	propertyName="released">
                         <h:outputText value="#{msgs.overview_released}"/>
                     </x:commandSortHeader>
                 </f:facet>
@@ -88,7 +90,8 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		            <x:commandSortHeader columnName="pointsPossible" immediate="true" arrow="true">
+		            <x:commandSortHeader columnName="pointsPossible" immediate="true" arrow="true"
+		            	propertyName="pointsPossible">
 						<h:outputText value="#{msgs.overview_assignments_header_points}"/>
 		            </x:commandSortHeader>
 		        </f:facet>
