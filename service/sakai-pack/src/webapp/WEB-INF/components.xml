@@ -155,7 +155,7 @@
 		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
 
 		<!-- Set up default system-wide grading scales. -->
-<!--
+
 		<property name="availableGradingScales">
 			<list>
 				<bean class="org.sakaiproject.service.gradebook.shared.GradingScaleDefinition">
@@ -176,7 +176,8 @@
 							<value>D</value>
 							<value>D-</value>
 							<value>F</value>
-						</list>
+                            <value>I</value>
+                        </list>
 					</property>
 					<property name="defaultBottomPercents">
 						<list>
@@ -193,7 +194,8 @@
 							<value>63.0</value>
 							<value>60.0</value>
 							<value>00.0</value>
-						</list>
+                            <value>00.0</value>
+                        </list>
 					</property>
 				</bean>
 				<bean class="org.sakaiproject.service.gradebook.shared.GradingScaleDefinition">
@@ -206,7 +208,8 @@
 							<value>C</value>
 							<value>D</value>
 							<value>F</value>
-						</list>
+                            <value>I</value>
+                        </list>
 					</property>
 					<property name="defaultBottomPercents">
 						<list>
@@ -215,7 +218,8 @@
 							<value>70.0</value>
 							<value>60.0</value>
 							<value>00.0</value>
-						</list>
+                            <value>00.0</value>
+                        </list>
 					</property>
 				</bean>
 				<bean class="org.sakaiproject.service.gradebook.shared.GradingScaleDefinition">
@@ -225,20 +229,22 @@
 						<list>
 							<value>P</value>
 							<value>NP</value>
-						</list>
+                            <value>I</value>
+                        </list>
 					</property>
 					<property name="defaultBottomPercents">
 						<list>
 							<value>75.0</value>
 							<value>0.0</value>
-						</list>
+                            <value>0.0</value>
+                        </list>
 					</property>
 				</bean>
 			</list>
 		</property>
 
 		<property name="defaultGradingScale" value="LetterGradePlusMinusMapping"/>
--->
+
 
 		<!--
 			You could use a configuration like this to disable the plus-minus scale,
