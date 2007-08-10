@@ -121,6 +121,18 @@ public interface GradebookManager {
     
     public List<CourseGradeRecord> getPointsEarnedCourseGradeRecords(CourseGrade courseGrade, Collection studentUids, Collection assignments, Map scoreMap);
     public void addToGradeRecordMap(Map gradeRecordMap, List gradeRecords);
+    
+    /**
+     * Adds student grade records to map but takes into account grader permissions
+     * passed as studentIdItemIdFunctionMap. If not allowed to view/grade item, grade record is
+     * set to null
+     * @param gradeRecordMap
+     * @param gradeRecords
+     * @param studentIdItemIdFunctionMap
+     * 			Map of studentId to Map of Item to function (grade/view)
+     */
+    public void addToGradeRecordMap(Map gradeRecordMap, List gradeRecords, Map studentIdItemIdFunctionMap);
+    
     public void addToCategoryResultMap(Map categoryResultMap, List categories, Map gradeRecordMap, Map enrollmentMap);
    
     /**
@@ -494,6 +506,12 @@ public interface GradebookManager {
      */
     public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending);
     
+    /**
+     * 
+     * @param gradebookId
+     * @return list of categories with populated assignmentList
+     */ 
+    public List getCategoriesWithAssignments(Long gradebookId) ;
     
     /**
      * Get all assignments with no categories
@@ -619,5 +637,135 @@ public interface GradebookManager {
      */
     public Long createUngradedAssignmentForCategory(Long gradebookId, Long categoryId, String name, Date dueDate, Boolean isNotCounted, Boolean isReleased)
     	throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException;
+    
+    /**
+     * Add a permission combination for a user.
+     *
+     * @param gradebookId The gradebook ID
+     * @param userId grader's user_id
+     * @param function function that the grader have - grade / view
+     * @param categoryId The category ID
+     * @param groupId group/section ID
+     * @return ID of permission
+     * @throws IllegalArgumentException
+     *    
+     */
+    public Long addPermission(Long gradebookId, String userId, String function, Long categoryId, String groupId)
+    throws IllegalArgumentException;
 
+    /**
+     * Get all permissions for gradebook.
+     *
+     * @param gradebookId The gradebook ID
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     *    
+     */
+    public List getPermissionsForGB(Long gradebookId)
+    throws IllegalArgumentException;
+    
+    /**
+     * Get all permissions for a given list of category Ids
+     * @param gradebookId
+     * @param cateIds
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForGBForCategoryIds(final Long gradebookId, final List cateIds) throws IllegalArgumentException;
+
+    /**
+     * Update permissions.
+     *
+     * @param perms Collection of persistent permission objects.
+     */
+    public void updatePermission(Collection perms);
+    
+    /**
+     * Update permission.
+     * 
+     * @param perm persistent object of Permission
+     * @throws IllegalArgumentException
+     */
+    public void updatePermission(final Permission perm) throws IllegalArgumentException;
+    
+    /**
+     * Delete permission.
+     * 
+     * @param perm persistent object of Permission
+     * @throws IllegalArgumentException
+     */
+    public void deletePermission(final Permission perm) throws IllegalArgumentException;
+    
+    /**
+     * Get permissions for a user.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForUser(final Long gradebookId, final String userId) throws IllegalArgumentException;
+
+    /**
+     * Get permissions for a user for certain categories.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @param cateIds category ID list
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForUserForCategory(final Long gradebookId, final String userId, final List cateIds) throws IllegalArgumentException;
+
+    /**
+     * Get permission for user when the user can grade/view "any" category.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForUserAnyCategory(final Long gradebookId, final String userId) throws IllegalArgumentException;
+
+    /**
+     * Get permission for user when the user can grade/view "any" group.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForUserAnyGroup(final Long gradebookId, final String userId) throws IllegalArgumentException;
+    
+    /**
+     * Get permission for user when the user can grade/view "any" group for certain catetories.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @param cateIds categorie IDs
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForUserAnyGroupForCategory(final Long gradebookId, final String userId, final List cateIds) throws IllegalArgumentException;
+
+    /**
+     * Get permission for user when the user can grade/view "any" group for any catetory.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForUserAnyGroupAnyCategory(final Long gradebookId, final String userId) throws IllegalArgumentException;
+    
+    /**
+     * Get permission for user when the user can grade/view "any" category for certain groups.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @param groupsIds group IDs
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForUserForGoupsAnyCategory(final Long gradebookId, final String userId, final List groupIds) throws IllegalArgumentException;
 }
