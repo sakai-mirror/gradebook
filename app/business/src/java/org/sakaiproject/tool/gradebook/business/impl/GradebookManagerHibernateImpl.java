@@ -884,7 +884,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		Object[] returned = (Object[])scoresIter.next();
     		Double pointsEarned = (Double)returned[0];
     		Assignment go = (Assignment) returned[1];
-    		if (pointsEarned != null) {
+    		if (go.isCounted() && pointsEarned != null) {
     			if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
     			{
     				totalPointsEarned += pointsEarned.doubleValue();
