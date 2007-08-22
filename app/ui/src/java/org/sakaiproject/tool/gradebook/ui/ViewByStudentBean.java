@@ -366,11 +366,6 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     					counted = false;
     			}
     			
-    			// leave the grade display blank if the assignment is not counted toward
-    			// course grade
-    			if (!counted && !isInstructorView) {
-    				asnGr.setPointsEarned(null);
-    			}
     			asnGradeRow.setGradeRecord(asnGr);
     			
     			if (asnGr != null) {
