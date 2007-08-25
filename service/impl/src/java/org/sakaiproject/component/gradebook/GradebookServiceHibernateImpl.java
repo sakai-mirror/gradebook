@@ -98,7 +98,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public List<org.sakaiproject.service.gradebook.shared.Assignment> getAssignments(String gradebookUid)
 		throws GradebookNotFoundException {
 		if (!isUserAbleToViewAssignments(gradebookUid)) {
-			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to get assignments list");
+			if (log.isDebugEnabled()) log.debug("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to get assignments list");
 			throw new SecurityException("You do not have permission to perform this operation");
 		}
 
