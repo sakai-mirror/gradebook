@@ -239,11 +239,15 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	 * Action to calculate course grades
 	 */
 	public String processCalculateCourseGrades() {
-		try {
-			calculateCourseGrades();
-		} catch (StaleObjectModificationException e) {
-			logger.error(e);
-			FacesUtil.addErrorMessage(getLocalizedString("course_grade_details_locking_failure"));
+		if (isUserAbleToGradeAll()) {		
+			try {
+				calculateCourseGrades();
+			} catch (StaleObjectModificationException e) {
+				logger.error(e);
+				FacesUtil.addErrorMessage(getLocalizedString("course_grade_details_locking_failure"));
+			}	
+		} else {
+			FacesUtil.addErrorMessage(getLocalizedString("course_grade_details_calc_cg_perm_error"));
 		}
 		return "courseGradeDetails";
 	}

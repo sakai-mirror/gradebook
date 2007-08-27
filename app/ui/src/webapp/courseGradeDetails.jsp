@@ -164,6 +164,7 @@
 			<h:commandButton
 				value="#{msgs.course_grade_details_calculate_course_grade}"
 				action="calculateCourseGrades"
+				rendered="#{courseGradeDetailsBean.userAbleToGradeAll}"
 			/>
 			<h:commandButton
 				value="#{msgs.course_grade_details_export_course_grades}"
