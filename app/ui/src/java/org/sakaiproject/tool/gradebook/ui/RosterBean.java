@@ -708,7 +708,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     
     private List<List<Object>> getSpreadsheetData(boolean includeCourseGrade) {
     	// Get the full list of filtered enrollments and scores (not just the current page's worth).
-    	Map enrRecItemIdFunctionMap = getOrderedEnrollmentMapForAllItems();
+    	Map enrRecItemIdFunctionMap = getWorkingEnrollmentsForAllItems();
     	List filteredEnrollments = new ArrayList(enrRecItemIdFunctionMap.keySet());  
     	Collections.sort(filteredEnrollments, ENROLLMENT_NAME_COMPARATOR);
     	Set<String> studentUids = new HashSet<String>();
@@ -736,19 +736,27 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		} else {
 			getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords);
 		}
+		
+		Category selCategoryView = getSelectedCategory();
         
 		List gradableObjects = new ArrayList();
 		List allAssignments = getGradebookManager().getAssignments(getGradebookId());
 		if (!allAssignments.isEmpty()) {
 			for (Iterator assignIter = allAssignments.iterator(); assignIter.hasNext();) {
 				Assignment assign = (Assignment) assignIter.next();
-				if (availableItems.contains(assign.getId())) {
+				if (availableItems.contains(assign.getId()) && (selCategoryView == null || (assign.getCategory() != null && (assign.getCategory()).getId().equals(selCategoryView.getId())))) {
 					gradableObjects.add(assign);
 				}
 			}
 		}
 		
-		if (isUserAbleToGradeAll()) {
+		// don't include the course grade column if the user doesn't have grade all perm
+		// or if the view is filtered by category
+		if (!isUserAbleToGradeAll() || selCategoryView != null) {
+			includeCourseGrade = false;
+		}
+		
+		if (includeCourseGrade) {
 			CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
 			List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentUids, gradableObjects, filteredGradesMap);
 	        getGradebookManager().addToGradeRecordMap(filteredGradesMap, courseGradeRecords);
