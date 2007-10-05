@@ -354,6 +354,11 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	 */
 	public void processUpdateScores(ActionEvent event) {
 		try {
+			// fire an event for each grade record
+			for (Iterator iter = updatedGradeRecords.iterator(); iter.hasNext();) {
+				AssignmentGradeRecord agr = (AssignmentGradeRecord) iter.next();
+				getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScore","/gradebook/"+getGradebookUid()+"/"+agr.getAssignment().getName()+"/"+agr.getStudentId()+"/"+agr.getPointsEarned()+"/"+getAuthzLevel());
+			}
 			saveScores();
 		} catch (StaleObjectModificationException e) {
             FacesUtil.addErrorMessage(getLocalizedString("assignment_details_locking_failure"));
