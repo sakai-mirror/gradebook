@@ -134,6 +134,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			}
 			
 			getGradebookManager().updateAssignment(assignment);
+			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateAssignment","/gradebook/"+getGradebookUid()+"/"+assignment.getName()+"/"+getAuthzLevel());
 			
 			if ((!origPointsPossible.equals(newPointsPossible)) && scoresEnteredForAssignment) {
 				if (getGradeEntryByPercent())
