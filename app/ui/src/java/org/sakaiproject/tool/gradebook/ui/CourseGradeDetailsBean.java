@@ -54,6 +54,12 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
+/**oncourse */
+import java.io.OutputStream;
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	private static final Log logger = LogFactory.getLog(CourseGradeDetailsBean.class);
 
@@ -351,4 +357,69 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	public void setCourseGradesConverterPlugin(String courseGradesConverterPlugin) {
 		this.courseGradesConverterPlugin = courseGradesConverterPlugin;
 	}
+	
+	/* ------------------ Oncourse Export for SIS ------------------ */
+    public void exportGradesForSIS(ActionEvent event) {
+    	if(logger.isInfoEnabled()) logger.info("exporting course grade as csv in SIS format for gradebook " + getGradebookUid());
+    	String filePrefix = getLocalizedString("export_grade_for_sis_prefix");
+    	HashMap origMap = ExportForSISOncourseUtility.getUnivIdAndUserIdMap();
+		boolean displayCourseGradeAsPointsEarned = false;
+		List gradableObjects = new ArrayList();
+		List assignments = null;
+		CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
+		gradableObjects.add(courseGrade);
+
+		Map enrRecFunctionMap = findMatchingEnrollmentsForViewableCourseGrade(null, null);
+		
+		List enrollments = new ArrayList();
+		if (enrRecFunctionMap != null) {
+			enrollments = new ArrayList(enrRecFunctionMap.keySet());
+		}
+		
+		List studentUids = new ArrayList();
+		
+		for (Iterator enrIter = enrollments.iterator(); enrIter.hasNext();) {
+			EnrollmentRecord enrollment = (EnrollmentRecord) enrIter.next();
+			studentUids.add(enrollment.getUser().getUserUid());
+		}
+
+		Map gradeRecordMap = new HashMap();
+		List gradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentUids);
+		getGradebookManager().addToGradeRecordMap(gradeRecordMap, gradeRecords);
+
+		writeAsCsv(ExportForSISOncourseUtility.getCourseGradesInSISFormat(origMap, enrollments, gradableObjects, gradeRecordMap), getDownloadFileName(filePrefix));
+    }
+    
+	private void writeAsCsv(String csvString, String fileName) {
+		FacesContext faces = FacesContext.getCurrentInstance();
+		HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
+		protectAgainstInstantDeletion(response);
+		response.setContentType("text/comma-separated-values");
+		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".csv");
+		response.setContentLength(csvString.length());
+		OutputStream out = null;
+		try {
+			out = response.getOutputStream();
+			out.write(csvString.getBytes());
+			out.flush();
+		} catch (IOException e) {
+			logger.error(e);
+			e.printStackTrace();
+		} finally {
+			try {
+				if (out != null) out.close();
+			} catch (IOException e) {
+				logger.error(e);
+				e.printStackTrace();
+			}
+		}
+		faces.responseComplete();
+	}
+
+	public static void protectAgainstInstantDeletion(HttpServletResponse response) {
+    	response.reset();	// Eliminate the added-on stuff
+    	response.setHeader("Pragma", "public");	// Override old-style cache control
+    	response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0");	// New-style
+    }
+	/* ------------------ End Oncourse Export for SIS ------------------ */
 }

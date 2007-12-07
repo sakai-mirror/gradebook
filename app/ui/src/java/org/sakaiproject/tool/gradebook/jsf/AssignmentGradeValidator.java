@@ -35,6 +35,14 @@ import javax.faces.validator.ValidatorException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/** oncourse iquiz integration */
+import java.util.List;
+import javax.servlet.http.HttpSession;
+import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
+import javax.servlet.http.HttpServletRequest;
+import org.sakaiproject.tool.gradebook.ui.AssignmentDetailsBean;
+
 /**
  * Validates assignment grades entered into the gradebook.  Since we display a
  * maximum of two decimal places in the UI, we use this validator to ensure that
@@ -57,6 +65,28 @@ public class AssignmentGradeValidator implements Validator, Serializable {
 			if (!(value instanceof Number)) {
 				throw new IllegalArgumentException("The assignment grade must be a number");
 			}
+			/** oncourse iquiz integration -- check if instructor overrides score for an iquiz assoc. assignment*/			
+			HttpSession session = (HttpSession) SessionManager.getCurrentSession();	    
+			String siteId = ToolManager.getCurrentPlacement().getContext();
+
+			HttpServletRequest req = ((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest());
+			AssignmentDetailsBean adb = (AssignmentDetailsBean) req.getAttribute("assignmentDetailsBean");
+
+			if (adb != null){ // if this is null, then this we are not in assignment detail view
+				String assignmentName = adb.getAssignment().getName();
+				// look up the assignment to determine if assoc. with iquiz assessment	    
+				String key = "iquiz_assignments:" + siteId;    	
+				List iquizAssocAssignments = (List) session.getAttribute(key);
+				if (iquizAssocAssignments != null && iquizAssocAssignments.contains(assignmentName)){
+					if (value != null && value.toString().length() > 5){
+						throw new ValidatorException(new FacesMessage(
+								FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.IQUIZ_PRECISION")));
+					}
+				}
+			}
+
+			/** end iquiz integration */
+
 			double grade = ((Number)value).doubleValue();
             BigDecimal bd = new BigDecimal(grade);
             bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP); // Two decimal places

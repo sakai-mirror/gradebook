@@ -180,6 +180,13 @@
             <version>${sakai.version}</version>
         </dependency>
 
+		<!-- oncourse  iquiz integration -->	
+	    <dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-iquiz-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
     </dependencies>
 
 </project>

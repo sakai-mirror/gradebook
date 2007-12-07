@@ -167,6 +167,7 @@
 	</bean>
 
 	<!-- Simple configuration handler. -->
+<!-- oncourse: comment out because they are already loaded in DB
 	<bean id="org_sakaiproject_service_gradebook_GradebookConfiguration"
 		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.GradebookConfigurationSakai"
 		init-method="init">
@@ -176,8 +177,6 @@
 
 		<property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
 
-		<!-- Set up default system-wide grading scales. -->
-<!--
 		<property name="availableGradingScales">
 			<list>
 				<bean class="org.sakaiproject.service.gradebook.shared.GradingScaleDefinition">
@@ -260,15 +259,6 @@
 		</property>
 
 		<property name="defaultGradingScale" value="LetterGradePlusMinusMapping"/>
--->
-
-		<!--
-			You could use a configuration like this to disable the plus-minus scale,
-			add a new scale, change the name displayed for "Letter Grades" and their
-			default values, and add manual-only non-percentage mapped grades to the
-			"Pass / Not Pass" scale to allow for "I"ncompletes.
-		-->
-<!--
 		<property name="availableGradingScales">
 			<list>
 				<bean class="org.sakaiproject.service.gradebook.shared.GradingScaleDefinition">
@@ -344,7 +334,7 @@
 		</property>
 
 		<property name="defaultGradingScale" value="LetterGradeMapping"/>
--->
-	</bean>
 
+	</bean>
+-->
 </beans>

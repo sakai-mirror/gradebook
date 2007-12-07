@@ -172,6 +172,13 @@
 				rendered="#{courseGradeDetailsBean.userAbleToGradeAll}"
 				style="margin-left: 5em;"
 			/>
+			<!-- Oncourse export for SIS addition -->
+			<h:commandButton
+				value="#{msgs.course_grade_details_export_sis}"
+				actionListener="#{courseGradeDetailsBean.exportGradesForSIS}"
+				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
+				/>
+			<!-- end Oncourse addition -->
 			<h:commandButton
 				value="#{msgs.course_grade_details_export_course_grades}"
 				actionListener="#{courseGradeDetailsBean.exportCsv}"

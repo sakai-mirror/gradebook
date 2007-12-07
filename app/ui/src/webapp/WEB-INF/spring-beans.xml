@@ -21,10 +21,24 @@
                 <property name="eventTrackingService">
                     <ref bean="org_sakaiproject_tool_gradebook_facades_EventTrackingService"/>
                 </property>
+				<!-- oncourse -->
+				<property name="synchronizer">
+					<ref bean="org.sakaiproject.tool.gradebook.business.GbSynchronizer" />
+				</property>				
             </bean>
 		</property>
 	</bean>
 
+	<!-- oncourse -->
+<!--	<bean id="org.sakaiproject.tool.gradebook.business.GbSynchronizer" class="org.sakaiproject.tool.gradebook.business.impl.GbSynchronizerImpl">
+	</bean>-->
+	<bean id="org.sakaiproject.tool.gradebook.business.GbSynchronizer" parent="gradebookTxTemplate">
+		<property name="target">
+			<bean class="org.sakaiproject.tool.gradebook.business.impl.GbSynchronizerImpl">
+				<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+			</bean>
+		</property>
+	</bean>
 	<!--
 		UI authorization filtering. Handled here instead of in Faces configuration files
 		because Faces won't necessarily be loaded on the first authorization check.

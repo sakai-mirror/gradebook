@@ -63,6 +63,14 @@ import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
+/**oncourse - add assignment to legacy side when import from a site. */
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.iquiz.cover.IquizService;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.site.cover.SiteService;
+import org.springframework.dao.DataAccessResourceFailureException;
+
+
 /**
  * A Hibernate implementation of GradebookService.
  */
@@ -369,6 +377,22 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			
 			// All assignments should be unreleased even if they were released in the original.
 			createAssignment(gradebook.getId(), assignmentDef.getName(), assignmentDef.getPoints(), assignmentDef.getDueDate(), !assignmentDef.isCounted(), false);
+					
+			/**oncourse - add assignment to legacy side when import from a site. */
+			String siteId = ToolManager.getCurrentPlacement().getContext();
+			String siteType = null;
+
+			try
+			{
+				siteType = SiteService.getSite(siteId).getType();
+			}
+			catch(IdUnusedException e){
+				log.info("IdUnusedException for site: " + siteId);
+				throw new DataAccessResourceFailureException("IdUnusedException for site: " + siteId);
+			}
+			boolean isProjectSite = "project".equalsIgnoreCase(siteType);
+			if(!isProjectSite)
+				IquizService.addLegacyAssignment(assignmentDef.getName());
 			assignmentsAddedCount++;
 		}
 		if (log.isInfoEnabled()) log.info("Merge to gradebook " + toGradebookUid + " added " + assignmentsAddedCount + " assignments");
