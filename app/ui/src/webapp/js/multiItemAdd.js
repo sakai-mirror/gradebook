@@ -83,7 +83,7 @@ function addItemScreen()
 	var numBulkItems = getNumTotalItem();
 
 	var trEls = document.getElementsByClassName("hide");
-	trEls[0].className = "bogus show";
+	trEls[0].className = "show" + trEls[0].className.substring(4);
 	trEls[0].style.display = "block";
 
 	// set hiddenAdd property to TRUE so if submitted and an
@@ -135,6 +135,7 @@ function addMultipleItems(itemSelect)
 // removeItem
 //
 // This does the actual work of hiding the current add item pane
+// User CANNOT remove pane zero, even if others are present
 //*********************************************************************
 function removeItem(event) {
 	var element = Event.element(event);
@@ -143,7 +144,7 @@ function removeItem(event) {
 	// hack to get the enclosing tr for the enclosing table this pane is nested inside of
 	// in order to hide it and/or set prop so not saved
 	element = element.parentNode.parentNode.parentNode.parentNode.parentNode.parentNode;   		
-  	element.className = "bogus hide";
+  	element.className = "hide" + element.className.substring(4);
    	element.style.display = "none";    	
 	setMainFrameHeight(thisId, 'shrink');
 
