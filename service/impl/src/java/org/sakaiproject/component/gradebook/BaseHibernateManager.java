@@ -842,7 +842,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     }
     
     public Long createUngradedAssignment(final Long gradebookId, final String name, 
-    		final Date dueDate, final Boolean isNotCounted, final Boolean isReleased)
+    		final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Double points)
     throws ConflictingAssignmentNameException, StaleObjectModificationException
     {
     	HibernateCallback hc = new HibernateCallback() {
@@ -862,6 +862,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			asn.setName(name);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(true);
+    			asn.setPointsPossible(points);
     			if (isNotCounted != null) {
     				asn.setNotCounted(isNotCounted.booleanValue());
     			}
@@ -879,7 +880,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     }
 
     public Long createUngradedAssignmentForCategory(final Long gradebookId, final Long categoryId, 
-    		final String name, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased)
+    		final String name, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Double points)
     throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException
     {
     	if(gradebookId == null || categoryId == null)
@@ -906,6 +907,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			asn.setName(name);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(true);
+    			asn.setPointsPossible(points);
     			if (isNotCounted != null) {
     				asn.setNotCounted(isNotCounted.booleanValue());
     			}
