@@ -36,11 +36,8 @@ import org.sakaiproject.site.api.Group;
 
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
-import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-
-import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * An implementation of Gradebook-specific authorization needs based
@@ -330,9 +327,16 @@ public class AuthzSectionsImpl implements Authz {
 			HashMap assignFunctionMap = new HashMap();
 			if (!allGbItems.isEmpty()) {
 				for (Iterator assignIter = allGbItems.iterator(); assignIter.hasNext();) {
-					Assignment assign = (Assignment) assignIter.next();
-					if (assign != null)
-						assignFunctionMap.put(assign.getId(), GradebookService.gradePermission);
+					Object assign = assignIter.next();
+					Long assignId = null;
+					if (assign instanceof org.sakaiproject.service.gradebook.shared.Assignment) {
+						assignId = ((org.sakaiproject.service.gradebook.shared.Assignment)assign).getId();
+					} else if (assign instanceof org.sakaiproject.tool.gradebook.Assignment) {
+						assignId = ((org.sakaiproject.tool.gradebook.Assignment)assign).getId();
+					}
+
+					if (assignId != null)
+						assignFunctionMap.put(assignId, GradebookService.gradePermission);
 				}
 			}
 			
@@ -434,9 +438,16 @@ public class AuthzSectionsImpl implements Authz {
 						Map itemFunctionMap = new HashMap();
 						if (!allGbItems.isEmpty()) {
 							for (Iterator itemIter = allGbItems.iterator(); itemIter.hasNext();) {
-								Assignment item = (Assignment)itemIter.next();
-								if (item != null) {
-									itemFunctionMap.put(item.getId(), GradebookService.gradePermission);
+								Object assign = itemIter.next();
+								Long assignId = null;
+								if (assign instanceof org.sakaiproject.service.gradebook.shared.Assignment) {
+									assignId = ((org.sakaiproject.service.gradebook.shared.Assignment)assign).getId();
+								} else if (assign instanceof org.sakaiproject.tool.gradebook.Assignment) {
+									assignId = ((org.sakaiproject.tool.gradebook.Assignment)assign).getId();
+								}
+
+								if (assignId != null) {
+									itemFunctionMap.put(assignId, GradebookService.gradePermission);
 								}
 							}
 						}
