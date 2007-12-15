@@ -439,21 +439,6 @@ public interface GradebookService {
 
 	/**
 	 * 
-	 * @param gradableObjectId
-	 * @return true if a gradable object with the given id exists and was
-	 * removed
-	 */
-	public boolean isGradableObjectDefined(Long gradableObjectId);
-	
-	/**
-	 * Using the grader permissions, return 
-	 * @param gradebookUid
-	 * @return
-	 */
-	public Map getViewableSectionUuidToNameMap(String gradebookUid);
-	
-	/**
-	 * 
 	 * @param gradebookUid
 	 * @return a list of all the gb items in the given gradebook.  Does NOT check
 	 * for permissions!
