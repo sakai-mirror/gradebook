@@ -538,7 +538,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			Map enrollmentMap;
 			String userUid = authn.getUserUid();
 			
-			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, null, null);
+			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, thisGradebook.getCategory_type(), null, null);
 			enrollmentMap = new HashMap();
 
 			Map enrollmentMapUid = new HashMap();
