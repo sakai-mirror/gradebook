@@ -134,8 +134,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			}
 			
 			getGradebookManager().updateAssignment(assignment);
-			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateAssignment","/gradebook/"+getGradebookUid()+"/"+assignment.getName()+"/"+getAuthzLevel());
-			
+			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateAssignment","/gradebook/"+getGradebookUid()+"/"+assignment.getName()+"/"+getAuthzLevel());			
 			if ((!origPointsPossible.equals(newPointsPossible)) && scoresEnteredForAssignment) {
 				if (getGradeEntryByPercent())
 					FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_converted", new String[] {assignment.getName()}));

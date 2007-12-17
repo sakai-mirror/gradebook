@@ -1148,6 +1148,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 						gr = new AssignmentGradeRecord(assignment,userid,pointsEarned);
 	                
 						updatedGradeRecords.add(gr);
+						getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScore","/gradebook/"+getGradebookUid()+"/"+gr.getAssignment().getName()+"/"+gr.getStudentId()+"/"+gr.getPointsEarned()+"/"+getAuthzLevel());
 					} else {
 						updatingExternalGrade = true;
 					}
@@ -1168,8 +1169,10 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 					(gbPointsEarned != null && pointsEarned != null && gbPointsEarned.doubleValue() != pointsEarned.doubleValue())) {
 				
 					gr.setPointsEarned(pointsEarned);
-					if (!assignment.isExternallyMaintained())
+					if (!assignment.isExternallyMaintained()) {
 						updatedGradeRecords.add(gr);
+						getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScore","/gradebook/"+getGradebookUid()+"/"+gr.getAssignment().getName()+"/"+gr.getStudentId()+"/"+gr.getPointsEarned()+"/"+getAuthzLevel());
+					}
 					else
 						updatingExternalGrade = true;
 				}			

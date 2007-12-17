@@ -201,7 +201,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         }
 
         if (logData.isDebugEnabled()) logData.debug("BEGIN: Update 1 score for gradebookUid=" + gradebookUid + ", external assessment=" + externalId + " from " + asn.getExternalAppName());
-
+        org.sakaiproject.event.cover.EventTrackingService.post(org.sakaiproject.event.cover.EventTrackingService.newEvent("gradebook.updateItemScore","/gradebook/"+gradebookUid+"/"+asn.getName()+"/"+studentUid+"/"+points+"/student",true));
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 Date now = new Date();
