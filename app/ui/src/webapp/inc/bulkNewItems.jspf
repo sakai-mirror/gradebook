@@ -25,12 +25,6 @@
 		  		Done to deal with removing item in 'middle' 				--%>
 		  	<h:inputHidden id="hiddenAdd" value="#{item.saveThisItem}" />
 		  
-			<h:selectOneRadio value="#{item.ungraded}" id="assignNonGraded" layout="pageDirection" onclick="submit();" 
-				valueChangeListener="#{item.processUngradedSettingChange}">
-					<f:selectItem itemValue="normal" itemLabel="#{msgs.add_assignment_non_calculated3}" />
-		  			<f:selectItem itemValue="ungraded" itemLabel="#{msgs.add_assignment_non_calculated1}" /> 
-			</h:selectOneRadio>
-
 		    <h:panelGrid cellpadding="0" cellspacing="5" columns="2" 
 		    		columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" 
 		  			styleClass="actionitem highlightPanel" width="100%">
@@ -60,8 +54,8 @@
 					</h:panelGroup>  
 				</h:panelGroup>
 	
-				<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained && item.ungraded == 'normal'}"/>
-				<h:panelGroup rendered="#{!item.assignment.externallyMaintained && item.ungraded == 'normal'}">
+				<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained}"/>
+				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
 					<h:inputText id="points" value="#{item.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 					</h:inputText>
 					<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
@@ -106,8 +100,8 @@
  				
  				<h:panelGroup>
 					<h:selectBooleanCheckbox id="countAssignment" value="#{item.assignment.counted}"
-						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{item.ungraded == 'normal'}"/>
-					<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" rendered="#{item.ungraded == 'normal'}"/>
+						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
+					<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" />
 				</h:panelGroup>
 		  	  </h:panelGrid>
 			  	<h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
