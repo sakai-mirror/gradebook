@@ -264,6 +264,15 @@ public interface GradebookService {
 	public String getGradebookDefinitionXml(String gradebookUid);
 	
 	/**
+	 * Attempt to transfer gradebook data with Category and weight and settings
+	 * 
+	 * @param fromGradebookUid
+	 * @param toGradebookUid
+	 * @param fromGradebookXml
+	 */
+	public void transferGradebookDefinitionXml(String fromGradebookUid, String toGradebookUid, String fromGradebookXml);
+	
+	/**
 	 * Attempt to merge archived gradebook data (notably the assignnments) into a new gradebook.
 	 * 
 	 * Assignment definitions whose names match assignments that are already in
@@ -284,6 +293,33 @@ public interface GradebookService {
 	 * @param fromGradebookXml
 	 */
 	public void mergeGradebookDefinitionXml(String toGradebookUid, String fromGradebookXml);
+	
+	 /**
+     * Removes an assignment from a gradebook.  The assignment should not be
+     * deleted, but the assignment and all grade records associated with the
+     * assignment should be ignored by the application.  A removed assignment
+     * should not count toward the total number of points in the gradebook.
+     *
+     * @param assignmentId The assignment id
+     */
+    public void removeAssignment(Long assignmentId) throws StaleObjectModificationException;
+    
+    /**method to get all categories for a gradebook
+    *
+    * @param gradebookId
+    * @return List of categories
+    * @throws HibernateException
+    */
+    public List getCategories(final Long gradebookId);
+    
+    /**
+     * remove category from gradebook
+     *
+     * @param categoryId
+     * @throws StaleObjectModificationException
+     */
+    
+    public void removeCategory(Long categoryId) throws StaleObjectModificationException;
 	
 	/**
 	 * Create a new Gradebook-managed assignment.
@@ -306,7 +342,7 @@ public interface GradebookService {
 	 * @param assignmentDefinition the new properties of the assignment
 	 */
 	public void updateAssignment(String gradebookUid, String assignmentName, Assignment assignmentDefinition);
-	
+
 	// Site management hooks.
 
 	/**
@@ -386,4 +422,12 @@ public interface GradebookService {
 	public Object getGradebook(String uid) throws GradebookNotFoundException;
 
 	public boolean checkStuendsNotSubmitted(String gradebookUid);
+
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @return a list of all the gb items in the given gradebook.  Does NOT check
+	 * for permissions!
+	 */
+	public List<org.sakaiproject.service.gradebook.shared.Assignment> getAllGradebookItems(String gradebookUid);
 }
