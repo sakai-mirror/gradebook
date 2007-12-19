@@ -61,9 +61,9 @@
 						</h:commandLink>
 					</h:panelGroup>  
 				</h:panelGroup>
-	
-				<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained && item.ungraded == 'normal'}"/>
-				<h:panelGroup rendered="#{!item.assignment.externallyMaintained && item.ungraded == 'normal'}">
+	<%-- Commented out for non-graded rollback && item.ungraded == 'normal' --%>
+				<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained}"/>
+				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
 					<h:inputText id="points" value="#{item.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 					</h:inputText>
 					<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
@@ -108,7 +108,8 @@
  				
  				<h:panelGroup>
 					<h:selectBooleanCheckbox id="countAssignment" value="#{item.assignment.counted}"
-						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{item.ungraded == 'normal'}"/>
+						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
+						<%-- Commented out due to non-graded rollback rendered="#{item.ungraded == 'normal'}"/> --%>
 					<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" rendered="#{item.ungraded == 'normal'}"/>
 				</h:panelGroup>
 		  	  </h:panelGrid>
