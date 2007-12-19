@@ -110,7 +110,7 @@
 					<h:selectBooleanCheckbox id="countAssignment" value="#{item.assignment.counted}"
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
 						<%-- Commented out due to non-graded rollback rendered="#{item.ungraded == 'normal'}"/> --%>
-					<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" rendered="#{item.ungraded == 'normal'}"/>
+					<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" />
 				</h:panelGroup>
 		  	  </h:panelGrid>
 			  	<h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
