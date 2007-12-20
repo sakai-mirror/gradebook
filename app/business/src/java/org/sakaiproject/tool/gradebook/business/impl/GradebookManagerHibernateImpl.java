@@ -2793,7 +2793,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			Assignment assign = (Assignment) iter.next();
     			if(assign.getCategory() == null)
     			{
-    				assignIds.add(createAssignment(gradebookId, assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isCounted(), assign.isReleased()));
+    				assignIds.add(createAssignment(gradebookId, assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isNotCounted(), assign.isReleased()));
     			}
     			else
     				assignIds.add(createAssignmentForCategory(gradebookId, assign.getCategory().getId(), assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isNotCounted(), assign.isReleased()));
