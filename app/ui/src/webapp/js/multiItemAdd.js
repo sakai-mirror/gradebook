@@ -75,6 +75,17 @@ function setMainFrameHeightNow(id,direction)
 }
 
 //*********************************************************************
+// addDelX
+//
+// If more than 1 pane is displayed, add the X remove to the first pane
+//*********************************************************************
+function addDelX() { 
+	var firstDelEl = document.getElementsByClassName('hideRemove');
+	firstDelEl[0].className = 'firstDel' + firstDelEl[0].className.substring(10);
+	firstDelEl[0].style.display='inline';
+}
+
+//*********************************************************************
 // addItemScreen
 //
 // This does the actual work of showing another add item pane
@@ -94,9 +105,7 @@ function addItemScreen()
 	
 	// make sure delete link on first item is displayed
 	if (numBulkItems == 1) {
-		var firstDelEl = document.getElementsByClassName('hideRemove');
-		firstDelEl[0].className = 'firstDel' + firstDelEl[0].className.substring(10);
-		firstDelEl[0].style.display='inline';		
+		addDelX();
 	}
 	
 	if (numBulkItems == MAX_NEW_ITEMS - 1)
