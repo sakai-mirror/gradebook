@@ -280,10 +280,10 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
         if (logger.isDebugEnabled()) logger.debug("About to save " + updatedComments.size() + " updated comments");
         if(updatedGradeRecords.size() > 0){
-            getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
+            getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookUid()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
         }
         if(updatedComments.size() > 0){
-            getGradebookBean().getEventTrackingService().postEvent("gradebook.comment","/gradebook/"+getGradebookId()+"/"+updatedComments.size()+"/"+getAuthzLevel());
+            getGradebookBean().getEventTrackingService().postEvent("gradebook.comment","/gradebook/"+getGradebookUid()+"/"+updatedComments.size()+"/"+getAuthzLevel());
         }
         String messageKey = (excessiveScores.size() > 0) ?
                 "assignment_details_scores_saved_excessive" :

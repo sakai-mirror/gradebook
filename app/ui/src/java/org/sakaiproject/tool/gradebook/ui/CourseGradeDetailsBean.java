@@ -216,7 +216,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
 	private void saveGrades() throws StaleObjectModificationException {
 		getGradebookManager().updateCourseGradeRecords(courseGrade, updatedGradeRecords);
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.updateCourseGrades","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
+        getGradebookBean().getEventTrackingService().postEvent("gradebook.updateCourseGrades","/gradebook/"+getGradebookUid()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
         // Let the user know.
 		FacesUtil.addMessage(getLocalizedString("course_grade_details_grades_saved"));
 	}
@@ -226,7 +226,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	
     public void exportCsv(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting course grade as CSV for gradebook " + getGradebookUid());
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
+        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookUid()+"/"+getAuthzLevel());
         SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(), 
         		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
         		new SpreadsheetDataFileWriterCsv());
@@ -234,7 +234,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 
     public void exportExcel(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting course grade as Excel for gradebook " + getGradebookUid());
-        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
+        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookUid()+"/"+getAuthzLevel());
         SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(), 
         		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
         		new SpreadsheetDataFileWriterXls());
