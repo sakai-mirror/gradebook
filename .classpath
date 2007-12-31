@@ -25,6 +25,7 @@
   <classpathentry excluding="**/.DS_Store" kind="src" path="app/sakai-tool/src/webapp/WEB-INF"/>
   <classpathentry excluding="**/.DS_Store" kind="src" path="app/ui/src/java"/>
   <classpathentry excluding="**/.DS_Store" kind="src" path="testservice-tool/src/java"/>
+  <classpathentry excluding="**/.DS_Store" kind="src" path="helper-app/src/java"/>
   <classpathentry kind="src" path="app/standalone-app/src/test"/>
   <classpathentry kind="src" path="sample-course-grade-converter/src/java"/>
   <classpathentry combineaccessrules="false" kind="src" path="/util-api"/>
@@ -38,5 +39,11 @@
   <classpathentry combineaccessrules="false" kind="src" path="/event-api"/>
   <classpathentry combineaccessrules="false" kind="src" path="/cm-api"/>
   <classpathentry combineaccessrules="false" kind="src" path="/component-api"/>
+  <classpathentry combineaccessrules="false" kind="src" path="/entity-broker"/>
+	<classpathentry kind="var" path="M2_REPO/org/sakaiproject/entitybroker/entitybroker-api/1.2.0/entitybroker-api-1.2.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/uk/org/ponder/rsfutil/rsfutil/0.7.2/rsfutil-0.7.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/uk/org/ponder/j-servletutil/1.2.2/j-servletutil-1.2.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/uk/org/ponder/sakairsf/sakairsf/0.7.2-sakai_2.2.x/sakairsf-0.7.2-sakai_2.2.x.jar"/>
+	<classpathentry kind="var" path="M2_REPO/uk/org/ponder/ponderutilcore/1.2.2/ponderutilcore-1.2.2.jar"/>
   <classpathentry kind="output" path="bin"/>
 </classpath>
