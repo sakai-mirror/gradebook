@@ -31,6 +31,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+/** Oncourse: sync oringal side. for import. */
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.iquiz.cover.IquizService;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.site.cover.SiteService;
+import org.springframework.dao.DataAccessResourceFailureException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -270,6 +276,22 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                        asn.setReleased(isReleased.booleanValue());
                    }
 
+                   /** Oncourse: sync oringal side. for import. */
+                   String siteId = ToolManager.getCurrentPlacement().getContext();
+                   String siteType = null;
+
+                   try
+                   {
+                	   siteType = SiteService.getSite(siteId).getType();
+                   }
+                   catch(IdUnusedException e){
+                	   log.info("IdUnusedException for site: " + siteId);
+                	   throw new DataAccessResourceFailureException("IdUnusedException for site: " + siteId);
+                   }
+                   boolean isProjectSite = "project".equalsIgnoreCase(siteType);
+                   if(!isProjectSite)
+                	   IquizService.addLegacyAssignment(asn.getName());
+
                    // Save the new assignment
                    Long id = (Long)session.save(asn);
 
@@ -480,6 +502,21 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			if(isReleased!=null){
     				asn.setReleased(isReleased.booleanValue());
     			}
+    			
+                /** Oncourse: sync oringal side. for import. */
+                String siteId = ToolManager.getCurrentPlacement().getContext();
+                String siteType = null;
+                try
+                {
+             	   siteType = SiteService.getSite(siteId).getType();
+                }
+                catch(IdUnusedException e){
+             	   log.info("IdUnusedException for site: " + siteId);
+             	   throw new DataAccessResourceFailureException("IdUnusedException for site: " + siteId);
+                }
+                boolean isProjectSite = "project".equalsIgnoreCase(siteType);
+                if(!isProjectSite)
+             	   IquizService.addLegacyAssignment(asn.getName());
 
     			Long id = (Long)session.save(asn);
 

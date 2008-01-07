@@ -345,7 +345,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 		GradebookDefinition gradebookDefinition = new GradebookDefinition();
 		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
-		gradebookDefinition.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
+		if(selectedGradeMapping.getGradingScale() != null)
+			gradebookDefinition.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
 		gradebookDefinition.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
 		gradebookDefinition.setAssignments(getAssignments(gradebookUid));
 		
@@ -583,6 +584,21 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                 asn.setRemoved(true);
                 session.update(asn);
                 
+                /**oncourse - sync original side. */
+    			String siteId = ToolManager.getCurrentPlacement().getContext();
+    			String siteType = null;
+    			try
+    			{
+    				siteType = SiteService.getSite(siteId).getType();
+    			}
+    			catch(IdUnusedException e){
+    				log.info("IdUnusedException for site: " + siteId);
+    				throw new DataAccessResourceFailureException("IdUnusedException for site: " + siteId);
+    			}
+    			boolean isProjectSite = "project".equalsIgnoreCase(siteType);
+    			if(!isProjectSite)
+    				IquizService.deleteLegacyAssignment(asn.getName());
+
                 if(log.isInfoEnabled()) log.info("Assignment " + asn.getName() + " has been removed from " + gradebook);
                 return null;
             }
