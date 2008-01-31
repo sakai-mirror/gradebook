@@ -239,7 +239,6 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			// There are errors so need to put an error message at top
 			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("validation_messages_present"));
 		}
-		
 		return resultString;
 	}
 	
