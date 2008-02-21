@@ -253,11 +253,9 @@ function eraseAndHide(idPrefix, rowIndex) {
 	
 	curEl = getEl(idPrefix + ':released');
 	curEl.value = true;
-	curEl.checked = true;
 	
 	curEl = getEl(idPrefix + ':countAssignment');
 	curEl.value = true;
-	curEl.checked = true;
 	
 	curEl = getEl(idPrefix + ':hiddenAdd');
 	curEl.value = 'false';
