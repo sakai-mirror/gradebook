@@ -81,14 +81,24 @@ public class GbSynchronizerImpl extends HibernateDaoSupport
 			
 			String studentEid = agr.getStudentId();
 			String studentUid = null;
+			
 			try
 			{
-				studentUid = UserDirectoryService.getUserId(studentEid);
+				UserDirectoryService.getUserEid(studentEid);
+				studentUid = studentEid;
 			}
 			catch(UserNotDefinedException unde)
 			{
-				studentUid = studentEid;
+				try
+				{
+					studentUid = UserDirectoryService.getUserId(studentEid);
+				}
+				catch(UserNotDefinedException une)
+				{
+					studentUid = studentEid;
+				}
 			}
+			
 			if(studentUid != null)
 				record.setStudentId(studentUid);
 			returnMap.put(studentUid, record);
