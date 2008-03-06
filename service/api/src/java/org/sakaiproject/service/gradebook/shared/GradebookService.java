@@ -183,6 +183,16 @@ public interface GradebookService {
 	 */
 	public Assignment getAssignment(String gradebookUid, String assignmentName) 
 		throws GradebookNotFoundException;
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param gbItemId
+	 * @return the associated Assignment with the given gbItemId
+	 * @throws AssessmentNotFoundException
+	 */
+	public Assignment getAssignment(String gradebookUid, Long gbItemId)
+		throws AssessmentNotFoundException;
 
 	/**
 	 * Besides the declared exceptions, possible runtime exceptions include:
@@ -196,6 +206,35 @@ public interface GradebookService {
 	 */
 	public Double getAssignmentScore(String gradebookUid,
 			String assignmentName, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
+	
+	/**
+	 * Besides the declared exceptions, possible runtime exceptions include:
+	 * <ul>
+	 * <li> SecurityException - If the current user is not authorized to view
+	 * the student's score
+	 * </ul>
+	 * 
+	 * @return Returns the current score for the student, or null if no score
+	 *         has been assigned yet.
+	 */
+	public Double getAssignmentScore(String gradebookUid, 
+			Long gbItemId, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param gbItemId
+	 * @param studentUid
+	 * @return Returns a GradeDefinition for the student, respecting the grade 
+	 * entry type for the gradebook (ie in %, letter grade, or points format).
+	 * Returns null if no grade
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 */
+	public GradeDefinition getGradeDefinitionForStudentForItem(String gradebookUid,
+			Long gbItemId, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
@@ -211,6 +250,21 @@ public interface GradebookService {
 	 */
 	public CommentDefinition getAssignmentScoreComment(String gradebookUid,
 			String assignmentName, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
+	
+	/**
+	 * Get the comment (if any) currently provided for the given combination
+	 * of student and assignment. 
+	 * 
+	 * @param gradebookUid
+	 * @param gbItemId
+	 * @param studentUid
+	 * @return null if no comment is avaailable
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 */
+	public CommentDefinition getAssignmentScoreComment(String gradebookUid,
+			Long gbItemId, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
@@ -343,6 +397,30 @@ public interface GradebookService {
 	 */
 	public void updateAssignment(String gradebookUid, String assignmentName, Assignment assignmentDefinition);
 
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @return list of gb items that the current user is authorized to view.
+	 * If user has gradeAll permission, returns all gb items.
+	 * If user has gradeSection perm with no grader permissions,
+	 * returns all gb items. 
+	 * If user has gradeSection with grader perms, returns only the items that
+	 * the current user is authorized to view or grade.
+	 * If user does not have grading privileges but does have viewOwnGrades perm,
+	 * will return all released gb items.
+	 */
+	public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid);
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param gradableObjectId
+	 * @return a map of studentId to view/grade function  for the given 
+	 * gradebook and gradebook item. students who are not viewable or gradable
+	 * will not be returned
+	 */
+	public Map<String, String> getViewableStudentsForItemForCurrentUser(String gradebookUid, Long gradableObjectId);
+	
 	// Site management hooks.
 
 	/**
@@ -430,4 +508,56 @@ public interface GradebookService {
 	 * for permissions!
 	 */
 	public List<org.sakaiproject.service.gradebook.shared.Assignment> getAllGradebookItems(String gradebookUid);
+
+	/**
+	 * 
+	 * @param gradableObjectId
+	 * @return true if a gradable object with the given id exists and was
+	 * removed
+	 */
+	public boolean isGradableObjectDefined(Long gradableObjectId);
+	
+	/**
+	 * Using the grader permissions, return map of section uuid to section name
+	 * that includes all sections that the current user may view or grade
+	 * @param gradebookUid
+	 * @return
+	 */
+	public Map getViewableSectionUuidToNameMap(String gradebookUid);
+	
+	/**
+	 * @param gradebookUid
+	 * @return true if current user has the gradebook.gradeAll permission
+	 */
+	public boolean currentUserHasGradeAllPerm(String gradebookUid);
+	
+	/**
+	 * @param gradebookUid
+	 * @return true if the current user has the gradebook.gradeAll or
+	 * gradebook.gradeSection permission
+	 */
+	public boolean currentUserHasGradingPerm(String gradebookUid);
+	
+	/**
+	 * @param gradebookUid
+	 * @return true if the current user has the gradebook.editAssignments permission
+	 */
+	public boolean currentUserHasEditPerm(String gradebookUid);
+	
+	/**
+	 * @param gradebookUid
+	 * @return true if the current user has the gradebook.viewOwnGrades permission
+	 */
+	public boolean currentUserHasViewOwnGradesPerm(String gradebookUid);
+	
+	/**
+	 * @param gradebookUid
+	 * @param gradableObjectId
+	 * @param studentIds
+	 * @return a list of GradeDefinition with the grade information for the given
+	 * students for the given gradableObjectId
+	 * @throws SecurityException if the current user is not authorized to view
+	 * or grade a student in the passed list
+	 */
+	public List<GradeDefinition> getGradesForStudentsForItem(String gradebookUid, Long gradableObjectId, List<String> studentIds);
 }
