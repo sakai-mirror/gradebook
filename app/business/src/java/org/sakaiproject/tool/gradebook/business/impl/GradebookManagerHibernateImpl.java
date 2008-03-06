@@ -484,50 +484,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	return (List)getHibernateTemplate().execute(hc);
     }
 
-    public AssignmentGradeRecord getAssignmentGradeRecordById(Long id) {
-    	AssignmentGradeRecord agr = (AssignmentGradeRecord)getHibernateTemplate().load(AssignmentGradeRecord.class, id);
-    	AssignmentGradeRecord agrCalculated = new AssignmentGradeRecord();
-    	if (agr != null){
-    		List assignRecordsFromDB = new ArrayList();
-    		assignRecordsFromDB.add(agr);
-    		List agrs = this.convertPointsToLetterGrade(agr.getAssignment(), agr.getAssignment().getGradebook(), assignRecordsFromDB);
-    		agrs = this.convertPointsToPercentage(agr.getAssignment(), agr.getAssignment().getGradebook(), agrs);
-    		if (agrs.get(0) != null){
-    			agrCalculated = (AssignmentGradeRecord)agrs.get(0);
-    		}
-    	}
-    	return agrCalculated;
-    }
-    
-    public Comment getCommentById(Long id) {
-    	return (Comment) getHibernateTemplate().load(Comment.class, id);
-    }
-    
-    public AssignmentGradeRecord getAssignmentGradeRecordForAssignmentForStudent(final Assignment assignment, final String studentUid) {
-	    HibernateCallback hc = new HibernateCallback() {
-	        public Object doInHibernate(Session session) throws HibernateException {
-	            if(studentUid == null) {
-	                if(log.isInfoEnabled()) log.info("Returning no grade records for a null student UID");
-	                return new ArrayList();
-	            } else if (assignment.isRemoved()) {
-	                return new ArrayList();                	
-	            }
-	
-	            Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.id=:gradableObjectId " +
-	            		"and agr.studentId=:student");
-	            q.setLong("gradableObjectId", assignment.getId().longValue());
-	            q.setString("student", studentUid);
-	            return q.list();
-	        }
-	    };
-	    List results = (List) getHibernateTemplate().execute(hc);
-	    if (results.size() > 0){
-	    	return (AssignmentGradeRecord)results.get(0);
-	    } else {
-	    	return new AssignmentGradeRecord();
-	    }
-	}
-    
     /**
      */
     public List getAllAssignmentGradeRecords(final Long gradebookId, final Collection studentUids) {
@@ -1986,6 +1942,37 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 list();
         return spreadsheets;
     }
+
+    public List getComments(final Assignment assignment, final Collection studentIds) {
+    	if (studentIds.isEmpty()) {
+    		return new ArrayList();
+    	}
+        return (List)getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+            	List comments;
+            	if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+            		Query q = session.createQuery(
+            			"from Comment as c where c.gradableObject=:go and c.studentId in (:studentIds)");
+                    q.setParameter("go", assignment);
+                    q.setParameterList("studentIds", studentIds);
+                    comments = q.list();
+            	} else {
+            		comments = new ArrayList();
+            		Query q = session.createQuery("from Comment as c where c.gradableObject=:go");
+            		q.setParameter("go", assignment);
+            		List allComments = q.list();
+            		for (Iterator iter = allComments.iterator(); iter.hasNext(); ) {
+            			Comment comment = (Comment)iter.next();
+            			if (studentIds.contains(comment.getStudentId())) {
+            				comments.add(comment);
+            			}
+            		}
+            	}
+                return comments;
+            }
+        });
+    }
+
 
     public List getStudentAssignmentComments(final String studentId, final Long gradebookId) {
         return (List)getHibernateTemplate().execute(new HibernateCallback() {

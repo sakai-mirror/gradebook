@@ -44,7 +44,6 @@ import org.hibernate.Session;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -52,7 +51,6 @@ import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
-import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Comment;
@@ -64,7 +62,6 @@ import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
-import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 /**oncourse - add assignment to legacy side when import from a site. */
@@ -85,8 +82,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     private GradebookExternalAssessmentService externalAssessmentService;
     private Authz authz;
     
-    private GradebookPermissionService gradebookPermissionService;
-
 	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName)
         throws GradebookNotFoundException {
 		if (!isUserAbleToViewAssignments(gradebookUid)) {
@@ -200,35 +195,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			return null;
 		}
 	}
-	
-	public org.sakaiproject.service.gradebook.shared.Assignment getAssignment(final String gradebookUid, final Long gbItemId) throws AssessmentNotFoundException {
-		if (gbItemId == null || gradebookUid == null) {
-			throw new IllegalArgumentException("null gbItemId passed to getAssignment");
-		}
-		if (!isUserAbleToViewAssignments(gradebookUid) && !currentUserHasViewOwnGradesPerm(gradebookUid)) {
-			log.warn("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to get gb item with id " + gbItemId);
-			throw new SecurityException("You do not have permission to perform this operation");
-		}
-		
-		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				return getAssignmentWithoutStats(gradebookUid, gbItemId, session);
-			}
-		});
-		
-		if (assignment == null) {
-			throw new AssessmentNotFoundException("No gradebook item exists with gradable object id = " + gbItemId);
-		}
-		
-		org.sakaiproject.service.gradebook.shared.Assignment assnDef;
-		if (assignment != null) {
-			assnDef =  getAssignmentDefinition(assignment);
-		} else {
-			assnDef = null;
-		}
-		
-		return assnDef;
-	}
 		
 	private org.sakaiproject.service.gradebook.shared.Assignment getAssignmentDefinition(Assignment internalAssignment) {
 		org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = new org.sakaiproject.service.gradebook.shared.Assignment();
@@ -282,108 +248,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		});
 		if (log.isDebugEnabled()) log.debug("returning " + assignmentScore);
 		return assignmentScore;
-	}
-	
-	public Double getAssignmentScore(final String gradebookUid, final Long gbItemId, final String studentUid) {
-		if (gradebookUid == null || gbItemId == null || studentUid == null) {
-			throw new IllegalArgumentException("null parameter passed to getAssignmentScore");
-		}
-		
-		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				return getAssignmentWithoutStats(gradebookUid, gbItemId, session);
-			}
-		});
-		if (assignment == null) {
-			throw new AssessmentNotFoundException("There is no assignment with the gbItemId " + gbItemId);
-		}
-		
-		return getAssignmentScore(gradebookUid, assignment.getName(), studentUid);
-	}
-	
-	public GradeDefinition getGradeDefinitionForStudentForItem(final String gradebookUid,
-			final Long gbItemId, final String studentUid) {
-		
-		if (gradebookUid == null || gbItemId == null || studentUid == null) {
-			throw new IllegalArgumentException("Null gradebookUid or gbItemId or studentUid" +
-					" passed to getGradeDefinitionForStudentForItem");	
-		}
-		
-		final boolean studentRequestingOwnScore = authn.getUserUid().equals(studentUid);
-
-		GradeDefinition gradeDef = (GradeDefinition)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				
-				Assignment assignment = getAssignmentWithoutStats(gradebookUid, gbItemId, session);
-	
-				if (assignment == null) {
-					throw new AssessmentNotFoundException("There is no assignment with the gbItemId " 
-							+ gbItemId + " in gradebook " + gradebookUid);
-				}
-				
-				if (!studentRequestingOwnScore && !isUserAbleToViewItemForStudent(gradebookUid, assignment.getId(), studentUid)) {
-					log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to retrieve grade for student " + studentUid + " for assignment " + gbItemId);
-					throw new SecurityException("You do not have permission to perform this operation");
-				}
-				
-				Gradebook gradebook = assignment.getGradebook();
-				
-				GradeDefinition gradeDef = new GradeDefinition();
-				gradeDef.setStudentUid(studentUid);
-				gradeDef.setGradeEntryType(gradebook.getGrade_type());
-				gradeDef.setGradeReleased(assignment.isReleased());
-				
-				// If this is the student, then the assignment needs to have
-				// been released. Return null score information if not released
-				if (studentRequestingOwnScore && !assignment.isReleased()) {
-					gradeDef.setDateRecorded(null);
-					gradeDef.setGrade(null);
-					gradeDef.setGraderUid(null);
-					log.debug("Student " + getUserUid() + " in gradebook " + gradebookUid + " retrieving score for unreleased assignment " + assignment.getName());		
-				
-				} else {
-				
-					AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid, session);
-					CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, gbItemId, studentUid);
-					if (log.isDebugEnabled()) log.debug("gradeRecord=" + gradeRecord);
-					
-					if (gradeRecord == null) {
-						gradeDef.setDateRecorded(null);
-						gradeDef.setGrade(null);
-						gradeDef.setGraderUid(null);
-					} else {
-						gradeDef.setDateRecorded(gradeRecord.getDateRecorded());
-						gradeDef.setGraderUid(gradeRecord.getGraderId());
-						if (gradeComment != null) {
-							gradeDef.setGradeComment(gradeComment.getCommentText());
-						}
-						
-						if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
-							List gradeList = new ArrayList();
-							gradeList.add(gradeRecord);
-							convertPointsToLetterGrade(gradebook, gradeList);
-							AssignmentGradeRecord gradeRec = (AssignmentGradeRecord)gradeList.get(0);
-							if (gradeRec != null) {
-								gradeDef.setGrade(gradeRec.getLetterEarned());
-							}
-						} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
-							Double percent = calculateEquivalentPercent(assignment.getPointsPossible(), gradeRecord.getPointsEarned());
-							if (percent != null) {
-								gradeDef.setGrade(percent.toString());
-							}
-						} else {
-							if (gradeRecord.getPointsEarned() != null) {
-								gradeDef.setGrade(gradeRecord.getPointsEarned().toString());
-							}
-						}
-					}
-				}
-				
-				return gradeDef;
-			}
-		});
-		if (log.isDebugEnabled()) log.debug("returning grade def for " + studentUid);
-		return gradeDef;
 	}
 
 	public void setAssignmentScore(final String gradebookUid, final String assignmentName, final String studentUid, final Double score, final String clientServiceDescription)
@@ -456,24 +320,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         	commentDefinition.setStudentUid(comment.getStudentId());
         }
 		return commentDefinition;
-	}
-	
-	public CommentDefinition getAssignmentScoreComment(final String gradebookUid, final Long gbItemId, final String studentUid) throws GradebookNotFoundException, AssessmentNotFoundException {
-		if (gradebookUid == null || gbItemId == null || studentUid == null) {
-			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreComment");
-		}
-		
-		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				return getAssignmentWithoutStats(gradebookUid, gbItemId, session);
-			}
-		});
-		
-		if (assignment == null) {
-			throw new AssessmentNotFoundException("There is no assignment with the gbItemId " + gbItemId);
-		}
-		
-		return getAssignmentScoreComment(gradebookUid, assignment.getName(), studentUid);
 	}
 
 	public void setAssignmentScoreComment(final String gradebookUid, final String assignmentName, final String studentUid, final String commentText) throws GradebookNotFoundException, AssessmentNotFoundException {
@@ -816,13 +662,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     public void setAuthz(Authz authz) {
         this.authz = authz;
     }
-    
-    public GradebookPermissionService getGradebookPermissionService() {
-    	return gradebookPermissionService;
-    }
-    public void setGradebookPermissionService(GradebookPermissionService gradebookPermissionService) {
-    	this.gradebookPermissionService = gradebookPermissionService;
-    }
 
     // Deprecated calls to new framework-specific interface.
 
@@ -906,7 +745,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			Map enrollmentMap;
 			String userUid = authn.getUserUid();
 			
-			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, thisGradebook.getCategory_type(), null, null);
+			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, null, null);
 			enrollmentMap = new HashMap();
 
 			Map enrollmentMapUid = new HashMap();
@@ -1301,25 +1140,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	};
   	return (List)getHibernateTemplate().execute(hc);
   }
-  
-  private List getAllAssignmentGradeRecordsForGbItem(final Long gradableObjectId, 
-		  final Collection studentUids) {
-	  	HibernateCallback hc = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException {
-	  			if(studentUids.size() == 0) {
-	  				// If there are no enrollments, no need to execute the query.
-	  				if(log.isInfoEnabled()) log.info("No enrollments were specified.  Returning an empty List of grade records");
-	  				return new ArrayList();
-	  			} else {
-	  				Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.removed=false and " +
-	  				"agr.gradableObject.id=:gradableObjectId order by agr.pointsEarned");
-	  				q.setLong("gradableObjectId", gradableObjectId.longValue());
-	  				return filterGradeRecordsByStudents(q.list(), studentUids);
-	  			}
-	  		}
-	  	};
-	  	return (List)getHibernateTemplate().execute(hc);
-	  }
 
   public List getAssignments(final Long gradebookId, final String sortBy, final boolean ascending) {
   	return (List)getHibernateTemplate().execute(new HibernateCallback() {
@@ -1370,270 +1190,5 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  }
 	  
 	  return allAssnDef;
-  }
-  
-  /*
-   * (non-Javadoc)
-   * @see org.sakaiproject.service.gradebook.shared.GradebookService#getViewableAssignmentsForCurrentUser(java.lang.String)
-   */
-  public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid)
-  throws GradebookNotFoundException {
-
-	  List<Assignment> viewableAssignments = new ArrayList();
-	  List<org.sakaiproject.service.gradebook.shared.Assignment> assignmentsToReturn = new ArrayList();
-
-	  Gradebook gradebook = getGradebook(gradebookUid);
-
-	  // will send back all assignments if user can grade all
-	  if (getAuthz().isUserAbleToGradeAll(gradebookUid)) {
-		  viewableAssignments = getAssignments(gradebook.getId(), null, true);
-	  } else if (!getAuthz().isUserHasGraderPermissions(gradebookUid)) {  
-		  // user doesn't have grader permissions, so check to see if able to grade or view own grades
-		  if (getAuthz().isUserAbleToGrade(gradebookUid)) {
-			  viewableAssignments = getAssignments(gradebook.getId(), null, true);
-		  } else if (getAuthz().isUserAbleToViewOwnGrades(gradebookUid)) {
-			  // if user is just a student, we need to filter out unreleased items
-			  List allAssigns = getAssignments(gradebook.getId(), null, true);
-			  if (allAssigns != null) {
-				  for (Iterator aIter = allAssigns.iterator(); aIter.hasNext();) {
-					  Assignment assign = (Assignment) aIter.next();
-					  if (assign != null && assign.isReleased()) {
-						  viewableAssignments.add(assign);
-					  }
-				  }
-			  }
-		  }
-	  } else {  
-		  // this user has grader perms, so we need to filter the items returned
-		  // if this gradebook has categories enabled, we need to check for category-specific restrictions
-
-		  if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY) {
-			  assignmentsToReturn = getAssignments(gradebookUid);
-		  } else {
-
-			  String userUid = getUserUid();
-			  if (getGradebookPermissionService().getPermissionForUserForAllAssignment(gradebook.getId(), userUid)) {
-				  assignmentsToReturn = getAssignments(gradebookUid);
-			  }
-
-			  // categories are enabled, so we need to check the category restrictions
-			  List allCategories = getCategoriesWithAssignments(gradebook.getId());
-			  if (allCategories != null && !allCategories.isEmpty()) {
-				  List<Category> viewableCategories = getGradebookPermissionService().getCategoriesForUser(gradebook.getId(), userUid, allCategories, gradebook.getCategory_type());
-
-				  for (Iterator catIter = viewableCategories.iterator(); catIter.hasNext();) {
-					  Category cat = (Category) catIter.next();
-					  if (cat != null) {
-						  List assignments = cat.getAssignmentList();
-						  if (assignments != null && !assignments.isEmpty()) {
-							  viewableAssignments.addAll(assignments);
-						  }
-					  }
-				  }
-			  }
-		  }
-	  }
-
-	  // Now we need to convert these to the assignment template objects
-	  if (viewableAssignments != null && !viewableAssignments.isEmpty()) {
-		  for (Iterator assignIter = viewableAssignments.iterator(); assignIter.hasNext();) {
-			  Assignment assignment = (Assignment) assignIter.next();
-			  assignmentsToReturn.add(getAssignmentDefinition(assignment));
-		  }
-	  }
-
-	  return assignmentsToReturn;
-
-  }
-  
-  public Map<String, String> getViewableStudentsForItemForCurrentUser(final String gradebookUid, final Long gradableObjectId) {
-	  if (gradebookUid == null || gradableObjectId == null) {
-		  throw new IllegalArgumentException("null gradebookUid or gradableObjectId passed to getViewableStudentsForUserForItem");
-	  }
-	  
-	  if (!authz.isUserAbleToGrade(gradebookUid)) {
-		  log.warn("user " + getUserUid() + " attempted to access student information for gb item " + gradableObjectId);
-		  throw new SecurityException("user " + getUserUid() + " attempted to access student information for gb item " + gradableObjectId); 
-	  }
-	  
-	  Assignment gradebookItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-		  public Object doInHibernate(Session session) throws HibernateException {
-			  return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
-		  }
-	  });
-	  
-	  if (gradebookItem == null) {
-		  log.debug("The gradebook item does not exist, so returning empty set");
-		  return new HashMap();
-	  }
-	  
-	  Long categoryId = gradebookItem.getCategory() == null ? null : gradebookItem.getCategory().getId();
-	  
-	  Map<EnrollmentRecord, String> enrRecFunctionMap = new HashMap();
-	  enrRecFunctionMap = authz.findMatchingEnrollmentsForItem(gradebookUid, categoryId, getGradebook(gradebookUid).getCategory_type(), null, null);
-	  if (enrRecFunctionMap == null) {
-		  return new HashMap();
-	  }
-	  
-	  Map<String, String> studentIdFunctionMap = new HashMap();
-	  for (Iterator enrIter = enrRecFunctionMap.keySet().iterator(); enrIter.hasNext();) {
-		  EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
-		  if (enr != null && enrRecFunctionMap.get(enr) != null) {
-			  studentIdFunctionMap.put(enr.getUser().getUserUid(), enrRecFunctionMap.get(enr));
-		  }
-	  }
-	  return studentIdFunctionMap;
-  }
-  
-  public boolean isGradableObjectDefined(Long gradableObjectId) {
-	  if (gradableObjectId == null) {
-		  throw new IllegalArgumentException("null gradableObjectId passed to isGradableObjectDefined");
-	  }
-	  
-	  return isAssignmentDefined(gradableObjectId);
-  }
-  
-  public Map getViewableSectionUuidToNameMap(String gradebookUid) {
-	  if (gradebookUid == null) {
-		  throw new IllegalArgumentException("Null gradebookUid passed to getViewableSectionIdToNameMap");
-	  }
-	  
-	  Map<String, String> sectionIdNameMap = new HashMap();
-	  
-	  List viewableCourseSections = getAuthz().getViewableSections(gradebookUid); 
-	  if (viewableCourseSections == null || viewableCourseSections.isEmpty()) {
-		  return sectionIdNameMap;
-	  }
-	  
-	  for (Iterator sectionIter = viewableCourseSections.iterator(); sectionIter.hasNext();) {
-		  CourseSection section = (CourseSection) sectionIter.next();
-		  if (section != null) {
-			  sectionIdNameMap.put(section.getUuid(), section.getTitle());
-		  }
-	  }
-	  
-	  return sectionIdNameMap;
-  }
-  
-  public boolean currentUserHasGradeAllPerm(String gradebookUid) {
-	  return authz.isUserAbleToGradeAll(gradebookUid);
-  }
-
-  public boolean currentUserHasGradingPerm(String gradebookUid) {
-	  return authz.isUserAbleToGrade(gradebookUid);
-  }
-
-  public boolean currentUserHasEditPerm(String gradebookUid) {
-	  return authz.isUserAbleToEditAssessments(gradebookUid);
-  }
-
-  public boolean currentUserHasViewOwnGradesPerm(String gradebookUid) {
-	  return authz.isUserAbleToViewOwnGrades(gradebookUid);
-  }
-  
-  public List<GradeDefinition> getGradesForStudentsForItem(final String gradebookUid, final Long gradableObjectId, List<String> studentIds) {
-	  if (gradableObjectId == null) {
-		  throw new IllegalArgumentException("null gradableObjectId passed to getGradesForStudentsForItem");
-	  }
-	  
-	  List<org.sakaiproject.service.gradebook.shared.GradeDefinition> studentGrades = new ArrayList();
-	  
-	  if (studentIds != null && !studentIds.isEmpty()) {
-		  // first, we need to make sure the current user is authorized to view the
-		  // grades for all of the requested students
-		  Assignment gbItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-			  public Object doInHibernate(Session session) throws HibernateException {
-				  return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
-			  }
-		  });
-		  
-		  if (gbItem != null) {
-			  Gradebook gradebook = gbItem.getGradebook();
-			  
-			  if (!authz.isUserAbleToGrade(gradebook.getUid())) {
-				  throw new SecurityException("User " + authn.getUserUid() + 
-						  " attempted to access grade information without permission in gb " + 
-						  gradebook.getUid() + " using gradebookService.getGradesForStudentsForItem");
-			  }
-			  
-			  Long categoryId = gbItem.getCategory() != null ? gbItem.getCategory().getId() : null;
-			  Map enrRecFunctionMap = authz.findMatchingEnrollmentsForItem(gradebook.getUid(), categoryId, gradebook.getCategory_type(), null, null);
-			  Set enrRecs = enrRecFunctionMap.keySet();
-			  Map studentIdEnrRecMap = new HashMap();
-			  if (enrRecs != null) {
-				  for (Iterator enrIter = enrRecs.iterator(); enrIter.hasNext();) {
-					  EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
-					  if (enr != null) {
-						  studentIdEnrRecMap.put(enr.getUser().getUserUid(), enr);
-					  }
-				  }
-			  }
-			  
-			  for (Iterator stIter = studentIds.iterator(); stIter.hasNext();) {
-				  String studentId = (String) stIter.next();
-				  if (studentId != null) {
-					  if (!studentIdEnrRecMap.containsKey(studentId)) {
-						  throw new SecurityException("User " + authn.getUserUid() + 
-						  " attempted to access grade information for student " + studentId + 
-						  " without permission in gb " + gradebook.getUid() + 
-						  " using gradebookService.getGradesForStudentsForItem");
-					  }
-				  }
-			  }
-			  
-			  // retrieve the grading comments for all of the students
-			  List<Comment> commentRecs = getComments(gbItem, studentIds);
-			  Map<String, String> studentIdCommentTextMap = new HashMap();
-			  if (commentRecs != null) {
-				  for (Iterator<Comment> cIter = commentRecs.iterator(); cIter.hasNext();) {
-					  Comment comment = cIter.next();
-					  if (comment != null) {
-						  studentIdCommentTextMap.put(comment.getStudentId(), comment.getCommentText());
-					  }
-				  }
-			  }
-			  
-			  // now, we can populate the grade information
-			  List<AssignmentGradeRecord> gradeRecs = getAllAssignmentGradeRecordsForGbItem(gradableObjectId, studentIds);
-			  if (gradeRecs != null) {
-				  if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
-					  convertPointsToLetterGrade(gradebook, gradeRecs);
-				  } else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
-					  convertPointsToPercentage(gradebook, gradeRecs);
-				  }
-				  
-				  boolean gradeReleased = gradebook.isAssignmentsDisplayed() && gbItem.isReleased();
-				  
-				  for (Iterator gradeIter = gradeRecs.iterator(); gradeIter.hasNext();) {
-					  AssignmentGradeRecord agr = (AssignmentGradeRecord) gradeIter.next();
-					  if (agr != null) {
-						  GradeDefinition gradeDef = new GradeDefinition();
-						  gradeDef.setStudentUid(agr.getStudentId());
-						  gradeDef.setGradeEntryType(gradebook.getGrade_type());
-						  gradeDef.setGradeReleased(gradeReleased);
-						  gradeDef.setGraderUid(agr.getGraderId());
-						  gradeDef.setDateRecorded(agr.getDateRecorded());
-						  
-						  String commentText = studentIdCommentTextMap.get(agr.getStudentId());
-						  if (commentText != null) {
-							  gradeDef.setGradeComment(commentText);
-						  }
-						  
-						  if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
-							  gradeDef.setGrade(agr.getLetterEarned());
-						  } else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
-							  gradeDef.setGrade(agr.getPercentEarned().toString());
-						  } else {
-							  gradeDef.setGrade(agr.getPointsEarned().toString());
-						  }
-					  	  	
-						  studentGrades.add(gradeDef);
-					  }
-				  }
-			  }
-		  }
-	  }
-	  
-	  return studentGrades;
   }
 }
