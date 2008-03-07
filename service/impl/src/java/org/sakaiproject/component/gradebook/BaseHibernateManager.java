@@ -55,6 +55,7 @@ import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeMapping;
@@ -70,6 +71,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 
 import java.lang.IllegalArgumentException;
+import java.math.BigDecimal;
 
 /**
  * Provides methods which are shared between service business logic and application business
@@ -216,6 +218,14 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		return (Assignment)session.createQuery(
 			"from Assignment as asn where asn.name=? and asn.gradebook.uid=? and asn.removed=false").
 			setString(0, assignmentName).
+			setString(1, gradebookUid).
+			uniqueResult();
+	}
+	
+	protected Assignment getAssignmentWithoutStats(String gradebookUid, Long assignmentId, Session session) throws HibernateException {
+		return (Assignment)session.createQuery(
+			"from Assignment as asn where asn.id=? and asn.gradebook.uid=? and asn.removed=false").
+			setLong(0, assignmentId).
 			setString(1, gradebookUid).
 			uniqueResult();
 	}
@@ -1238,5 +1248,127 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	} else {
     		return null;
     	}
+    }
+    
+    public boolean isAssignmentDefined(Long gradableObjectId) {
+        String hql = "from Assignment as asn where asn.id=? and removed=false";
+        return getHibernateTemplate().find(hql, gradableObjectId).size() == 1;
+    }
+    
+    /**
+     * 
+     * @param gradableObjectId
+     * @return the Assignment object with the given id
+     */
+    public Assignment getAssignment(Long gradableObjectId) {
+        return (Assignment)getHibernateTemplate().load(Assignment.class, gradableObjectId);
+    }
+    
+    /**
+     * 
+     * @param doublePointsPossible
+     * @param doublePointsEarned
+     * @return the % equivalent for the given points possible and points earned
+     */
+    protected Double calculateEquivalentPercent(Double doublePointsPossible, Double doublePointsEarned) {
+ 	
+    	if (doublePointsEarned == null || doublePointsPossible == null)
+    		return null;
+    	
+    	// scale to handle points stored as repeating decimals
+    	BigDecimal pointsEarned = new BigDecimal(doublePointsEarned.toString());
+    	BigDecimal pointsPossible = new BigDecimal(doublePointsPossible.toString());
+
+    	BigDecimal equivPercent = pointsEarned.divide(pointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
+    	return new Double(equivPercent.doubleValue());
+    	
+    }
+   
+    /**
+     * Converts points to percentage for the given AssignmentGradeRecords
+     * @param gradebook
+     * @param studentRecordsFromDB
+     * @return
+     */
+    protected List convertPointsToPercentage(Gradebook gradebook, List studentRecordsFromDB)
+    {
+    	List percentageList = new ArrayList();
+    	for(int i=0; i < studentRecordsFromDB.size(); i++)
+    	{
+    		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
+    		if (agr != null) {
+    			Double pointsPossible = agr.getAssignment().getPointsPossible();
+    			if (pointsPossible == null || agr.getPointsEarned() == null) {
+    				agr.setPercentEarned(null);
+        			percentageList.add(agr);
+    			} else {
+        			agr.setDateRecorded(agr.getDateRecorded());
+        			agr.setGraderId(agr.getGraderId());
+        			agr.setPercentEarned(calculateEquivalentPercent(pointsPossible, agr.getPointsEarned()));
+        			percentageList.add(agr);
+    			}
+    		}
+    	}
+    	return percentageList;
+    }
+    
+    /**
+     * Converts points to letter grade for the given AssignmentGradeRecords
+     * @param gradebook
+     * @param studentRecordsFromDB
+     * @return
+     */
+    protected List convertPointsToLetterGrade(Gradebook gradebook, List studentRecordsFromDB)
+    {
+    	List letterGradeList = new ArrayList();
+    	LetterGradePercentMapping lgpm = getLetterGradePercentMapping(gradebook);
+    	for(int i=0; i < studentRecordsFromDB.size(); i++)
+    	{
+    		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
+    		Double pointsPossible = agr.getAssignment().getPointsPossible();
+    		agr.setDateRecorded(agr.getDateRecorded());
+    		agr.setGraderId(agr.getGraderId());
+    		if (agr != null) {
+    			if (pointsPossible == null || agr.getPointsEarned() == null) {
+    				agr.setLetterEarned(null);
+        			letterGradeList.add(agr);
+    			} else {
+    				String letterGrade = lgpm.getGrade(calculateEquivalentPercent(pointsPossible, agr.getPointsEarned()));
+        			agr.setLetterEarned(letterGrade);
+        			letterGradeList.add(agr);
+    			}
+    		}
+    	}
+    	return letterGradeList;
+    }
+    
+    public List getComments(final Assignment assignment, final Collection studentIds) {
+    	if (studentIds.isEmpty()) {
+    		return new ArrayList();
+    	}
+        return (List)getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+            	List comments;
+            	if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+            		Query q = session.createQuery(
+            			"from Comment as c where c.gradableObject=:go and c.studentId in (:studentIds)");
+                    q.setParameter("go", assignment);
+                    q.setParameterList("studentIds", studentIds);
+                    comments = q.list();
+            	} else {
+            		comments = new ArrayList();
+            		Query q = session.createQuery("from Comment as c where c.gradableObject=:go");
+            		q.setParameter("go", assignment);
+            		List allComments = q.list();
+            		for (Iterator iter = allComments.iterator(); iter.hasNext(); ) {
+            			Comment comment = (Comment)iter.next();
+            			if (studentIds.contains(comment.getStudentId())) {
+            				comments.add(comment);
+            			}
+            		}
+            	}
+                return comments;
+            }
+        });
     }
 }

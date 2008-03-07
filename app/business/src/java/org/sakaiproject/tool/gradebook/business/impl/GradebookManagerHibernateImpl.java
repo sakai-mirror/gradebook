@@ -1943,37 +1943,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         return spreadsheets;
     }
 
-    public List getComments(final Assignment assignment, final Collection studentIds) {
-    	if (studentIds.isEmpty()) {
-    		return new ArrayList();
-    	}
-        return (List)getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-            	List comments;
-            	if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
-            		Query q = session.createQuery(
-            			"from Comment as c where c.gradableObject=:go and c.studentId in (:studentIds)");
-                    q.setParameter("go", assignment);
-                    q.setParameterList("studentIds", studentIds);
-                    comments = q.list();
-            	} else {
-            		comments = new ArrayList();
-            		Query q = session.createQuery("from Comment as c where c.gradableObject=:go");
-            		q.setParameter("go", assignment);
-            		List allComments = q.list();
-            		for (Iterator iter = allComments.iterator(); iter.hasNext(); ) {
-            			Comment comment = (Comment)iter.next();
-            			if (studentIds.contains(comment.getStudentId())) {
-            				comments.add(comment);
-            			}
-            		}
-            	}
-                return comments;
-            }
-        });
-    }
-
-
     public List getStudentAssignmentComments(final String studentId, final Long gradebookId) {
         return (List)getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
@@ -2264,80 +2233,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		return letterGradeList;
     	}
     	return null;
-    }
-    
-    private Double calculateEquivalentPercent(Double doublePointsPossible, Double doublePointsEarned) {
- 	
-    	if (doublePointsEarned == null || doublePointsPossible == null)
-    		return null;
-    	
-    	// scale to handle points stored as repeating decimals
-    	BigDecimal pointsEarned = new BigDecimal(doublePointsEarned.toString());
-    	BigDecimal pointsPossible = new BigDecimal(doublePointsPossible.toString());
-
-    	BigDecimal equivPercent = pointsEarned.divide(pointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
-    	return new Double(equivPercent.doubleValue());
-    	
-    }
-   
-    /**
-     * Converts points to percentage for all assignments for a single student
-     * @param gradebook
-     * @param studentRecordsFromDB
-     * @return
-     */
-    private List convertPointsToPercentage(Gradebook gradebook, List studentRecordsFromDB)
-    {
-    	List percentageList = new ArrayList();
-    	for(int i=0; i < studentRecordsFromDB.size(); i++)
-    	{
-    		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
-    		if(agr != null && agr.getPointsEarned() != null)
-    		{
-    			Double pointsPossible = agr.getAssignment().getPointsPossible();
-    			agr.setDateRecorded(agr.getDateRecorded());
-    			agr.setGraderId(agr.getGraderId());
-    			agr.setPercentEarned(calculateEquivalentPercent(pointsPossible, agr.getPointsEarned()));
-    			percentageList.add(agr);
-    		}
-    		else if(agr != null)
-    		{
-    			agr.setPercentEarned(null);
-    			percentageList.add(agr);
-    		}
-    	}
-    	return percentageList;
-    }
-    
-    /**
-     * Converts points to letter grade for all assignments for a single student
-     * @param gradebook
-     * @param studentRecordsFromDB
-     * @return
-     */
-    private List convertPointsToLetterGrade(Gradebook gradebook, List studentRecordsFromDB)
-    {
-    	List letterGradeList = new ArrayList();
-    	LetterGradePercentMapping lgpm = getLetterGradePercentMapping(gradebook);
-    	for(int i=0; i < studentRecordsFromDB.size(); i++)
-    	{
-    		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
-    		Double pointsPossible = agr.getAssignment().getPointsPossible();
-    		agr.setDateRecorded(agr.getDateRecorded());
-    		agr.setGraderId(agr.getGraderId());
-    		if(agr != null && agr.getPointsEarned() != null )
-    		{
-      		String letterGrade = lgpm.getGrade(calculateEquivalentPercent(pointsPossible, agr.getPointsEarned()));
-    			agr.setLetterEarned(letterGrade);
-    			letterGradeList.add(agr);
-    		}
-    		else if(agr != null)
-    		{
-    			agr.setLetterEarned(null);
-    			letterGradeList.add(agr);
-    		}
-    	}
-    	return letterGradeList;
     }
     
     public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending) {
