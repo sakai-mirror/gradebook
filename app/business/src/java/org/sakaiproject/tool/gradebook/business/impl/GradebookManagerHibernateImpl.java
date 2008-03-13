@@ -2640,7 +2640,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			}
 
     			/** synchronize from external application */
-    			if (synchronizer != null && !synchronizer.isProjectSite())
+    			if (synchronizer != null && !synchronizer.isProjectSite(gb.getUid()))
     			{
     				synchronizer.addLegacyAssignment(name);
     			}  
@@ -2692,7 +2692,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			}
 
     			/** synchronize from external application */
-    			if (synchronizer != null && !synchronizer.isProjectSite())
+    			if (synchronizer != null && !synchronizer.isProjectSite(gb.getUid()))
     			{
     				synchronizer.addLegacyAssignment(name);
     			}  

@@ -48,6 +48,11 @@ public class GbSynchronizerImpl extends HibernateDaoSupport
 	public boolean isProjectSite() 
 	{
 		String siteId = ToolManager.getCurrentPlacement().getContext();
+		return isProjectSite(siteId);
+	}
+	
+	public boolean isProjectSite(String siteId) 
+	{
 		String siteType = null;
 
 		try

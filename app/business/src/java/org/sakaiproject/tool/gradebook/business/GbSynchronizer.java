@@ -12,6 +12,8 @@ public interface GbSynchronizer
 {
   public boolean isProjectSite();
   
+  public boolean isProjectSite(String siteId);
+  
   public void deleteLegacyAssignment(String assignmentName);
   
   public Map convertEidUid(Collection gradeRecords);
