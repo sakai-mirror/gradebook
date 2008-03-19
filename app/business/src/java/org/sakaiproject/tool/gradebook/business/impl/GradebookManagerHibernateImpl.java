@@ -2266,7 +2266,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	return null;
     }
     
-    private Double calculateEquivalentPercent(Double doublePointsPossible, Double doublePointsEarned) {
+    //ONC-357
+    public Double calculateEquivalentPercent(Double doublePointsPossible, Double doublePointsEarned) {
  	
     	if (doublePointsEarned == null || doublePointsPossible == null)
     		return null;

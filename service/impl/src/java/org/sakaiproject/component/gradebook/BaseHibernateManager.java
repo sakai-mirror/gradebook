@@ -70,6 +70,8 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 
 import java.lang.IllegalArgumentException;
+//ONC-357
+import java.math.BigDecimal;
 
 /**
  * Provides methods which are shared between service business logic and application business
@@ -1238,5 +1240,26 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	} else {
     		return null;
     	}
+    }
+
+    //ONC-357
+    /**
+     * 
+     * @param doublePointsPossible
+     * @param doublePointsEarned
+     * @return the % equivalent for the given points possible and points earned
+     */
+    protected Double calculateEquivalentPercent(Double doublePointsPossible, Double doublePointsEarned) {
+ 	
+    	if (doublePointsEarned == null || doublePointsPossible == null)
+    		return null;
+    	
+    	// scale to handle points stored as repeating decimals
+    	BigDecimal pointsEarned = new BigDecimal(doublePointsEarned.toString());
+    	BigDecimal pointsPossible = new BigDecimal(doublePointsPossible.toString());
+
+    	BigDecimal equivPercent = pointsEarned.divide(pointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
+    	return new Double(equivPercent.doubleValue());
+    	
     }
 }

@@ -430,4 +430,28 @@ public interface GradebookService {
 	 * for permissions!
 	 */
 	public List<org.sakaiproject.service.gradebook.shared.Assignment> getAllGradebookItems(String gradebookUid);
+
+	/**
+	 * Get fixed grades for students by using course grade scale.
+	 * @param gradebookUid
+	 * @return Map of enrollment displayId as key, grade as value
+	 * 
+	 */
+	public Map getFixedGrade(String gradebookUid);
+	
+	/**
+	 * Get fixed earned points for students by using course grade scale.
+	 * @param gradebookUid
+	 * @return Map of enrollment displayId as key, point as value string
+	 * 
+	 */
+	public Map getFixedPoint(String gradebookUid);
+
+	/**
+	 * Get old earned points for students by using letter grade scale.
+	 * @param gradebookUid
+	 * @return Map of enrollment displayId as key, point as value string
+	 * 
+	 */
+	public Map getOldPoint(String gradebookUid);
 }
