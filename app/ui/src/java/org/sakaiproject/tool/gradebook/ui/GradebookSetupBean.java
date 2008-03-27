@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
@@ -37,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.Permission;
@@ -61,7 +63,8 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private List letterGradesList;
 	private LetterGradePercentMapping lgpm;
 	private LetterGradePercentMapping defaultLGPM;
-
+  private boolean isValidWithCourseGrade = true;
+	
 	private static final int NUM_EXTRA_CAT_ENTRIES = 50;
 	private static final String ENTRY_OPT_POINTS = "points";
 	private static final String ENTRY_OPT_PERCENT = "percent";
@@ -117,6 +120,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		categories = null;
 		categorySetting = null;
 		gradeEntryMethod = null;
+		isValidWithCourseGrade = true;
 	}
 
 	public Gradebook getLocalGradebook()
@@ -187,6 +191,13 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			FacesUtil.addErrorMessage(getLocalizedString("grade_entry_invalid"));
 			return "failure";
 		}
+    if(!isConflictWithCourseGrade())
+    {
+    	isValidWithCourseGrade = false;
+    	return null;
+    }
+    else
+    	isValidWithCourseGrade = true;
 
 		if (gradeEntryMethod.equals(ENTRY_OPT_PERCENT))
 		{
@@ -719,6 +730,49 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
     	public boolean isEditable() {
 			return editable;
 		}
+	}
+
+	public boolean getIsValidWithCourseGrade()
+	{
+		return isValidWithCourseGrade;
+	}
+
+	public void setIsValidWithCourseGrade(boolean isValidWithCourseGrade)
+	{
+		this.isValidWithCourseGrade = isValidWithCourseGrade;
+	}
+	
+	public boolean isConflictWithCourseGrade()
+	{
+		Gradebook gb = getGradebookManager().getGradebookWithGradeMappings(getGradebookManager().getGradebook(localGradebook.getUid()).getId());
+		if (gradeEntryMethod.equals(ENTRY_OPT_LETTER))
+		{
+			Set mappings = gb.getGradeMappings();
+			for(Iterator iter = mappings.iterator(); iter.hasNext();)
+			{
+				GradeMapping gm = (GradeMapping) iter.next();
+				
+				if(gm != null)
+				{
+					if(gm.getGradingScale().getUid().equals("LetterGradeMapping") || gm.getGradingScale().getUid().equals("LetterGradePlusMinusMapping"))
+					{
+						Map defaultMapping = gm.getDefaultBottomPercents();
+						for (Iterator gradeIter = gm.getGrades().iterator(); gradeIter.hasNext(); ) 
+						{
+							String grade = (String)gradeIter.next();
+							Double percentage = (Double)gm.getValue(grade);
+							Double defautPercentage = (Double)defaultMapping.get(grade);
+							if (percentage != null && !percentage.equals(defautPercentage)) 
+							{
+								return false;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return true;
 	}
 
 }
