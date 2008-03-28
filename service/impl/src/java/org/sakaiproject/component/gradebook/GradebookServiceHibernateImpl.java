@@ -1371,15 +1371,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				EnrollmentRecord enr = (EnrollmentRecord)enrollmentMapUid.get(gradeRecord.getStudentId());
 				if(enr != null)
 				{
-					if(gradeRecord.getEnteredGrade() != null && !gradeRecord.getEnteredGrade().equalsIgnoreCase(""))
-					{
-						returnMap.put(enr.getUser().getDisplayId(), gradeRecord.getEnteredGrade());
-					}
-					else
-					{
-						if(!nonAssignment)
-							returnMap.put(enr.getUser().getDisplayId(), (String)gradeMap.getGrade(gradeRecord.getNonNullAutoCalculatedGrade()));
-					}
+					if(!nonAssignment)
+						returnMap.put(enr.getUser().getDisplayId(), (String)gradeMap.getGrade(gradeRecord.getNonNullAutoCalculatedGrade()));
 				}
 			}
 		}
@@ -1582,5 +1575,60 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 		};
 		return (Map)getHibernateTemplate().execute(hc);		
+	}
+	
+	public Map getCalculatedCourseGrade(String gradebookUid)
+	{
+		HashMap returnMap = new HashMap();
+
+		try
+		{
+			Gradebook thisGradebook = getGradebook(gradebookUid);
+			
+			List assignList = getAssignmentsCounted(thisGradebook.getId());
+			boolean nonAssignment = false;
+			if(assignList == null || assignList.size() < 1)
+			{
+				nonAssignment = true;
+			}
+			
+			Long gradebookId = thisGradebook.getId();
+			CourseGrade courseGrade = getCourseGrade(gradebookId);
+
+			Map enrollmentMap;
+			String userUid = authn.getUserUid();
+			
+			//ONC-357
+			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, null, null);
+			enrollmentMap = new HashMap();
+
+			Map enrollmentMapUid = new HashMap();
+			for (Iterator iter = viewableEnrollmentsMap.keySet().iterator(); iter.hasNext(); ) 
+			{
+				EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+				enrollmentMap.put(enr.getUser().getUserUid(), enr);
+				enrollmentMapUid.put(enr.getUser().getUserUid(), enr);
+			}
+			List gradeRecords = getPointsEarnedCourseGradeRecords(courseGrade, enrollmentMap.keySet());
+			ArrayList grades = new ArrayList();
+			for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) 
+			{
+				CourseGradeRecord gradeRecord = (CourseGradeRecord)iter.next();
+
+				GradeMapping gradeMap= thisGradebook.getSelectedGradeMapping();
+
+				EnrollmentRecord enr = (EnrollmentRecord)enrollmentMapUid.get(gradeRecord.getStudentId());
+				if(enr != null)
+				{
+					if(!nonAssignment)
+						returnMap.put(enr.getUser().getDisplayId(), (String)gradeMap.getGrade(gradeRecord.getNonNullAutoCalculatedGrade()));
+				}
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return returnMap;
 	}
 }
