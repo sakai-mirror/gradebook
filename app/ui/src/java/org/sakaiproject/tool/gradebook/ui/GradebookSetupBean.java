@@ -46,6 +46,7 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 public class GradebookSetupBean extends GradebookDependentBean implements Serializable
 {
@@ -65,6 +66,8 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private LetterGradePercentMapping defaultLGPM;
   private boolean isValidWithCourseGrade = true;
 	
+	private boolean enableLetterGrade = false;
+
 	private static final int NUM_EXTRA_CAT_ENTRIES = 50;
 	private static final String ENTRY_OPT_POINTS = "points";
 	private static final String ENTRY_OPT_PERCENT = "percent";
@@ -779,4 +782,14 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		return true;
 	}
 
+	public boolean getEnableLetterGrade()
+	{
+		enableLetterGrade = ServerConfigurationService.getBoolean(GradebookService.enableLetterGradeString, false);
+		return enableLetterGrade;
+	}
+
+	public void setEnableLetterGrade(boolean enableLetterGrade)
+	{
+		this.enableLetterGrade = enableLetterGrade;
+	}
 }
