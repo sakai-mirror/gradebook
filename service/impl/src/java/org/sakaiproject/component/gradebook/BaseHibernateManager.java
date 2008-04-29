@@ -1250,8 +1250,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
      * @return the % equivalent for the given points possible and points earned
      */
     protected Double calculateEquivalentPercent(Double doublePointsPossible, Double doublePointsEarned) {
- 	
-    	if (doublePointsEarned == null || doublePointsPossible == null)
+ 		//ONC: NOJIRA - temp resolve validation problems for points possible
+    	if (doublePointsEarned == null || doublePointsPossible == null || doublePointsPossible <= 0)
     		return null;
     	
     	// scale to handle points stored as repeating decimals
