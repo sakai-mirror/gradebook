@@ -2268,8 +2268,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     
     //ONC-357
     public Double calculateEquivalentPercent(Double doublePointsPossible, Double doublePointsEarned) {
- 		//ONC: NOJIRA - temp resolve validation problems for points possible	
-    	if (doublePointsEarned == null || doublePointsPossible == null || doublePointsPossible <= 0)
+ 	
+    	if (doublePointsEarned == null || doublePointsPossible == null)
     		return null;
     	
     	// scale to handle points stored as repeating decimals
@@ -2485,11 +2485,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			if (ge.getGrade() != null) {
 	    			if(grade_type == GradebookService.GRADE_TYPE_PERCENTAGE)
 	    			{
-	    				//ONC: NOJIRA - temp resolve validation problems for points possible
-	    				if(calculateEquivalentPercent(assign.getPointsPossible(), new Double(ge.getGrade())) != null)
-	    					ge.setGrade(calculateEquivalentPercent(assign.getPointsPossible(), new Double(ge.getGrade())).toString());
-	    				else
-	    					ge.setGrade(null);
+	    				ge.setGrade(calculateEquivalentPercent(assign.getPointsPossible(), new Double(ge.getGrade())).toString());
 	    			} else if(grade_type == GradebookService.GRADE_TYPE_LETTER) {
 	    				String letterGrade = null;
 	    				if (lgpm != null) {
