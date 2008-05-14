@@ -6,21 +6,19 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 
-//import org.sakaiproject.assignment2.logic.AssignmentLogic;
-//import org.sakaiproject.assignment2.logic.ExternalLogic;
-//import org.sakaiproject.assignment2.logic.ExternalGradebookLogic;
-//import org.sakaiproject.assignment2.model.Assignment2;
-
 import uk.org.ponder.beanutil.entity.EntityBeanLocator;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
+import uk.org.ponder.rsf.components.UIELBinding;
 
 public class GradebookItemBean {
 	
 	private static final String CANCEL = "cancel";
-	private static final String ADD_ITEM = "add_item";
+	private static final String SUBMIT = "submit";
+	private static final String FAILURE = "failure";
 	
+	public Boolean requireDueDate = false;
 	
 	private TargettedMessageList messages;
     public void setMessages(TargettedMessageList messages) {
@@ -28,9 +26,11 @@ public class GradebookItemBean {
     }
 		
     private Map<String, Assignment> OTPMap;
+    private EntityBeanLocator assignmentEntityBeanLocator;
 	@SuppressWarnings("unchecked")
 	public void setAssignmentEntityBeanLocator(EntityBeanLocator entityBeanLocator) {
 		this.OTPMap = entityBeanLocator.getDeliveredBeans();
+		this.assignmentEntityBeanLocator = entityBeanLocator;
 	}
 
 	private MessageLocator messageLocator;
@@ -51,26 +51,76 @@ public class GradebookItemBean {
 	public void setGradebookId(Long gradebookId){
 		this.gradebookId = gradebookId;
 	}
+	private Boolean counted = Boolean.FALSE;
+	public void setCounted(Boolean counted) {
+		this.counted = counted;
+	}
 	
 	public String processActionAddItem(){
+		Boolean errorFound = Boolean.FALSE;
+		
 		for (String key : OTPMap.keySet()) {
 			Assignment assignment = OTPMap.get(key);
-			try {
-				if (this.categoryId != null){
-					gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
-							assignment.getPointsPossible(), assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
-				} else {
-					gradebookManager.createAssignment(this.gradebookId, assignment.getName(), assignment.getPointsPossible(), 
-							assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
+			assignment.setNotCounted(!counted);	
+			
+			//check for null name
+			if (assignment.getName() == null || assignment.getName().equals("")) {
+				messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.null_name"));
+				errorFound = Boolean.TRUE;
+			}
+			
+			//check for null points
+			if (assignment.getPointsPossible() == null) {
+				messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.null_points"));
+				errorFound = Boolean.TRUE;
+			}
+			
+			if (this.requireDueDate == null || this.requireDueDate == Boolean.FALSE) {
+				assignment.setDueDate(null);				
+			}
+				
+			if (errorFound) {
+				return FAILURE;
+			}
+			
+			if (key.equals(EntityBeanLocator.NEW_PREFIX + "1")){
+				//We have a new assignment object
+				Long id = null;
+				try {
+					if (this.categoryId != null){
+						id = gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
+								assignment.getPointsPossible(), assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
+					} else {
+						id = gradebookManager.createAssignment(this.gradebookId, assignment.getName(), assignment.getPointsPossible(), 
+								assignment.getDueDate(), assignment.isCounted(), assignment.isReleased());
+					}
+					assignment.setId(id);
+					//new UIELBinding("Assignment." + key + ".id", id);
+					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.successful",
+							new Object[] {assignment.getName() }, TargettedMessage.SEVERITY_INFO));
+				} catch (ConflictingAssignmentNameException e){
+					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.conflicting_name",
+							new Object[] {assignment.getName() }, "Assignment." + key + ".name"));
+					errorFound = Boolean.TRUE;
 				}
-				messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.successful",
-						new Object[] {assignment.getName() }, TargettedMessage.SEVERITY_INFO));
-			} catch (ConflictingAssignmentNameException e){
-				messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.conflicting_name",
-						new Object[] {assignment.getName() }, "Assignment." + key + ".name"));
+			} else {
+				//we are editing an existing object
+				try {
+					gradebookManager.updateAssignment(assignment);
+					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.successful",
+							new Object[] {assignment.getName() }, TargettedMessage.SEVERITY_INFO));
+				} catch (ConflictingAssignmentNameException e){
+					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.conflicting_name",
+							new Object[] {assignment.getName() }, "Assignment." + key + ".name"));
+					errorFound = Boolean.TRUE;
+				}
 			}
 		}
-		return ADD_ITEM;
+		if(errorFound) {
+			return FAILURE;
+		}
+		
+		return SUBMIT;
 	}
 	
 	public String processActionCancel(){

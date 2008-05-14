@@ -9,9 +9,11 @@ import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
+import org.sakaiproject.tool.gradebook.GradingScale;
 import org.sakaiproject.tool.gradebook.Permission;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -23,6 +25,7 @@ import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import java.math.BigDecimal;
 
 public class GradebookManagerOPCTest extends GradebookTestBase {
@@ -296,19 +300,6 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			Assert.assertTrue((new BigDecimal(agr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP)).doubleValue() == (0.95 * (assign.getPointsPossible())));
 		}
 
-		//test for non-graded (non-calculated) items
-		returnGradeRecords = gradebookManager.getAssignmentGradeRecords(assign, studentUids);
-		for(int i=0; i<returnGradeRecords.size(); i++)
-		{
-			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
-			agr.setNonCaculateGrade("s");
-		}
-		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords);
-		for(int i=0; i<returnGradeRecords.size(); i++)
-		{
-			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
-			Assert.assertTrue(agr.getNonCaculateGrade().equalsIgnoreCase("s"));
-		}
 	}
 
 	private List generateGradeRecords(Assignment go, int gradeRecordsToGenerate) {
@@ -675,7 +666,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign3 = gradebookManager.getAssignment(assign0long);
 
 		//test for ungraded item
-		Long assign4long = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment_ungraded", new Date(), new Boolean(false), new Boolean(true), new Double(10.0));
+		Long assign4long = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment_ungraded", new Date(), new Boolean(false), new Boolean(true));
 		Assignment assign4 = gradebookManager.getAssignment(assign4long);
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
@@ -1337,7 +1328,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
 
 		//test for ungraded item
-		Long assign4long = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment_ungraded", new Date(), new Boolean(false), new Boolean(true), new Double(10.0));
+		Long assign4long = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment_ungraded", new Date(), new Boolean(false), new Boolean(true));
 		Assignment assign4 = gradebookManager.getAssignment(assign4long);
 		
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
@@ -1430,8 +1421,6 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 	}
 	
 	public void testGetPointsEarnedCourseGradeRecordsWithStats() throws Exception {
-		try
-		{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
@@ -1441,7 +1430,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign3 = gradebookManager.getAssignment(assign0long);
 
 		//test for ungraded item
-		Long assign4long = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment-ungraded", new Date(), new Boolean(false), new Boolean(false), new Double(10.0));
+		Long assign4long = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment-ungraded", new Date(), new Boolean(false), new Boolean(false));
 		Assignment assign4 = gradebookManager.getAssignment(assign4long);
 		
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
@@ -1489,7 +1478,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		CourseGrade courseGrade = gradebookManager.getCourseGrade(persistentGradebook.getId());
 		List courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
 		Assert.assertTrue(new BigDecimal(courseGrade.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal( (1.0 / 5.0 * 0.4 + 1.0 / 10.0 * 0.6 + 2.0 / 5.0 * 0.4 + 2.0 / 10.0  * 0.6 + 3.0 / 5.0 * 0.4 + 3.0 /10.0* 0.6 + 4.0 /5.0* 0.4 + 4.0 /10.0* 0.6 + 5.0/5.0 * 0.4 + 5.0/10.0 * 0.6 ) / 5.0 * 100.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal(((1 + 2 + 3 + 4 + 5) * 0.4 / 5 / 5+ (1 + 2 + 3 + 4 + 5) * 0.6 / 10 / 5) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
 		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
@@ -1579,11 +1568,6 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		gradebookManager.updateGradebook(persistentGradebook);
 		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
 		Assert.assertTrue(courseGrade.getMean() == null);
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
 	}
 
 	public void testGetAssignmentsWithStats() throws Exception{
@@ -1941,7 +1925,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign3 = gradebookManager.getAssignment(assign0long);
 
 		//test for ungraded item
-		Long assign4long = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment_ungraded", new Date(), new Boolean(false), new Boolean(true), new Double(10.0));
+		Long assign4long = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment_ungraded", new Date(), new Boolean(false), new Boolean(true));
 		Assignment assign4 = gradebookManager.getAssignment(assign4long);
 		
 		integrationSupport.createCourse(persistentGradebook.getUid(), persistentGradebook.getUid(), false, false, false);
@@ -2370,7 +2354,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 
 		//test for ungraded item
-		Long assign4long = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment_ungraded", new Date(), new Boolean(false), new Boolean(true), new Double(10.0));
+		Long assign4long = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment_ungraded", new Date(), new Boolean(false), new Boolean(true));
 		Assignment assign4 = gradebookManager.getAssignment(assign4long);
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
@@ -2495,7 +2479,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 
 		//test for ungraded item
-		Long assign4long = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment_ungraded", new Date(), new Boolean(false), new Boolean(true), new Double(10.0));
+		Long assign4long = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment_ungraded", new Date(), new Boolean(false), new Boolean(true));
 		Assignment assign4 = gradebookManager.getAssignment(assign4long);
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
@@ -2634,7 +2618,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		gradebookManager.updateAssignment(assign);
 
 		//test for ungraded item
-		Long assign4long = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment_ungraded", new Date(), new Boolean(false), new Boolean(true), new Double(10.0));
+		Long assign4long = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment_ungraded", new Date(), new Boolean(false), new Boolean(true));
 		Assignment assign4 = gradebookManager.getAssignment(assign4long);
 
 		List gradeRecords = generateGradeRecords(assign, 5);
@@ -2737,16 +2721,18 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 	public void testCreateUngradedAssignment() throws Exception
 	{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
-		Long assignment = gradebookManager.createUngradedAssignment(persistentGradebook.getId(), "ungraded-item", new Date(), false, false, new Double(10.0));
+		Long assignment = gradebookManager.createUngradedAssignment(persistentGradebook.getId(), "ungraded-item", new Date(), false, false);
 		
+		Assert.assertTrue(gradebookManager.getAssignment(assignment).getPointsPossible() == null);
 		Assert.assertTrue(gradebookManager.getAssignment(assignment).getUngraded());
 	}
 	
 	public void testCreateUngradedAssignmentForCategory() throws Exception
 	{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
-		Long assignment = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "ungraded-item", new Date(), false, false, new Double(10.0));
+		Long assignment = gradebookManager.createUngradedAssignmentForCategory(persistentGradebook.getId(), cate1Long, "ungraded-item", new Date(), false, false);
 		
+		Assert.assertTrue(gradebookManager.getAssignment(assignment).getPointsPossible() == null);
 		Assert.assertTrue(gradebookManager.getAssignment(assignment).getUngraded());
 		Assert.assertTrue(gradebookManager.getAssignment(assignment).getCategory().getId().equals(cate1Long));
 	}
@@ -3183,6 +3169,216 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		finally
 		{
 			Assert.assertTrue(originalSize == gradebookManager.getAssignments(persistentGradebook.getId()).size());
+		}
+	}
+	
+	public void testGetFixedGrade() throws Exception
+	{
+		try
+		{
+			List uid = new ArrayList();
+			uid.add("studentId1");
+			uid.add("studentId2");
+			uid.add("studentId3");
+			uid.add("studentId4");
+			uid.add("studentId5");
+			Map studentIdMap = new HashMap();
+			studentIdMap.put("studentId1", new Double(1.0));
+			studentIdMap.put("studentId2", new Double(2.0));
+			studentIdMap.put("studentId3", new Double(3.0));
+			studentIdMap.put("studentId4", new Double(4.0));
+			studentIdMap.put("studentId5", new Double(5.0));
+
+			Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+			persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+			gradebookManager.updateGradebook(persistentGradebook);
+
+			Course courseSite = integrationSupport.createCourse(persistentGradebook.getUid(), "test site", false, true, true);
+      User student1 = userManager.createUser("studentId1", "studentId1", "studentId1-last, studentId1-first", "studentId1");
+      User student2 = userManager.createUser("studentId2", "studentId2", "studentId2-last, studentId2-first", "studentId2");
+      User student3 = userManager.createUser("studentId3", "studentId3", "studentId3-last, studentId3-first", "studentId3");
+      User student4 = userManager.createUser("studentId4", "studentId4", "studentId4-last, studentId4-first", "studentId4");
+      User student5 = userManager.createUser("studentId5", "studentId5", "studentId5-last, studentId5-first", "studentId5");
+      integrationSupport.addSiteMembership(student1.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+      integrationSupport.addSiteMembership(student2.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+      integrationSupport.addSiteMembership(student3.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+      integrationSupport.addSiteMembership(student4.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+      integrationSupport.addSiteMembership(student5.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+      
+  		userManager.createUser("instructor", null, null, null);
+  		integrationSupport.addSiteMembership("instructor", persistentGradebook.getUid(), Role.INSTRUCTOR);
+  		setAuthnId("instructor");
+      
+      gradebookManager.updateGradebook(persistentGradebook);
+
+  		Assignment assign = gradebookManager.getAssignment(assgn1Long);
+  		
+  		persistentGradebook.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+  		gradebookManager.updateGradebook(persistentGradebook);
+  		assign.setPointsPossible(new Double(5));
+  		gradebookManager.updateAssignment(assign);
+  		
+  		List gradeRecords = generateGradeRecords(assign, 5);
+
+  		//get course grade scale with +/- and change them and set it as the seleted mapping for this gradebook 
+  		Set gradeScaleSet = persistentGradebook.getGradeMappings();
+  		Iterator iter = gradeScaleSet.iterator();
+  		GradeMapping gradeMap = null;
+  		GradingScale scale;
+  		if(iter != null)
+  		{
+  			for(; iter.hasNext();) 
+  			{
+  				GradeMapping mapping = (GradeMapping)iter.next();
+  				if(mapping.getGradingScale().getUid().equalsIgnoreCase("LetterGradePlusMinusMapping"))
+  				{
+  					gradeMap = mapping;
+  					gradeMap.setGradingScale(mapping.getGradingScale());
+  					gradeScaleSet.remove(mapping);
+
+  					Map percentMap = gradeMap.getGradeMap();
+  					percentMap.put("A", new Double("97.0"));
+  					gradeMap.setGradeMap(percentMap);
+  					gradeScaleSet.add(gradeMap);
+  					persistentGradebook.setGradeMappings(gradeScaleSet);
+  					gradebookManager.updateGradebook(persistentGradebook);
+  					break;
+  				}
+  			}
+  		}
+  		
+  		Set afterChange = persistentGradebook.getGradeMappings();
+  		for(Iterator iterator = afterChange.iterator(); iterator.hasNext();)
+  		{
+				GradeMapping mapping = (GradeMapping)iterator.next();
+				//System.out.println("=======" + mapping.getGradingScale().getUid());
+				Map mm = mapping.getGradeMap();
+				for(Iterator ii = mm.keySet().iterator(); ii.hasNext();)
+				{
+					String key = (String)ii.next();
+					Double value = (Double)mm.get(key);
+					//System.out.println("-----scale::--" + key + ":::" + value);
+				}
+  		}
+  		//System.out.println("++++++current scale:" + persistentGradebook.getSelectedGradeMapping().getGradingScale().getUid());
+  		
+  		for(int i=0; i<gradeRecords.size(); i++)
+  		{
+  			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+  			agr.setLetterEarned("A");
+  		}
+  		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_LETTER);
+
+  		Map courseRecords = gradebookService.getImportCourseGrade(persistentGradebook.getUid());
+  		for(Iterator iterator = courseRecords.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)courseRecords.get(key);
+  			Assert.assertTrue(value.endsWith("A-"));
+  			//System.out.println("---------------" + key + ":::" + value);
+  		}
+  		
+  		Map courseRecordsFixed = gradebookService.getFixedGrade(persistentGradebook.getUid());
+  		for(Iterator iterator = courseRecordsFixed.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)courseRecordsFixed.get(key);
+  			Assert.assertTrue(value.endsWith("A"));
+  			//System.out.println("---------------" + key + ":::" + value);	
+  		}
+  		
+  		//test for weighted category type
+  		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+  		gradebookManager.updateGradebook(persistentGradebook);
+  		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
+  		List gradeRecords1 = generateGradeRecords(assign2, 5);
+  		for(int i=0; i<gradeRecords1.size(); i++)
+  		{
+  			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords1.get(i);
+  			agr.setLetterEarned("A");
+  		}
+  		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords1, GradebookService.GRADE_TYPE_LETTER);
+  		courseRecords = gradebookService.getImportCourseGrade(persistentGradebook.getUid());
+  		for(Iterator iterator = courseRecords.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)courseRecords.get(key);
+  			Assert.assertTrue(value.endsWith("A-"));
+  		}
+  		courseRecordsFixed = gradebookService.getFixedGrade(persistentGradebook.getUid());
+  		for(Iterator iterator = courseRecordsFixed.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)courseRecordsFixed.get(key);
+  			Assert.assertTrue(value.endsWith("A"));	
+  		}
+  		//test for weighted category and change the scale for B too:
+  		gradeScaleSet = persistentGradebook.getGradeMappings();
+  		iter = gradeScaleSet.iterator();
+  		gradeMap = null;
+  		if(iter != null)
+  		{
+  			for(; iter.hasNext();) 
+  			{
+  				GradeMapping mapping = (GradeMapping)iter.next();
+  				if(mapping.getGradingScale().getUid().equalsIgnoreCase("LetterGradePlusMinusMapping"))
+  				{
+  					gradeMap = mapping;
+  					gradeMap.setGradingScale(mapping.getGradingScale());
+  					gradeScaleSet.remove(mapping);
+
+  					Map percentMap = gradeMap.getGradeMap();
+  					percentMap.put("B", new Double("86.5"));
+  					gradeMap.setGradeMap(percentMap);
+  					gradeScaleSet.add(gradeMap);
+  					persistentGradebook.setGradeMappings(gradeScaleSet);
+  					gradebookManager.updateGradebook(persistentGradebook);
+  					break;
+  				}
+  			}
+  		}
+  		for(int i=0; i<gradeRecords1.size(); i++)
+  		{
+  			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords1.get(i);
+  			agr.setLetterEarned("B");
+  		}
+  		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords1, GradebookService.GRADE_TYPE_LETTER);
+  		courseRecords = gradebookService.getImportCourseGrade(persistentGradebook.getUid());
+  		for(Iterator iterator = courseRecords.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)courseRecords.get(key);
+  			Assert.assertTrue(value.endsWith("B+"));
+  		}
+  		courseRecordsFixed = gradebookService.getFixedGrade(persistentGradebook.getUid());
+  		for(Iterator iterator = courseRecordsFixed.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)courseRecordsFixed.get(key);
+  			Assert.assertTrue(value.endsWith("A-"));
+  		}
+  		
+  		Map pointMap = gradebookService.getOldPoint(persistentGradebook.getUid());
+  		for(Iterator iterator = pointMap.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)pointMap.get(key);
+  			//System.out.println("+++++++++++" + key + ":::" + value);
+  			Assert.assertTrue(new BigDecimal(new Double(value).toString(), GradebookService.MATH_CONTEXT).equals(new BigDecimal("87.8", GradebookService.MATH_CONTEXT)));
+  		}
+  		pointMap = gradebookService.getFixedPoint(persistentGradebook.getUid());
+  		for(Iterator iterator = pointMap.keySet().iterator(); iterator.hasNext();)
+  		{
+  			String key = (String)iterator.next();
+  			String value= (String)pointMap.get(key);
+  			//System.out.println("+++++++++++" + key + ":::" + value);
+  			Assert.assertTrue(new BigDecimal(new Double(value).toString(), GradebookService.MATH_CONTEXT).equals(new BigDecimal("90.7", GradebookService.MATH_CONTEXT)));
+  		}
+
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
 		}
 	}
 }

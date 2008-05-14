@@ -96,7 +96,7 @@ function addItemScreen()
 
 	var trEls = document.getElementsByClassName("hide");
 	trEls[0].className = "show" + trEls[0].className.substring(4);
-	trEls[0].style.display = "block";
+	trEls[0].style.display = "";
 
 	// set hiddenAdd property to TRUE so if submitted and an
 	// error, this will be displayed
@@ -107,9 +107,11 @@ function addItemScreen()
 	if (numBulkItems == 1) {
 		addDelX();
 	}
-	
+
 	if (numBulkItems == MAX_NEW_ITEMS - 1)
 		$("gbForm:addSecond").style.display = "none";
+
+	setMainFrameHeight(thisId, 'shrink');
 }
 
 //*********************************************************************
@@ -142,7 +144,7 @@ function addMultipleItems(itemSelect)
 		}
 		
 		// since DOM changed, resize
-		setMainFrameHeightNow(thisId, 'grow');
+		setMainFrameHeight(thisId, 'grow');
 
 		itemSelect.selectedIndex = 0;
 	}
@@ -227,6 +229,28 @@ function copyPanes(rowIndex1, rowIndex2, idPrefix) {
 	else { 
 		curEl1.style.display = 'none';
 	}
+
+	// Added per SAK-13459
+	curEl1 = getEl(idPrefix + rowIndex1 + ':invalidPtsErrMsg');
+	if (!curEl1) curEl1 = getEl(idPrefix + rowIndex1 + ':invalidPtsErrMsgH');
+	curEl2 = getEl(idPrefix + rowIndex2 + ':invalidPtsErrMsg');
+	if (curEl2) {
+		curEl1.style.display = 'inline';
+	}
+	else { 
+		curEl1.style.display = 'none';
+	}
+
+	// Added per SAK-13459
+	curEl1 = getEl(idPrefix + rowIndex1 + ':precisionPtsErrMsg');
+	if (!curEl1) curEl1 = getEl(idPrefix + rowIndex1 + ':precisionPtsErrMsgH');
+	curEl2 = getEl(idPrefix + rowIndex2 + ':precisionPtsErrMsg');
+	if (curEl2) {
+		curEl1.style.display = 'inline';
+	}
+	else { 
+		curEl1.style.display = 'none';
+	}
 }
 
 //*********************************************************************
@@ -251,9 +275,11 @@ function eraseAndHide(idPrefix, rowIndex) {
 	
 	curEl = getEl(idPrefix + ':released');
 	curEl.value = true;
+	curEl.checked = true;
 	
 	curEl = getEl(idPrefix + ':countAssignment');
 	curEl.value = true;
+	curEl.checked = true;
 	
 	curEl = getEl(idPrefix + ':hiddenAdd');
 	curEl.value = 'false';
@@ -266,16 +292,20 @@ function eraseAndHide(idPrefix, rowIndex) {
 	// for each textbox there can only be at most one
 	// error message so once found we can skip the rest
 	curEl = getEl(idPrefix + ':noTitleErrMsg');
-	if (!curEl) curEl = getEl(idPrefix + ':noTitleErrMsgH');
-	if (!curEl) curEl = getEl(idPrefix + ':dupTitleErrMsg');
-	if (!curEl) curEl = getEl(idPrefix + ':dupTitleErrMsgH');
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':noTitleErrMsgH');
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':dupTitleErrMsg');
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':dupTitleErrMsgH');
 	
 	if (curEl) curEl.style.display = 'none';
 	
 	curEl = getEl(idPrefix + ':blankPtsErrMsg');
-	if (!curEl) curEl = getEl(idPrefix + ':blankPtsErrMsgH');
-	if (!curEl) curEl = getEl(idPrefix + ':nanPtsErrMsg');
-	if (!curEl) curEl = getEl(idPrefix + ':nanPtsErrMsgH');
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':blankPtsErrMsgH');
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':nanPtsErrMsg');
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':nanPtsErrMsgH');
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':invalidPtsErrMsg');  // Added per SAK-13459
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':invalidPtsErrMsgH'); // Added per SAK-13459
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':precisionPtsErrMsg');  // Added per SAK-13459
+	if (!curEl || (curEl.className.indexOf('errHide') != -1)) curEl = getEl(idPrefix + ':precisionPtsErrMsgH'); // Added per SAK-13459
 	if (curEl) curEl.style.display = 'none';
 
 	// Get the enclosing tr for the enclosing table this pane is nested inside of
@@ -285,9 +315,7 @@ function eraseAndHide(idPrefix, rowIndex) {
 	var element = document.getElementById(tbodyPrefix + ':tbody_element').rows[rowIndex];
   	element.className = "hide" + element.className.substring(4);
    	element.style.display = "none";
-   	
-	setMainFrameHeightNow(thisId, 'shrink');
-}
+ }
 
 //*********************************************************************
 // removeItem
@@ -299,7 +327,6 @@ function eraseAndHide(idPrefix, rowIndex) {
 function removeItem(event, idPrefix, rowIndex) {
 	var element = Event.element(event);
 	var numBulkItems = getNumTotalItem();
-	var candidatePaneEl = element;
 	
     for (i = rowIndex; i < (MAX_NEW_ITEMS-1); i++) {
     	if (getEl(idPrefix + (i+1) + ':hiddenAdd').value == "false") {
@@ -319,12 +346,12 @@ function removeItem(event, idPrefix, rowIndex) {
 		// there will only be one item
 		var firstDelEl = document.getElementsByClassName('firstDel');
 		firstDelEl[0].className = "hideRemove" + firstDelEl[0].className.substring(8);
-		firstDelEl[0].style.display='none';		
-	}
-	
-    adjustNumBulkItems(-1);
+		firstDelEl[0].style.display='none';	
 
-	setMainFrameHeightNow(thisId, 'shrink');
+	}
+
+    adjustNumBulkItems(-1);
+	setMainFrameHeight(thisId, 'shrink');
 }
 
 //*********************************************************************

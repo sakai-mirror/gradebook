@@ -49,6 +49,7 @@ import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeMapping;
@@ -214,6 +215,14 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 			setString(1, gradebookUid).
 			uniqueResult();
 	}
+	
+	protected Assignment getAssignmentWithoutStats(String gradebookUid, Long assignmentId, Session session) throws HibernateException {
+		return (Assignment)session.createQuery(
+			"from Assignment as asn where asn.id=? and asn.gradebook.uid=? and asn.removed=false").
+			setLong(0, assignmentId).
+			setString(1, gradebookUid).
+			uniqueResult();
+	}
 
 	protected void updateAssignment(Assignment assignment, Session session)
 		throws ConflictingAssignmentNameException, HibernateException {
@@ -259,7 +268,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
                    Assignment asn = new Assignment();
                    asn.setGradebook(gb);
-                   asn.setName(name);
+                   asn.setName(name.trim());
                    asn.setPointsPossible(points);
                    asn.setDueDate(dueDate);
              			 asn.setUngraded(false);
@@ -471,7 +480,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
     			asn.setCategory(cat);
-    			asn.setName(name);
+    			asn.setName(name.trim());
     			asn.setPointsPossible(points);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(false);
@@ -844,7 +853,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     }
     
     public Long createUngradedAssignment(final Long gradebookId, final String name, 
-    		final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Double points)
+    		final Date dueDate, final Boolean isNotCounted, final Boolean isReleased)
     throws ConflictingAssignmentNameException, StaleObjectModificationException
     {
     	HibernateCallback hc = new HibernateCallback() {
@@ -861,10 +870,9 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
-    			asn.setName(name);
+    			asn.setName(name.trim());
     			asn.setDueDate(dueDate);
     			asn.setUngraded(true);
-    			asn.setPointsPossible(points);
     			if (isNotCounted != null) {
     				asn.setNotCounted(isNotCounted.booleanValue());
     			}
@@ -882,7 +890,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     }
 
     public Long createUngradedAssignmentForCategory(final Long gradebookId, final Long categoryId, 
-    		final String name, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Double points)
+    		final String name, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased)
     throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException
     {
     	if(gradebookId == null || categoryId == null)
@@ -906,10 +914,9 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
     			asn.setCategory(cat);
-    			asn.setName(name);
+    			asn.setName(name.trim());
     			asn.setDueDate(dueDate);
     			asn.setUngraded(true);
-    			asn.setPointsPossible(points);
     			if (isNotCounted != null) {
     				asn.setNotCounted(isNotCounted.booleanValue());
     			}
@@ -1297,5 +1304,45 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     		}
     	}
     	return letterGradeList;
+    }
+    
+    protected Double calculateEquivalentPointValueForPercent(Double doublePointsPossible, Double doublePercentEarned) {
+    	if (doublePointsPossible == null || doublePercentEarned == null)
+    		return null;
+    	
+    	BigDecimal pointsPossible = new BigDecimal(doublePointsPossible.toString());
+		BigDecimal percentEarned = new BigDecimal(doublePercentEarned.toString());
+		BigDecimal equivPoints = pointsPossible.multiply(percentEarned.divide(new BigDecimal("100"), GradebookService.MATH_CONTEXT));
+		return new Double(equivPoints.doubleValue());
+    }
+    
+    public List getComments(final Assignment assignment, final Collection studentIds) {
+    	if (studentIds.isEmpty()) {
+    		return new ArrayList();
+    	}
+        return (List)getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+            	List comments;
+            	if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+            		Query q = session.createQuery(
+            			"from Comment as c where c.gradableObject=:go and c.studentId in (:studentIds)");
+                    q.setParameter("go", assignment);
+                    q.setParameterList("studentIds", studentIds);
+                    comments = q.list();
+            	} else {
+            		comments = new ArrayList();
+            		Query q = session.createQuery("from Comment as c where c.gradableObject=:go");
+            		q.setParameter("go", assignment);
+            		List allComments = q.list();
+            		for (Iterator iter = allComments.iterator(); iter.hasNext(); ) {
+            			Comment comment = (Comment)iter.next();
+            			if (studentIds.contains(comment.getStudentId())) {
+            				comments.add(comment);
+            			}
+            		}
+            	}
+                return comments;
+            }
+        });
     }
 }

@@ -69,7 +69,8 @@
 					</h:panelGroup>  
 				</h:panelGroup>
 	<%-- Commented out for non-graded rollback && item.ungraded == 'normal' --%>
-				<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained}"/>
+				<h:outputLabel for="points" id="pointsLabel1" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type == 1}"/>
+				<h:outputLabel for="points" id="pointsLabel2" value="#{msgs.add_assignment_relative_weight}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 1}"/>
 				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
 					<h:inputText id="points" value="#{item.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 					</h:inputText>
@@ -81,6 +82,15 @@
 									rendered="#{item.bulkNoPointsError == 'NaN'}" />
 					<h:outputText id="nanPtsErrMsgH" value="#{msgs.add_assignment_nan_points}" styleClass="alertMessageInline errHide"
 									rendered="#{item.bulkNoPointsError != 'NaN'}" />
+					<%-- Added per SAK-13459 --%>
+					<h:outputText id="invalidPtsErrMsg" value="#{msgs.add_assignment_invalid_points}" styleClass="alertMessageInline"
+									rendered="#{item.bulkNoPointsError == 'invalid'}" />
+					<h:outputText id="invalidPtsErrMsgH" value="#{msgs.add_assignment_invalid_points}" styleClass="alertMessageInline errHide"
+									rendered="#{item.bulkNoPointsError != 'invalid'}" />
+					<h:outputText id="precisionPtsErrMsg" value="#{msgs.add_assignment_invalid_precision_points}" styleClass="alertMessageInline"
+									rendered="#{item.bulkNoPointsError == 'precision'}" />
+					<h:outputText id="precisionPtsErrMsgH" value="#{msgs.add_assignment_invalid_precision_points}" styleClass="alertMessageInline errHide"
+									rendered="#{item.bulkNoPointsError != 'precision'}" />
 				</h:panelGroup>
 			  </h:panelGrid>
 

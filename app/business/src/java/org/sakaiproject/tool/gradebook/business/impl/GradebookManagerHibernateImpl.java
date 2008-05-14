@@ -484,6 +484,50 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	return (List)getHibernateTemplate().execute(hc);
     }
 
+    public AssignmentGradeRecord getAssignmentGradeRecordById(Long id) {
+    	AssignmentGradeRecord agr = (AssignmentGradeRecord)getHibernateTemplate().load(AssignmentGradeRecord.class, id);
+    	AssignmentGradeRecord agrCalculated = new AssignmentGradeRecord();
+    	if (agr != null){
+    		List assignRecordsFromDB = new ArrayList();
+    		assignRecordsFromDB.add(agr);
+    		List agrs = this.convertPointsToLetterGrade(agr.getAssignment(), agr.getAssignment().getGradebook(), assignRecordsFromDB);
+    		agrs = this.convertPointsToPercentage(agr.getAssignment(), agr.getAssignment().getGradebook(), agrs);
+    		if (agrs.get(0) != null){
+    			agrCalculated = (AssignmentGradeRecord)agrs.get(0);
+    		}
+    	}
+    	return agrCalculated;
+    }
+    
+    public Comment getCommentById(Long id) {
+    	return (Comment) getHibernateTemplate().load(Comment.class, id);
+    }
+    
+    public AssignmentGradeRecord getAssignmentGradeRecordForAssignmentForStudent(final Assignment assignment, final String studentUid) {
+	    HibernateCallback hc = new HibernateCallback() {
+	        public Object doInHibernate(Session session) throws HibernateException {
+	            if(studentUid == null) {
+	                if(log.isInfoEnabled()) log.info("Returning no grade records for a null student UID");
+	                return new ArrayList();
+	            } else if (assignment.isRemoved()) {
+	                return new ArrayList();                	
+	            }
+	
+	            Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.id=:gradableObjectId " +
+	            		"and agr.studentId=:student");
+	            q.setLong("gradableObjectId", assignment.getId().longValue());
+	            q.setString("student", studentUid);
+	            return q.list();
+	        }
+	    };
+	    List results = (List) getHibernateTemplate().execute(hc);
+	    if (results.size() > 0){
+	    	return (AssignmentGradeRecord)results.get(0);
+	    } else {
+	    	return new AssignmentGradeRecord();
+	    }
+	}
+    
     /**
      */
     public List getAllAssignmentGradeRecords(final Long gradebookId, final Collection studentUids) {
@@ -508,7 +552,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     {
     	List allAssignRecordsFromDB = getAllAssignmentGradeRecords(gradebookId, studentUids);
     	Gradebook gradebook = getGradebook(gradebookId);
-    	if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS || gradebook.getGrade_type() == GradebookService.GRADE_TYPE_NO_CALCULATED)
+    	if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS)
     		return allAssignRecordsFromDB;
     	else if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
     	{
@@ -991,7 +1035,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     public List getStudentGradeRecordsConverted(final Long gradebookId, final String studentId) {
     	List studentGradeRecsFromDB = getStudentGradeRecords(gradebookId, studentId);
     	Gradebook gradebook = getGradebook(gradebookId);
-    	if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS || gradebook.getGrade_type() == GradebookService.GRADE_TYPE_NO_CALCULATED)
+    	if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS)
     		return studentGradeRecsFromDB;
     	else if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
     	{
@@ -1027,7 +1071,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	double totalPointsEarned = 0;
     	double literalTotalPointsEarned = 0;
     	Iterator scoresIter = session.createQuery(
-    			"select agr.pointsEarned, asn from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.pointsPossible > 0 and asn.ungraded=false").
+    			"select agr.pointsEarned, asn from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.pointsPossible > 0").
     			setParameter("student", studentId).
     			setParameter("gbid", gradebookId).
     			list().iterator();
@@ -1945,37 +1989,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         return spreadsheets;
     }
 
-    public List getComments(final Assignment assignment, final Collection studentIds) {
-    	if (studentIds.isEmpty()) {
-    		return new ArrayList();
-    	}
-        return (List)getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-            	List comments;
-            	if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
-            		Query q = session.createQuery(
-            			"from Comment as c where c.gradableObject=:go and c.studentId in (:studentIds)");
-                    q.setParameter("go", assignment);
-                    q.setParameterList("studentIds", studentIds);
-                    comments = q.list();
-            	} else {
-            		comments = new ArrayList();
-            		Query q = session.createQuery("from Comment as c where c.gradableObject=:go");
-            		q.setParameter("go", assignment);
-            		List allComments = q.list();
-            		for (Iterator iter = allComments.iterator(); iter.hasNext(); ) {
-            			Comment comment = (Comment)iter.next();
-            			if (studentIds.contains(comment.getStudentId())) {
-            				comments.add(comment);
-            			}
-            		}
-            	}
-                return comments;
-            }
-        });
-    }
-
-
     public List getStudentAssignmentComments(final String studentId, final Long gradebookId) {
         return (List)getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
@@ -2017,7 +2030,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     
     public Set updateAssignmentGradeRecords(Assignment assignment, Collection gradeRecords, int grade_type)
     {
-    	if(grade_type == GradebookService.GRADE_TYPE_POINTS || grade_type == GradebookService.GRADE_TYPE_NO_CALCULATED)
+    	if(grade_type == GradebookService.GRADE_TYPE_POINTS)
     		return updateAssignmentGradeRecords(assignment, gradeRecords);
     	else if(grade_type == GradebookService.GRADE_TYPE_PERCENTAGE)
     	{
@@ -2075,7 +2088,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
      */
     public Set updateStudentGradeRecords(Collection gradeRecords, int grade_type, String studentId)
     {
-    	if(grade_type == GradebookService.GRADE_TYPE_POINTS || grade_type == GradebookService.GRADE_TYPE_NO_CALCULATED)
+    	if(grade_type == GradebookService.GRADE_TYPE_POINTS)
     		return updateStudentGradeRecords(gradeRecords, studentId);
     	else if(grade_type == GradebookService.GRADE_TYPE_PERCENTAGE)
     	{
@@ -2137,16 +2150,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		return null;
     }
     
-    private Double calculateEquivalentPointValueForPercent(Double doublePointsPossible, Double doublePercentEarned) {
-    	if (doublePointsPossible == null || doublePercentEarned == null)
-    		return null;
-    	
-    	BigDecimal pointsPossible = new BigDecimal(doublePointsPossible.toString());
-		BigDecimal percentEarned = new BigDecimal(doublePercentEarned.toString());
-		BigDecimal equivPoints = pointsPossible.multiply(percentEarned.divide(new BigDecimal("100"), GradebookService.MATH_CONTEXT));
-		return new Double(equivPoints.doubleValue());
-    }
-    
     private Double calculateDoublePointForLetterGradeRecord(AssignmentGradeRecord gradeRecordFromCall)
     {
     	Assignment assign = getAssignment(gradeRecordFromCall.getAssignment().getId()); 
@@ -2199,8 +2202,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     {
     	List assignRecordsFromDB = getAssignmentGradeRecords(assignment, studentUids);
     	Gradebook gradebook = getGradebook(assignment.getGradebook().getId());
-    	if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS || gradebook.getGrade_type() == GradebookService.GRADE_TYPE_NO_CALCULATED
-    			|| assignment.getUngraded())
+    	if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS)
     		return assignRecordsFromDB;
     	else if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
     	{
@@ -2217,7 +2219,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     {
     	Double pointPossible = assignment.getPointsPossible();
     	List percentageList = new ArrayList();
-    	if(pointPossible != null && pointPossible.doubleValue() > 0)
+    	if(pointPossible.doubleValue() > 0)
     	{
 
     		for(int i=0; i<assignRecordsFromDB.size(); i++)
@@ -2243,7 +2245,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     private List convertPointsToLetterGrade(Assignment assignment, Gradebook gradebook, List assignRecordsFromDB)
     {
     	Double pointPossible = assignment.getPointsPossible();
-    	if(pointPossible != null && pointPossible.doubleValue() > 0)
+    	if(pointPossible.doubleValue() > 0)
     	{
     		List letterGradeList = new ArrayList();
     		LetterGradePercentMapping lgpm = getLetterGradePercentMapping(assignment.getGradebook());
@@ -2267,6 +2269,20 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		return letterGradeList;
     	}
     	return null;
+    }
+    
+    public Double calculateEquivalentPercent(Double doublePointsPossible, Double doublePointsEarned) {
+ 	
+    	if (doublePointsEarned == null || doublePointsPossible == null)
+    		return null;
+    	
+    	// scale to handle points stored as repeating decimals
+    	BigDecimal pointsEarned = new BigDecimal(doublePointsEarned.toString());
+    	BigDecimal pointsPossible = new BigDecimal(doublePointsPossible.toString());
+
+    	BigDecimal equivPercent = pointsEarned.divide(pointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
+    	return new Double(equivPercent.doubleValue());
+    	
     }
     
     public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending) {
@@ -2627,7 +2643,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
-    			asn.setName(name);
+    			asn.setName(name.trim());
     			asn.setPointsPossible(points);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(false);
@@ -2679,7 +2695,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
     			asn.setCategory(cat);
-    			asn.setName(name);
+    			asn.setName(name.trim());
     			asn.setPointsPossible(points);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(false);
@@ -2720,20 +2736,12 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		for(Iterator iter = assignList.iterator(); iter.hasNext();)
     		{
     			Assignment assign = (Assignment) iter.next();
-    			if(assign.getCategory() != null)
+    			if(assign.getCategory() == null)
     			{
-					if(!assign.getUngraded())
-						assignIds.add(createAssignmentForCategory(gradebookId, assign.getCategory().getId(), assign.getName(), assign.getPointsPossible(), assign.getDueDate(), new Boolean(assign.isNotCounted()),new Boolean(assign.isReleased())));
-					else
-						assignIds.add(createUngradedAssignmentForCategory(gradebookId,  assign.getCategory().getId(), assign.getName(), assign.getDueDate(), new Boolean(assign.isNotCounted()),new Boolean(assign.isReleased()), assign.getPointsPossible()));
+    				assignIds.add(createAssignment(gradebookId, assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isNotCounted(), assign.isReleased()));
     			}
     			else
-				{
-					if(!assign.getUngraded())
-						assignIds.add(createAssignment(gradebookId,  assign.getName(), assign.getPointsPossible(), assign.getDueDate(), new Boolean(assign.isNotCounted()),new Boolean(assign.isReleased())));
-					else
-						assignIds.add(createUngradedAssignment(gradebookId, assign.getName(), assign.getDueDate(), new Boolean(assign.isNotCounted()), new Boolean(assign.isReleased()), assign.getPointsPossible()));
-				}
+    				assignIds.add(createAssignmentForCategory(gradebookId, assign.getCategory().getId(), assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isNotCounted(), assign.isReleased()));
     		}
     	}
     	catch(Exception e)
@@ -2746,7 +2754,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		throw new MultipleAssignmentSavingException("Errors occur while trying to saving multiple assignment items in createAssignments -- " + e.getMessage());
     	}
     }
-	
+    
     public boolean checkValidName(final Long gradebookId, final Assignment assignment)
     {
     	HibernateCallback hc = new HibernateCallback() {
@@ -2770,104 +2778,6 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		return true;
     }
 	
-	/** synchronize from external application - override createUngradedAssignment method in BaseHibernateManager.*/
-	public Long createUngradedAssignment(final Long gradebookId, final String name, 
-    		final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Double points)
-    throws ConflictingAssignmentNameException, StaleObjectModificationException
-    {
-    	HibernateCallback hc = new HibernateCallback() {
-    		public Object doInHibernate(Session session) throws HibernateException {
-    			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-    			int numNameConflicts = ((Long)session.createQuery(
-    			"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
-    			setString(0, name).
-    			setEntity(1, gb).
-    			uniqueResult()).intValue();
-    			if(numNameConflicts > 0) {
-    				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
-    			}
-
-    			Assignment asn = new Assignment();
-    			asn.setGradebook(gb);
-    			asn.setName(name);
-    			asn.setDueDate(dueDate);
-    			asn.setUngraded(true);
-    			asn.setPointsPossible(points);
-    			if (isNotCounted != null) {
-    				asn.setNotCounted(isNotCounted.booleanValue());
-    			}
-
-    			if(isReleased!=null){
-    				asn.setReleased(isReleased.booleanValue());
-    			}
-				
-    			/** synchronize from external application */
-    			if (synchronizer != null && !synchronizer.isProjectSite())
-    			{
-    				synchronizer.addLegacyAssignment(name);
-    			}
-				  
-    			Long id = (Long)session.save(asn);
-
-    			return id;
-    		}
-    	};
-    	return (Long)getHibernateTemplate().execute(hc);
-    }
-	
-    /** synchronize from external application - override createUngradedAssignmentForCategory method in BaseHibernateManager.*/
-	public Long createUngradedAssignmentForCategory(final Long gradebookId, final Long categoryId, 
-    		final String name, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Double points)
-    throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException
-    {
-    	if(gradebookId == null || categoryId == null)
-    	{
-    		throw new IllegalArgumentException("gradebookId or categoryId is null in GradebookManagerHivernateImpl.createUngradedAssignmentForCategory");
-    	}
-
-    	HibernateCallback hc = new HibernateCallback() {
-    		public Object doInHibernate(Session session) throws HibernateException {
-    			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-    			Category cat = (Category)session.load(Category.class, categoryId);
-    			int numNameConflicts = ((Long)session.createQuery(
-    			"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
-    			setString(0, name).
-    			setEntity(1, gb).
-    			uniqueResult()).intValue();
-    			if(numNameConflicts > 0) {
-    				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
-    			}
-
-    			Assignment asn = new Assignment();
-    			asn.setGradebook(gb);
-    			asn.setCategory(cat);
-    			asn.setName(name);
-    			asn.setDueDate(dueDate);
-    			asn.setUngraded(true);
-    			asn.setPointsPossible(points);
-    			if (isNotCounted != null) {
-    				asn.setNotCounted(isNotCounted.booleanValue());
-    			}
-
-    			if(isReleased!=null){
-    				asn.setReleased(isReleased.booleanValue());
-    			}
-
-    			/** synchronize from external application */
-    			if (synchronizer != null && !synchronizer.isProjectSite())
-    			{
-    				synchronizer.addLegacyAssignment(name);
-    			}
-				
-    			Long id = (Long)session.save(asn);
-
-    			return id;
-    		}
-    	};
-
-    	return (Long)getHibernateTemplate().execute(hc);
-    }
-	
 	private void logAssignmentGradingEvent(AssignmentGradeRecord gradeRecord, String graderId, Assignment assignment, Session session) {
 		if (gradeRecord == null || assignment == null) {
 			throw new IllegalArgumentException("null gradeRecord or assignment passed to logAssignmentGradingEvent");
@@ -2877,9 +2787,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 		// we need to log what the user entered depending on the grade entry type
 		Gradebook gradebook = assignment.getGradebook();
 		String gradeEntry = null;
-		if (assignment.getUngraded()) {
-			gradeEntry = gradeRecord.getNonCaculateGrade();
-		} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
+		if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
 			gradeEntry = gradeRecord.getLetterEarned();
 		} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
 			if (gradeRecord.getPercentEarned() != null)

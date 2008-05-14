@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
@@ -37,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.Permission;
@@ -44,6 +46,7 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 public class GradebookSetupBean extends GradebookDependentBean implements Serializable
 {
@@ -61,12 +64,13 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private List letterGradesList;
 	private LetterGradePercentMapping lgpm;
 	private LetterGradePercentMapping defaultLGPM;
-
+	private boolean enableLetterGrade = false;
+  private boolean isValidWithCourseGrade = true;
+	
 	private static final int NUM_EXTRA_CAT_ENTRIES = 50;
 	private static final String ENTRY_OPT_POINTS = "points";
 	private static final String ENTRY_OPT_PERCENT = "percent";
 	private static final String ENTRY_OPT_LETTER = "letterGrade";
-	private static final String ENTRY_OPT_NON_CAL = "nonGraded";
 	private static final String CATEGORY_OPT_NONE = "noCategories";
 	private static final String CATEGORY_OPT_CAT_ONLY = "onlyCategories";
 	private static final String CATEGORY_OPT_CAT_AND_WEIGHT = "categoriesAndWeighting";
@@ -118,6 +122,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		categories = null;
 		categorySetting = null;
 		gradeEntryMethod = null;
+		isValidWithCourseGrade = true;
 	}
 
 	public Gradebook getLocalGradebook()
@@ -183,11 +188,18 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	public String processSaveGradebookSetup()
 	{
 		if (gradeEntryMethod == null || (!gradeEntryMethod.equals(ENTRY_OPT_POINTS) && 
-				!gradeEntryMethod.equals(ENTRY_OPT_PERCENT) && !gradeEntryMethod.equals(ENTRY_OPT_LETTER) && !gradeEntryMethod.equals(ENTRY_OPT_NON_CAL)))
+				!gradeEntryMethod.equals(ENTRY_OPT_PERCENT) && !gradeEntryMethod.equals(ENTRY_OPT_LETTER)))
 		{
 			FacesUtil.addErrorMessage(getLocalizedString("grade_entry_invalid"));
 			return "failure";
 		}
+    if(!isConflictWithCourseGrade())
+    {
+    	isValidWithCourseGrade = false;
+    	return null;
+    }
+    else
+    	isValidWithCourseGrade = true;
 
 		if (gradeEntryMethod.equals(ENTRY_OPT_PERCENT))
 		{
@@ -196,10 +208,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		else if (gradeEntryMethod.equals(ENTRY_OPT_LETTER))
 		{
 			localGradebook.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
-		}
-		else if (gradeEntryMethod.equals(ENTRY_OPT_NON_CAL))
-		{
-			localGradebook.setGrade_type(GradebookService.GRADE_TYPE_NO_CALCULATED);
 		}
 		else
 		{
@@ -600,8 +608,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			gradeEntryMethod = ENTRY_OPT_PERCENT;
 		else if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER)
 			gradeEntryMethod = ENTRY_OPT_LETTER;
-		else if (gradeEntryType == GradebookService.GRADE_TYPE_NO_CALCULATED)
-			gradeEntryMethod = ENTRY_OPT_NON_CAL;
 		else
 			gradeEntryMethod = ENTRY_OPT_POINTS;
 
@@ -624,7 +630,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	{
 		double total = 0;
 
-		if (categories != null || categories.size() > 0)
+		if (categories != null && categories.size() > 0)
 		{
 			Iterator catIter = categories.iterator();
 			while (catIter.hasNext())
@@ -726,6 +732,66 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
     	public boolean isEditable() {
 			return editable;
 		}
+	}
+
+	public boolean getEnableLetterGrade()
+	{
+		enableLetterGrade = ServerConfigurationService.getBoolean(GradebookService.enableLetterGradeString, false);
+		return enableLetterGrade;
+	}
+
+	public void setEnableLetterGrade(boolean enableLetterGrade)
+	{
+		this.enableLetterGrade = enableLetterGrade;
+	}
+
+	public boolean getIsValidWithCourseGrade()
+	{
+		return isValidWithCourseGrade;
+	}
+
+	public void setIsValidWithCourseGrade(boolean isValidWithCourseGrade)
+	{
+		this.isValidWithCourseGrade = isValidWithCourseGrade;
+	}
+	
+	public boolean isConflictWithCourseGrade()
+	{
+		Gradebook gb = getGradebookManager().getGradebookWithGradeMappings(getGradebookManager().getGradebook(localGradebook.getUid()).getId());
+		if (gradeEntryMethod.equals(ENTRY_OPT_LETTER))
+		{
+			if((gb.getSelectedGradeMapping().getGradingScale() != null && gb.getSelectedGradeMapping().getGradingScale().getUid().equals("LetterGradeMapping"))
+					|| (gb.getSelectedGradeMapping().getGradingScale() == null && gb.getSelectedGradeMapping().getName().equals("Letter Grades")))
+			{
+				return false;
+			}
+			Set mappings = gb.getGradeMappings();
+			for(Iterator iter = mappings.iterator(); iter.hasNext();)
+			{
+				GradeMapping gm = (GradeMapping) iter.next();
+				
+				if(gm != null)
+				{
+					if((gm.getGradingScale() != null && (gm.getGradingScale().getUid().equals("LetterGradeMapping") || gm.getGradingScale().getUid().equals("LetterGradePlusMinusMapping")))
+							|| (gm.getGradingScale() == null && (gb.getSelectedGradeMapping().getName().equals("Letter Grades") || gb.getSelectedGradeMapping().getName().equals("Letter Grades with +/-"))))
+					{
+						Map defaultMapping = gm.getDefaultBottomPercents();
+						for (Iterator gradeIter = gm.getGrades().iterator(); gradeIter.hasNext(); ) 
+						{
+							String grade = (String)gradeIter.next();
+							Double percentage = (Double)gm.getValue(grade);
+							Double defautPercentage = (Double)defaultMapping.get(grade);
+							if (percentage != null && !percentage.equals(defautPercentage)) 
+							{
+								return false;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return true;
 	}
 
 }

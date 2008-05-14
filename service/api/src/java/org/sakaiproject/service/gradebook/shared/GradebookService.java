@@ -48,7 +48,6 @@ public interface GradebookService {
 	public static final int GRADE_TYPE_POINTS = 1;
 	public static final int GRADE_TYPE_PERCENTAGE = 2;
 	public static final int GRADE_TYPE_LETTER = 3;
-	public static final int GRADE_TYPE_NO_CALCULATED = 4;
 	
 	public static final int CATEGORY_TYPE_NO_CATEGORY = 1;
 	public static final int CATEGORY_TYPE_ONLY_CATEGORY = 2;
@@ -59,6 +58,8 @@ public interface GradebookService {
 	
 	public static final String gradePermission = "grade";
 	public static final String viewPermission = "view";
+	
+	public static final String enableLetterGradeString = "gradebook_enable_letter_grade";
 	
 	public static final MathContext MATH_CONTEXT = new MathContext(10, RoundingMode.HALF_DOWN);
 	
@@ -184,32 +185,45 @@ public interface GradebookService {
 	 */
 	public Assignment getAssignment(String gradebookUid, String assignmentName) 
 		throws GradebookNotFoundException;
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param gbItemId
+	 * @return the associated Assignment with the given gbItemId
+	 * @throws AssessmentNotFoundException
+	 */
+	public Assignment getAssignment(String gradebookUid, Long gbItemId)
+		throws AssessmentNotFoundException;
 
 	/**
-	 * Besides the declared exceptions, possible runtime exceptions include:
-	 * <ul>
-	 * <li> SecurityException - If the current user is not authorized to view
-	 * the student's score
-	 * </ul>
-	 * 
-	 * @return Returns the current score for the student, or null if no score
-	 *         has been assigned yet.
+	 * @deprecated Replaced by
+	 *             {@link getAssignmentScoreString(String, String, String)}
 	 */
 	public Double getAssignmentScore(String gradebookUid,
 			String assignmentName, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 	
 	/**
-	 * Besides the declared exceptions, possible runtime exceptions include:
-	 * <ul>
-	 * <li> SecurityException - If the current user is not authorized to view
-	 * the student's score
-	 * </ul>
-	 * 
-	 * @return Returns the current score for the student, or null if no score
-	 *         has been assigned yet.
+	 * @deprecated Replaced by
+	 *             {@link getAssignmentScoreString(String, Long, String)}
 	 */
 	public Double getAssignmentScore(String gradebookUid, 
+			Long gbItemId, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param gbItemId
+	 * @param studentUid
+	 * @return Returns a GradeDefinition for the student, respecting the grade 
+	 * entry type for the gradebook (ie in %, letter grade, or points format).
+	 * Returns null if no grade
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 */
+	public GradeDefinition getGradeDefinitionForStudentForItem(String gradebookUid,
 			Long gbItemId, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
@@ -244,17 +258,10 @@ public interface GradebookService {
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
-	 * Besides the declared exceptions, possible runtime exceptions include:
-	 * <ul>
-	 * <li> SecurityException - If the current user is not authorized to grade
-	 * the student, or if the assignment is externally maintained.
-	 * <li> StaleObjectModificationException - If the student's scores have been
-	 * edited by someone else during this transaction.
-	 * </ul>
 	 * 
-	 * @param clientServiceDescription
-	 *            What to display as the programmatic source of the score (e.g.,
-	 *            "Message Center").
+	 * @deprecated Replaced by
+	 *		{@link setAssignmentScoreString(String, String, String, String, String)}
+	 *
 	 */
 	public void setAssignmentScore(String gradebookUid, String assignmentName,
 			String studentUid, Double score, String clientServiceDescription)
@@ -378,10 +385,12 @@ public interface GradebookService {
 	 * @param gradebookUid
 	 * @return list of gb items that the current user is authorized to view.
 	 * If user has gradeAll permission, returns all gb items.
-	 * If user has gradeSection or viewOwnGrades perm with no grader permissions,
-	 * returns all gb items. (need to be able to retrieve item info for students)
+	 * If user has gradeSection perm with no grader permissions,
+	 * returns all gb items. 
 	 * If user has gradeSection with grader perms, returns only the items that
 	 * the current user is authorized to view or grade.
+	 * If user does not have grading privileges but does have viewOwnGrades perm,
+	 * will return all released gb items.
 	 */
 	public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid);
 	
@@ -424,7 +433,17 @@ public interface GradebookService {
 	// External assessment management hooks.
 
 	/**
-	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#addExternalAssessment(String, String, String, String, double, Date, String)}
+	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#addExternalAssessment(String, String, String, String, Double, Date, String, Boolean)}
+	 */
+	public void addExternalAssessment(String gradebookUid, String externalId,
+			String externalUrl, String title, Double points, Date dueDate,
+			String externalServiceDescription, Boolean ungraded)
+			throws GradebookNotFoundException,
+			ConflictingAssignmentNameException, ConflictingExternalIdException,
+			AssignmentHasIllegalPointsException;
+
+	/**
+	 * @deprecated Replaced by {@link addExternalAssessment(String, String, String, Boolean)}
 	 */
 	public void addExternalAssessment(String gradebookUid, String externalId,
 			String externalUrl, String title, double points, Date dueDate,
@@ -434,10 +453,19 @@ public interface GradebookService {
 			AssignmentHasIllegalPointsException;
 
 	/**
-	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#updateExternalAssessment(String, String, String, String, double, Date)}
+	 * @deprecated Replaced by {@link updateExternalAssessment(String, String, String, String, Double, Date)}
 	 */
 	public void updateExternalAssessment(String gradebookUid,
 			String externalId, String externalUrl, String title, double points,
+			Date dueDate) throws GradebookNotFoundException,
+			AssessmentNotFoundException, ConflictingAssignmentNameException,
+			AssignmentHasIllegalPointsException;
+
+	/**
+	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#updateExternalAssessment(String, String, String, String, Double, Date, Boolean)}
+	 */
+	public void updateExternalAssessment(String gradebookUid,
+			String externalId, String externalUrl, String title, Double points,
 			Date dueDate) throws GradebookNotFoundException,
 			AssessmentNotFoundException, ConflictingAssignmentNameException,
 			AssignmentHasIllegalPointsException;
@@ -456,7 +484,7 @@ public interface GradebookService {
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
-	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#updateExternalAssessmentScores(String, String, Map)}
+	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#updateExternalAssessmentScoresString(String, String, Map)}
 	 */
 	public void updateExternalAssessmentScores(String gradebookUid,
 			String externalId, Map studentUidsToScores)
@@ -484,7 +512,8 @@ public interface GradebookService {
 	public boolean isGradableObjectDefined(Long gradableObjectId);
 	
 	/**
-	 * Using the grader permissions, return 
+	 * Using the grader permissions, return map of section uuid to section name
+	 * that includes all sections that the current user may view or grade
 	 * @param gradebookUid
 	 * @return
 	 */
@@ -516,13 +545,158 @@ public interface GradebookService {
 	public boolean currentUserHasViewOwnGradesPerm(String gradebookUid);
 	
 	/**
-	 * 
+	 * @param gradebookUid
 	 * @param gradableObjectId
 	 * @param studentIds
 	 * @return a list of GradeDefinition with the grade information for the given
-	 * students for the given assignment
+	 * students for the given gradableObjectId
 	 * @throws SecurityException if the current user is not authorized to view
 	 * or grade a student in the passed list
 	 */
-	public List<GradeDefinition> getGradesForStudentsForItem(Long gradableObjectId, List<String> studentIds);
+	public List<GradeDefinition> getGradesForStudentsForItem(String gradebookUid, Long gradableObjectId, List<String> studentIds);
+	
+	/**
+	 * 
+	 * @param gradebookUuid
+	 * @param grade
+	 * @return true if the given grade is a valid grade given the gradebook's grade
+	 * entry type.  ie, if gradebook is set to grade entry by points, will check for valid point value.
+	 * if entry by letter, will check for valid letter, etc
+	 * @throws GradebookNotFoundException if no gradebook exists with given gradebookUid
+	 */
+	public boolean isGradeValid(String gradebookUuid, String grade)
+		throws GradebookNotFoundException;
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param studentIdToGradeMap - the student's username mapped to their grade
+	 * that you want to validate
+	 * @return a list of the studentIds that were associated with invalid grades
+	 * given the gradebook's grade entry type. useful if validating a list
+	 * of student/grade pairs for a single gradebook (more efficient than calling
+	 * gradeIsValid repeatedly). returns empty list if all grades are valid
+	 * @throws GradebookNotFoundException if no gradebook exists with given gradebookUid
+	 */
+	public List<String> identifyStudentsWithInvalidGrades(String gradebookUid, Map<String, String> studentIdToGradeMap)
+		throws GradebookNotFoundException;
+	
+	/**
+	 * Save a student score and comment for a gradebook item. The input score must
+	 * be valid according to the given gradebook's grade entry type.
+	 * @param gradebookUid
+	 * @param gradableObjectId
+	 * @param studentId
+	 * @param grade - must be in format according to gradebook's grade entry type
+	 * @param comment
+	 * @throws InvalidGradeException - if grade is invalid. grade and comment will not be saved
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 * @throws SecurityException if current user is not authorized to grade student
+	 */
+	public void saveGradeAndCommentForStudent(String gradebookUid, Long gradableObjectId,
+			String studentId, String grade, String comment) throws InvalidGradeException, 
+			GradebookNotFoundException,	AssessmentNotFoundException;
+	
+	/**
+	 * Given a list of GradeDefinitions for students for a given gradebook and gradable object,
+	 * will save the associated scores and comments.  Scores must be in a format 
+	 * according to the gradebook's grade entry type (ie points, %, letter).
+	 * @param gradebookUid
+	 * @param gradableObjectId
+	 * @param gradeDefList
+	 * @throws InvalidGradeException if any of the grades are not valid - none will be saved
+	 * @throws SecurityException if the user does not have access to a student in the list -
+	 * no grades or comments will be saved for any student
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 */
+	public void saveGradesAndComments(String gradebookUid, Long gradableObjectId, List<GradeDefinition> gradeDefList)
+		throws InvalidGradeException, GradebookNotFoundException, AssessmentNotFoundException;
+
+	/**
+	 * Get fixed grades for students by using course grade scale.
+	 * @param gradebookUid
+	 * @return Map of enrollment displayId as key, grade as value
+	 * 
+	 */
+	public Map getFixedGrade(String gradebookUid);
+	
+	/**
+	 * Get fixed earned points for students by using course grade scale.
+	 * @param gradebookUid
+	 * @return Map of enrollment displayId as key, point as value string
+	 * 
+	 */
+	public Map getFixedPoint(String gradebookUid);
+
+	/**
+	 * Get old earned points for students by using letter grade scale.
+	 * @param gradebookUid
+	 * @return Map of enrollment displayId as key, point as value string
+	 * 
+	 */
+	public Map getOldPoint(String gradebookUid);
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @return the constant representation of the grade entry type
+	 * (ie points, %, letter grade)
+	 * @throws GradebookNotFoundException if no gradebook exists w/ the given uid
+	 */
+	public int getGradeEntryType(String gradebookUid) throws GradebookNotFoundException;
+
+	/**
+	 * Get a Map of overridden CourseGrade for students.
+	 * @param gradebookUid
+	 * @return Map of enrollment displayId as key, point as value string
+	 * 
+	 */
+	public Map getEnteredCourseGrade(String gradebookUid);
+
+	/**
+	 * Get a Map of auto calculated CourseGrade for students.
+	 * @param gradebookUid
+	 * @return Map of enrollment displayId as key, point as value
+	 * 
+	 */
+	public Map getCalculatedCourseGrade(String gradebookUid);
+	
+	/**
+	 * Get student's assignment's score as string.
+	 * @param gradebookUid
+	 * @param assignmentName
+	 * @param studentUid
+	 * @return String of score
+	 */
+	public String getAssignmentScoreString(String gradebookUid,
+			String assignmentName, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
+	
+	/**
+	 * Get student's assignment's score as string.
+	 * @param gradebookUid
+	 * @param gbItemId
+	 * @param studentUid
+	 * @return String of score
+	 */
+	public String getAssignmentScoreString(String gradebookUid, 
+			Long gbItemId, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
+	
+	/**
+	 * set student's score for assignment.
+	 * @param gradebookUid
+	 * @param assignmentName
+	 * @param studentUid
+	 * @param score
+	 * @param clientServiceDescription
+	 * 
+	 */
+	public void setAssignmentScoreString(String gradebookUid, String assignmentName,
+			String studentUid, String score, String clientServiceDescription)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
+
+
 }
