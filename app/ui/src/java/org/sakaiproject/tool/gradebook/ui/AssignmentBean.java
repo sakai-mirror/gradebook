@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 
@@ -53,6 +54,11 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     private Assignment assignment;
     private List categoriesSelectList;
     private String assignmentCategory;
+    private String unGraded = UN_GRADED_NORMAL;
+    private Boolean isBlankError = Boolean.FALSE;
+    
+    private static final String UN_GRADED_NORMAL = "normal";
+    private static final String UN_GRADED_NO_GRADED = "ungraded";
 
     // added to support bulk gradebook item creation
     public List newBulkItems; 
@@ -69,14 +75,17 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 	protected void init() {
 		if (logger.isDebugEnabled()) logger.debug("init assignment=" + assignment);
 
+		isBlankError = Boolean.FALSE;
 		if (assignment == null) {
 			if (assignmentId != null) {
 				assignment = getGradebookManager().getAssignment(assignmentId);
+				unGraded = assignment.getUngraded() ?  UN_GRADED_NO_GRADED :UN_GRADED_NORMAL;
 			}
 			if (assignment == null) {
 				// it is a new assignment
 				assignment = new Assignment();
 				assignment.setReleased(true);
+				unGraded = UN_GRADED_NORMAL;
 			}
 		}
 
@@ -172,6 +181,11 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			
 			if (bulkAssignDecoBean.getBlnSaveThisItem()) {
 				Assignment bulkAssignment = bulkAssignDecoBean.getAssignment();
+				
+				if(bulkAssignDecoBean.getUngraded().equals(UN_GRADED_NO_GRADED))
+					bulkAssignment.setUngraded(true);
+				else
+					bulkAssignment.setUngraded(false);
 			
 				// Check for blank entry else check if duplicate within items to be
 				// added or with item currently in gradebook.
@@ -193,36 +207,44 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 
 				// Check if points possible is blank else convert to double. Exception at else point
 				// means non-numeric value entered.
-				if (bulkAssignDecoBean.getPointsPossible() == null || ("".equals(bulkAssignDecoBean.getPointsPossible().trim()))) {
+				if (bulkAssignDecoBean.getUngraded().equals(UN_GRADED_NORMAL) && (bulkAssignDecoBean.getPointsPossible() == null || ("".equals(bulkAssignDecoBean.getPointsPossible().trim())))) {
 					bulkAssignDecoBean.setBulkNoPointsError("blank");
 					saveAll = false;
 					resultString = "failure";
 				}
 				else {
 					try {
-						double dblPointsPossible = new Double(bulkAssignDecoBean.getPointsPossible()).doubleValue();
+						if(bulkAssignDecoBean.getUngraded().equals(UN_GRADED_NO_GRADED))
+						{
+							bulkAssignDecoBean.setBulkNoPointsError("OK");
+						}
+						else
+						{							
+							double dblPointsPossible = new Double(bulkAssignDecoBean.getPointsPossible()).doubleValue();
 
-						// Added per SAK-13459: did not validate if point value was valid (> zero)
-						if (dblPointsPossible > 0) {
-							// No more than 2 decimal places can be entered.
-							BigDecimal bd = new BigDecimal(dblPointsPossible);
-							bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP); // Two decimal places
-							double roundedVal = bd.doubleValue();
-							double diff = dblPointsPossible - roundedVal;
-							if(diff != 0) {
-								saveAll = false;
-								resultString = "failure";
-								bulkAssignDecoBean.setBulkNoPointsError("precision");
+							// Added per SAK-13459: did not validate if point value was valid (> zero)
+							if (dblPointsPossible > 0) {
+								// No more than 2 decimal places can be entered.
+								BigDecimal bd = new BigDecimal(dblPointsPossible);
+								bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP); // Two decimal places
+								double roundedVal = bd.doubleValue();
+								double diff = dblPointsPossible - roundedVal;
+								if(diff != 0) {
+									saveAll = false;
+									resultString = "failure";
+									bulkAssignDecoBean.setBulkNoPointsError("precision");
+								}
+								else {
+									bulkAssignDecoBean.setBulkNoPointsError("OK");
+									bulkAssignDecoBean.getAssignment().setPointsPossible(new Double(bulkAssignDecoBean.getPointsPossible()));
+								}
 							}
 							else {
-								bulkAssignDecoBean.setBulkNoPointsError("OK");
-								bulkAssignDecoBean.getAssignment().setPointsPossible(new Double(bulkAssignDecoBean.getPointsPossible()));
+								saveAll = false;
+								resultString = "failure";
+								bulkAssignDecoBean.setBulkNoPointsError("invalid");
 							}
-						}
-						else {
-							saveAll = false;
-							resultString = "failure";
-							bulkAssignDecoBean.setBulkNoPointsError("invalid");
+			
 						}
 					}
 					catch (Exception e) {
@@ -275,6 +297,22 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			Double newPointsPossible = assignment.getPointsPossible();
 			boolean scoresEnteredForAssignment = getGradebookManager().isEnteredAssignmentScores(assignmentId);
 			
+			if(unGraded.equals(UN_GRADED_NO_GRADED))
+			{
+				assignment.setUngraded(true);
+				isBlankError = Boolean.FALSE;
+			}
+			else
+			{
+				assignment.setUngraded(false);
+				if(assignment.getPointsPossible() == null)
+				{
+					isBlankError = Boolean.TRUE;
+					FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("validation_messages_present"));
+					return null;
+				}
+			}
+				
 			/* If grade entry by percentage or letter and the points possible has changed for this assignment,
 			 * we need to convert all of the stored point values to retain the same value
 			 */
@@ -291,7 +329,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			
 			getGradebookManager().updateAssignment(assignment);
 			
-			if ((!origPointsPossible.equals(newPointsPossible)) && scoresEnteredForAssignment) {
+			if (origPointsPossible != null && newPointsPossible != null &&  (!origPointsPossible.equals(newPointsPossible)) && scoresEnteredForAssignment) {
 				if (getGradeEntryByPercent() || getGradeEntryByLetter())
 					FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_converted", new String[] {assignment.getName()}));
 				else
@@ -361,11 +399,13 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		if (assignment == null) {
 			if (assignmentId != null) {
 				assignment = getGradebookManager().getAssignment(assignmentId);
+				unGraded = assignment.getUngraded() ?  UN_GRADED_NO_GRADED :UN_GRADED_NORMAL;
 			}
 			if (assignment == null) {
 				// it is a new assignment
 				assignment = new Assignment();
 				assignment.setReleased(true);
+				unGraded = UN_GRADED_NORMAL;
 			}
 		}
 
@@ -487,5 +527,45 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		
 		return rowClasses.toString();
 	}
+
+	public String getUngraded()
+	{
+		return unGraded;
+	}
+
+	public void setUngraded(String unGraded)
+	{
+		this.unGraded = unGraded;
+	}
+	
+	public String processUngradedSettingChange(ValueChangeEvent vce)
+	{
+		String value = (String) vce.getNewValue(); 
+		if (value != null && value.equals(UN_GRADED_NO_GRADED))
+		{
+			unGraded = UN_GRADED_NO_GRADED;
+			assignment.setUngraded(true);
+			assignment.setCounted(false);
+		}
+		else
+		{
+			unGraded = UN_GRADED_NORMAL;
+			assignment.setUngraded(false);
+			assignment.setCounted(true);
+		}
+
+		return null;
+	}
+
+	public Boolean getIsBlankError()
+	{
+		return isBlankError;
+	}
+
+	public void setIsBlankError(Boolean isBlankError)
+	{
+		this.isBlankError = isBlankError;
+	}
+
 }
 

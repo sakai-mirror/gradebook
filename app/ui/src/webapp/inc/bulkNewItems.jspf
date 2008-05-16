@@ -23,7 +23,15 @@
 		rowIndexVar="rowIndex">
 	
 		<h:column>
-			<%-- Used to determine if this item should be added/was displayed
+		
+			<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
+				<h:selectOneRadio value="#{item.ungraded}" id="assignNonGraded" layout="pageDirection" onclick="submit();" valueChangeListener="#{item.processUngradedSettingChange}">
+					<f:selectItem itemValue="normal" itemLabel="#{msgs.add_assignment_non_calculated3}" />
+		  		<f:selectItem itemValue="ungraded" itemLabel="#{msgs.add_assignment_non_calculated1}" /> 
+				</h:selectOneRadio>
+			</h:panelGrid>
+
+		  <%-- Used to determine if this item should be added/was displayed
 		  		Done to deal with removing item in 'middle' 				--%>
 		  	<h:inputHidden id="hiddenAdd" value="#{item.saveThisItem}" />
 		  
@@ -68,20 +76,19 @@
 						</h:commandLink>
 					</h:panelGroup>  
 				</h:panelGroup>
-	<%-- Commented out for non-graded rollback && item.ungraded == 'normal' --%>
-				<h:outputLabel for="points" id="pointsLabel1" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type == 1}"/>
-				<h:outputLabel for="points" id="pointsLabel2" value="#{msgs.add_assignment_relative_weight}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 1}"/>
-				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
-					<h:inputText id="points" value="#{item.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+				<h:outputLabel for="points" id="pointsLabel1" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type == 1 && item.ungraded == 'normal'}"/>
+				<h:outputLabel for="points" id="pointsLabel2" value="#{msgs.add_assignment_relative_weight}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 1 && item.ungraded == 'normal'}"/>
+				<h:panelGroup rendered="#{!item.assignment.externallyMaintained && item.ungraded == 'normal'}">
+					<h:inputText id="points" value="#{item.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{!item.assignment.externallyMaintained && item.ungraded == 'normal'}">
 					</h:inputText>
-					<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
-									rendered="#{item.bulkNoPointsError == 'blank'}" />
+					<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline" 
+									rendered="#{item.bulkNoPointsError == 'blank' && item.ungraded == 'normal'}" />
 					<h:outputText id="blankPtsErrMsgH"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline errHide"
-									rendered="#{item.bulkNoPointsError != 'blank'}" />
+									rendered="#{item.bulkNoPointsError != 'blank' && item.ungraded == 'normal'}" />
 					<h:outputText id="nanPtsErrMsg" value="#{msgs.add_assignment_nan_points}" styleClass="alertMessageInline"
-									rendered="#{item.bulkNoPointsError == 'NaN'}" />
+									rendered="#{item.bulkNoPointsError == 'NaN' && item.ungraded == 'normal'}" />
 					<h:outputText id="nanPtsErrMsgH" value="#{msgs.add_assignment_nan_points}" styleClass="alertMessageInline errHide"
-									rendered="#{item.bulkNoPointsError != 'NaN'}" />
+									rendered="#{item.bulkNoPointsError != 'NaN' && item.ungraded == 'normal'}" />
 					<%-- Added per SAK-13459 --%>
 					<h:outputText id="invalidPtsErrMsg" value="#{msgs.add_assignment_invalid_points}" styleClass="alertMessageInline"
 									rendered="#{item.bulkNoPointsError == 'invalid'}" />
@@ -115,8 +122,8 @@
 				</h:panelGroup>
 			  </h:panelGrid>
 
-			  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="prefixedCheckbox">
-	   			<h:selectBooleanCheckbox id="released" value="#{item.assignment.released}"
+			<h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="prefixedCheckbox">
+	   		<h:selectBooleanCheckbox id="released" value="#{item.assignment.released}"
     				onclick="assignmentReleased((this.form.name + ':bulkNewAssignmentsTable:' + #{rowIndex}), true);"
 					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
 				<h:outputLabel for="released" value="#{msgs.add_assignment_released}" />
@@ -125,18 +132,17 @@
 				<h:outputText value="#{msgs.add_assignment_released_conditional}"
 							rendered="#{!bean.localGradebook.assignmentsDisplayed}"/>
 
- 				<h:outputText escape="false" value="&nbsp;" />
- 				
- 				<h:panelGroup>
+			  <h:outputText escape="false" value="&nbsp;" />
+	
+ 				<h:panelGroup rendered="#{item.ungraded == 'normal'}">
 					<h:selectBooleanCheckbox id="countAssignment" value="#{item.assignment.counted}"
-						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
-						<%-- Commented out due to non-graded rollback rendered="#{item.ungraded == 'normal'}"/> --%>
-					<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" />
+						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{item.ungraded == 'normal'}"/>
+					<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" rendered="#{item.ungraded == 'normal'}"/>
 				</h:panelGroup>
-		  	  </h:panelGrid>
-			  	<h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
+		  </h:panelGrid>
+		  <h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
 
-	  		  <f:verbatim><hr class="itemSeparator" /></f:verbatim>
+ 		  <f:verbatim><hr class="itemSeparator" /></f:verbatim>
 		</h:column>	
 	</t:dataTable>
 </t:div>

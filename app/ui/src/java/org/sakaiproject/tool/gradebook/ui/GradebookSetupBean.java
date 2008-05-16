@@ -71,6 +71,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private static final String ENTRY_OPT_POINTS = "points";
 	private static final String ENTRY_OPT_PERCENT = "percent";
 	private static final String ENTRY_OPT_LETTER = "letterGrade";
+	private static final String ENTRY_OPT_NON_CAL = "nonGraded";
 	private static final String CATEGORY_OPT_NONE = "noCategories";
 	private static final String CATEGORY_OPT_CAT_ONLY = "onlyCategories";
 	private static final String CATEGORY_OPT_CAT_AND_WEIGHT = "categoriesAndWeighting";
@@ -188,7 +189,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	public String processSaveGradebookSetup()
 	{
 		if (gradeEntryMethod == null || (!gradeEntryMethod.equals(ENTRY_OPT_POINTS) && 
-				!gradeEntryMethod.equals(ENTRY_OPT_PERCENT) && !gradeEntryMethod.equals(ENTRY_OPT_LETTER)))
+				!gradeEntryMethod.equals(ENTRY_OPT_PERCENT) && !gradeEntryMethod.equals(ENTRY_OPT_LETTER) && !gradeEntryMethod.equals(ENTRY_OPT_NON_CAL)))
 		{
 			FacesUtil.addErrorMessage(getLocalizedString("grade_entry_invalid"));
 			return "failure";
@@ -208,6 +209,10 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		else if (gradeEntryMethod.equals(ENTRY_OPT_LETTER))
 		{
 			localGradebook.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+		}
+		else if (gradeEntryMethod.equals(ENTRY_OPT_NON_CAL))
+		{
+			localGradebook.setGrade_type(GradebookService.GRADE_TYPE_NO_CALCULATED);
 		}
 		else
 		{
@@ -608,6 +613,8 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			gradeEntryMethod = ENTRY_OPT_PERCENT;
 		else if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER)
 			gradeEntryMethod = ENTRY_OPT_LETTER;
+		else if (gradeEntryType == GradebookService.GRADE_TYPE_NO_CALCULATED)
+			gradeEntryMethod = ENTRY_OPT_NON_CAL;
 		else
 			gradeEntryMethod = ENTRY_OPT_POINTS;
 
