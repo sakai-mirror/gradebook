@@ -490,8 +490,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	if (agr != null){
     		List assignRecordsFromDB = new ArrayList();
     		assignRecordsFromDB.add(agr);
-    		List agrs = this.convertPointsToLetterGrade(agr.getAssignment(), agr.getAssignment().getGradebook(), assignRecordsFromDB);
-    		agrs = this.convertPointsToPercentage(agr.getAssignment(), agr.getAssignment().getGradebook(), agrs);
+    		//List agrs = this.convertPointsToLetterGrade(agr.getAssignment(), agr.getAssignment().getGradebook(), assignRecordsFromDB);
+    		//agrs = this.convertPointsToPercentage(agr.getAssignment(), agr.getAssignment().getGradebook(), agrs);
+    		List agrs = this.convertPointsToPercentage(agr.getAssignment(), agr.getAssignment().getGradebook(), assignRecordsFromDB);
     		if (agrs.get(0) != null){
     			agrCalculated = (AssignmentGradeRecord)agrs.get(0);
     		}
@@ -560,7 +561,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	}
     	else if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
     	{
-    		return convertPointsToLetterGrade(gradebook, allAssignRecordsFromDB);
+//    		return convertPointsToLetterGrade(gradebook, allAssignRecordsFromDB);
+    		return allAssignRecordsFromDB;
     	}
     	return null;
     }
@@ -706,7 +708,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
                 		// Check for excessive (AKA extra credit) scoring.
                 		if (gradeRecordFromCall.getPointsEarned() != null &&
-                				!assignment.getUngraded() && 
+                				!assignment.getUngraded() && assignment.getGradebook().getGrade_type() != GradebookService.GRADE_TYPE_LETTER && 
                 				gradeRecordFromCall.getPointsEarned().compareTo(assignment.getPointsPossible()) > 0) {
                 			studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
                 		}
@@ -1043,7 +1045,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	}
     	else if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
     	{
-    		return convertPointsToLetterGrade(gradebook, studentGradeRecsFromDB);
+//    		return convertPointsToLetterGrade(gradebook, studentGradeRecsFromDB);
+    		return studentGradeRecsFromDB;
     	}
     	
     	return null;
@@ -2054,23 +2057,24 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	}
     	else if(grade_type == GradebookService.GRADE_TYPE_LETTER)
     	{
-    		Collection convertList = new ArrayList();
-    		for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) 
-    		{
-    			AssignmentGradeRecord agr = (AssignmentGradeRecord) iter.next();
-    			Double doubleValue = calculateDoublePointForLetterGradeRecord(agr);
-    			if(agr != null && doubleValue != null)
-    			{
-        		agr.setPointsEarned(doubleValue);
-        		convertList.add(agr);
-        	}
-        	else if(agr != null)
-        	{
-        		agr.setPointsEarned(null);
-        		convertList.add(agr);
-        	}
-        }
-        return updateAssignmentGradeRecords(assignment, convertList);
+//    		Collection convertList = new ArrayList();
+//    		for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) 
+//    		{
+//    			AssignmentGradeRecord agr = (AssignmentGradeRecord) iter.next();
+//    			Double doubleValue = calculateDoublePointForLetterGradeRecord(agr);
+//    			if(agr != null && doubleValue != null)
+//    			{
+//        		agr.setPointsEarned(doubleValue);
+//        		convertList.add(agr);
+//        	}
+//        	else if(agr != null)
+//        	{
+//        		agr.setPointsEarned(null);
+//        		convertList.add(agr);
+//        	}
+//        }
+//        return updateAssignmentGradeRecords(assignment, convertList);
+    		return updateAssignmentGradeRecords(assignment, gradeRecords);
     	}
 
     	else
@@ -2112,23 +2116,24 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	}
     	else if(grade_type == GradebookService.GRADE_TYPE_LETTER)
     	{
-    		Collection convertList = new ArrayList();
-    		for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) 
-    		{
-    			AssignmentGradeRecord agr = (AssignmentGradeRecord) iter.next();
-    			Double doubleValue = calculateDoublePointForLetterGrade(agr);
-    			if(agr != null && doubleValue != null)
-    			{
-    				agr.setPointsEarned(doubleValue);
-    				convertList.add(agr);
-    			}
-    			else if(agr != null)
-    			{
-    				agr.setPointsEarned(null);
-    				convertList.add(agr);
-    			}
-    		}
-    		return updateStudentGradeRecords(convertList, studentId);
+//    		Collection convertList = new ArrayList();
+//    		for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) 
+//    		{
+//    			AssignmentGradeRecord agr = (AssignmentGradeRecord) iter.next();
+//    			Double doubleValue = calculateDoublePointForLetterGrade(agr);
+//    			if(agr != null && doubleValue != null)
+//    			{
+//    				agr.setPointsEarned(doubleValue);
+//    				convertList.add(agr);
+//    			}
+//    			else if(agr != null)
+//    			{
+//    				agr.setPointsEarned(null);
+//    				convertList.add(agr);
+//    			}
+//    		}
+//    		return updateStudentGradeRecords(convertList, studentId);
+    		return updateStudentGradeRecords(gradeRecords, studentId);
     	}
     	else
     		return null;
@@ -2210,7 +2215,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	}
     	else if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
     	{
-    		return convertPointsToLetterGrade(assignment, gradebook, assignRecordsFromDB);
+    		//return convertPointsToLetterGrade(assignment, gradebook, assignRecordsFromDB);
+    		return assignRecordsFromDB;
     	}    	
     	return null;
     }
@@ -2605,25 +2611,25 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		}
     		updateAssignmentGradeRecords(assignment, records);
     	}
-    	else if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER && assignment.getPointsPossible() != null)
-    	{
-    		List records = getAssignmentGradeRecordsConverted(assignment, studentUids);
-    		LetterGradePercentMapping lgpm = getLetterGradePercentMapping(gradebook);
-    		for(Iterator iter = records.iterator(); iter.hasNext(); )
-    		{
-    			AssignmentGradeRecord agr = (AssignmentGradeRecord) iter.next();
-    			if(agr != null && agr.getLetterEarned() != null)
-	    		{	
-    				Double doublePercentage = lgpm.getValue(agr.getLetterEarned());
-    				if (doublePercentage != null) {
-	    				agr.setPointsEarned(calculateEquivalentPointValueForPercent(newTotal, doublePercentage));
-    				} else {
-    					log.error("No equivalent % mapping for letter grade: " + agr.getLetterEarned() + " in method convertGradePointsForTotalUpdatedPoints");
-    				}
-    			}
-    		}
-    		updateAssignmentGradeRecords(assignment, records);
-    	}
+//    	else if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER && assignment.getPointsPossible() != null)
+//    	{
+//    		List records = getAssignmentGradeRecordsConverted(assignment, studentUids);
+//    		LetterGradePercentMapping lgpm = getLetterGradePercentMapping(gradebook);
+//    		for(Iterator iter = records.iterator(); iter.hasNext(); )
+//    		{
+//    			AssignmentGradeRecord agr = (AssignmentGradeRecord) iter.next();
+//    			if(agr != null && agr.getLetterEarned() != null)
+//	    		{	
+//    				Double doublePercentage = lgpm.getValue(agr.getLetterEarned());
+//    				if (doublePercentage != null) {
+//	    				agr.setPointsEarned(calculateEquivalentPointValueForPercent(newTotal, doublePercentage));
+//    				} else {
+//    					log.error("No equivalent % mapping for letter grade: " + agr.getLetterEarned() + " in method convertGradePointsForTotalUpdatedPoints");
+//    				}
+//    			}
+//    		}
+//    		updateAssignmentGradeRecords(assignment, records);
+//    	}
     }
     
     /** synchronize from external application - override createAssignment method in BaseHibernateManager.*/

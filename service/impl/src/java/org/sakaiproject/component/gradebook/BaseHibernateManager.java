@@ -240,6 +240,10 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		if(numNameConflicts > 0) {
 			throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
 		}
+    if(asnFromDb.getGradebook().getGrade_type() != GradebookService.GRADE_TYPE_LETTER)
+    	asnFromDb.setUngraded(false);
+    else
+    	asnFromDb.setUngraded(true);
 
 		session.evict(asnFromDb);
 		session.update(assignment);
@@ -271,7 +275,10 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                    asn.setName(name.trim());
                    asn.setPointsPossible(points);
                    asn.setDueDate(dueDate);
-             			 asn.setUngraded(false);
+                   if(gb.getGrade_type() != GradebookService.GRADE_TYPE_LETTER)
+                  	 asn.setUngraded(false);
+                   else
+                  	 asn.setUngraded(true);
                    if (isNotCounted != null) {
                        asn.setNotCounted(isNotCounted.booleanValue());
                    }
@@ -483,7 +490,10 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			asn.setName(name.trim());
     			asn.setPointsPossible(points);
     			asn.setDueDate(dueDate);
-    			asn.setUngraded(false);
+    			if(gb.getGrade_type() != GradebookService.GRADE_TYPE_LETTER)
+    				asn.setUngraded(false);
+    			else
+    				asn.setUngraded(true);
     			if (isNotCounted != null) {
     				asn.setNotCounted(isNotCounted.booleanValue());
     			}

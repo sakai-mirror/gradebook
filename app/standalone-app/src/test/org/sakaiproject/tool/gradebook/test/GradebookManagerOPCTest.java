@@ -289,7 +289,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		for(int i=0; i<returnGradeRecords.size(); i++)
 		{
 			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
-			agr.setLetterEarned("A");
+			agr.setLetterEarned("B-");
 			convertGradeRecords.add(agr);
 		}
 		gradebookManager.updateAssignmentGradeRecords(assign, convertGradeRecords, GradebookService.GRADE_TYPE_LETTER);
@@ -297,7 +297,9 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		for(int i=0; i<returnGradeRecords.size(); i++)
 		{
 			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
-			Assert.assertTrue((new BigDecimal(agr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP)).doubleValue() == (0.95 * (assign.getPointsPossible())));
+			//Assert.assertTrue((new BigDecimal(agr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP)).doubleValue() == (0.95 * (assign.getPointsPossible())));
+			Assert.assertTrue((new BigDecimal(agr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP)).doubleValue() == (0.90 * (assign.getPointsPossible())));
+			Assert.assertTrue(agr.getLetterEarned().equalsIgnoreCase("b-"));
 		}
 
 		//test for non-graded (non-calculated) items
@@ -2621,7 +2623,8 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			AssignmentGradeRecord agr = (AssignmentGradeRecord) records.get(i);
 			if(agr.getAssignment().getCategory().getName().equals("cate 1"))
 			{
-				Assert.assertTrue(agr.getLetterEarned().equals(lgpm.getGrade(((Double)studentIdMap.get(agr.getStudentId())).doubleValue() * 2.0 / 10.0 * 100)));
+				Assert.assertTrue(agr.getPointsEarned().equals(((Double)studentIdMap.get(agr.getStudentId())).doubleValue() * 2.0));
+//			System.out.println(agr.getPointsEarned() + "---------" + ((Double)studentIdMap.get(agr.getStudentId())).doubleValue() * 2.0);
 			}
 		}
 	}
@@ -3284,6 +3287,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
   		{
   			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
   			agr.setLetterEarned("A");
+  			agr.setPointsEarned(4.75);
   		}
   		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_LETTER);
 
@@ -3314,6 +3318,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
   		{
   			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords1.get(i);
   			agr.setLetterEarned("A");
+  			agr.setPointsEarned(9.5);
   		}
   		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords1, GradebookService.GRADE_TYPE_LETTER);
   		courseRecords = gradebookService.getImportCourseGrade(persistentGradebook.getUid());
@@ -3359,6 +3364,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
   		{
   			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords1.get(i);
   			agr.setLetterEarned("B");
+  			agr.setPointsEarned(8.3);
   		}
   		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords1, GradebookService.GRADE_TYPE_LETTER);
   		courseRecords = gradebookService.getImportCourseGrade(persistentGradebook.getUid());
