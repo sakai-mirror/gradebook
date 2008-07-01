@@ -25,6 +25,7 @@ package org.sakaiproject.tool.gradebook.ui;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,6 +41,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
@@ -290,6 +292,25 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			}
 			
 			getGradebookManager().updateAssignment(assignment);
+			
+			if (!originalAssignment.isReleased() && assignment.isReleased() && scoresEnteredForAssignment) {
+				List <EnrollmentRecord>enrollments = getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.STUDENT);
+		        List studentUids = new ArrayList();
+		        for(EnrollmentRecord enr : enrollments) {
+		            studentUids.add(enr.getUser().getUserUid());
+		        }
+				List<AssignmentGradeRecord> studentGradeRecords = getGradebookManager().getAssignmentGradeRecordsConverted(assignment, studentUids);
+				if (studentGradeRecords != null) {
+					List <String>studentWithGrades = new ArrayList<String>();
+					for(AssignmentGradeRecord studGrade : studentGradeRecords) {
+			            if (studGrade.getPointsEarned() != null) {
+			            	studentWithGrades.add(studGrade.getStudentId());
+			            }
+			        }
+					
+					addGradebookEventToFeed("You have a new grade for gradebook item " + assignment.getName(), new Date(), studentWithGrades);
+				}
+			}
 			
 			if ((!origPointsPossible.equals(newPointsPossible)) && scoresEnteredForAssignment) {
 				if (getGradeEntryByPercent() || getGradeEntryByLetter())

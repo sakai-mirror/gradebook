@@ -30,6 +30,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.section.api.SectionAwareness;
 
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
@@ -64,7 +65,7 @@ public class GradebookBean extends InitializableBean {
     private EventTrackingService eventTrackingService;
     private ConfigurationBean configurationBean;
     private GradebookPermissionService gradebookPermissionService;
-
+    private EntityBroker entityBroker;
     /**
      * @return Returns the gradebookId.
      */
@@ -181,7 +182,18 @@ public class GradebookBean extends InitializableBean {
     public void setAuthzService(Authz authzService) {
         this.authzService = authzService;
     }
-
+    
+    public EntityBroker getEntityBroker() {
+        return entityBroker;
+    }
+    
+    /**
+     * @param entityBroker The entityBroker to set.
+     */
+    public void setEntityBroker(EntityBroker entityBroker) {
+        this.entityBroker = entityBroker;
+    }
+    
     /**
      * @return Returns the contextManagementService.
      */

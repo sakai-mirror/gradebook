@@ -50,6 +50,11 @@
 			<property-name>configurationBean</property-name>
 			<value>#{configurationBean}</value>
 		</managed-property>
+		<managed-property>
+			<description>Entity Broker</description>
+			<property-name>entityBroker</property-name>
+			<value>#{org.sakaiproject.entitybroker.EntityBroker}</value>
+		</managed-property>
 		<!-- This setter comes last. -->
 		<managed-property>
 			<description>Initialization hook</description>
