@@ -189,6 +189,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	gradebook = getGradebook();
     	
     	isAllItemsViewOnly = true;
+    	nonCalculatingCourseGradeOverride = false;
 
     	// Set the display name
     	try {
