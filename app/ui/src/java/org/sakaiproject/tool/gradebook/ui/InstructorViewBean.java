@@ -19,6 +19,7 @@ package org.sakaiproject.tool.gradebook.ui;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -280,6 +281,17 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 			FacesUtil.addMessage(getLocalizedString(messageKey));
 		}
 
+		// now add feed events for the updated grades, if assignment is released
+		// we need to iterate through all of the updated assignments
+		List<String> studentIdList = new ArrayList<String>();
+		studentIdList.add(getStudentUid());
+		for (int i = 0; i < updatedGradeRecords.size(); i++) {
+			AssignmentGradeRecord gradeRec = (AssignmentGradeRecord)updatedGradeRecords.get(i);
+			if (gradeRec.getAssignment().isReleased()) {
+				// add a notice of this updated grade to the feed for this gb item
+				getGradebookFeedService().addGradebookEventToFeed(getLocalizedString("feed_grade_text", new String[] {gradeRec.getAssignment().getName()}), new Date(), studentIdList);
+			}
+		}
 
 	}
 

@@ -22,31 +22,26 @@
 
 package org.sakaiproject.tool.gradebook.ui;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.facade.Role;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookFeedService;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -160,6 +155,10 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	
 	public GradebookPermissionService getGradebookPermissionService() {
 		return getGradebookBean().getGradebookPermissionService();
+	}
+	
+	public GradebookFeedService getGradebookFeedService() {
+		return getGradebookBean().getGradebookFeedService();
 	}
 
 	// Because these methods are referred to inside "rendered" tag attributes,
@@ -725,34 +724,5 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	{
 		this.isExistingConflictScale = isExistingConflictScale;
 	}
-	
-	public void addGradebookEventToFeed(String feedText, Date publishDate, Collection<String> recipients) {
-		  // add this saving event to the feed for post recipients
-		  if (getGradebookBean().getEntityBroker().entityExists("/feed-entity") && recipients != null) {
-
-			  String url = getGradebookBean().getEntityBroker().getEntityURL("/feed-entity/");
-			  HttpClient httpClient= new HttpClient();
-			  PostMethod postMethod = new PostMethod(url);
-			  postMethod.addParameter("markup", feedText);
-
-			  // use a date which is related to the current users locale
-			  DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-			  postMethod.addParameter("publishTimeAsString", df.format(new Date()));
-			  postMethod.addParameter("context", ToolManager.getCurrentPlacement().getContext());
-			  postMethod.addParameter("author", "sakai.gradebook.tool");
-			  postMethod.addParameter("surrogateKey", "");
-
-			  for (String recip : recipients) {
-				  postMethod.addParameter("recipients", recip);
-			  }
-
-			  try {
-				  httpClient.executeMethod(postMethod);
-			  } catch (IOException ioe) {
-				  logger.warn("Unable to post new grade message to feed");
-			  }
-
-		  }
-	  }
 
 }

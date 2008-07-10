@@ -25,6 +25,7 @@ package org.sakaiproject.tool.gradebook.ui;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -463,6 +464,18 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         		messageKey = "assignment_details_scores_comments_saved";
         	} else {
         		messageKey = "assignment_details_scores_saved";
+        	}
+        	
+        	// now add feed events for the updated grades, if assignment is released
+        	if (assignment.isReleased()) {
+        		// get a list of all of the student ids of students who have updated grades
+        		List<String> studentIdList = new ArrayList<String>();
+        		for (int i = 0; i < updatedGradeRecords.size(); i++) {
+        			AssignmentGradeRecord gradeRec = (AssignmentGradeRecord)updatedGradeRecords.get(i);
+        			studentIdList.add(gradeRec.getStudentId());
+        		}
+        		
+        		getGradebookFeedService().addGradebookEventToFeed(getLocalizedString("feed_grade_text", new String[] {assignment.getName()}), new Date(), studentIdList);
         	}
         } else if (updatedComments.size() > 0) {
         	messageKey = "assignment_details_comments_saved";

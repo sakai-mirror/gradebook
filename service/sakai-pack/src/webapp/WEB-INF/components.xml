@@ -53,7 +53,7 @@
 			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
 		</property>
 	</bean>
-
+	
 	<bean id="org_sakaiproject_service_gradebook_GradebookExternalAssessmentServiceTarget"
 		class="org.sakaiproject.component.gradebook.GradebookExternalAssessmentServiceImpl"
 		name="org.sakaiproject.service.gradebook.GradebookExternalAssessmentServiceTarget">
@@ -165,6 +165,13 @@
 			<ref bean="org_sakaiproject_service_gradebook_GradebookPermissionServiceTarget"/>
 		</property>
 	</bean>
+	
+	 <!-- Gradebook Feed Service -->
+	 <bean id="org_sakaiproject_service_gradebook_GradebookFeedService" class="org.sakaiproject.component.gradebook.GradebookFeedServiceImpl" init-method="init">
+   		<property name="entityBroker">
+			<ref bean="org.sakaiproject.entitybroker.EntityBroker" />
+		</property>
+   </bean>
 
 	<!-- Simple configuration handler. -->
 	<bean id="org_sakaiproject_service_gradebook_GradebookConfiguration"

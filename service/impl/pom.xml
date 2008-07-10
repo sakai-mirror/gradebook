@@ -186,5 +186,18 @@
       <artifactId>sakai-event-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+       <dependency>
+        <groupId>org.sakaiproject.entitybroker</groupId>
+        <artifactId>entitybroker-api</artifactId>
+        <version>1.2.0</version>
+        <scope>provided</scope>
+    </dependency>
+    <!-- for adding event to feed -->
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <version>3.0</version>
+      <type>jar</type>
+    </dependency>
   </dependencies>
 </project>

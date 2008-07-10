@@ -51,9 +51,9 @@
 			<value>#{configurationBean}</value>
 		</managed-property>
 		<managed-property>
-			<description>Entity Broker</description>
-			<property-name>entityBroker</property-name>
-			<value>#{org.sakaiproject.entitybroker.EntityBroker}</value>
+			<description>Gradebook Feed Service</description>
+			<property-name>gradebookFeedService</property-name>
+			<value>#{org_sakaiproject_service_gradebook_GradebookFeedService}</value>
 		</managed-property>
 		<!-- This setter comes last. -->
 		<managed-property>

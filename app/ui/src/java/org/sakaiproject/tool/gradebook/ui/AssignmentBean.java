@@ -308,7 +308,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			            }
 			        }
 					
-					addGradebookEventToFeed("You have a new grade for gradebook item " + assignment.getName(), new Date(), studentWithGrades);
+					getGradebookFeedService().addGradebookEventToFeed(getLocalizedString("feed_grade_text", new String[] {assignment.getName()}), new Date(), studentWithGrades);
 				}
 			}
 			
