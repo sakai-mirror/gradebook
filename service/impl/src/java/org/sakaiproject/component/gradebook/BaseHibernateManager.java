@@ -38,6 +38,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
@@ -1344,5 +1345,23 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                 return comments;
             }
         });
+    }
+
+    public List<String> getNoncalculatingCourseGradeOverrides() {
+    	List<String> addtlOverridesList = new ArrayList<String>();
+
+    	// if property does not exist, there are no additional course grade
+    	// override options beyond the defaults
+    	String[] nonCalcOverrideValues = ServerConfigurationService.getStrings("gradebook.nonCalcCourseGradeOverrides");
+    	if (nonCalcOverrideValues != null && nonCalcOverrideValues.length > 0) {
+    		for (String override : nonCalcOverrideValues) {
+    			if (override != null && override.trim().length() > 0) {
+    				addtlOverridesList.add(override.trim().toUpperCase());
+    			}
+    		}
+
+    	} 
+
+    	return addtlOverridesList;
     }
 }

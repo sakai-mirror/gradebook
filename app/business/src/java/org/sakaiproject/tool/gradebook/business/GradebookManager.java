@@ -834,4 +834,16 @@ public interface GradebookManager {
      * @return boolean
      */
     public boolean checkValidName(final Long gradebookId, final Assignment assignment);
+    
+    /**
+     * an institution may add additional allowed values for course grade overrides
+     * that will not be counted toward the average course grade calculations. These
+     * may include values like 'I' for Incomplete. Used primarily by SIS systems and
+     * is set via sakai.properties by the "gradebook.nonCalcCourseGradeOverrides" property
+	 * ie: gradebook.nonCalcCourseGradeOverrides.count = 1
+	 *     gradebook.nonCalcCourseGradeOverrides.1 = I
+     * @return a list of additional string values allowed as a course grade override
+     * that are not included in course grade average calculations
+     */
+    public List<String> getNoncalculatingCourseGradeOverrides();
 }

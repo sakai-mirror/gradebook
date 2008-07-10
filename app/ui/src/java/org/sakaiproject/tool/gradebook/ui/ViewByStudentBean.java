@@ -63,6 +63,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     private boolean anyNotCounted;
     private boolean anyExternallyMaintained = false;
     private boolean isAllItemsViewOnly = true;
+    private boolean nonCalculatingCourseGradeOverride= false;
 
     private boolean sortAscending;
     private String sortColumn;
@@ -209,6 +210,15 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		if (courseGradeReleased || isInstructorView) {
     			courseGrade = gradeRecord;
     			courseGradeLetter = gradeRecord.getDisplayGrade();
+    			
+    			// determine if this course grade is a special non-calculating
+    			// course grade override
+    			List<String> nonCalcCourseGradeOverrides = getGradebookManager().getNoncalculatingCourseGradeOverrides();
+    			if (nonCalcCourseGradeOverrides != null) {
+    				if (nonCalcCourseGradeOverrides.contains(courseGradeLetter)) {
+    					nonCalculatingCourseGradeOverride = true;
+    				}
+    			}
     		}
     	}
     	
@@ -303,6 +313,17 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
      */
     public boolean isAllItemsViewOnly() {
     	return isAllItemsViewOnly;
+    }
+    
+    /**
+     * 
+     * @return true if the course grade for this student is a special
+     * non-calculating course grade override.  for example, some institutions
+     * may allow instructor to enter 'I' for incomplete. in this case, the
+     * course grade display will be slightly different for the student view
+     */
+    public boolean isNonCalculatedCourseGradeOverride() {
+    	return nonCalculatingCourseGradeOverride;
     }
     
     /**
