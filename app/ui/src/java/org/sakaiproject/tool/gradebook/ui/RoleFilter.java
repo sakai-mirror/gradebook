@@ -139,9 +139,9 @@ public class RoleFilter implements Filter {
 
 			// SAK-13408 - This fix addresses the problem of the filter receiving a blank field on WebSphere.
 			// Without this, users would be denied access to the tool.
-			if(ServerConfigurationService.getString("servlet.container").equals("websphere") && (isAuthorized || pageName.equals("")) ) {
+			if("websphere".equals(ServerConfigurationService.getString("servlet.container")) && (isAuthorized || pageName.equals("")) ) {
 				chain.doFilter(request, response);
-			} else if ( !ServerConfigurationService.getString("servlet.container").equals("websphere") && isAuthorized) {
+			} else if ( !"websphere".equals(ServerConfigurationService.getString("servlet.container")) && isAuthorized) {
 				chain.doFilter(request, response);
 			} else {
 				logger.error("AUTHORIZATION FAILURE: User " + userUid + " in gradebook " + gradebookUid + " attempted to reach URL " + request.getRequestURL());
