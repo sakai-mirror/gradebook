@@ -1,17 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 The Regents of the University of California
+ * Copyright (c) 2006, 2007, 2008 Sakai Foundation
  *
- *  Licensed under the Educational Community License, Version 1.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ecl1.php
+ *       http://www.osedu.org/licenses/ECL-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  ******************************************************************************/
 
 package org.sakaiproject.tool.gradebook.ui;
@@ -224,7 +224,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 						gradeRecord = new AssignmentGradeRecord(gradeRow.getAssociatedAssignment(), getStudentUid(), null);
 					}
 					if (gradeRecord != null) {
-						if (getGradeEntryByPoints() || getGradeEntryByNonCal()) { 
+						if (getGradeEntryByPoints()) { 
 							Double originalScore = null;
 							originalScore = gradeRecord.getPointsEarned();
 
@@ -272,7 +272,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 
 		if(updatedGradeRecords.size() > 0){
 			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
-			String messageKey = (excessiveScores != null && excessiveScores.size() > 0) ?
+			String messageKey = (excessiveScores.size() > 0) ?
 					"inst_view_scores_saved_excessive" :
 						"inst_view_scores_saved";
 			
