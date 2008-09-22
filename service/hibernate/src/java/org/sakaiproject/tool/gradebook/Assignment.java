@@ -67,8 +67,11 @@ public class Assignment extends GradableObject {
     private Category category;
     private Double averageTotal;
     private boolean ungraded;
+    private boolean isExtraCredit;
+	private Double assignmentWeighting;
 
-    static {
+
+	static {
         dateComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
                 if(log.isDebugEnabled()) log.debug("Comparing assignment + " + o1 + " to " + o2 + " by date");
@@ -443,5 +446,23 @@ public class Assignment extends GradableObject {
 		public void setUngraded(boolean ungraded)
 		{
 			this.ungraded = ungraded;
+		}
+		
+		public boolean isExtraCredit() {
+			return isExtraCredit;
+		}
+
+
+		public void setExtraCredit(boolean isExtraCredit) {
+			this.isExtraCredit = isExtraCredit;
+		}
+		
+		public Double getAssignmentWeighting() {
+			return assignmentWeighting;
+		}
+
+
+		public void setAssignmentWeighting(Double assignmentWeighting) {
+			this.assignmentWeighting = assignmentWeighting;
 		}
 }

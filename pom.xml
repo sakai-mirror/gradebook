@@ -22,6 +22,7 @@
     <module>app</module>
     <module>service</module>
     <module>sample-course-grade-converter</module>
+    <module>gradebook-ng</module>
   </modules>
 <dependencyManagement>
  <dependencies>

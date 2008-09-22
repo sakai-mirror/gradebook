@@ -30,6 +30,7 @@
 			<property name="externalInstructorLink" column="EXTERNAL_INSTRUCTOR_LINK" type="string" />
 			<property name="externalId" column="EXTERNAL_ID" type="string" />
 			<property name="externalAppName" column="EXTERNAL_APP_NAME" type="string" />
+			<property name="assignmentWeighting" column="ASSIGNMENT_WEIGHTING" type="double" />
       <property name="released" column="RELEASED" type="boolean"/>
       <many-to-one name="category" column="CATEGORY_ID" class="org.sakaiproject.tool.gradebook.Category" not-null="false"/>
       <property name="ungraded" column="UNGRADED" type="boolean"/>
