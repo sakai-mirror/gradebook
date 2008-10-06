@@ -78,9 +78,9 @@ public class GradeManagerTest extends GradebookTestBase {
         studentAssignmentScoreMap.put(studentUidsList.get(1), new Double(19));
         studentAssignmentScoreMap.put(studentUidsList.get(2), new Double(20));
         Map gradeRecordMap = new HashMap();
-        gradeRecordMap.put(studentUidsList.get(0), new AssignmentGradeRecord(persistentAssignment, (String)studentUidsList.get(0), (Double)studentAssignmentScoreMap.get(studentUidsList.get(0))));
-        gradeRecordMap.put(studentUidsList.get(1), new AssignmentGradeRecord(persistentAssignment, (String)studentUidsList.get(1), (Double)studentAssignmentScoreMap.get(studentUidsList.get(1))));
-        gradeRecordMap.put(studentUidsList.get(2), new AssignmentGradeRecord(persistentAssignment, (String)studentUidsList.get(2), (Double)studentAssignmentScoreMap.get(studentUidsList.get(2))));
+        gradeRecordMap.put(studentUidsList.get(0), new AssignmentGradeRecord(persistentAssignment, (String)studentUidsList.get(0), ((Double)studentAssignmentScoreMap.get(studentUidsList.get(0))).toString()));
+        gradeRecordMap.put(studentUidsList.get(1), new AssignmentGradeRecord(persistentAssignment, (String)studentUidsList.get(1), ((Double)studentAssignmentScoreMap.get(studentUidsList.get(1))).toString()));
+        gradeRecordMap.put(studentUidsList.get(2), new AssignmentGradeRecord(persistentAssignment, (String)studentUidsList.get(2), ((Double)studentAssignmentScoreMap.get(studentUidsList.get(2))).toString()));
 
         gradebookManager.updateAssignmentGradeRecords(persistentAssignment, gradeRecordMap.values());
 
@@ -92,8 +92,8 @@ public class GradeManagerTest extends GradebookTestBase {
         Set students = new HashSet(studentUidsList);
         for(Iterator iter = records.iterator(); iter.hasNext();) {
             AssignmentGradeRecord agr = (AssignmentGradeRecord)iter.next();
-            double tmpScore = ((AssignmentGradeRecord)gradeRecordMap.get(agr.getStudentId())).getPointsEarned().doubleValue();
-            double persistentScore = agr.getPointsEarned().doubleValue();
+            double tmpScore = new Double(((AssignmentGradeRecord)gradeRecordMap.get(agr.getStudentId())).getPointsEarned()).doubleValue();
+            double persistentScore = new Double(agr.getPointsEarned()).doubleValue();
             Assert.assertTrue(tmpScore == persistentScore);
         }
 
@@ -166,9 +166,9 @@ public class GradeManagerTest extends GradebookTestBase {
 
         // Create a grade record set
         List gradeRecords = new ArrayList();
-        gradeRecords.add(new AssignmentGradeRecord(asn, "normalStudent", new Double(9)));
-        gradeRecords.add(new AssignmentGradeRecord(asn, "goodStudent", new Double(10)));
-        gradeRecords.add(new AssignmentGradeRecord(asn, "excessiveStudent", new Double(11)));
+        gradeRecords.add(new AssignmentGradeRecord(asn, "normalStudent", "9"));
+        gradeRecords.add(new AssignmentGradeRecord(asn, "goodStudent", "10"));
+        gradeRecords.add(new AssignmentGradeRecord(asn, "excessiveStudent", "11"));
 
         Set excessives = gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
         Assert.assertTrue(excessives.size() == 1);
@@ -186,7 +186,7 @@ public class GradeManagerTest extends GradebookTestBase {
         Assert.assertTrue(!gradebookManager.isEnteredAssignmentScores(asgId));
 
         List gradeRecords = new ArrayList();
-        gradeRecords.add(new AssignmentGradeRecord(asn, "entered1", new Double(9)));
+        gradeRecords.add(new AssignmentGradeRecord(asn, "entered1", "9"));
 
         gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
         Assert.assertTrue(gradebookManager.isEnteredAssignmentScores(asgId));
@@ -212,7 +212,7 @@ public class GradeManagerTest extends GradebookTestBase {
 
         // Create a map of studentUserUids to grades
         List gradeRecords = new ArrayList();
-        gradeRecords.add(new AssignmentGradeRecord(assignment, studentId, new Double(9)));
+        gradeRecords.add(new AssignmentGradeRecord(assignment, studentId, "9"));
 
         // Save the grades
         gradebookManager.updateAssignmentGradeRecords(assignment, gradeRecords);
@@ -224,7 +224,7 @@ public class GradeManagerTest extends GradebookTestBase {
 
         gradeRecords = new ArrayList();
         AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)persistentGradeRecords.get(0);
-        gradeRecord.setPointsEarned(new Double(10));
+        gradeRecord.setPointsEarned("10");
         gradeRecords.add(gradeRecord);
 
         gradebookManager.updateAssignmentGradeRecords(assignment, gradeRecords);
@@ -248,9 +248,9 @@ public class GradeManagerTest extends GradebookTestBase {
 
         // Create a grade record set
         List gradeRecords = new ArrayList();
-        gradeRecords.add(new AssignmentGradeRecord(asn, "realStudent1", new Double(10)));
-        gradeRecords.add(new AssignmentGradeRecord(asn, "realStudent2", new Double(10)));
-        gradeRecords.add(new AssignmentGradeRecord(asn, "droppedStudent", new Double(1)));
+        gradeRecords.add(new AssignmentGradeRecord(asn, "realStudent1", "10"));
+        gradeRecords.add(new AssignmentGradeRecord(asn, "realStudent2", "10"));
+        gradeRecords.add(new AssignmentGradeRecord(asn, "droppedStudent", "1"));
 
         gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
 
@@ -292,17 +292,17 @@ public class GradeManagerTest extends GradebookTestBase {
 
 		// Add some scores to the assignments.
         List gradeRecords = new ArrayList();
-        gradeRecords.add(new AssignmentGradeRecord(asn1, (String)studentUidsList.get(0), new Double(8)));
+        gradeRecords.add(new AssignmentGradeRecord(asn1, (String)studentUidsList.get(0), "8"));
 		gradebookManager.updateAssignmentGradeRecords(asn1, gradeRecords);
 		gradeRecords = new ArrayList();
-        gradeRecords.add(new AssignmentGradeRecord(asn2, (String)studentUidsList.get(0), new Double(18)));
+        gradeRecords.add(new AssignmentGradeRecord(asn2, (String)studentUidsList.get(0), "18"));
 		gradebookManager.updateAssignmentGradeRecords(asn2, gradeRecords);
 
 		// Make sure that the Course Grade total points includes both.
 		CourseGrade courseGrade = getCourseGradeWithStats(gradebook.getId());
         List courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecords(courseGrade, studentUidsList);
         CourseGradeRecord cgr = (CourseGradeRecord)courseGradeRecords.get(0);
-        Assert.assertTrue(cgr.getPointsEarned().doubleValue() == 26.0);
+        Assert.assertTrue(new Double(cgr.getPointsEarned()).doubleValue() == 26.0);
 
         // Don't count one assignment.
         asn2.setNotCounted(true);
@@ -324,7 +324,7 @@ public class GradeManagerTest extends GradebookTestBase {
 		// Test what is now (unfortunately) a different code path.
         List persistentGradeRecords = gradebookManager.getAssignmentGradeRecords(asn1, studentUidsList);
         AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)persistentGradeRecords.get(0);
-        gradeRecord.setPointsEarned(new Double(7));
+        gradeRecord.setPointsEarned("7");
         gradeRecords = new ArrayList();
         gradeRecords.add(gradeRecord);
 		gradebookManager.updateAssignmentGradeRecords(asn1, gradeRecords);
@@ -352,7 +352,7 @@ public class GradeManagerTest extends GradebookTestBase {
 
 		// Only score the first assignment.
         List gradeRecords = new ArrayList();
-        gradeRecords.add(new AssignmentGradeRecord(asn1, (String)studentUidsList.get(0), new Double(8)));
+        gradeRecords.add(new AssignmentGradeRecord(asn1, (String)studentUidsList.get(0), "8"));
 		gradebookManager.updateAssignmentGradeRecords(asn1, gradeRecords);
 
         // Don't count the unscored assignment.
@@ -366,7 +366,7 @@ public class GradeManagerTest extends GradebookTestBase {
         CourseGrade courseGrade = getCourseGradeWithStats(gradebook.getId());
 		List courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecords(courseGrade, studentUidsList);
 		CourseGradeRecord cgr = (CourseGradeRecord)courseGradeRecords.get(0);
-		Assert.assertTrue(cgr.getPointsEarned().doubleValue() == 8.0);
+		Assert.assertTrue(new Double(cgr.getPointsEarned()).doubleValue() == 8.0);
 
 		// Make sure there's no disconnect between what the instructor
 		// will see and what the student will see.

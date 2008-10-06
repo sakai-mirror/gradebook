@@ -372,48 +372,58 @@ public class Assignment extends GradableObject {
      * Calculate the mean score for students with entered grades.
      */
     public void calculateStatistics(Collection<AssignmentGradeRecord> gradeRecords) {
-        int numScored = 0;
-        BigDecimal total = new BigDecimal("0");
-        BigDecimal pointsTotal = new BigDecimal("0");
-        for (AssignmentGradeRecord record : gradeRecords) {
-            // Skip grade records that don't apply to this gradable object
-            if(!record.getGradableObject().equals(this)) {
-                continue;
-            }
-            Double score = null;
-            if(!ungraded && pointsPossible > 0)
-            	score = record.getGradeAsPercentage();
-            Double points = record.getPointsEarned();
-            if (score == null && points == null) {
-            	continue;
-            }
-            else if (score == null)
-            {
-            	pointsTotal = pointsTotal.add(new BigDecimal(points.toString()));
-            	numScored++;
-            }
-            else 
-            {
-            	total = total.add(new BigDecimal(score.toString()));
-            	pointsTotal = pointsTotal.add(new BigDecimal(points.toString()));
-            	numScored++;
-            }
-        }
-        if (numScored == 0) {
-        	mean = null;
-        	averageTotal = null;
-        } else {
-        	BigDecimal bdNumScored = new BigDecimal(numScored);
-        	if(!ungraded && pointsPossible > 0)
-        	{
-        		mean = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
-        	}
-        	else
-        	{
-        		mean = null;
-        	}
-        	averageTotal = new Double(pointsTotal.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
-        }
+    		if(ungraded)
+    		{
+    			mean = null;
+    			averageTotal = null;
+    			log.error("Calling calculateStatistics in Assignmnet for UNGRADED items.");
+    		}
+    		else
+    		{
+    			int numScored = 0;
+    			BigDecimal total = new BigDecimal("0");
+    			BigDecimal pointsTotal = new BigDecimal("0");
+    			for (AssignmentGradeRecord record : gradeRecords) {
+    				// Skip grade records that don't apply to this gradable object
+    				if(!record.getGradableObject().equals(this)) {
+    					continue;
+    				}
+    				Double score = null;
+    				if(!ungraded && pointsPossible > 0)
+    					score = record.getGradeAsPercentage(getGradebook().getGrade_type());
+    				//score = record.getGradeAsPercentage();
+    				String points = record.getPointsEarned();
+    				if (score == null && points == null) {
+    					continue;
+    				}
+    				else if (score == null)
+    				{
+    					pointsTotal = pointsTotal.add(new BigDecimal(points.toString()));
+    					numScored++;
+    				}
+    				else 
+    				{
+    					total = total.add(new BigDecimal(score.toString()));
+    					pointsTotal = pointsTotal.add(new BigDecimal(points.toString()));
+    					numScored++;
+    				}
+    			}
+    			if (numScored == 0) {
+    				mean = null;
+    				averageTotal = null;
+    			} else {
+    				BigDecimal bdNumScored = new BigDecimal(numScored);
+    				if(!ungraded && pointsPossible > 0)
+    				{
+    					mean = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+    				}
+    				else
+    				{
+    					mean = null;
+    				}
+    				averageTotal = new Double(pointsTotal.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+    			}
+    		}
     }
 
 		public Category getCategory()

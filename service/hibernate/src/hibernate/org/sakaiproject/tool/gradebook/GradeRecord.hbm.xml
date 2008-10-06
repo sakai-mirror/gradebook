@@ -29,7 +29,7 @@
 		<property name="dateRecorded" column="DATE_RECORDED" type="timestamp" not-null="true" />
 
 		<subclass name="org.sakaiproject.tool.gradebook.AssignmentGradeRecord"  discriminator-value="1">
-			<property name="pointsEarned" column="POINTS_EARNED" type="double" not-null="false" />
+			<property name="pointsEarned" column="POINTS_EARNED" type="string" not-null="false" />
 			<property name="excludedFromGrade" column="IS_EXCLUDED_FROM_GRADE" type="boolean" not-null="false"/>
 		</subclass>
 

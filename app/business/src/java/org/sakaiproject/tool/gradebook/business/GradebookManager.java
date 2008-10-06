@@ -174,7 +174,8 @@ public interface GradebookManager {
      * @param studentUids
      * @return
      */
-    public List getAllAssignmentGradeRecordsConverted(Long gradebookId, Collection studentUids);
+    //comment out for non-cal.
+//    public List getAllAssignmentGradeRecordsConverted(Long gradebookId, Collection studentUids);
 
     /**
      * Gets whether there are explicitly entered course grade records in a gradebook.
@@ -240,7 +241,8 @@ public interface GradebookManager {
      * @param studentId
      * @return
      */
-    public List getStudentGradeRecordsConverted(Long gradebookId, String studentId);
+    //comment out for non-cal.
+//    public List getStudentGradeRecordsConverted(Long gradebookId, String studentId);
 
     /**
      * Gets the course grade for a single student.
@@ -524,7 +526,8 @@ public interface GradebookManager {
      * @param studentUids
      * @return AssignmentGradeRecord list
      */
-    public List getAssignmentGradeRecordsConverted(Assignment assignment, Collection studentUids);
+    //comment out for non-cal.
+//    public List getAssignmentGradeRecordsConverted(Assignment assignment, Collection studentUids);
 
     /**
      * Get all categories with stats
@@ -608,7 +611,8 @@ public interface GradebookManager {
      * @param Double newTotal the old total point for assignment
      * @param studentUids List of student uid.
      */
-    public void convertGradePointsForUpdatedTotalPoints(Gradebook gradebook, Assignment assignment, Double newTotal, List studentUids);
+    //comment out for non-cal dev.
+//    public void convertGradePointsForUpdatedTotalPoints(Gradebook gradebook, Assignment assignment, Double newTotal, List studentUids);
     
     /**
      * Get the default letter grading percentage mappings. 

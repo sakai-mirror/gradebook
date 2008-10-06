@@ -52,7 +52,7 @@ public abstract class AbstractGradeRecord implements Serializable {
     /**
      * @return Returns the pointsEarned
      */
-    public abstract Double getPointsEarned();
+    public abstract String getPointsEarned();
 
 	/**
 	 * @return Returns the dateRecorded.

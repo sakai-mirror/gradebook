@@ -166,8 +166,8 @@ public class GradableObjectManagerTest extends GradebookTestBase {
 
 		// Add some scores to the interesting assignment, leaving one student unscored.
         List gradeRecords = new ArrayList();
-        gradeRecords.add(new AssignmentGradeRecord(asn, (String)studentUidsList.get(0), new Double(8)));
-        gradeRecords.add(new AssignmentGradeRecord(asn, (String)studentUidsList.get(1), new Double(9)));
+        gradeRecords.add(new AssignmentGradeRecord(asn, (String)studentUidsList.get(0), "8"));
+        gradeRecords.add(new AssignmentGradeRecord(asn, (String)studentUidsList.get(1), "9"));
 		gradebookManager.updateAssignmentGradeRecords(asn, gradeRecords);
 
         // Remove the assignments.

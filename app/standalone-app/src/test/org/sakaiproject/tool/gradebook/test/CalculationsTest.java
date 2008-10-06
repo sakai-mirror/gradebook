@@ -33,6 +33,7 @@ import java.util.Set;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -61,6 +62,7 @@ public class CalculationsTest extends TestCase {
         Date now = new Date();
 
         gradebook = new Gradebook("Calculation Test GB");
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
 
         gradeMap = new LetterGradeMapping();
         gradeMap.setDefaultValues();
@@ -100,7 +102,7 @@ public class CalculationsTest extends TestCase {
 		double total = 0;
 		boolean hasScores = false;
 		for (Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
-			total += ((AssignmentGradeRecord)iter.next()).getPointsEarned();
+			total += new Double(((AssignmentGradeRecord)iter.next()).getPointsEarned());
 			hasScores = true;
 		}
 		return hasScores ? new Double(total) : null;
@@ -144,9 +146,9 @@ public class CalculationsTest extends TestCase {
         //CourseGrade cg = gradebook.getCourseGrade();
 
         List studentGradeRecords = new ArrayList();
-        studentGradeRecords.add(new AssignmentGradeRecord(homework1, "studentId", new Double(110)));
-        studentGradeRecords.add(new AssignmentGradeRecord(homework2, "studentId", new Double(300)));
-        studentGradeRecords.add(new AssignmentGradeRecord(homework3, "studentId", new Double(400)));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework1, "studentId", "110"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework2, "studentId", "300"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework3, "studentId", "400"));
 
         // The grade records should total 90%
         CourseGradeRecord cgr = new CourseGradeRecord();
@@ -171,7 +173,7 @@ public class CalculationsTest extends TestCase {
         // Add 101 records for the gradableObject
         for(int i = 0; i < gradeRecordsToGenerate; i++) {
         	record = new AssignmentGradeRecord();
-        	record.setPointsEarned(new Double(i));
+        	record.setPointsEarned(new Double(i).toString());
         	record.setGradableObject(go);
         	record.setStudentId("studentId");
         	records.add(record);
@@ -222,12 +224,15 @@ public class CalculationsTest extends TestCase {
 		List<CourseGradeRecord> courseRecords = new ArrayList<CourseGradeRecord>();
 		for (int i = 0; i < numEnrollments; i++) {
 			Double score = (i == 0) ? asn.getPointsPossible() : null;
-			records.add(new AssignmentGradeRecord(asn, "student" + i, score));
+			if(score != null)
+				records.add(new AssignmentGradeRecord(asn, "student" + i, score.toString()));
+			else
+				records.add(new AssignmentGradeRecord(asn, "student" + i, null));
 			
 			CourseGradeRecord cgr = new CourseGradeRecord();
 			cgr.setGradableObject(courseGrade);
 			cgr.setStudentId("student" + i);
-			double scoreVal = (score != null) ? score.doubleValue() : 0.0; 
+			double scoreVal = (score != null) ? score.doubleValue() : 0.0;
 			cgr.initNonpersistentFields(asn.getPointsPossible(), scoreVal);
 			courseRecords.add(cgr);
 		}

@@ -229,7 +229,6 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 			fail();
 		} catch (SecurityException e) {
 		}
-
 		// try to get grades for students for item
 		List grades;
 		try {
@@ -239,7 +238,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 			grades = gradebookService.getGradesForStudentsForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, studentIds);
 		} catch (SecurityException e) {
 		}
-
+		
 		// try to get gradeDef for student for item - should return null if not released
 		GradeDefinition gradeDef;
 		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
@@ -257,8 +256,8 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		score = new Double(gradebookService.getAssignmentScoreString(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1));
 		Assert.assertTrue(score.doubleValue() == 39.0);
 		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
-		Assert.assertTrue(gradeDef.getGrade().equals((new Double(39).toString())));
-		
+		System.out.println(gradeDef.getGrade());
+		Assert.assertTrue(gradeDef.getGrade().equals("39"));
 		setAuthnId(STUDENT_IN_SECTION_UID1);
 		try {
 			Map viewableStudents = gradebookService.getViewableStudentsForItemForCurrentUser(GRADEBOOK_UID_NO_CAT, asn1IdNoCat);
@@ -287,7 +286,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		Assert.assertEquals(GradebookService.GRADE_TYPE_POINTS, gradeDef.getGradeEntryType());
 		Assert.assertEquals(STUDENT_IN_SECTION_UID1, gradeDef.getStudentUid());
 		Assert.assertTrue(gradeDef.isGradeReleased() == false);
-		Assert.assertEquals("35.0", gradeDef.getGrade());
+		Assert.assertEquals("35", gradeDef.getGrade());
 		Assert.assertEquals(INSTRUCTOR_UID, gradeDef.getGraderUid());
 		Assert.assertNotNull(gradeDef.getDateRecorded());
 		
@@ -296,7 +295,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
 		gradebookManager.updateGradebook(gradebookNoCat);
 		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
-		Assert.assertEquals("87.5", gradeDef.getGrade());
+		Assert.assertEquals("35", gradeDef.getGrade());
 		Assert.assertEquals(GradebookService.GRADE_TYPE_PERCENTAGE, gradeDef.getGradeEntryType());
 		
 		// letter-based gradebook
@@ -304,7 +303,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		gradebookManager.updateGradebook(gradebookNoCat);
 		gradeDef = gradebookService.getGradeDefinitionForStudentForItem(GRADEBOOK_UID_NO_CAT, asn1IdNoCat, STUDENT_IN_SECTION_UID1);
 
-		Assert.assertEquals("B+", gradeDef.getGrade());
+		Assert.assertEquals("35", gradeDef.getGrade());
 		Assert.assertEquals(GradebookService.GRADE_TYPE_LETTER, gradeDef.getGradeEntryType());
 		
 		// the TA with standard grader perms should trigger exception for student
@@ -496,7 +495,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		Assert.assertEquals(GradebookService.GRADE_TYPE_POINTS, gradeForS1.getGradeEntryType());
 		Assert.assertEquals(STUDENT_IN_SECTION_UID1, gradeForS1.getStudentUid());
 		Assert.assertTrue(gradeForS1.isGradeReleased() == false);
-		Assert.assertEquals("35.0", gradeForS1.getGrade());
+		Assert.assertEquals("35", gradeForS1.getGrade());
 		Assert.assertEquals(INSTRUCTOR_UID, gradeForS1.getGraderUid());
 		Assert.assertNotNull(gradeForS1.getDateRecorded());
 		
@@ -528,7 +527,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		Assert.assertEquals(GradebookService.GRADE_TYPE_PERCENTAGE, gradeForS1.getGradeEntryType());
 		Assert.assertEquals(STUDENT_IN_SECTION_UID1, gradeForS1.getStudentUid());
 		Assert.assertTrue(gradeForS1.isGradeReleased() == false);
-		Assert.assertEquals("87.5", gradeForS1.getGrade());
+		Assert.assertEquals("35", gradeForS1.getGrade());
 		Assert.assertEquals(INSTRUCTOR_UID, gradeForS1.getGraderUid());
 		Assert.assertNotNull(gradeForS1.getDateRecorded());
 		
@@ -538,7 +537,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		Assert.assertTrue(gradeDefs.size() == 1);
 		gradeForS1 = (GradeDefinition)gradeDefs.get(0);
 		Assert.assertEquals(GradebookService.GRADE_TYPE_LETTER, gradeForS1.getGradeEntryType());
-		Assert.assertEquals("B+", gradeForS1.getGrade());
+		Assert.assertEquals("35", gradeForS1.getGrade());
 
 	}
 	

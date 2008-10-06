@@ -38,7 +38,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 public class CourseGradeRecord extends AbstractGradeRecord {
     private String enteredGrade;
     private Double autoCalculatedGrade;  // Not persisted
-    private Double calculatedPointsEarned;	// Not persisted
+    private String calculatedPointsEarned;	// Not persisted
 
     public static Comparator<CourseGradeRecord> calcComparator;
 
@@ -155,7 +155,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		return autoCalculatedGrade;
 	}
 
-	public Double getPointsEarned() {
+	public String getPointsEarned() {
 		return calculatedPointsEarned;
 	}
 
@@ -190,7 +190,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 
 	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned) {
 		Double percentageEarned;
-		calculatedPointsEarned = totalPointsEarned;
+		calculatedPointsEarned = new Double(totalPointsEarned).toString();
 		BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
 		BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
 		if (totalPointsPossible == 0.0) {
@@ -204,10 +204,9 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned, double literalTotalPointsEarned) {
 		Double percentageEarned;
 		//calculatedPointsEarned = totalPointsEarned;
-		calculatedPointsEarned = literalTotalPointsEarned;
+		calculatedPointsEarned = new Double(literalTotalPointsEarned).toString();
 		BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
 		BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
-
 		if (totalPointsPossible <= 0.0) {
 			percentageEarned = null;
 		} else {

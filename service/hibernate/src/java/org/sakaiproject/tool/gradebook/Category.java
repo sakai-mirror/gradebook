@@ -4,7 +4,10 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Logger;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 public class Category implements Serializable
@@ -30,6 +33,8 @@ public class Category implements Serializable
   public static String SORT_BY_NAME = "name";
   public static String SORT_BY_AVERAGE_SCORE = "averageScore";
   public static String SORT_BY_WEIGHT = "weight";
+  
+  protected static final Log log = LogFactory.getLog(Category.class);
   
 	static
 	{
@@ -194,112 +199,145 @@ public class Category implements Serializable
 	
 	public void calculateStatistics(List<Assignment> assignmentsWithStats)
 	{
-    int numScored = 0;
-    int numOfAssignments = 0;
-    BigDecimal total = new BigDecimal("0");
-    BigDecimal totalPossible = new BigDecimal("0");
-
-    for (Assignment assign : assignmentsWithStats) 
-    {
-    	Double score = assign.getAverageTotal();
-//    	if(assign.isReleased())
-//    	{
-    	if(assign.isCounted() && !assign.getUngraded() && assign.getPointsPossible().doubleValue() > 0.0)
-    	{
-    		if (score == null) 
-    		{
-    		} 
-    		else 
-    		{
-    			total = total.add(new BigDecimal(score.toString()));
-    			if(assign.getPointsPossible() != null)
-    			{
-    				totalPossible = totalPossible.add(new BigDecimal(assign.getPointsPossible().toString()));
-    				numOfAssignments ++;
-    			}
-    			numScored++;
-    		}
-    	}
-//    	}
-    }
-
-    if (numScored == 0 || numOfAssignments == 0) 
-    {
+		int gbGradeType = getGradebook().getGrade_type();
+		if(gbGradeType == GradebookService.GRADE_TYPE_LETTER)
+		{
+			log.error("Calling calculateStatistics in Category for letter grade type gradebook.");
     	averageScore = null;
     	averageTotalPoints = null;
     	mean = null;
-    } 
-    else 
-    {
-    	BigDecimal bdNumScored = new BigDecimal(numScored);
-    	BigDecimal bdNumAssign = new BigDecimal(numOfAssignments);
-    	averageScore = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
-    	averageTotalPoints = new Double(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
-    	BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide(new BigDecimal(averageTotalPoints.doubleValue()), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
-    	mean = new Double(value.doubleValue()) ;
-    }
+		}
+		else
+		{
+			int numScored = 0;
+			int numOfAssignments = 0;
+			BigDecimal total = new BigDecimal("0");
+			BigDecimal totalPossible = new BigDecimal("0");
+
+			for (Assignment assign : assignmentsWithStats) 
+			{
+				Double score = assign.getAverageTotal();
+				//    	if(assign.isReleased())
+				//    	{
+				if(assign.isCounted() && !assign.getUngraded() && assign.getPointsPossible().doubleValue() > 0.0)
+				{
+					if (score == null) 
+					{
+					} 
+					else 
+					{
+						total = total.add(new BigDecimal(score.toString()));
+						if(assign.getPointsPossible() != null)
+						{
+							if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
+								totalPossible = totalPossible.add(new BigDecimal(assign.getPointsPossible().toString()));
+							else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
+								totalPossible = new BigDecimal("100.0");
+							numOfAssignments ++;
+						}
+						numScored++;
+					}
+				}
+				//    	}
+			}
+
+			if (numScored == 0 || numOfAssignments == 0) 
+			{
+				averageScore = null;
+				averageTotalPoints = null;
+				mean = null;
+			} 
+			else 
+			{
+				BigDecimal bdNumScored = new BigDecimal(numScored);
+				BigDecimal bdNumAssign = new BigDecimal(numOfAssignments);
+				averageScore = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+				averageTotalPoints = new Double(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
+				BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide(new BigDecimal(averageTotalPoints.doubleValue()), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
+				mean = new Double(value.doubleValue()) ;
+			}
+		}
 	}
 
 	public void calculateStatisticsPerStudent(List<AssignmentGradeRecord> gradeRecords, String studentUid)
 	{
-    int numScored = 0;
-    int numOfAssignments = 0;
-    BigDecimal total = new BigDecimal("0");
-    BigDecimal totalPossible = new BigDecimal("0");
-
-    if (gradeRecords == null) 
-    {
-    	setAverageScore(null);
-    	setAverageTotalPoints(null);
-    	setMean(null);
-    	return;
-    }
-
-    for (AssignmentGradeRecord gradeRecord : gradeRecords) 
-    {
-    	if(gradeRecord != null && gradeRecord.getStudentId().equals(studentUid))
-    	{
-    		Assignment assignment = gradeRecord.getAssignment();
-
-    		if (assignment.isCounted() && !assignment.getUngraded() && assignment.getPointsPossible().doubleValue() > 0.0) 
-    		{
-    			Category assignCategory = assignment.getCategory();
-    			if (assignCategory != null && assignCategory.getId().equals(id))
-    			{
-    				Double score = gradeRecord.getPointsEarned();
-    				if (score != null) 
-    				{
-    					BigDecimal bdScore = new BigDecimal(score.toString());
-    					total = total.add(bdScore);
-    					if(assignment.getPointsPossible() != null)
-    					{
-    						BigDecimal bdPointsPossible = new BigDecimal(assignment.getPointsPossible().toString());
-    						totalPossible = totalPossible.add(bdPointsPossible);
-    						numOfAssignments ++;
-    					}
-    					numScored++;
-    				}
-    			}
-    		}
-    	}
-    }
-
-    if (numScored == 0 || numOfAssignments == 0) 
-    {
+		int gbGradeType = getGradebook().getGrade_type();
+		if(gbGradeType == GradebookService.GRADE_TYPE_LETTER)
+		{
+			log.error("Calling calculateStatisticsPerStudent in Category for letter grade type gradebook.");
     	averageScore = null;
     	averageTotalPoints = null;
     	mean = null;
-    } 
-    else 
-    {
-    	BigDecimal bdNumScored = new BigDecimal(numScored);
-    	BigDecimal bdNumAssign = new BigDecimal(numOfAssignments);
-    	averageScore = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
-    	averageTotalPoints = new Double(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
-    	BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide((totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT)), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
- 
-    	mean = new Double(value.doubleValue()) ;
-    }
+		}
+		else
+		{
+			int numScored = 0;
+			int numOfAssignments = 0;
+			BigDecimal total = new BigDecimal("0");
+			BigDecimal totalPossible = new BigDecimal("0");
+
+			if (gradeRecords == null) 
+			{
+				setAverageScore(null);
+				setAverageTotalPoints(null);
+				setMean(null);
+				return;
+			}
+
+			for (AssignmentGradeRecord gradeRecord : gradeRecords) 
+			{
+				if(gradeRecord != null && gradeRecord.getStudentId().equals(studentUid))
+				{
+					Assignment assignment = gradeRecord.getAssignment();
+
+					if (assignment.isCounted() && !assignment.getUngraded() && assignment.getPointsPossible().doubleValue() > 0.0) 
+					{
+						Category assignCategory = assignment.getCategory();
+						if (assignCategory != null && assignCategory.getId().equals(id))
+						{
+							String score = gradeRecord.getPointsEarned();
+							if (score != null) 
+							{
+								BigDecimal bdScore = new BigDecimal(score.toString());
+								total = total.add(bdScore);
+								if(assignment.getPointsPossible() != null)
+								{
+									if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
+									{
+										BigDecimal bdPointsPossible = new BigDecimal(assignment.getPointsPossible().toString());
+										totalPossible = totalPossible.add(bdPointsPossible);
+									}
+									else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
+									{
+										BigDecimal bdPointsPossible = new BigDecimal("100.0");
+										totalPossible = totalPossible.add(bdPointsPossible);
+									}
+									numOfAssignments ++;
+								}
+								numScored++;
+							}
+						}
+					}
+				}
+			}
+
+			if (numScored == 0 || numOfAssignments == 0) 
+			{
+				averageScore = null;
+				averageTotalPoints = null;
+				mean = null;
+			} 
+			else 
+			{
+				BigDecimal bdNumScored = new BigDecimal(numScored);
+				BigDecimal bdNumAssign = new BigDecimal(numOfAssignments);
+				averageScore = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+				averageTotalPoints = new Double(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
+				BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide((totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT)), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
+
+				mean = new Double(value.doubleValue()) ;
+			}
+		}
 	}
 
 	public List getAssignmentList()

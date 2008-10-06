@@ -192,123 +192,125 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 	/**
 	 * @see org.sakaiproject.service.gradebook.shared.GradebookService#updateExternalAssessmentScore(java.lang.String, java.lang.String, java.lang.String, Double)
 	 */
-	public void updateExternalAssessmentScore(final String gradebookUid, final String externalId,
-			final String studentUid, final Double points) throws GradebookNotFoundException, AssessmentNotFoundException {
+  //comment out for non-cal dev.
+//	public void updateExternalAssessmentScore(final String gradebookUid, final String externalId,
+//			final String studentUid, final Double points) throws GradebookNotFoundException, AssessmentNotFoundException {
+//
+//        final Assignment asn = getExternalAssignment(gradebookUid, externalId);
+//
+//        if(asn == null) {
+//            throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUid);
+//        }
+//
+//        if (logData.isDebugEnabled()) logData.debug("BEGIN: Update 1 score for gradebookUid=" + gradebookUid + ", external assessment=" + externalId + " from " + asn.getExternalAppName());
+//
+//        HibernateCallback hc = new HibernateCallback() {
+//            public Object doInHibernate(Session session) throws HibernateException {
+//                Date now = new Date();
+//
+//                AssignmentGradeRecord agr = getAssignmentGradeRecord(asn, studentUid, session);
+//
+//                // Try to reduce data contention by only updating when the
+//                // score has actually changed.
+//                Double oldPointsEarned = (agr == null) ? null : agr.getPointsEarned();
+//                if ( ((points != null) && (!points.equals(oldPointsEarned))) ||
+//					((points == null) && (oldPointsEarned != null)) ) {
+//					if (agr == null) {
+//						agr = new AssignmentGradeRecord(asn, studentUid, points);
+//					} else {
+//						agr.setPointsEarned(points);
+//					}
+//
+//					agr.setDateRecorded(now);
+//					agr.setGraderId(getUserUid());
+//					if (log.isDebugEnabled()) log.debug("About to save AssignmentGradeRecord id=" + agr.getId() + ", version=" + agr.getVersion() + ", studenttId=" + agr.getStudentId() + ", pointsEarned=" + agr.getPointsEarned());
+//					session.saveOrUpdate(agr);
+//
+//					// Sync database.
+//					session.flush();
+//					session.clear();
+//				} else {
+//					if(log.isDebugEnabled()) log.debug("Ignoring updateExternalAssessmentScore, since the new points value is the same as the old");
+//				}
+//                return null;
+//            }
+//        };
+//        getHibernateTemplate().execute(hc);
+//        if (logData.isDebugEnabled()) logData.debug("END: Update 1 score for gradebookUid=" + gradebookUid + ", external assessment=" + externalId + " from " + asn.getExternalAppName());
+//		if (log.isDebugEnabled()) log.debug("External assessment score updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + ", new score=" + points);
+//	}
 
-        final Assignment asn = getExternalAssignment(gradebookUid, externalId);
-
-        if(asn == null) {
-            throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUid);
-        }
-
-        if (logData.isDebugEnabled()) logData.debug("BEGIN: Update 1 score for gradebookUid=" + gradebookUid + ", external assessment=" + externalId + " from " + asn.getExternalAppName());
-
-        HibernateCallback hc = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                Date now = new Date();
-
-                AssignmentGradeRecord agr = getAssignmentGradeRecord(asn, studentUid, session);
-
-                // Try to reduce data contention by only updating when the
-                // score has actually changed.
-                Double oldPointsEarned = (agr == null) ? null : agr.getPointsEarned();
-                if ( ((points != null) && (!points.equals(oldPointsEarned))) ||
-					((points == null) && (oldPointsEarned != null)) ) {
-					if (agr == null) {
-						agr = new AssignmentGradeRecord(asn, studentUid, points);
-					} else {
-						agr.setPointsEarned(points);
-					}
-
-					agr.setDateRecorded(now);
-					agr.setGraderId(getUserUid());
-					if (log.isDebugEnabled()) log.debug("About to save AssignmentGradeRecord id=" + agr.getId() + ", version=" + agr.getVersion() + ", studenttId=" + agr.getStudentId() + ", pointsEarned=" + agr.getPointsEarned());
-					session.saveOrUpdate(agr);
-
-					// Sync database.
-					session.flush();
-					session.clear();
-				} else {
-					if(log.isDebugEnabled()) log.debug("Ignoring updateExternalAssessmentScore, since the new points value is the same as the old");
-				}
-                return null;
-            }
-        };
-        getHibernateTemplate().execute(hc);
-        if (logData.isDebugEnabled()) logData.debug("END: Update 1 score for gradebookUid=" + gradebookUid + ", external assessment=" + externalId + " from " + asn.getExternalAppName());
-		if (log.isDebugEnabled()) log.debug("External assessment score updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + ", new score=" + points);
-	}
-
-	public void updateExternalAssessmentScores(final String gradebookUid, final String externalId, final Map studentUidsToScores)
-	throws GradebookNotFoundException, AssessmentNotFoundException {
-
-      final Assignment assignment = getExternalAssignment(gradebookUid, externalId);
-      if (assignment == null) {
-          throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUid);
-      }
-	final Set studentIds = studentUidsToScores.keySet();
-	if (studentIds.isEmpty()) {
-		return;
-	}
-	final Date now = new Date();
-	final String graderId = getUserUid();
-
-	getHibernateTemplate().execute(new HibernateCallback() {
-		public Object doInHibernate(Session session) throws HibernateException {
-			List existingScores;
-			if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
-				Query q = session.createQuery("from AssignmentGradeRecord as gr where gr.gradableObject=:go and gr.studentId in (:studentIds)");
-				q.setParameter("go", assignment);
-				q.setParameterList("studentIds", studentIds);
-				existingScores = q.list();
-			} else {
-				Query q = session.createQuery("from AssignmentGradeRecord as gr where gr.gradableObject=:go");
-				q.setParameter("go", assignment);
-				existingScores = filterGradeRecordsByStudents(q.list(), studentIds);
-			}
-
-			Set previouslyUnscoredStudents = new HashSet(studentIds);
-			Set changedStudents = new HashSet();
-			for (Iterator iter = existingScores.iterator(); iter.hasNext(); ) {
-				AssignmentGradeRecord agr = (AssignmentGradeRecord)iter.next();
-				String studentUid = agr.getStudentId();
-				previouslyUnscoredStudents.remove(studentUid);
-
-				// Try to reduce data contention by only updating when a score
-				// has changed.
-				Double oldPointsEarned = agr.getPointsEarned();
-				Double newPointsEarned = (Double)studentUidsToScores.get(studentUid);
-				if ( ((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) || ((newPointsEarned == null) && (oldPointsEarned != null)) ) {
-					agr.setDateRecorded(now);
-					agr.setGraderId(graderId);
-					agr.setPointsEarned(newPointsEarned);
-					session.update(agr);
-					changedStudents.add(studentUid);
-				}
-			}
-			for (Iterator iter = previouslyUnscoredStudents.iterator(); iter.hasNext(); ) {
-				String studentUid = (String)iter.next();
-
-				// Don't save unnecessary null scores.
-				Double newPointsEarned = (Double)studentUidsToScores.get(studentUid);
-				if (newPointsEarned != null) {
-					AssignmentGradeRecord agr = new AssignmentGradeRecord(assignment, studentUid, newPointsEarned);
-					agr.setDateRecorded(now);
-					agr.setGraderId(graderId);
-					session.save(agr);
-					changedStudents.add(studentUid);
-				}
-			}
-
-			if (log.isDebugEnabled()) log.debug("updateExternalAssessmentScores sent " + studentIds.size() + " records, actually changed " + changedStudents.size());
-
-			// Sync database.
-			session.flush();
-			session.clear();
-              return null;
-          }
-      });
-	}
+  //comment out for non-cal dev.
+//	public void updateExternalAssessmentScores(final String gradebookUid, final String externalId, final Map studentUidsToScores)
+//	throws GradebookNotFoundException, AssessmentNotFoundException {
+//
+//      final Assignment assignment = getExternalAssignment(gradebookUid, externalId);
+//      if (assignment == null) {
+//          throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUid);
+//      }
+//	final Set studentIds = studentUidsToScores.keySet();
+//	if (studentIds.isEmpty()) {
+//		return;
+//	}
+//	final Date now = new Date();
+//	final String graderId = getUserUid();
+//
+//	getHibernateTemplate().execute(new HibernateCallback() {
+//		public Object doInHibernate(Session session) throws HibernateException {
+//			List existingScores;
+//			if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+//				Query q = session.createQuery("from AssignmentGradeRecord as gr where gr.gradableObject=:go and gr.studentId in (:studentIds)");
+//				q.setParameter("go", assignment);
+//				q.setParameterList("studentIds", studentIds);
+//				existingScores = q.list();
+//			} else {
+//				Query q = session.createQuery("from AssignmentGradeRecord as gr where gr.gradableObject=:go");
+//				q.setParameter("go", assignment);
+//				existingScores = filterGradeRecordsByStudents(q.list(), studentIds);
+//			}
+//
+//			Set previouslyUnscoredStudents = new HashSet(studentIds);
+//			Set changedStudents = new HashSet();
+//			for (Iterator iter = existingScores.iterator(); iter.hasNext(); ) {
+//				AssignmentGradeRecord agr = (AssignmentGradeRecord)iter.next();
+//				String studentUid = agr.getStudentId();
+//				previouslyUnscoredStudents.remove(studentUid);
+//
+//				// Try to reduce data contention by only updating when a score
+//				// has changed.
+//				Double oldPointsEarned = agr.getPointsEarned();
+//				Double newPointsEarned = (Double)studentUidsToScores.get(studentUid);
+//				if ( ((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) || ((newPointsEarned == null) && (oldPointsEarned != null)) ) {
+//					agr.setDateRecorded(now);
+//					agr.setGraderId(graderId);
+//					agr.setPointsEarned(newPointsEarned);
+//					session.update(agr);
+//					changedStudents.add(studentUid);
+//				}
+//			}
+//			for (Iterator iter = previouslyUnscoredStudents.iterator(); iter.hasNext(); ) {
+//				String studentUid = (String)iter.next();
+//
+//				// Don't save unnecessary null scores.
+//				Double newPointsEarned = (Double)studentUidsToScores.get(studentUid);
+//				if (newPointsEarned != null) {
+//					AssignmentGradeRecord agr = new AssignmentGradeRecord(assignment, studentUid, newPointsEarned);
+//					agr.setDateRecorded(now);
+//					agr.setGraderId(graderId);
+//					session.save(agr);
+//					changedStudents.add(studentUid);
+//				}
+//			}
+//
+//			if (log.isDebugEnabled()) log.debug("updateExternalAssessmentScores sent " + studentIds.size() + " records, actually changed " + changedStudents.size());
+//
+//			// Sync database.
+//			session.flush();
+//			session.clear();
+//              return null;
+//          }
+//      });
+//	}
 
 	public void updateExternalAssessmentScoresString(final String gradebookUid, final String externalId, final Map studentUidsToScores)
 		throws GradebookNotFoundException, AssessmentNotFoundException {
@@ -348,15 +350,14 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 					// Try to reduce data contention by only updating when a score
 					// has changed.
 					//TODO: for ungraded items, needs to set ungraded-grades later...
-					Double oldPointsEarned = agr.getPointsEarned();
+					String oldPointsEarned = agr.getPointsEarned();
 					//Double newPointsEarned = (Double)studentUidsToScores.get(studentUid);
 					String newPointsEarnedString = (String)studentUidsToScores.get(studentUid);
-					Double newPointsEarned = (newPointsEarnedString == null) ? null : new Double(newPointsEarnedString); 
-					if ( ((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) || ((newPointsEarned == null) && (oldPointsEarned != null)) ) {
+					if ( ((newPointsEarnedString != null) && (!newPointsEarnedString.equals(oldPointsEarned))) || ((newPointsEarnedString == null) && (oldPointsEarned != null)) ) {
 						agr.setDateRecorded(now);
 						agr.setGraderId(graderId);
-						if(newPointsEarned != null)
-							agr.setPointsEarned(new Double(newPointsEarned));
+						if(newPointsEarnedString != null)
+							agr.setPointsEarned(newPointsEarnedString);
 						else
 							agr.setPointsEarned(null);
 						session.update(agr);
@@ -369,7 +370,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 					// Don't save unnecessary null scores.
 					String newPointsEarned = (String)studentUidsToScores.get(studentUid);
 					if (newPointsEarned != null) {
-						AssignmentGradeRecord agr = new AssignmentGradeRecord(assignment, studentUid, new Double(newPointsEarned));
+						AssignmentGradeRecord agr = new AssignmentGradeRecord(assignment, studentUid, newPointsEarned);
 						agr.setDateRecorded(now);
 						agr.setGraderId(graderId);
 						session.save(agr);
@@ -542,18 +543,17 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 				// Try to reduce data contention by only updating when the
 				// score has actually changed.
 				//TODO: for ungraded items, needs to set ungraded-grades later...
-				Double oldPointsEarned = (agr == null) ? null : agr.getPointsEarned();
-				Double newPointsEarned = (points == null) ? null : new Double(points); 
-				if ( ((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) ||
-						((newPointsEarned == null) && (oldPointsEarned != null)) ) {
+				String oldPointsEarned = (agr == null) ? null : agr.getPointsEarned();
+				if ( ((points != null) && (!points.equals(oldPointsEarned))) ||
+						((points == null) && (oldPointsEarned != null)) ) {
 					if (agr == null) {
-						if(newPointsEarned != null)
-							agr = new AssignmentGradeRecord(asn, studentUid, new Double(newPointsEarned));
+						if(points != null)
+							agr = new AssignmentGradeRecord(asn, studentUid, points);
 						else
 							agr = new AssignmentGradeRecord(asn, studentUid, null);
 					} else {
-						if(newPointsEarned != null)
-							agr.setPointsEarned(new Double(newPointsEarned));
+						if(points != null)
+							agr.setPointsEarned(points);
 						else
 							agr.setPointsEarned(null);
 					}

@@ -1252,27 +1252,28 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
      * @param studentRecordsFromDB
      * @return
      */
-    protected List convertPointsToPercentage(Gradebook gradebook, List studentRecordsFromDB)
-    {
-    	List percentageList = new ArrayList();
-    	for(int i=0; i < studentRecordsFromDB.size(); i++)
-    	{
-    		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
-    		if (agr != null) {
-    			Double pointsPossible = agr.getAssignment().getPointsPossible();
-    			if (pointsPossible == null || agr.getPointsEarned() == null) {
-    				agr.setPercentEarned(null);
-        			percentageList.add(agr);
-    			} else {
-        			agr.setDateRecorded(agr.getDateRecorded());
-        			agr.setGraderId(agr.getGraderId());
-        			agr.setPercentEarned(calculateEquivalentPercent(pointsPossible, agr.getPointsEarned()));
-        			percentageList.add(agr);
-    			}
-    		}
-    	}
-    	return percentageList;
-    }
+    //comment out for non-cal dev.
+//    protected List convertPointsToPercentage(Gradebook gradebook, List studentRecordsFromDB)
+//    {
+//    	List percentageList = new ArrayList();
+//    	for(int i=0; i < studentRecordsFromDB.size(); i++)
+//    	{
+//    		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
+//    		if (agr != null) {
+//    			Double pointsPossible = agr.getAssignment().getPointsPossible();
+//    			if (pointsPossible == null || agr.getPointsEarned() == null) {
+//    				agr.setPercentEarned(null);
+//        			percentageList.add(agr);
+//    			} else {
+//        			agr.setDateRecorded(agr.getDateRecorded());
+//        			agr.setGraderId(agr.getGraderId());
+//        			agr.setPercentEarned(calculateEquivalentPercent(pointsPossible, agr.getPointsEarned()));
+//        			percentageList.add(agr);
+//    			}
+//    		}
+//    	}
+//    	return percentageList;
+//    }
     
     /**
      * Converts points to letter grade for the given AssignmentGradeRecords
@@ -1280,29 +1281,30 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
      * @param studentRecordsFromDB
      * @return
      */
-    protected List convertPointsToLetterGrade(Gradebook gradebook, List studentRecordsFromDB)
-    {
-    	List letterGradeList = new ArrayList();
-    	LetterGradePercentMapping lgpm = getLetterGradePercentMapping(gradebook);
-    	for(int i=0; i < studentRecordsFromDB.size(); i++)
-    	{
-    		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
-    		Double pointsPossible = agr.getAssignment().getPointsPossible();
-    		agr.setDateRecorded(agr.getDateRecorded());
-    		agr.setGraderId(agr.getGraderId());
-    		if (agr != null) {
-    			if (pointsPossible == null || agr.getPointsEarned() == null) {
-    				agr.setLetterEarned(null);
-        			letterGradeList.add(agr);
-    			} else {
-    				String letterGrade = lgpm.getGrade(calculateEquivalentPercent(pointsPossible, agr.getPointsEarned()));
-        			agr.setLetterEarned(letterGrade);
-        			letterGradeList.add(agr);
-    			}
-    		}
-    	}
-    	return letterGradeList;
-    }
+    //comment out for non-cal dev.
+//    protected List convertPointsToLetterGrade(Gradebook gradebook, List studentRecordsFromDB)
+//    {
+//    	List letterGradeList = new ArrayList();
+//    	LetterGradePercentMapping lgpm = getLetterGradePercentMapping(gradebook);
+//    	for(int i=0; i < studentRecordsFromDB.size(); i++)
+//    	{
+//    		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
+//    		Double pointsPossible = agr.getAssignment().getPointsPossible();
+//    		agr.setDateRecorded(agr.getDateRecorded());
+//    		agr.setGraderId(agr.getGraderId());
+//    		if (agr != null) {
+//    			if (pointsPossible == null || agr.getPointsEarned() == null) {
+//    				agr.setLetterEarned(null);
+//        			letterGradeList.add(agr);
+//    			} else {
+//    				String letterGrade = lgpm.getGrade(calculateEquivalentPercent(pointsPossible, agr.getPointsEarned()));
+//        			agr.setLetterEarned(letterGrade);
+//        			letterGradeList.add(agr);
+//    			}
+//    		}
+//    	}
+//    	return letterGradeList;
+//    }
     
     protected Double calculateEquivalentPointValueForPercent(Double doublePointsPossible, Double doublePercentEarned) {
     	if (doublePointsPossible == null || doublePercentEarned == null)
@@ -1365,12 +1367,12 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     					AssignmentGradeRecord gradeRecord = studentToGradeRecordMap.get(studentUid);
    						if (gradeRecord != null) {
    							if (gradeRecord.getPointsEarned() == null) {
-   								gradeRecord.setPointsEarned(new Double(0));
+   								gradeRecord.setPointsEarned("0");
    							} else {
    								continue;
    							}
    						} else {
-   							gradeRecord = new AssignmentGradeRecord(assignment, studentUid, new Double(0));
+   							gradeRecord = new AssignmentGradeRecord(assignment, studentUid, "0");
    						}
 						gradeRecord.setGraderId(graderId);
 						gradeRecord.setDateRecorded(now);

@@ -34,9 +34,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public class AssignmentGradeRecord extends AbstractGradeRecord {
-    private Double pointsEarned;
-    private String letterEarned;
-    private Double percentEarned;
+    private String pointsEarned;
     private boolean userAbleToView;
     private Boolean excludedFromGrade;
 
@@ -51,7 +49,7 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
      * @param studentId The student id for whom this grade record belongs
 	 * @param grade The grade, or points earned
 	 */
-	public AssignmentGradeRecord(Assignment assignment, String studentId, Double grade) {
+	public AssignmentGradeRecord(Assignment assignment, String studentId, String grade) {
         super();
         this.gradableObject = assignment;
         this.studentId = studentId;
@@ -72,8 +70,8 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
                 if(agr2 == null) {
                     return 1;
                 }
-                Double agr1Points = agr1.getPointsEarned();
-                Double agr2Points = agr2.getPointsEarned();
+                String agr1Points = agr1.getPointsEarned();
+                String agr2Points = agr2.getPointsEarned();
                 
                 if (agr1Points == null && agr2Points == null) {
                 	return 0;
@@ -92,14 +90,14 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
     /**
      * @return Returns the pointsEarned
      */
-    public Double getPointsEarned() {
+    public String getPointsEarned() {
         return pointsEarned;
     }
 
 	/**
 	 * @param pointsEarned The pointsEarned to set.
 	 */
-	public void setPointsEarned(Double pointsEarned) {
+	public void setPointsEarned(String pointsEarned) {
 		this.pointsEarned = pointsEarned;
 	}
 
@@ -118,7 +116,26 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
         return new Double(bdPercent.doubleValue());
     }
 
-	/**
+    public Double getGradeAsPercentage(int gradebookType) {
+      if (pointsEarned == null) {
+          return null;
+      }
+      if(gradebookType == GradebookService.GRADE_TYPE_POINTS)
+      {
+      	BigDecimal bdPointsEarned = new BigDecimal(pointsEarned.toString());
+      	BigDecimal bdPossible = new BigDecimal(((Assignment)getGradableObject()).getPointsPossible().toString());
+      	BigDecimal bdPercent = bdPointsEarned.divide(bdPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
+      	return new Double(bdPercent.doubleValue());
+      }
+      else if(gradebookType == GradebookService.GRADE_TYPE_PERCENTAGE)
+      {
+      	return new Double(pointsEarned);
+      }
+      else
+      	return null;
+    }	
+
+    /**
 	 * @see org.sakaiproject.tool.gradebook.AbstractGradeRecord#isCourseGradeRecord()
 	 */
 	public boolean isCourseGradeRecord() {
@@ -127,24 +144,6 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
 
     public Assignment getAssignment() {
     	return (Assignment)getGradableObject();
-    }
-    
-    public Double getPercentEarned() {
-    	return percentEarned;
-    }
-    
-    public void setPercentEarned(Double percentEarned) {
-    	this.percentEarned = percentEarned;
-    }
-
-    public String getLetterEarned()
-    {
-    	return letterEarned;
-    }
-
-    public void setLetterEarned(String letterEarned)
-    {
-    	this.letterEarned = letterEarned;
     }
     
     public boolean isUserAbleToView() {
@@ -160,9 +159,7 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
     	agr.setDateRecorded(dateRecorded);
     	agr.setGradableObject(gradableObject);
     	agr.setGraderId(graderId);
-    	agr.setLetterEarned(letterEarned);
     	agr.setPointsEarned(pointsEarned);
-    	agr.setPercentEarned(percentEarned);
     	agr.setStudentId(studentId);
     	return agr;
     }

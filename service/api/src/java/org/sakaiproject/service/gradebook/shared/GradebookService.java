@@ -486,9 +486,10 @@ public interface GradebookService {
 	/**
 	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#updateExternalAssessmentScoresString(String, String, Map)}
 	 */
-	public void updateExternalAssessmentScores(String gradebookUid,
-			String externalId, Map studentUidsToScores)
-			throws GradebookNotFoundException, AssessmentNotFoundException;
+	//comment out for non-cal dev.
+//	public void updateExternalAssessmentScores(String gradebookUid,
+//			String externalId, Map studentUidsToScores)
+//			throws GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
 	 * @deprecated Replaced by {@link GradebookExternalAssessmentService#isExternalAssignmentDefined(String, String)}

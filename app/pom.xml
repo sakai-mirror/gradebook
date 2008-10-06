@@ -15,6 +15,7 @@
     <module>business</module>
     <module>sakai-tool</module>
     <module>standalone-app</module>
-    <module>ui</module>
+<!-- comment out for non-cal dev. -->
+<!--    <module>ui</module>-->
   </modules>
 </project>
