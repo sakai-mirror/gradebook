@@ -110,6 +110,10 @@ public final class Grade
 				{
 					Double gradeDouble = new Double(grade);
 					double gradeValue = gradeDouble.doubleValue();
+					if(gradeValue < 0.0d)
+					{
+						return false;
+					}
 					BigDecimal bd = new BigDecimal(gradeValue);
 					bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
 					double roundedVal = bd.doubleValue();
@@ -122,7 +126,7 @@ public final class Grade
 				}
 				catch(NumberFormatException nfe)
 				{
-					throw new NumberFormatException("grade:" + grade +  " is not a number for points based gradebook.");
+					throw new NumberFormatException("grade:" + grade +  " is not a number for points/percentage based gradebook.");
 				}
 			}
 			else if(ungraded || grade_type == GradebookService.GRADE_TYPE_LETTER)

@@ -41,8 +41,20 @@ public class GradeValidationTest extends TestCase
   	{
   		log.info(ige.getMessage());
   	}
+  	try
+  	{
+  		Grade g = new Grade("-0.5", GradebookService.GRADE_TYPE_POINTS, false);
+  		fail();
+  	}
+  	catch(InvalidGradeException ige)
+  	{
+  		log.info(ige.getMessage());
+  	}
   	
 		Grade g = new Grade("85.55", GradebookService.GRADE_TYPE_POINTS, false);
+		g = new Grade("85.5", GradebookService.GRADE_TYPE_POINTS, false);
+		g = new Grade("0", GradebookService.GRADE_TYPE_POINTS, false);
+		g = new Grade("-0.0", GradebookService.GRADE_TYPE_POINTS, false);
   }
 
   public void testPercentGrade() throws Exception 
@@ -65,6 +77,15 @@ public class GradeValidationTest extends TestCase
   	{
   		log.info(ige.getMessage());
   	}
+  	try
+  	{
+  		Grade g = new Grade("-0.5", GradebookService.GRADE_TYPE_PERCENTAGE, false);
+  		fail();
+  	}
+  	catch(InvalidGradeException ige)
+  	{
+  		log.info(ige.getMessage());
+  	}
   }
   
   public void testUngrade() throws Exception 
@@ -80,6 +101,7 @@ public class GradeValidationTest extends TestCase
   	}
   	
   	Grade g = new Grade("85.55555", GradebookService.GRADE_TYPE_PERCENTAGE, true);
+  	g = new Grade("-56", GradebookService.GRADE_TYPE_POINTS, true);
   }
   
   public void testInvalidGradeType() throws Exception
