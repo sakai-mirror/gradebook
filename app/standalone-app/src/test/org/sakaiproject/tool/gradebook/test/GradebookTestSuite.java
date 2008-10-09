@@ -33,6 +33,7 @@ public class GradebookTestSuite extends TestCase {
 		// it tests automatic updating of a blank database.
 
 		suite.addTestSuite(GradebookManagerOPCTest.class);
+		suite.addTestSuite(GradeValidationTest.class);
 		suite.addTestSuite(AssignmentSortingTest.class);
 		suite.addTestSuite(CalculationsTest.class);
 		suite.addTestSuite(GradeCommentTest.class);

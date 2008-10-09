@@ -23,7 +23,10 @@
 **********************************************************************************/
 package org.sakaiproject.service.gradebook.shared;
 
+import java.math.BigDecimal;
+
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 
 /**
  *  Immutable class Grade for easy grade validation.
@@ -35,15 +38,44 @@ public final class Grade
 	private final int grade_type;
 	private final boolean ungraded;
 	
+	/**
+	 * The only constructor for Grade. 
+	 * Make use to catch InvalidGradeException and GradebookException when create an object of Grade.
+	 * 
+	 * @param grade
+	 * @param grade_type
+	 * @param ungraded
+	 * @throws InvalidGradeException
+	 * @throws GradebookException
+	 */
 	public Grade(String grade, int grade_type, boolean ungraded)
+	throws InvalidGradeException, GradebookException
 	{
-		this.grade = grade;
-		this.grade_type = grade_type;
-		this.ungraded = ungraded;
-		
-		if(isValid())
+		try
 		{
-			//TODO: throw FormatException
+			boolean validBoolean = isValid(grade, grade_type, ungraded);
+			if(!validBoolean)
+			{
+				throw new InvalidGradeException("Invalid grade:" + grade + " for grade_type of:" + grade_type);
+			}
+			else
+			{
+				this.grade = grade;
+				this.grade_type = grade_type;
+				this.ungraded = ungraded;		
+			}
+		}
+		catch(NumberFormatException nfe)
+		{
+			throw new InvalidGradeException(nfe.getMessage());
+		}
+		catch(InvalidGradeException ige)
+		{
+			throw new InvalidGradeException(ige.getMessage());
+		}
+		catch(GradebookException ge)
+		{
+			throw ge;
 		}
 	}
 
@@ -62,13 +94,46 @@ public final class Grade
 		return ungraded;
 	}
 	
-	public boolean isValid()
+	public boolean isValid(String grade, int grade_type, boolean ungraded)
 	{
-		//TODO: incomplete validation
-		if(grade_type == GradebookService.GRADE_TYPE_POINTS)
-		{		
+		if(grade == null || grade.trim().equals(""))
+			return true;
+		else
+		{
+			if(grade_type != GradebookService.GRADE_TYPE_POINTS && grade_type != GradebookService.GRADE_TYPE_PERCENTAGE && grade_type != GradebookService.GRADE_TYPE_LETTER)
+			{
+				throw new GradebookException("Gradebook grade_type is invalid: it has to be 1, 2 or 3. Refer to GradebookService.");
+			}
+			else if( !ungraded && (grade_type == GradebookService.GRADE_TYPE_POINTS || grade_type == GradebookService.GRADE_TYPE_PERCENTAGE))
+			{
+				try
+				{
+					Double gradeDouble = new Double(grade);
+					double gradeValue = gradeDouble.doubleValue();
+					BigDecimal bd = new BigDecimal(gradeValue);
+					bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
+					double roundedVal = bd.doubleValue();
+					double diff = gradeValue - roundedVal;
+					if(diff != 0) 
+					{
+						return false;
+					}
+					return true;
+				}
+				catch(NumberFormatException nfe)
+				{
+					throw new NumberFormatException("grade:" + grade +  " is not a number for points based gradebook.");
+				}
+			}
+			else if(ungraded || grade_type == GradebookService.GRADE_TYPE_LETTER)
+			{
+				if(grade.length() > 8)
+					throw new InvalidGradeException("grade length is bigger than 8 for: " + grade + " of grade_type of: " + grade_type + ". ungraded is:" + ungraded);
+				else
+					return true;
+			}
+			return false;
 		}
-		return false;
 	}
 	
 	public boolean equals(Object obj)
@@ -78,16 +143,31 @@ public final class Grade
 		if(!(obj instanceof Grade))
 			return false;
 		Grade go = (Grade) obj;
-		return go.ungraded == this.ungraded && 
+		if (go.grade != null)
+			return go.ungraded == this.ungraded && 
 			go.grade_type == this.grade_type &&
 			go.grade.equals(this.grade);
+		else if (this.grade != null)
+			return go.ungraded == this.ungraded && 
+			go.grade_type == this.grade_type &&
+			this.grade.equals(go.grade);
+		else
+			return false;
 	}
 	
 	public int hashCode()
 	{
-		int result = 17 + Float.floatToIntBits(this.grade_type);
+		int result = 17 + this.grade_type;
 		result = 37 * result + Boolean.valueOf(this.ungraded).hashCode();
-		result = 37 * result + this.grade.hashCode();
+		result = 67 * result + this.grade.hashCode();
 		return result;
+	}
+	
+	public String toString()
+	{
+		if(grade != null)
+			return grade.toString() + ":" + grade_type + ":"+ ungraded;
+		else
+			return "Null grade:" + grade_type + ":"+ ungraded;
 	}
 }
