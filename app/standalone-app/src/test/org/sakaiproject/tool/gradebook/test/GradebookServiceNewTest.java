@@ -603,13 +603,15 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		// null grades are valid
 		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, null));
 		// try some point values
-		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "25.34"));
-		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "0"));
-		// negative should fail
-		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "-1"));
+		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "25.34"));
+		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "0"));
+		// negative should pass
+		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "-1"));
 		// try some valid ones
 		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "A"));
 		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "c-"));
+		// try long grade over 8 characters
+		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "123456789"));
 	}
 	
 	public void testIdentifyStudentsWithInvalidGrades() throws Exception {
@@ -651,10 +653,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
 		gradebookManager.updateGradebook(gradebookNoCat);
 		invalidStudentIds = gradebookService.identifyStudentsWithInvalidGrades(GRADEBOOK_UID_NO_CAT, studentIdGradeMap);
-		assertEquals(3, invalidStudentIds.size());
-		assertTrue(invalidStudentIds.contains(STUDENT_IN_SECTION_UID1));
-		assertTrue(invalidStudentIds.contains(STUDENT_IN_SECTION_UID2));
-		assertTrue(invalidStudentIds.contains(STUDENT_NOT_IN_SECTION_UID2));
+		assertEquals(0, invalidStudentIds.size());
 	}
 	
 	public void testSaveGradeAndCommentForStudent() throws Exception {

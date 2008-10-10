@@ -49,6 +49,7 @@ import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
+import org.sakaiproject.service.gradebook.shared.GradebookException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
@@ -56,6 +57,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+import org.sakaiproject.service.gradebook.shared.Grade;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Comment;
@@ -1621,51 +1623,20 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   }
   
   private boolean isGradeValid(String grade, int gradeEntryType, LetterGradePercentMapping gradeMapping) {
+  	try
+  	{
+  		Grade g = new Grade(grade, gradeEntryType, false);
+  	}
+  	catch(InvalidGradeException ige)
+  	{
+  		return false;
+  	}
+  	catch(GradebookException ge)
+  	{
+  		return false;
+  	}
 
-	  boolean gradeIsValid = false;
-
-	  if (grade == null || grade.equals("")) {
-
-		  gradeIsValid = true;
-
-	  } else {
-
-		  if (gradeEntryType == GradebookService.GRADE_TYPE_POINTS ||
-				  gradeEntryType == GradebookService.GRADE_TYPE_PERCENTAGE) {
-			  try {
-				  Double gradeAsDouble = Double.parseDouble(grade);
-				  // grade must be greater than or equal to 0
-				  if (gradeAsDouble.doubleValue() >= 0) {
-					  // check that there are no more than 2 decimal places
-					  String[] splitOnDecimal = grade.split("\\.");
-					  if (splitOnDecimal == null || splitOnDecimal.length < 2) {
-						  gradeIsValid = true;
-					  } else if (splitOnDecimal.length == 2) {
-						  String decimal = splitOnDecimal[1];
-						  if (decimal.length() <= 2) {
-							  gradeIsValid = true;
-						  }
-					  }
-				  }
-			  } catch (NumberFormatException nfe) {
-				  if (log.isDebugEnabled()) log.debug("Passed grade is not a numeric value");
-			  }
-
-		  } else if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER) {
-			  if (gradeMapping == null) {
-				  throw new IllegalArgumentException("Null mapping passed to isGradeValid for a letter grade-based gradeook");
-			  }
-
-			  String standardizedGrade = gradeMapping.standardizeInputGrade(grade);
-			  if (standardizedGrade != null) {
-				  gradeIsValid = true;
-			  }
-		  } else {
-			  throw new IllegalArgumentException("Invalid gradeEntryType passed to isGradeValid");
-		  }
-	  }
-
-	  return gradeIsValid;
+  	return true;
   }
 
   public List<String> identifyStudentsWithInvalidGrades(String gradebookUid, Map<String, String> studentIdToGradeMap) {
