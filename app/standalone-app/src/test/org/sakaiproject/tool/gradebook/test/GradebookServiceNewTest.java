@@ -570,48 +570,48 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		gradebookManager.updateGradebook(gradebookNoCat);
 		
 		// null grades are valid
-		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, null));
+		assertTrue(gradebookService.isGradeValid(asn1IdNoCat, null));
 		// try some positive point values
-		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "25.34"));
-		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "0"));
+		assertTrue(gradebookService.isGradeValid(asn1IdNoCat, "25.34"));
+		assertTrue(gradebookService.isGradeValid(asn1IdNoCat, "0"));
 		// negative should fail
-		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "-1"));
+		assertFalse(gradebookService.isGradeValid(asn1IdNoCat, "-1"));
 		// more than 2 decimal places should fail
-		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "10.125"));
+		assertFalse(gradebookService.isGradeValid(asn1IdNoCat, "10.125"));
 		// try non-numeric
-		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "A"));
+		assertFalse(gradebookService.isGradeValid(asn1IdNoCat, "A"));
 		
 		// switch to %-based gradebook
 		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
 		gradebookManager.updateGradebook(gradebookNoCat);
 		
 		// null grades are valid
-		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, null));
+		assertTrue(gradebookService.isGradeValid(asn1IdNoCat, null));
 		// try some positive point values
-		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "25.34"));
-		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "0"));
+		assertTrue(gradebookService.isGradeValid(asn1IdNoCat, "25.34"));
+		assertTrue(gradebookService.isGradeValid(asn1IdNoCat, "0"));
 		// negative should fail
-		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "-1"));
+		assertFalse(gradebookService.isGradeValid(asn1IdNoCat, "-1"));
 		// more than 2 decimal places should fail
-		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "10.125"));
+		assertFalse(gradebookService.isGradeValid(asn1IdNoCat, "10.125"));
 		// try non-numeric
-		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "A"));
+		assertFalse(gradebookService.isGradeValid(asn1IdNoCat, "A"));
 		
 		// switch to letter-based gradebook
 		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
 		gradebookManager.updateGradebook(gradebookNoCat);
 		// null grades are valid
-		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, null));
+		assertTrue(gradebookService.isGradeValid(asn1IdNoCat, null));
 		// try some point values
-		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "25.34"));
-		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "0"));
+		assertTrue(gradebookService.isGradeValid(asn1IdNoCat, "25.34"));
+		assertTrue(gradebookService.isGradeValid(asn1IdNoCat, "0"));
 		// negative should pass
-		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "-1"));
+		assertTrue(gradebookService.isGradeValid(asn1IdNoCat, "-1"));
 		// try some valid ones
-		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "A"));
-		assertTrue(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "c-"));
+		assertTrue(gradebookService.isGradeValid(asn1IdNoCat, "A"));
+		assertTrue(gradebookService.isGradeValid(asn1IdNoCat, "c-"));
 		// try long grade over 8 characters
-		assertFalse(gradebookService.isGradeValid(GRADEBOOK_UID_NO_CAT, "123456789"));
+		assertFalse(gradebookService.isGradeValid(asn1IdNoCat, "123456789"));
 	}
 	
 	public void testIdentifyStudentsWithInvalidGrades() throws Exception {
@@ -622,7 +622,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		} catch (IllegalArgumentException iae) {}
 		
 		// try a null map 
-		List<String> invalidStudentIds = gradebookService.identifyStudentsWithInvalidGrades(GRADEBOOK_UID_NO_CAT, null);
+		List<String> invalidStudentIds = gradebookService.identifyStudentsWithInvalidGrades(asn1IdNoCat, null);
 		assertTrue(invalidStudentIds.isEmpty());
 		
 		//add some students and grades for a points-based gb
@@ -636,7 +636,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		studentIdGradeMap.put(STUDENT_NOT_IN_SECTION_UID1, "A"); //invalid
 		studentIdGradeMap.put(STUDENT_NOT_IN_SECTION_UID2, "25.67"); //valid//
 		
-		invalidStudentIds = gradebookService.identifyStudentsWithInvalidGrades(GRADEBOOK_UID_NO_CAT, studentIdGradeMap);
+		invalidStudentIds = gradebookService.identifyStudentsWithInvalidGrades(asn1IdNoCat, studentIdGradeMap);
 		assertEquals(2, invalidStudentIds.size());
 		assertTrue(invalidStudentIds.contains(STUDENT_IN_SECTION_UID2));
 		assertTrue(invalidStudentIds.contains(STUDENT_NOT_IN_SECTION_UID1));
@@ -644,7 +644,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		//use a %-based gradebook
 		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
 		gradebookManager.updateGradebook(gradebookNoCat);
-		invalidStudentIds = gradebookService.identifyStudentsWithInvalidGrades(GRADEBOOK_UID_NO_CAT, studentIdGradeMap);
+		invalidStudentIds = gradebookService.identifyStudentsWithInvalidGrades(asn1IdNoCat, studentIdGradeMap);
 		assertEquals(2, invalidStudentIds.size());
 		assertTrue(invalidStudentIds.contains(STUDENT_IN_SECTION_UID2));
 		assertTrue(invalidStudentIds.contains(STUDENT_NOT_IN_SECTION_UID1));
@@ -652,7 +652,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		// use a letter-based gb
 		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
 		gradebookManager.updateGradebook(gradebookNoCat);
-		invalidStudentIds = gradebookService.identifyStudentsWithInvalidGrades(GRADEBOOK_UID_NO_CAT, studentIdGradeMap);
+		invalidStudentIds = gradebookService.identifyStudentsWithInvalidGrades(asn1IdNoCat, studentIdGradeMap);
 		assertEquals(0, invalidStudentIds.size());
 	}
 	

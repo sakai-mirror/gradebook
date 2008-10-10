@@ -1601,31 +1601,23 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  return studentGrades;
   }
   
-  public boolean isGradeValid(String gradebookUuid, String grade) {
-	  if (gradebookUuid == null) {
-		  throw new IllegalArgumentException("Null gradebookUuid passed to isGradeValid");
+  public boolean isGradeValid(Long assignmentItemId, String grade) {
+	  if (assignmentItemId == null) {
+		  throw new IllegalArgumentException("Null assignmentItemId passed to isGradeValid");
 	  }
-	  Gradebook gradebook;
-	  try {
-		  gradebook = getGradebook(gradebookUuid);
-	  } catch (GradebookNotFoundException gnfe) {
-		  throw new GradebookNotFoundException("No gradebook exists with the given gradebookUid: " + 
-				  gradebookUuid + "Error: " + gnfe.getMessage());
-	  }
+	  Assignment assignment;
+	  assignment = getAssignment(assignmentItemId);
 	  
-	  int gradeEntryType = gradebook.getGrade_type();
-	  LetterGradePercentMapping mapping = null;
-	  if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER) {
-		  mapping = getLetterGradePercentMapping(gradebook);
-	  }
-	  
-	  return isGradeValid(grade, gradeEntryType, mapping);
+	  if(assignment != null)
+	  	return isGradeValid(grade, assignment.getGradebook().getGrade_type(), assignment.getUngraded());
+	  else
+	  	return false;
   }
   
-  private boolean isGradeValid(String grade, int gradeEntryType, LetterGradePercentMapping gradeMapping) {
+  private boolean isGradeValid(String grade, int gradeEntryType, boolean ungraded) {
   	try
   	{
-  		Grade g = new Grade(grade, gradeEntryType, false);
+  		Grade g = new Grade(grade, gradeEntryType, ungraded);
   	}
   	catch(InvalidGradeException ige)
   	{
@@ -1639,33 +1631,26 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	return true;
   }
 
-  public List<String> identifyStudentsWithInvalidGrades(String gradebookUid, Map<String, String> studentIdToGradeMap) {
-	  if (gradebookUid == null) {
-		  throw new IllegalArgumentException("null gradebookUid passed to identifyStudentsWithInvalidGrades");
+  public List<String> identifyStudentsWithInvalidGrades(Long assignmentId, Map<String, String> studentIdToGradeMap) {
+	  if (assignmentId == null) {
+		  throw new IllegalArgumentException("null assignmentId passed to identifyStudentsWithInvalidGrades");
 	  }
 
 	  List<String> studentsWithInvalidGrade = new ArrayList<String>();
 
 	  if (studentIdToGradeMap != null) {
-		  Gradebook gradebook;
+		  Assignment assignment;
 
-		  try {
-			  gradebook = getGradebook(gradebookUid);
-		  } catch (GradebookNotFoundException gnfe) {
-			  throw new GradebookNotFoundException("No gradebook exists with the given gradebookUid: " + 
-					  gradebookUid + "Error: " + gnfe.getMessage());
-		  }
-
-		  LetterGradePercentMapping gradeMapping = null;
-		  if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
-			  gradeMapping = getLetterGradePercentMapping(gradebook);
-		  }
-
-		  for (String studentId : studentIdToGradeMap.keySet()) {
-			  String grade = studentIdToGradeMap.get(studentId);
-			  if (!isGradeValid(grade, gradebook.getGrade_type(), gradeMapping)) {
-				  studentsWithInvalidGrade.add(studentId);
-			  }
+		  assignment = getAssignment(assignmentId);
+		  
+		  if(assignment != null)
+		  {
+		  	for (String studentId : studentIdToGradeMap.keySet()) {
+		  		String grade = studentIdToGradeMap.get(studentId);
+		  		if (!isGradeValid(grade, assignment.getGradebook().getGrade_type(), assignment.getUngraded())) {
+		  			studentsWithInvalidGrade.add(studentId);
+		  		}
+		  	}
 		  }
 	  }  
 	  return studentsWithInvalidGrade;
@@ -1727,7 +1712,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  }
 
 		  // check for invalid grades
-		  List invalidStudents = identifyStudentsWithInvalidGrades(gradebookUid, studentIdToGradeMap);
+		  List invalidStudents = identifyStudentsWithInvalidGrades(gradableObjectId, studentIdToGradeMap);
 		  if (invalidStudents != null && !invalidStudents.isEmpty()) {
 			  throw new InvalidGradeException ("At least one grade passed to be updated is " +
 			  "invalid. No grades or comments were updated.");
