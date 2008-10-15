@@ -72,11 +72,11 @@ public class AssignmentPointsConverter extends PointsConverter {
 						//if grade by points and no category weighting
 						workingValue = ((AbstractGradeRecord)value).getPointsEarned();	
 					} else if (gradeType == GradebookService.GRADE_TYPE_LETTER) {
-						workingValue = agr.getLetterEarned();
+						workingValue = agr.getPointsEarned();
 					} else {
 						//display percentage
 						percentage = true;
-						workingValue = agr.getPercentEarned();
+						workingValue = agr.getPointsEarned();
 					}
 				} else {
 					workingValue = " ";

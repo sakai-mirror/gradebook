@@ -125,19 +125,8 @@ public class ClassAvgConverter extends PointsConverter {
 				AssignmentGradeRow gradeRow = (AssignmentGradeRow) value;
 				gradebook = gradeRow.getGradebook();
 				avg = gradeRow.getScore();
-				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
-					entryMethod = POINTS;
-					pointsPossible = gradeRow.getAssociatedAssignment().getPointsPossible();
-				} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
-					entryMethod = PERCENT;
-				} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
-					entryMethod = LETTER;
-					Double score = gradeRow.getScore();
-					if (score != null) {
-						LetterGradePercentMapping mapping = gbb.getGradebookManager().getLetterGradePercentMapping(gradebook);
-						avg = mapping.getGrade(score);
-					}
-				}
+				entryMethod = POINTS;
+				pointsPossible = gradeRow.getAssociatedAssignment().getPointsPossible();
 			} else if (value instanceof CourseGradeRecord) {
 				CourseGradeRecord gradeRecord = (CourseGradeRecord) value;
 				numDecimalPlaces = 2;

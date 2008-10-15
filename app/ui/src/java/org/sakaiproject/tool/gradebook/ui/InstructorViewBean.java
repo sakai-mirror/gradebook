@@ -225,41 +225,13 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 					}
 					if (gradeRecord != null) {
 						if (getGradeEntryByPoints()) { 
-							Double originalScore = null;
+							String originalScore = null;
 							originalScore = gradeRecord.getPointsEarned();
 
-							if (originalScore != null) {
-								// truncate to two decimals for more accurate comparison
-								originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
-							}
-							Double newScore = gradeRow.getScore();
+							String newScore = gradeRow.getScore();
 							if ( (originalScore != null && !originalScore.equals(newScore)) ||
 									(originalScore == null && newScore != null) ) {
 								gradeRecord.setPointsEarned(newScore);
-								updatedGradeRecords.add(gradeRecord);
-							}
-						} else if(getGradeEntryByPercent()) {
-							Double originalScore = null;
-							originalScore = gradeRecord.getPercentEarned();
-
-							if (originalScore != null) {
-								// truncate to two decimals for more accurate comparison
-								originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
-							}
-							Double newScore = gradeRow.getScore();
-							if ( (originalScore != null && !originalScore.equals(newScore)) ||
-									(originalScore == null && newScore != null) ) {
-								gradeRecord.setPercentEarned(newScore);
-								updatedGradeRecords.add(gradeRecord);
-							}
-
-						}	else if (getGradeEntryByLetter()) {
-
-							String originalScore = gradeRecord.getLetterEarned();
-							String newScore = gradeRow.getLetterScore();
-							if ( (originalScore != null && !originalScore.equals(newScore)) ||
-									(originalScore == null && newScore != null) ) {
-								gradeRecord.setLetterEarned(newScore);
 								updatedGradeRecords.add(gradeRecord);
 							}
 						}
@@ -419,7 +391,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 			if (getGradeEntryByPoints())
 				assignGradeRecords = getGradebookManager().getAssignmentGradeRecords(prevAssignment, studentUids);
 			else if (getGradeEntryByPercent() || getGradeEntryByLetter())
-				assignGradeRecords = getGradebookManager().getAssignmentGradeRecordsConverted(prevAssignment, studentUids);
+				assignGradeRecords = getGradebookManager().getAssignmentGradeRecords(prevAssignment, studentUids);
 
 			// Need to sort and page based on a scores column.
 			List scoreSortedStudentUids = new ArrayList();

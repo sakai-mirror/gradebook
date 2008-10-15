@@ -965,11 +965,10 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
            					AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,userid, null);
                			
            					if (getGradeEntryByLetter()) {
-           						asnGradeRecord.setLetterEarned(scoreAsString.trim());
+           						asnGradeRecord.setPointsEarned(scoreAsString.trim());
            						gradeRecords.add(asnGradeRecord);
            					} else {
-           						asnGradeRecord.setPercentEarned(scoreAsDouble);
-           						asnGradeRecord.setPointsEarned(scoreAsDouble);
+           						asnGradeRecord.setPointsEarned(scoreAsString.trim());
            						gradeRecords.add(asnGradeRecord);
            					}
            				}
@@ -1143,7 +1142,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
    			}   			
   		}
 
-  		List gbGrades = getGradebookManager().getAssignmentGradeRecordsConverted(assignment, studentUids);
+  		List gbGrades = getGradebookManager().getAssignmentGradeRecords(assignment, studentUids);
 
 		// now do the actual comparison
 		it = studentRowsWithUids.iterator();
@@ -1163,19 +1162,16 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 			}
 			
 			if (getGradeEntryByPercent() || getGradeEntryByPoints()) {
-				Double scoreEarned = null;
+				String scoreEarned = null;
 				if (score != null && !"".equals(score)) {
-					scoreEarned = new Double(score);
-					// truncate to 2 decimal places
-					if (scoreEarned != null)
-						scoreEarned = new Double(FacesUtil.getRoundDown(scoreEarned.doubleValue(), 2));
+					scoreEarned = score;
 				}
 			
 				if (gr == null) {
 					if (scoreEarned != null) {
 						if (!assignment.isExternallyMaintained()) {
 							gr = new AssignmentGradeRecord(assignment,userid,scoreEarned);
-							gr.setPercentEarned(scoreEarned);  // manager will handle if % vs point grading
+							gr.setPointsEarned(scoreEarned);  // manager will handle if % vs point grading
 							updatedGradeRecords.add(gr);
 						} else {
 							updatingExternalGrade = true;
@@ -1186,23 +1182,16 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 					// we need to truncate points earned to 2 decimal places to more accurately
 					// see if it was changed - scores that are entered as % can be stored with
 					// unlimited decimal places in db
-					Double gbScoreEarned = null;
-					if (getGradeEntryByPercent())
-						gbScoreEarned = gr.getPercentEarned();
-					else
-						gbScoreEarned = gr.getPointsEarned();
-					
-					if (gbScoreEarned != null)
-						gbScoreEarned = new Double(FacesUtil.getRoundDown(gbScoreEarned.doubleValue(), 2));
+					String gbScoreEarned = null;
+					gbScoreEarned = gr.getPointsEarned();
 					
 					// 3 ways points earned different: 1 null other not (both ways) or actual
 					// values different
 					if ((gbScoreEarned == null && scoreEarned != null) || 
-						(gbScoreEarned != null && scoreEarned == null) || 
-						(gbScoreEarned != null && scoreEarned != null && gbScoreEarned.doubleValue() != scoreEarned.doubleValue())) {
+						(gbScoreEarned != null && scoreEarned == null)) {
+						// || (gbScoreEarned != null && scoreEarned != null && gbScoreEarned.doubleValue() != scoreEarned.doubleValue())) {
 					
 						gr.setPointsEarned(scoreEarned); //manager will use correct field depending on grade entry method
-						gr.setPercentEarned(scoreEarned);
 						if (!assignment.isExternallyMaintained())
 							updatedGradeRecords.add(gr);
 						else
@@ -1220,7 +1209,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 					if (score != null && score.length() > 0) {
 						if (!assignment.isExternallyMaintained()) {
 							gr = new AssignmentGradeRecord(assignment,userid,null);
-							gr.setLetterEarned(score);		                
+							gr.setPointsEarned(score);		                
 							updatedGradeRecords.add(gr);
 						} else {
 							updatingExternalGrade = true;
@@ -1228,12 +1217,12 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 					}
 				}
 				else {
-					String gbLetterEarned = gr.getLetterEarned();
+					String gbLetterEarned = gr.getPointsEarned();
 
 					if ((gbLetterEarned != null && !gbLetterEarned.equals(score)) ||
 							(gbLetterEarned == null && score != null))  {
 					
-						gr.setLetterEarned(score);
+						gr.setPointsEarned(score);
 						if (!assignment.isExternallyMaintained())
 							updatedGradeRecords.add(gr);
 						else
@@ -1392,17 +1381,13 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                 String scoreAsString = (String) entry.getValue();
                 if (scoreAsString != null && scoreAsString.trim().length() > 0) {
                 	if (getGradeEntryByPercent() || getGradeEntryByPoints()) {
-	                    Double scoreAsDouble;
-	                	scoreAsDouble = new Double(scoreAsString);
-	                	if (scoreAsDouble != null)
-	                		scoreAsDouble = new Double(FacesUtil.getRoundDown(scoreAsDouble.doubleValue(), 2));
-	                	AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,uid,scoreAsDouble);
-	                	asnGradeRecord.setPercentEarned(scoreAsDouble); // in case gb entry by % - sorted out in manager
+	                	AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,uid,scoreAsString);
+	                	asnGradeRecord.setPointsEarned(scoreAsString); // in case gb entry by % - sorted out in manager
 	                    gradeRecords.add(asnGradeRecord);
 	                    if(logger.isDebugEnabled())logger.debug("added grades for " + uid + " - score " + scoreAsString);
                 	} else if (getGradeEntryByLetter()) {
                 		AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,uid,null);
-                		asnGradeRecord.setLetterEarned(lgpm.standardizeInputGrade(scoreAsString));
+                		asnGradeRecord.setPointsEarned(lgpm.standardizeInputGrade(scoreAsString));
                 		gradeRecords.add(asnGradeRecord);
                 	}
                 }

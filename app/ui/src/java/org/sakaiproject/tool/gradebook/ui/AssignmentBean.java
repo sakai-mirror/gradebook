@@ -285,7 +285,8 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			        for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
 			            studentUids.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
 			        }
-					getGradebookManager().convertGradePointsForUpdatedTotalPoints(getGradebook(), originalAssignment, assignment.getPointsPossible(), studentUids);
+			        // commented this out... not sure what we want to do here
+					//getGradebookManager().convertGradePointsForUpdatedTotalPoints(getGradebook(), originalAssignment, assignment.getPointsPossible(), studentUids);
 				}
 			}
 			

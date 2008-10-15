@@ -99,49 +99,31 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
             }
 		}
 
-		public Double getScore() {
-			if (getGradeEntryByPercent())
-				return truncateScore(gradeRecord.getPercentEarned());
-			else
-				return truncateScore(gradeRecord.getPointsEarned());
+		public String getScore() {
+				return gradeRecord.getPointsEarned();
 		}
-		public void setScore(Double score) {
+		public void setScore(String score) {
 			if (getGradeEntryByPoints()) {
-				Double originalScore = gradeRecord.getPointsEarned();
-				if (originalScore != null) {
-					// truncate to two decimals for more accurate comparison
-					originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
-				}
+				String originalScore = gradeRecord.getPointsEarned();
 				if ( (originalScore != null && !originalScore.equals(score)) ||
 						(originalScore == null && score != null) ) {
 					gradeRecord.setPointsEarned(score);
-					updatedGradeRecords.add(gradeRecord);
-				}
-			} else if (getGradeEntryByPercent()) {
-				Double originalScore = gradeRecord.getPercentEarned();
-				if (originalScore != null) {
-					// truncate to two decimals for more accurate comparison
-					originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
-				}
-				if ( (originalScore != null && !originalScore.equals(score)) ||
-						(originalScore == null && score != null) ) {
-					gradeRecord.setPercentEarned(score);
 					updatedGradeRecords.add(gradeRecord);
 				}
 			}
 		}
 		
 		public String getLetterScore() {
-			return gradeRecord.getLetterEarned();
+			return gradeRecord.getPointsEarned();
 		}
 		
 		public void setLetterScore(String letterScore) {
 			if (letterScore != null)
 				letterScore = letterScore.trim();
-			String originalLetterScore = gradeRecord.getLetterEarned();
+			String originalLetterScore = gradeRecord.getPointsEarned();
 			if ((originalLetterScore != null && !originalLetterScore.equals(letterScore)) ||
 					(originalLetterScore == null && letterScore != null)) {
-				gradeRecord.setLetterEarned(letterScore);
+				gradeRecord.setPointsEarned(letterScore);
 				updatedGradeRecords.add(gradeRecord);
 			}
 		}
@@ -292,7 +274,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				if (getGradeEntryByPoints())
 					gradeRecords = getGradebookManager().getAssignmentGradeRecords(assignment, studentUids);
 				else 
-					gradeRecords = getGradebookManager().getAssignmentGradeRecordsConverted(assignment, studentUids);
+					gradeRecords = getGradebookManager().getAssignmentGradeRecords(assignment, studentUids);
 				
 				if (!isEnrollmentSort()) {
 					// Need to sort and page based on a scores column.

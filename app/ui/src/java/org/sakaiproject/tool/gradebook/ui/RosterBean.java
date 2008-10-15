@@ -328,7 +328,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         }
         
         List assignments = viewableAssignmentList;
-		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecordsConverted(getGradebookId(), new ArrayList(studentIdEnrRecMap.keySet()));
+		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), new ArrayList(studentIdEnrRecMap.keySet()));
         
 		if (!getCategoriesEnabled()) {
 			int unassignedAssignmentCount = assignments.size();
@@ -746,7 +746,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     	}
 
 		Map filteredGradesMap = new HashMap();
-		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecordsConverted(getGradebookId(), studentUids);
+		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentUids);
 		
 		if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
 			getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords, studentIdItemIdFunctionMap);
@@ -891,13 +891,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         						}
         					}
         				} else {
-        					if (getGradeEntryByPoints()) {
         						score = gradeRecord.getPointsEarned();
-        					} else if (getGradeEntryByPercent()) {
-        						score = ((AssignmentGradeRecord)gradeRecord).getPercentEarned();
-        					}	else if (getGradeEntryByLetter()) {
-        						score = ((AssignmentGradeRecord)gradeRecord).getLetterEarned();
-        					}
         				}
         			}
         		}

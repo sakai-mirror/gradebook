@@ -406,12 +406,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			asnGradeRow.setGradeRecord(asnGr);
     			
     			if (asnGr != null) {
-    				if (getGradeEntryByPercent())
-    					asnGradeRow.setScore(truncateScore(asnGr.getPercentEarned()));
-    				else if(getGradeEntryByPoints())
-    					asnGradeRow.setScore(truncateScore(asnGr.getPointsEarned())); 
-    				else if (getGradeEntryByLetter())
-    					asnGradeRow.setLetterScore(asnGr.getLetterEarned());
+    					asnGradeRow.setScore(asnGr.getPointsEarned()); 
     			}
     		}
     		
@@ -498,7 +493,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		}
 
     		// get the student grade records
-    		List gradeRecords = getGradebookManager().getStudentGradeRecordsConverted(gradebook.getId(), studentUid);
+    		List gradeRecords = getGradebookManager().getStudentGradeRecords(gradebook.getId(), studentUid);
 
     		// The display may include categories and assignments, so we need a generic list
     		gradebookItems = new ArrayList();
