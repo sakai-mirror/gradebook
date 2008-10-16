@@ -1451,6 +1451,10 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
         throws ConflictingAssignmentNameException, StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
+          		if(assignment.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
+          		{
+          			assignment.setUngraded(true);
+          		}
             	updateAssignment(assignment, session);
                 return null;
             }
@@ -2387,6 +2391,10 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     			asn.setPointsPossible(points);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(false);
+    			if(gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
+    			{
+    				asn.setUngraded(true);
+    			}
     			if (isNotCounted != null) {
     				asn.setNotCounted(isNotCounted.booleanValue());
     			}
@@ -2439,6 +2447,10 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     			asn.setPointsPossible(points);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(false);
+    			if(gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
+    			{
+    				asn.setUngraded(true);
+    			}
     			if (isNotCounted != null) {
     				asn.setNotCounted(isNotCounted.booleanValue());
     			}
@@ -2484,7 +2496,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     				assignIds.add(createAssignmentForCategory(gradebookId, assign.getCategory().getId(), assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isNotCounted(), assign.isReleased()));
     		}
     	}
-    	catch(Exception e)
+    	catch(ConflictingAssignmentNameException e)
     	{
     		for(Iterator iter = assignIds.iterator(); iter.hasNext();)
     		{

@@ -229,6 +229,10 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		session.evict(assignment);
 
 		Assignment asnFromDb = (Assignment)session.load(Assignment.class, assignment.getId());
+		if(asnFromDb.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
+		{
+			assignment.setUngraded(true);
+		}
 		List conflictList = ((List)session.createQuery(
 				"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false and go.id != ?").
 				setString(0, assignment.getName()).
@@ -270,6 +274,10 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                    asn.setPointsPossible(points);
                    asn.setDueDate(dueDate);
              			 asn.setUngraded(false);
+             			 if(gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
+             			 {
+             				 asn.setUngraded(true);
+             			 }
                    if (isNotCounted != null) {
                        asn.setNotCounted(isNotCounted.booleanValue());
                    }
@@ -482,6 +490,10 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			asn.setPointsPossible(points);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(false);
+    			if(gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
+    			{
+    				asn.setUngraded(true);
+    			}
     			if (isNotCounted != null) {
     				asn.setNotCounted(isNotCounted.booleanValue());
     			}
