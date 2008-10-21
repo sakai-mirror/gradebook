@@ -3985,5 +3985,30 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			}
 		}
 	}
+	
+	public void testCheckIfGradeExists() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		boolean exists = gradebookManager.checkIfGradeExists(persistentGradebook.getId());
 
+		Assert.assertFalse(exists);
+		
+		Assignment assign = gradebookManager.getAssignment(assgn1Long);
+		generateGradeRecords(assign, 5);
+		Course courseSite = integrationSupport.createCourse(persistentGradebook.getUid(), persistentGradebook.getUid(), false, false, false);
+		userManager.createUser("studentId1", null, null, null);
+		userManager.createUser("studentId2", null, null, null);
+		userManager.createUser("studentId3", null, null, null);
+		userManager.createUser("studentId4", null, null, null);
+		userManager.createUser("studentId5", null, null, null);
+		integrationSupport.addSiteMembership("studentId1", persistentGradebook.getUid(), Role.STUDENT);
+		integrationSupport.addSiteMembership("studentId2", persistentGradebook.getUid(), Role.STUDENT);
+		integrationSupport.addSiteMembership("studentId3", persistentGradebook.getUid(), Role.STUDENT);
+		integrationSupport.addSiteMembership("studentId4", persistentGradebook.getUid(), Role.STUDENT);
+		integrationSupport.addSiteMembership("studentId5", persistentGradebook.getUid(), Role.STUDENT);
+
+		exists = gradebookManager.checkIfGradeExists(persistentGradebook.getId());
+
+		Assert.assertTrue(exists);
+	}
 }

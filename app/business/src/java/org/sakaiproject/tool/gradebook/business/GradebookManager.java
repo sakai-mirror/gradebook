@@ -838,4 +838,13 @@ public interface GradebookManager {
      * @return boolean
      */
     public boolean checkValidName(final Long gradebookId, final Assignment assignment);
+
+    /**
+     * Check if there's any grades for gradebook
+     * 
+     * @param gradebookId
+     * @return boolean
+     * @return
+     */
+    public boolean checkIfGradeExists(Long gradebookId);
 }

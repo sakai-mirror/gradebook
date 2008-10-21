@@ -2553,4 +2553,14 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 //		session.save(new GradingEvent(assignment, graderId, gradeRecord.getStudentId(), gradeEntry));
 		session.save(new GradingEvent(assignment, graderId, gradeRecord.getStudentId(), gradeRecord.getPointsEarned()));
 	}
+	
+  public boolean checkIfGradeExists(Long gradebookId)
+  {
+    Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
+    List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecords(gradebookId, studentUids);
+    if(gradeRecords != null && gradeRecords.size() > 0)
+    	return true;
+    else
+    	return false;
+  }
 }
