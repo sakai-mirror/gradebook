@@ -86,7 +86,7 @@
 					</h:panelGroup>
 				</h:panelGroup>
 				
-				<h:outputText value="#{gradebookItem.name}" styleClass="categoryHeading" rendered="#{gradebookItem.category}" />
+				<h:outputText value="#{gradebookItem.name}" styleClass="categoryHeading" rendered="#{gradebookItem.isCategory}" />
 
 			</h:column>
 			<h:column rendered="#{overviewBean.userAbleToEditAssessments}">
@@ -119,7 +119,7 @@
 		      </t:commandSortHeader>
 		    </f:facet>
 
-				<h:outputText value="#{gradebookItem.weight}" rendered="#{gradebookItem.category}">
+				<h:outputText value="#{gradebookItem.weight}" rendered="#{gradebookItem.isCategory}">
 					<f:convertNumber type="percent" maxFractionDigits="2" />
 				</h:outputText>
 			</h:column>
