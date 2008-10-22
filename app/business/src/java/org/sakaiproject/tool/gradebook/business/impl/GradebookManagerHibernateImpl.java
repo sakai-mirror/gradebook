@@ -2572,13 +2572,45 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 		session.save(new GradingEvent(assignment, graderId, gradeRecord.getStudentId(), gradeRecord.getPointsEarned()));
 	}
 	
+	/**
+	 * Changed to write a hibernate call to DB instead of calling getAllAssignmentGradeRecords methods --
+	 * SectionAwareness pulls out CURRENT enrolled students only. If a user adds grades for a student
+	 * and then drops this student from enrollment and grades for this student don't get detected and cleared out, 
+	 * there will be corrupted grade data when user tries to add the student back to enrollment and change grading
+	 * type. checkIfGradeExists and removeAllGrades will detect and remove all grades for gradebook instead of
+	 * only for current students in enrollment.
+	 */
   public boolean checkIfGradeExists(Long gradebookId)
   {
-    Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
-    List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecords(gradebookId, studentUids);
+  	List<AssignmentGradeRecord> gradeRecords  =  getAllAssignmentRecord(gradebookId);
     if(gradeRecords != null && gradeRecords.size() > 0)
     	return true;
     else
     	return false;
+  }
+
+  public void removeAllGrades(Long gradebookId)
+  {
+    List<AssignmentGradeRecord> gradeRecords = getAllAssignmentRecord(gradebookId);
+
+  	getHibernateTemplate().deleteAll(gradeRecords);
+  }
+  
+  /**
+   * refer to the comments for method of checkIfGradeExists
+   */
+  private List getAllAssignmentRecord(final Long gradebookId)
+  {
+    HibernateCallback hc = new HibernateCallback()
+    {
+    	public Object doInHibernate(Session session) throws HibernateException 
+    	{
+    		Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.removed=false and " +
+    		"agr.gradableObject.gradebook.id=:gradebookId order by agr.pointsEarned");
+    		q.setLong("gradebookId", gradebookId.longValue());
+    		return q.list();
+    	}
+    };
+    return (List) getHibernateTemplate().execute(hc);
   }
 }

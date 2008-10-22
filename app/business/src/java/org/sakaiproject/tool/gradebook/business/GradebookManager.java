@@ -846,4 +846,11 @@ public interface GradebookManager {
      * @return boolean
      */
     public boolean checkIfGradeExists(Long gradebookId);
+
+    /**
+     * Delete all grades from gradebook
+     * 
+     * @param gradebookId
+     */
+    public void removeAllGrades(Long gradebookId);
 }
