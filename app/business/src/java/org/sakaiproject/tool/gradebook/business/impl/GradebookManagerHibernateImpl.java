@@ -612,7 +612,10 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 
                 	for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
                 		AssignmentGradeRecord gradeRecordFromCall = (AssignmentGradeRecord)iter.next();
-
+                		if(gradeRecordFromCall.getPointsEarned() != null && gradeRecordFromCall.getPointsEarned().trim().equals(""))
+                		{
+                			gradeRecordFromCall.setPointsEarned(null);
+                		}
                 		boolean updated = false;
                 		if(isIquizCall && synchronizer != null)
                 		{
@@ -627,6 +630,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 			/** sychronize - add condition for null value */
                 			if(gradeRecordFromCall != null)
                 			{
+                				
                 				if(gradeRecordFromCall.getId() == null && isIquizCall && isUpdateAll && recordsFromCLDb != null)
                 				{
                 					AssignmentGradeRecord returnedPersistentItem = (AssignmentGradeRecord) recordsFromCLDb.get(gradeRecordFromCall.getStudentId());
@@ -672,7 +676,8 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 		/** synchronize - add condition for null value*/
                 		if(gradeRecordFromCall != null && updated == true)
                 		{
-                			if (gradeRecordFromCall.getPointsEarned() != null &&
+                			if (gradeRecordFromCall.getPointsEarned() != null && 
+                					!gradeRecordFromCall.getPointsEarned().equals("") &&
                 					!assignment.getUngraded() && 
                 					new Double(gradeRecordFromCall.getPointsEarned()).compareTo(assignment.getPointsPossible()) > 0) {
                 				studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
@@ -694,6 +699,10 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 {
                 	for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
                 		AssignmentGradeRecord gradeRecordFromCall = (AssignmentGradeRecord)iter.next();
+                		if(gradeRecordFromCall.getPointsEarned() != null && gradeRecordFromCall.getPointsEarned().trim().equals(""))
+                		{
+                			gradeRecordFromCall.setPointsEarned(null);
+                		}
                 		gradeRecordFromCall.setGraderId(graderId);
                 		gradeRecordFromCall.setDateRecorded(now);
                 		try {
@@ -709,6 +718,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 
                 		// Check for excessive (AKA extra credit) scoring.
                 		if (gradeRecordFromCall.getPointsEarned() != null &&
+                				!gradeRecordFromCall.getPointsEarned().equals("") &&
                 				!assignment.getUngraded() && !assignment.getUngraded() &&
                 				new Double(gradeRecordFromCall.getPointsEarned()).compareTo(assignment.getPointsPossible()) > 0) {
                 			studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());

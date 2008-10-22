@@ -844,7 +844,6 @@ public interface GradebookManager {
      * 
      * @param gradebookId
      * @return boolean
-     * @return
      */
     public boolean checkIfGradeExists(Long gradebookId);
 }

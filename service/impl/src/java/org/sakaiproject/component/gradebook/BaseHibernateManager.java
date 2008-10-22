@@ -1378,7 +1378,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     				for (String studentUid : studentUids) {
     					AssignmentGradeRecord gradeRecord = studentToGradeRecordMap.get(studentUid);
    						if (gradeRecord != null) {
-   							if (gradeRecord.getPointsEarned() == null) {
+   							if (gradeRecord.getPointsEarned() == null || gradeRecord.getPointsEarned().trim().equals("")) {
    								gradeRecord.setPointsEarned("0");
    							} else {
    								continue;

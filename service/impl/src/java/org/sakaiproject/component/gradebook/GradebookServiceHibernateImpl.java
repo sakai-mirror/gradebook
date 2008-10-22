@@ -1623,6 +1623,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	{
   		return false;
   	}
+  	catch(NumberFormatException nfe)
+  	{
+  		return false;
+  	}
   	catch(GradebookException ge)
   	{
   		return false;

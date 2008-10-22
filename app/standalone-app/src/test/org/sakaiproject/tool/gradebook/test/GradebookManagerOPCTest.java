@@ -762,6 +762,23 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			if(agr.getAssignment().getId().equals(assgn1Long) && agr.getStudentId().equals("studentId1"))
 				agr.setPointsEarned(null);
 		}
+		//test for setting studentId1's assignment1 to empty string
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn1Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned("");
+		}
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		gradeRecords = gradebookManager.getAllAssignmentGradeRecords(persistentGradebook.getId(), uid);
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn1Long) && agr.getStudentId().equals("studentId1"))
+				Assert.assertTrue( agr.getPointsEarned() == null);
+		}
+		//end test for setting studentId1's assignment1 to empty string
+		
 		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);

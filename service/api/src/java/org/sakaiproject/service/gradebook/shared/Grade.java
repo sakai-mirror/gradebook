@@ -40,7 +40,7 @@ public final class Grade
 	
 	/**
 	 * The only constructor for Grade. 
-	 * Make use to catch InvalidGradeException and GradebookException when create an object of Grade.
+	 * Make use to catch InvalidGradeException, NumberFormatException and GradebookException when create an object of Grade.
 	 * 
 	 * @param grade
 	 * @param grade_type
@@ -49,7 +49,7 @@ public final class Grade
 	 * @throws GradebookException
 	 */
 	public Grade(String grade, int grade_type, boolean ungraded)
-	throws InvalidGradeException, GradebookException
+	throws InvalidGradeException, NumberFormatException, GradebookException
 	{
 		try
 		{
@@ -67,7 +67,7 @@ public final class Grade
 		}
 		catch(NumberFormatException nfe)
 		{
-			throw new InvalidGradeException(nfe.getMessage());
+			throw new NumberFormatException(nfe.getMessage());
 		}
 		catch(InvalidGradeException ige)
 		{

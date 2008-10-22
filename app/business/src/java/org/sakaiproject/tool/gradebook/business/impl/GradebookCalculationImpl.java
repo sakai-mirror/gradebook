@@ -153,7 +153,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 							AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecordIter.next();
 							if (!assignmentsNotCounted.contains(agr.getGradableObject().getId())) 
 							{
-								if(agr.getPointsEarned() != null)
+								if(agr.getPointsEarned() != null && !agr.getPointsEarned().equals(""))
 								{
 									Double pointsEarned = new Double(agr.getPointsEarned());
 									if (pointsEarned != null) 
@@ -356,7 +356,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 		while (scoresIter.hasNext()) 
 		{
 			Object[] returned = (Object[])scoresIter.next();
-			if(returned[0] != null)
+			if(returned[0] != null && !((String)returned[0]).equals(""))
 			{
 				Double pointsEarned = new Double((String)returned[0]);
 				Assignment go = (Assignment) returned[1];
@@ -524,7 +524,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 		while (scoresIter.hasNext()) 
 		{
 			Object[] returned = (Object[])scoresIter.next();
-			if(returned[0] != null)
+			if(returned[0] != null && !((String)returned[0]).equals(""))
 			{
 				Double pointsEarned = new Double((String)returned[0]);
 				Assignment go = (Assignment) returned[1];

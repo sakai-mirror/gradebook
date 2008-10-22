@@ -73,9 +73,9 @@ public class GradeValidationTest extends TestCase
   		Grade g = new Grade("abcd", GradebookService.GRADE_TYPE_PERCENTAGE, false);
   		fail();
   	}
-  	catch(InvalidGradeException ige)
+  	catch(NumberFormatException nfe)
   	{
-  		log.info(ige.getMessage());
+  		log.info(nfe.getMessage());
   	}
   	try
   	{
