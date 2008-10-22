@@ -219,18 +219,16 @@
 						<h:inputText id="Score" value="#{scoreRow.score}" size="6" 
 							 rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}"
 							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
-							<f:validateDoubleRange minimum="0"/>
 							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 						</h:inputText>
 						<h:inputText id="LetterScore" value="#{scoreRow.letterScore}" size="6" 
 							 rendered="#{assignmentDetailsBean.gradeEntryByLetter}"
 							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.LETTER_GRADE_CONVERTER" />
+							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE" />
 						</h:inputText>
+						</h:panelGroup>
 						
-					</h:panelGroup>
-					<h:panelGroup rendered="#{assignmentDetailsBean.assignment.externallyMaintained || !scoreRow.userCanGrade}">
+						<h:panelGroup rendered="#{assignmentDetailsBean.assignment.externallyMaintained || !scoreRow.userCanGrade}">
 						<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 						</h:outputText>
@@ -241,6 +239,7 @@
 						<h:outputText value="#{msgs.score_null_placeholder}" 
 							 rendered="#{assignmentDetailsBean.gradeEntryByLetter && scoreRow.letterScore == null}" />
 					</h:panelGroup>
+					
 				</t:div>
 			</h:column>
 			<h:column>

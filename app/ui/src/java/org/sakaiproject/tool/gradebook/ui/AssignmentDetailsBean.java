@@ -103,7 +103,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				return gradeRecord.getPointsEarned();
 		}
 		public void setScore(String score) {
-			if (getGradeEntryByPoints()) {
+			if (getGradeEntryByPoints() || getGradeEntryByPercent()) {
 				String originalScore = gradeRecord.getPointsEarned();
 				if ( (originalScore != null && !originalScore.equals(score)) ||
 						(originalScore == null && score != null) ) {

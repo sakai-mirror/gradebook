@@ -224,16 +224,14 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 						gradeRecord = new AssignmentGradeRecord(gradeRow.getAssociatedAssignment(), getStudentUid(), null);
 					}
 					if (gradeRecord != null) {
-						if (getGradeEntryByPoints()) { 
-							String originalScore = null;
-							originalScore = gradeRecord.getPointsEarned();
+						String originalScore = null;
+						originalScore = gradeRecord.getPointsEarned();
 
-							String newScore = gradeRow.getScore();
-							if ( (originalScore != null && !originalScore.equals(newScore)) ||
-									(originalScore == null && newScore != null) ) {
-								gradeRecord.setPointsEarned(newScore);
-								updatedGradeRecords.add(gradeRecord);
-							}
+						String newScore = gradeRow.getScore();
+						if ( (originalScore != null && !originalScore.equals(newScore)) ||
+								(originalScore == null && newScore != null) ) {
+							gradeRecord.setPointsEarned(newScore);
+							updatedGradeRecords.add(gradeRecord);
 						}
 					} 
 				}

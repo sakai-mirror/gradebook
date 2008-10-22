@@ -25,16 +25,16 @@
 			columnClasses="itemName"
 			styleClass="itemSummary"
 			rendered="#{rosterBean.userAbleToGradeAll}">
-			<h:outputText id="courseGradeLabel" value="#{msgs.avg_course_grade_name}"  />
+			<h:outputText id="courseGradeLabel" value="#{msgs.avg_course_grade_name}" rendered="#{!rosterBean.gradeEntryByLetter}" />
 			<h:panelGroup>
-				<h:outputText id="letterGrade" value="#{rosterBean.avgCourseGradeLetter} " />
-				<h:outputText id="cumScore" value="#{rosterBean.avgCourseGrade}">
+				<h:outputText id="letterGrade" value="#{rosterBean.avgCourseGradeLetter} " rendered="#{!rosterBean.gradeEntryByLetter}" />
+				<h:outputText id="cumScore" value="#{rosterBean.avgCourseGrade}" rendered="#{!rosterBean.gradeEntryByLetter}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
 			</h:panelGroup>
-			<h:outputText value="#{msgs.roster_average_category}" rendered="#{rosterBean.selectedCategory != null}" />
-			<h:panelGroup rendered="#{rosterBean.selectedCategory != null}" >
-				<h:outputText value="#{rosterBean.selectedCategory}">
+			<h:outputText value="#{msgs.roster_average_category}" rendered="#{rosterBean.selectedCategory != null && !rosterBean.gradeEntryByLetter}" />
+			<h:panelGroup rendered="#{rosterBean.selectedCategory != null && !rosterBean.gradeEntryByLetter}" >
+				<h:outputText value="#{rosterBean.selectedCategory}" rendered="#{!rosterBean.gradeEntryByLetter}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
 			</h:panelGroup>

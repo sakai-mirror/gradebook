@@ -86,10 +86,10 @@
 			columnClasses="itemName"
 			styleClass="itemSummary gbSection"
 			rendered="#{rosterBean.userAbleToGradeAll}">
-			<h:outputText value="#{msgs.course_grade_name}" />
+			<h:outputText value="#{msgs.course_grade_name}" rendered="#{!instructorViewBean.gradeEntryByLetter}"/>
 			<h:panelGroup>
-				<h:outputText id="letterGrade" value="#{instructorViewBean.courseGradeLetter} " />
-				<h:outputText id="cumScore" value="#{instructorViewBean.courseGrade}">
+				<h:outputText id="letterGrade" value="#{instructorViewBean.courseGradeLetter} " rendered="#{!instructorViewBean.gradeEntryByLetter}" />
+				<h:outputText id="cumScore" value="#{instructorViewBean.courseGrade}" rendered="#{!instructorViewBean.gradeEntryByLetter}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
 			</h:panelGroup>	
@@ -221,15 +221,14 @@
 								<h:inputText id="Score" value="#{row.score}" size="4" 
 									 rendered="#{instructorViewBean.gradeEntryByPoints || instructorViewBean.gradeEntryByPercent}"
 									 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-									<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
-									<f:validateDoubleRange minimum="0"/>
+							
 									<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 								</h:inputText>
 								
-								<h:inputText id="LetterScore" value="#{row.letterScore}" size="4" 
+								<h:inputText id="LetterScore" value="#{row.score}" size="4" 
 									 rendered="#{instructorViewBean.gradeEntryByLetter}"
 									 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-									<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.LETTER_GRADE_CONVERTER" />
+									<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 								</h:inputText>
 							</h:panelGroup>
 							

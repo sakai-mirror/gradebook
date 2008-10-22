@@ -25,12 +25,23 @@ package org.sakaiproject.tool.gradebook.jsf;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
+
+import javax.servlet.http.HttpServletRequest;
+import org.sakaiproject.service.gradebook.shared.Grade;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
+import org.sakaiproject.service.gradebook.shared.GradebookException;
+
+import org.sakaiproject.tool.gradebook.ui.AssignmentDetailsBean;
+import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
+
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,26 +58,56 @@ import org.apache.commons.logging.LogFactory;
 public class AssignmentGradeValidator implements Validator, Serializable {
 	private static Log logger = LogFactory.getLog(AssignmentGradeValidator.class);
 
-    /**
+	/**
 	 * @see javax.faces.validator.Validator#validate(javax.faces.context.FacesContext,
 	 *      javax.faces.component.UIComponent, java.lang.Object)
 	 */
 	public void validate(FacesContext context, UIComponent component,
 			Object value) throws ValidatorException {
-		if (value != null) {
-			if (!(value instanceof Number)) {
-				throw new IllegalArgumentException("The assignment grade must be a number");
-			}
-			double grade = ((Number)value).doubleValue();
-            BigDecimal bd = new BigDecimal(grade);
-            bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP); // Two decimal places
-            double roundedVal = bd.doubleValue();
-            double diff = grade - roundedVal;
-            if(diff != 0) {
-                throw new ValidatorException(new FacesMessage(
-                	FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.PRECISION")));
-            }
+		
+		HttpServletRequest req = ((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest());
+		AssignmentDetailsBean adb = (AssignmentDetailsBean) req.getAttribute("assignmentDetailsBean");
+		
+		AssignmentGradeRow agr = (AssignmentGradeRow) req.getAttribute("row");
+				
+		int grade_type = -1;
+		boolean ungraded = false;
+		
+		if(adb != null) {
+			grade_type = adb.getAssignment().getGradebook().getGrade_type();
+			ungraded = adb.getAssignment().getUngraded();
 		}
+		
+		if(agr != null) {
+			grade_type = agr.getAssociatedAssignment().getGradebook().getGrade_type();
+			ungraded = agr.getAssociatedAssignment().getUngraded();
+		}
+		
+		String stringValue = null;
+		if (value != null) {
+			if (!(value instanceof String)) {
+				throw new IllegalArgumentException("The assignment grade must be a String");
+			}
+			stringValue = (String)value;
+		}
+
+		try {
+			Grade grade = new Grade(stringValue, grade_type, ungraded);
+		} catch (NumberFormatException nfe) {
+			throw new ValidatorException(new FacesMessage(
+					FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.Number.INVALID")));
+		} catch (InvalidGradeException ige) {
+			if(grade_type == GradebookService.GRADE_TYPE_POINTS || grade_type == GradebookService.GRADE_TYPE_PERCENTAGE) {
+				throw new ValidatorException(new FacesMessage(
+						FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.PRECISION")));
+			}
+			if(grade_type == GradebookService.GRADE_TYPE_LETTER) {
+				throw new ValidatorException(new FacesMessage(
+						FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.LetterGrade.INVALID")));				
+			}
+		} catch (GradebookException gbe) {
+			logger.info("Gradebook grade_type is invalid");
+		}			
 	}
 }
 

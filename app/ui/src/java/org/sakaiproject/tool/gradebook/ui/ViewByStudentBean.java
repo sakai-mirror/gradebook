@@ -204,11 +204,13 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	rowStyles = new StringBuilder();
 
     	// Display course grade if we've been instructed to.
-    	CourseGradeRecord gradeRecord = getGradebookManager().getStudentCourseGradeRecord(gradebook, studentUid);
-    	if (gradeRecord != null) {
-    		if (courseGradeReleased || isInstructorView) {
-    			courseGrade = gradeRecord;
-    			courseGradeLetter = gradeRecord.getDisplayGrade();
+    	if(getGradeEntryByPoints() || getGradeEntryByPercent()) {
+    		CourseGradeRecord gradeRecord = getGradebookManager().getStudentCourseGradeRecord(gradebook, studentUid);
+    		if (gradeRecord != null) {
+    			if (courseGradeReleased || isInstructorView) {
+    				courseGrade = gradeRecord;
+    				courseGradeLetter = gradeRecord.getDisplayGrade();
+    			}
     		}
     	}
     	
