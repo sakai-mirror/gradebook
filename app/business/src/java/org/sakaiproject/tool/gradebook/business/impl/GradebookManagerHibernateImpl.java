@@ -786,6 +786,10 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 
                 	for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
                 		AssignmentGradeRecord gradeRecordFromCall = (AssignmentGradeRecord)iter.next();
+                		if(gradeRecordFromCall.getPointsEarned() != null && gradeRecordFromCall.getPointsEarned().trim().equals(""))
+                		{
+                			gradeRecordFromCall.setPointsEarned(null);
+                		}
                 		Assignment assignment = null;
                 		if (gradeRecordFromCall != null) {
                 			assignment = gradeRecordFromCall.getAssignment();
@@ -875,6 +879,10 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 
 	                for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
 	                	AssignmentGradeRecord gradeRecordFromCall = (AssignmentGradeRecord)iter.next();
+                		if(gradeRecordFromCall.getPointsEarned() != null && gradeRecordFromCall.getPointsEarned().trim().equals(""))
+                		{
+                			gradeRecordFromCall.setPointsEarned(null);
+                		}
 	                	Assignment assignment = gradeRecordFromCall.getAssignment();
 	                	Double pointsPossible = assignment.getPointsPossible();
 	                	
