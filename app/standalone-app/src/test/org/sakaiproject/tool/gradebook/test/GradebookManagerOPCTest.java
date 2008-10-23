@@ -265,6 +265,15 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 		List returnGradeRecords = gradebookManager.getAssignmentGradeRecords(assign, studentUids);
 		List convertGradeRecords = new ArrayList();
+
+		for(int i=0; i<returnGradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
+			agr.setPointsEarned("101.0");
+			convertGradeRecords.add(agr);
+		}
+		Set updatedRecords = gradebookManager.updateAssignmentGradeRecords(assign, convertGradeRecords, GradebookService.GRADE_TYPE_PERCENTAGE);
+		Assert.assertTrue(updatedRecords.size() == 5);
 		for(int i=0; i<returnGradeRecords.size(); i++)
 		{
 			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
@@ -274,8 +283,8 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			agr.setPointsEarned("90.0");
 			convertGradeRecords.add(agr);
 		}
-
-		gradebookManager.updateAssignmentGradeRecords(assign, convertGradeRecords, GradebookService.GRADE_TYPE_PERCENTAGE);
+		updatedRecords = gradebookManager.updateAssignmentGradeRecords(assign, convertGradeRecords, GradebookService.GRADE_TYPE_PERCENTAGE);
+		Assert.assertTrue(updatedRecords.size() == 0);
 
 //		System.out.println("after convert===============");
 		returnGradeRecords = gradebookManager.getAssignmentGradeRecords(assign, studentUids);
