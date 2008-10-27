@@ -308,7 +308,7 @@
 					<h:outputText value="#{msgs.inst_view_footnote_symbol1}" />
 					<h:outputText value="#{msgs.inst_view_footnote_legend1}" />
 				</h:panelGroup>
-				<h:panelGroup>
+				<h:panelGroup rendered="#{!overviewBean.isLetterGrade}">
 					<h:outputText value="#{msgs.inst_view_footnote_symbol2}" />
 					<h:outputText value="#{msgs.inst_view_footnote_legend2}" />
 				</h:panelGroup>

@@ -132,7 +132,7 @@
 		    </h:column>
 		  </gbx:gradebookItemTable>
 		  
-		  <h:panelGrid styleClass="instruction gbSection" cellpadding="0" cellspacing="0" columns="1">
+		  <h:panelGrid styleClass="instruction gbSection" cellpadding="0" cellspacing="0" columns="1" rendered="#{!overviewBean.isLetterGrade}">
 				<h:outputText value="#{msgs.student_view_legend_title}" />
 				<h:panelGroup>
 					<h:outputText value="#{msgs.student_view_footnote_symbol1}" />
