@@ -208,20 +208,20 @@
 			<h:column>
 				<f:facet name="header">
 		      <t:commandSortHeader columnName="studentScore" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
-					  <h:outputText value="#{msgs.assignment_details_points}" rendered="#{assignmentDetailsBean.gradeEntryByPoints}"/>
-					  <h:outputText value="#{msgs.assignment_details_percent}" rendered="#{assignmentDetailsBean.gradeEntryByPercent}"/>
-					  <h:outputText value="#{msgs.assignment_details_letters}" rendered="#{assignmentDetailsBean.gradeEntryByLetter}" />
+					  <h:outputText value="#{msgs.assignment_details_grade}"/>
 		      </t:commandSortHeader>
 				</f:facet>
 
 				<t:div>
 					<h:panelGroup rendered="#{!assignmentDetailsBean.assignment.externallyMaintained && scoreRow.userCanGrade}">
 						<h:inputText id="Score" value="#{scoreRow.score}" size="6" 
+							 maxlength="8"
 							 rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}"
 							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 						</h:inputText>
 						<h:inputText id="LetterScore" value="#{scoreRow.letterScore}" size="6" 
+							 maxlength="8"
 							 rendered="#{assignmentDetailsBean.gradeEntryByLetter}"
 							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE" />
