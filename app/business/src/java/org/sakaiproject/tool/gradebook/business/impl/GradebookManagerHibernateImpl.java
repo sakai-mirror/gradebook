@@ -2555,10 +2555,18 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     			Assignment assign = (Assignment) iter.next();
     			if(assign.getCategory() == null)
     			{
-    				assignIds.add(createAssignment(gradebookId, assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isNotCounted(), assign.isReleased()));
+    				if(!assign.getUngraded())
+    					assignIds.add(createAssignment(gradebookId, assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isNotCounted(), assign.isReleased()));
+    				else
+    					assignIds.add(this.createUngradedAssignment(gradebookId, assign.getName(), assign.getDueDate(), Boolean.TRUE, assign.isReleased()));
     			}
     			else
-    				assignIds.add(createAssignmentForCategory(gradebookId, assign.getCategory().getId(), assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isNotCounted(), assign.isReleased()));
+    			{
+    				if(!assign.getUngraded())
+    					assignIds.add(createAssignmentForCategory(gradebookId, assign.getCategory().getId(), assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isNotCounted(), assign.isReleased()));
+    				else
+    					assignIds.add(createUngradedAssignmentForCategory(gradebookId, assign.getCategory().getId(), assign.getName(), assign.getDueDate(), Boolean.TRUE, assign.isReleased()));
+    			}
     		}
     	}
     	catch(ConflictingAssignmentNameException e)

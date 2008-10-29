@@ -883,9 +883,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			asn.setName(name.trim());
     			asn.setDueDate(dueDate);
     			asn.setUngraded(true);
-    			if (isNotCounted != null) {
-    				asn.setNotCounted(isNotCounted.booleanValue());
-    			}
+   				asn.setNotCounted(true);
 
     			if(isReleased!=null){
     				asn.setReleased(isReleased.booleanValue());
@@ -927,9 +925,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			asn.setName(name.trim());
     			asn.setDueDate(dueDate);
     			asn.setUngraded(true);
-    			if (isNotCounted != null) {
-    				asn.setNotCounted(isNotCounted.booleanValue());
-    			}
+    			asn.setNotCounted(true);
 
     			if(isReleased!=null){
     				asn.setReleased(isReleased.booleanValue());
