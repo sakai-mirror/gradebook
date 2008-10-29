@@ -27,7 +27,7 @@
 						<h:inputText id="points" value="#{spreadsheetUploadBean.assignment.pointsPossible}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 							<f:validateDoubleRange minimum="0.01" />
-							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
+							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE_DOUBLE"/>
 						</h:inputText>
 						<h:message for="points" styleClass="alertMessageInline" />
 					</h:panelGroup>

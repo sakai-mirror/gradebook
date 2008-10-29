@@ -86,6 +86,15 @@
 			org.sakaiproject.tool.gradebook.jsf.AssignmentGradeValidator
 		</validator-class>
 	</validator>
+	
+	<validator>
+		<validator-id>
+			org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE_DOUBLE
+		</validator-id>
+		<validator-class>
+			org.sakaiproject.tool.gradebook.jsf.AssignmentGradeDoubleValidator
+		</validator-class>
+	</validator>
 
 	<render-kit>
 		<renderer>
