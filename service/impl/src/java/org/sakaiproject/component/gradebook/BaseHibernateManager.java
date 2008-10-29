@@ -233,6 +233,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		{
 			assignment.setUngraded(true);
 		}
+		if(assignment.getUngraded())
+			assignment.setNotCounted(true);
 		List conflictList = ((List)session.createQuery(
 				"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false and go.id != ?").
 				setString(0, assignment.getName()).

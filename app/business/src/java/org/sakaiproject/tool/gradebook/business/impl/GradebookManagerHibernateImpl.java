@@ -1520,6 +1520,8 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
           		{
           			assignment.setUngraded(true);
           		}
+          		if(assignment.getUngraded())
+          			assignment.setNotCounted(true);
             	updateAssignment(assignment, session);
                 return null;
             }
