@@ -646,6 +646,15 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 						returnedPersistentItem.setDateRecorded(gradeRecordFromCall.getDateRecorded());
                 						session.saveOrUpdate(returnedPersistentItem);
                 					}
+                					else if(returnedPersistentItem != null && returnedPersistentItem.getPointsEarned() == null && gradeRecordFromCall.getPointsEarned() != null)
+                					{
+                						graderId = gradeRecordFromCall.getGraderId();
+                						updated = true;
+                						returnedPersistentItem.setGraderId(gradeRecordFromCall.getGraderId());
+                						returnedPersistentItem.setPointsEarned(gradeRecordFromCall.getPointsEarned());
+                						returnedPersistentItem.setDateRecorded(gradeRecordFromCall.getDateRecorded());
+                						session.saveOrUpdate(returnedPersistentItem);
+                					}
                 					else if(returnedPersistentItem == null)
                 					{
                 						graderId = gradeRecordFromCall.getGraderId();
