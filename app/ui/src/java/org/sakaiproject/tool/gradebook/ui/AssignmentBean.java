@@ -191,45 +191,55 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 					newAssignmentNameList.add(bulkAssignment.getName().trim());
 				}
 
-				// Check if points possible is blank else convert to double. Exception at else point
-				// means non-numeric value entered.
-				if (bulkAssignDecoBean.getPointsPossible() == null || ("".equals(bulkAssignDecoBean.getPointsPossible().trim()))) {
-					bulkAssignDecoBean.setBulkNoPointsError("blank");
-					saveAll = false;
-					resultString = "failure";
-				}
-				else {
-					try {
-						double dblPointsPossible = new Double(bulkAssignDecoBean.getPointsPossible()).doubleValue();
-
-						// Added per SAK-13459: did not validate if point value was valid (> zero)
-						if (dblPointsPossible > 0) {
-							// No more than 2 decimal places can be entered.
-							BigDecimal bd = new BigDecimal(dblPointsPossible);
-							bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP); // Two decimal places
-							double roundedVal = bd.doubleValue();
-							double diff = dblPointsPossible - roundedVal;
-							if(diff != 0) {
-								saveAll = false;
-								resultString = "failure";
-								bulkAssignDecoBean.setBulkNoPointsError("precision");
-							}
-							else {
-								bulkAssignDecoBean.setBulkNoPointsError("OK");
-								bulkAssignDecoBean.getAssignment().setPointsPossible(new Double(bulkAssignDecoBean.getPointsPossible()));
-							}
-						}
-						else {
-							saveAll = false;
-							resultString = "failure";
-							bulkAssignDecoBean.setBulkNoPointsError("invalid");
-						}
-					}
-					catch (Exception e) {
-						bulkAssignDecoBean.setBulkNoPointsError("NaN");
+				// if ungraded, we don't care about points possible
+				if (!bulkAssignment.getUngraded())
+				{
+					// Check if points possible is blank else convert to double. Exception at else point
+					// means non-numeric value entered.
+					if (bulkAssignDecoBean.getPointsPossible() == null || ("".equals(bulkAssignDecoBean.getPointsPossible().trim()))) {
+						bulkAssignDecoBean.setBulkNoPointsError("blank");
 						saveAll = false;
 						resultString = "failure";
 					}
+					else {
+						try {
+							double dblPointsPossible = new Double(bulkAssignDecoBean.getPointsPossible()).doubleValue();
+	
+							// Added per SAK-13459: did not validate if point value was valid (> zero)
+							if (dblPointsPossible > 0) {
+								// No more than 2 decimal places can be entered.
+								BigDecimal bd = new BigDecimal(dblPointsPossible);
+								bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP); // Two decimal places
+								double roundedVal = bd.doubleValue();
+								double diff = dblPointsPossible - roundedVal;
+								if(diff != 0) {
+									saveAll = false;
+									resultString = "failure";
+									bulkAssignDecoBean.setBulkNoPointsError("precision");
+								}
+								else {
+									bulkAssignDecoBean.setBulkNoPointsError("OK");
+									bulkAssignDecoBean.getAssignment().setPointsPossible(new Double(bulkAssignDecoBean.getPointsPossible()));
+								}
+							}
+							else {
+								saveAll = false;
+								resultString = "failure";
+								bulkAssignDecoBean.setBulkNoPointsError("invalid");
+							}
+						}
+						catch (Exception e) {
+							bulkAssignDecoBean.setBulkNoPointsError("NaN");
+							saveAll = false;
+							resultString = "failure";
+						}
+					}
+				}
+				else
+				{
+					// extra insurance to make sure these fields are blank
+					bulkAssignDecoBean.getAssignment().setCounted(false);
+					bulkAssignDecoBean.getAssignment().setPointsPossible(null);
 				}
 			
 				if (saveAll) {
@@ -275,19 +285,29 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			Double newPointsPossible = assignment.getPointsPossible();
 			boolean scoresEnteredForAssignment = getGradebookManager().isEnteredAssignmentScores(assignmentId);
 			
-			/* If grade entry by percentage or letter and the points possible has changed for this assignment,
-			 * we need to convert all of the stored point values to retain the same value
-			 */
-			if ((getGradeEntryByPercent() || getGradeEntryByLetter()) && scoresEnteredForAssignment) {
-				if (!newPointsPossible.equals(origPointsPossible)) {
-					List enrollments = getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.STUDENT);
-			        List studentUids = new ArrayList();
-			        for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
-			            studentUids.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
-			        }
-			        // commented this out... not sure what we want to do here
-					//getGradebookManager().convertGradePointsForUpdatedTotalPoints(getGradebook(), originalAssignment, assignment.getPointsPossible(), studentUids);
+			// if ungraded, we don't care about points possible
+			if (!assignment.getUngraded())
+			{
+				/* If grade entry by percentage or letter and the points possible has changed for this assignment,
+				 * we need to convert all of the stored point values to retain the same value
+				 */
+				if ((getGradeEntryByPercent() || getGradeEntryByLetter()) && scoresEnteredForAssignment) {
+					if (!newPointsPossible.equals(origPointsPossible)) {
+						List enrollments = getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.STUDENT);
+				        List studentUids = new ArrayList();
+				        for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
+				            studentUids.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
+				        }
+				        // commented this out... not sure what we want to do here
+						//getGradebookManager().convertGradePointsForUpdatedTotalPoints(getGradebook(), originalAssignment, assignment.getPointsPossible(), studentUids);
+					}
 				}
+			}
+			else
+			{
+				// extra insurance to make sure these fields are blank
+				assignment.setCounted(false);
+				assignment.setPointsPossible(null);
 			}
 			
 			getGradebookManager().updateAssignment(assignment);

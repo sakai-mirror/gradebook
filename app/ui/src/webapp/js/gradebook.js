@@ -288,14 +288,41 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
 function assignmentReleased(myForm, releasedChanged) {
 	var releasedCheckboxEl =  getTheElement(myForm + ':released');
 	var countedCheckboxEl =   getTheElement(myForm + ':countAssignment');
+	var ungradedCheckboxEl =  getTheElement(myForm + ':ungraded');
 
 	if (releasedCheckboxEl.checked == false) {
 		countedCheckboxEl.checked = false;
 		countedCheckboxEl.disabled = true;
 	} else if (releasedCheckboxEl.checked == true) {
 		countedCheckboxEl.disabled = false;
-		if (releasedChanged)
-			countedCheckboxEl.checked = true;
+	}
+}
+
+// similar as above, but we want to insure the counted checkbox
+// is unchecked and disabled for an checked non-calculating item
+function assignmentUngraded(myForm) {
+	var ungradedCheckboxEl =  getTheElement(myForm + ':ungraded');
+	var countedCheckboxEl =   getTheElement(myForm + ':countAssignment');
+	var countedLabelEl =   getTheElement(myForm + ':countAssignmentLabel');
+	var releasedCheckboxEl =  getTheElement(myForm + ':released');
+	var pointsInputEl =  getTheElement(myForm + ':points');
+	var pointsLabelEl =  getTheElement(myForm + ':pointsLabel');
+
+	if (ungradedCheckboxEl.checked == true) {
+		countedCheckboxEl.checked = false;
+		countedCheckboxEl.disabled = true;
+		countedCheckboxEl.style.display="none";
+		countedLabelEl.style.display="none";
+		pointsInputEl.value = "";
+		pointsInputEl.style.display="none";
+		pointsLabelEl.style.display="none";
+	} else if (ungradedCheckboxEl.checked == false) {
+		releasedCheckboxEl.checked = true;
+		countedCheckboxEl.disabled = false;
+		countedCheckboxEl.style.display="inline";
+		countedLabelEl.style.display="inline";
+		pointsInputEl.style.display="inline";
+		pointsLabelEl.style.display="inline";
 	}
 }
 
