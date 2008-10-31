@@ -98,7 +98,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 /** synchronize from external application*/
                 if ( (synchronizer != null) && (!synchronizer.isProjectSite()))
                 {
-                	synchronizer.deleteLegacyAssignment(asn.getName());
+                	synchronizer.deleteLegacyAssignment(asn.getName(), gradebook.getGrade_type());
                 }
                 if(log.isInfoEnabled()) log.info("Assignment " + asn.getName() + " has been removed from " + gradebook);
                 return null;
@@ -580,7 +580,9 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
         }
 
         if (logData.isDebugEnabled()) logData.debug("BEGIN: Update " + gradeRecordsFromCall.size() + " scores for gradebook=" + assignment.getGradebook().getUid() + ", assignment=" + assignment.getName());
-
+        
+        final int grade_type = assignment.getGradebook().getGrade_type();
+        
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 Date now = new Date();
@@ -604,7 +606,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 
                 	convertedEidUidRecordMap = synchronizer.convertEidUid(gradeRecordsFromCall);
                 	if (!isUpdateAll && synchronizer !=null && !synchronizer.isProjectSite()){
-                		iquizAssignmentMap = synchronizer.getLegacyAssignmentWithStats(assignment.getName());
+                		iquizAssignmentMap = synchronizer.getLegacyAssignmentWithStats(assignment.getName(), grade_type);
                 	}
                 	Map recordsFromCLDb = null;
                 	if(synchronizer != null && isIquizCall && isUpdateAll)
@@ -633,7 +635,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 			if(gradeRecordFromCall != null)
                 			{
                 				
-                				if(gradeRecordFromCall.getId() == null && isIquizCall && isUpdateAll && recordsFromCLDb != null)
+                				if(gradeRecordFromCall.getId() == null && isIquizCall && isUpdateAll && recordsFromCLDb != null && !assignment.getUngraded())
                 				{
                 					AssignmentGradeRecord returnedPersistentItem = (AssignmentGradeRecord) recordsFromCLDb.get(gradeRecordFromCall.getStudentId());
                 					if(returnedPersistentItem != null && returnedPersistentItem.getPointsEarned() != null && gradeRecordFromCall.getPointsEarned() != null
@@ -668,9 +670,9 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 					session.saveOrUpdate(gradeRecordFromCall);
                 				}
                 			}
-                			if (!isUpdateAll && !isStudentView && synchronizer != null && !synchronizer.isProjectSite())
+                			if (!isUpdateAll && !isStudentView && synchronizer != null && !synchronizer.isProjectSite() && !assignment.getUngraded())
                 			{
-                				Object updateIquizRecord = synchronizer.getNeededUpdateIquizRecord(assignment, gradeRecordFromCall);
+                				Object updateIquizRecord = synchronizer.getNeededUpdateIquizRecord(assignment, gradeRecordFromCall, grade_type);
                 				if(updateIquizRecord != null)
                 					legacyUpdates.add(updateIquizRecord);
                 			}
@@ -711,9 +713,9 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 		}
 
                 		/** synchronize external records */
-                		if (legacyUpdates.size() > 0 && synchronizer != null)
+                		if (legacyUpdates.size() > 0 && synchronizer != null && !assignment.getUngraded())
                 		{
-                			synchronizer.updateLegacyGradeRecords(assignment.getName(), legacyUpdates);
+                			synchronizer.updateLegacyGradeRecords(assignment.getName(), legacyUpdates, grade_type);
                 		}
                 	}
 
@@ -871,7 +873,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 			}
                 			if (assignment != null && !isUpdateAll && !isStudentView && synchronizer != null && !synchronizer.isProjectSite())
                 			{
-                				Object updateIquizRecord = synchronizer.getNeededUpdateIquizRecord(assignment, gradeRecordFromCall);
+                				Object updateIquizRecord = synchronizer.getNeededUpdateIquizRecord(assignment, gradeRecordFromCall, assignment.getGradebook().getGrade_type());
                 				if(updateIquizRecord != null)
                 					legacyUpdates.add(updateIquizRecord);
                 			}
@@ -914,7 +916,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 		/** synchronize external records */
                 		if (legacyUpdates.size() > 0 && synchronizer != null && assignment != null)
                 		{
-                			synchronizer.updateLegacyGradeRecords(assignment.getName(), legacyUpdates);
+                			synchronizer.updateLegacyGradeRecords(assignment.getName(), legacyUpdates, assignment.getGradebook().getGrade_type());
                 		}
                 	}
 
@@ -1398,7 +1400,8 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 /** synchronize from external application*/
                 if (synchronizer != null)
                 {
-                	synchronizer.synchrornizeAssignments(assignments);
+                	int grade_type = getGradebook(gradebookId).getGrade_type();
+                	synchronizer.synchrornizeAssignments(assignments, grade_type);
 
                     assignments = getAssignments(gradebookId, session);
                 }
@@ -1545,9 +1548,9 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
         	}
             getHibernateTemplate().execute(hc);
         	/** synchronize from external application*/
-        	if(synchronizer != null && oldTitle != null  && !synchronizer.isProjectSite())
+        	if(synchronizer != null && oldTitle != null  && !synchronizer.isProjectSite() && !assignment.getUngraded())
         	{
-        		synchronizer.updateAssignment(oldTitle, assignment.getName());
+        		synchronizer.updateAssignment(oldTitle, assignment.getName(), assignment.getGradebook().getGrade_type());
         	}
         } catch (HibernateOptimisticLockingFailureException holfe) {
             if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an assignment");
@@ -2480,9 +2483,9 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     			}
 
     			/** synchronize from external application */
-    			if (synchronizer != null && !synchronizer.isProjectSite())
+    			if (synchronizer != null && !synchronizer.isProjectSite() && !asn.getUngraded())
     			{
-    				synchronizer.addLegacyAssignment(name);
+    				synchronizer.addLegacyAssignment(name, gb.getGrade_type());
     			}
     			
     			// Save the new assignment
@@ -2536,9 +2539,9 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     			}
 
     			/** synchronize from external application */
-    			if (synchronizer != null && !synchronizer.isProjectSite())
+    			if (synchronizer != null && !synchronizer.isProjectSite() && !asn.getUngraded())
     			{
-    				synchronizer.addLegacyAssignment(name);
+    				synchronizer.addLegacyAssignment(name, gb.getGrade_type());
     			}  
 
     			Long id = (Long)session.save(asn);
