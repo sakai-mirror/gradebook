@@ -30,7 +30,7 @@
   	<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary gbSection"
-			rendered="#{overviewBean.userAbleToGradeAll}">
+			rendered="#{overviewBean.userAbleToGradeAll && !overviewBean.isLetterGrade}">
 			<h:outputText value="#{msgs.avg_course_grade_name}" styleClass="courseGrade"/>
 			<h:panelGroup>
 				<h:outputText id="letterGrade" value="#{overviewBean.avgCourseGradeLetter} " />

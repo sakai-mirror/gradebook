@@ -24,7 +24,7 @@
   	<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary"
-			rendered="#{rosterBean.userAbleToGradeAll}">
+			rendered="#{rosterBean.userAbleToGradeAll && !rosterBean.gradeEntryByLetter}">
 			<h:outputText id="courseGradeLabel" value="#{msgs.avg_course_grade_name}" rendered="#{!rosterBean.gradeEntryByLetter}" />
 			<h:panelGroup>
 				<h:outputText id="letterGrade" value="#{rosterBean.avgCourseGradeLetter} " rendered="#{!rosterBean.gradeEntryByLetter}" />
