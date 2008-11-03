@@ -210,7 +210,7 @@
 							<h:outputText value="#{msgs.inst_view_grade}" rendered="#{instructorViewBean.gradeEntryByPoints}" />
 							<h:outputText value="#{msgs.inst_view_grade_percent}" rendered="#{instructorViewBean.gradeEntryByPercent}" />
 							<h:outputText value="#{msgs.inst_view_grade_letter}" rendered="#{instructorViewBean.gradeEntryByLetter}" />
-							<h:outputText value="#{msgs.inst_view_footnote_symbol2}" />
+							<h:outputText value="#{msgs.inst_view_footnote_symbol2}" rendered="#{!overviewBean.isLetterGrade}"/>
 						</t:commandSortHeader>
 					</f:facet>
 

@@ -95,7 +95,7 @@
 					<f:facet name="header">
 						<t:commandSortHeader columnName="pointsEarned" propertyName="pointsEarned" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.student_view_grade}"/>
-							<h:outputText value="#{msgs.student_view_footnote_symbol1}" />
+							<h:outputText value="#{msgs.student_view_footnote_symbol1}"  rendered="#{!overviewBean.isLetterGrade}"/>
 						</t:commandSortHeader>
 					</f:facet>
 					
