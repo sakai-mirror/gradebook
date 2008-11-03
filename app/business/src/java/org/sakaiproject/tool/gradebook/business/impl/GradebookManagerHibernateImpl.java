@@ -2658,37 +2658,50 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 	 * type. checkIfGradeExists and removeAllGrades will detect and remove all grades for gradebook instead of
 	 * only for current students in enrollment.
 	 */
-  public boolean checkIfGradeExists(Long gradebookId)
+  public boolean checkIfGradeExists(final Long gradebookId)
   {
-  	List<AssignmentGradeRecord> gradeRecords  =  getAllAssignmentRecord(gradebookId);
-    if(gradeRecords != null && gradeRecords.size() > 0)
-    	return true;
-    else
-    	return false;
+  	HibernateCallback hc = new HibernateCallback() {
+  		public Object doInHibernate(Session session) throws HibernateException {
+  			List<AssignmentGradeRecord> gradeRecords  =  getAllAssignmentRecord(gradebookId, session);
+  			return gradeRecords;
+  		}
+  	};
+  	
+  	List gradeRecords = (List) getHibernateTemplate().execute(hc);
+		if(gradeRecords != null && gradeRecords.size() > 0)
+			return true;
+		else
+			return false;
   }
 
-  public void removeAllGrades(Long gradebookId)
+  public void removeAllGrades(final Long gradebookId, final String graderId)
   {
-    List<AssignmentGradeRecord> gradeRecords = getAllAssignmentRecord(gradebookId);
-
+  	log.info("Trying to remove all grades in GradebookManagerHibernateImpl.removeAllGrades for gradebook: " + gradebookId);
+  	HibernateCallback hc = new HibernateCallback() {
+  		public Object doInHibernate(Session session) throws HibernateException {
+  			List<AssignmentGradeRecord> gradeRecords = getAllAssignmentRecord(gradebookId, session);
+  			for(Iterator iter = gradeRecords.iterator(); iter.hasNext();)
+  			{
+  				AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord) iter.next();
+  				session.save(new GradingEvent(gradeRecord.getAssignment(), graderId, gradeRecord.getStudentId(), "Deleted all"));
+  				
+  				log.info("Deleted grade: " + gradeRecord.getStudentId()  + " for assignment: " + gradeRecord.getAssignment().getName());
+  			}
+  			return gradeRecords;
+  		}
+  	};
+  	List gradeRecords = (List) getHibernateTemplate().execute(hc);
   	getHibernateTemplate().deleteAll(gradeRecords);
   }
   
   /**
    * refer to the comments for method of checkIfGradeExists
    */
-  private List getAllAssignmentRecord(final Long gradebookId)
+  private List getAllAssignmentRecord(final Long gradebookId, Session session)
   {
-    HibernateCallback hc = new HibernateCallback()
-    {
-    	public Object doInHibernate(Session session) throws HibernateException 
-    	{
-    		Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.removed=false and " +
-    		"agr.gradableObject.gradebook.id=:gradebookId order by agr.pointsEarned");
-    		q.setLong("gradebookId", gradebookId.longValue());
-    		return q.list();
-    	}
-    };
-    return (List) getHibernateTemplate().execute(hc);
+  	Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.removed=false and " +
+  	"agr.gradableObject.gradebook.id=:gradebookId order by agr.pointsEarned");
+  	q.setLong("gradebookId", gradebookId.longValue());
+  	return q.list();
   }
 }

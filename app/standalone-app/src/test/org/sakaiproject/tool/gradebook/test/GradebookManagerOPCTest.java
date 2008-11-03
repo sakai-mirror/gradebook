@@ -4057,7 +4057,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 	{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
 	
-		gradebookManager.removeAllGrades(persistentGradebook.getId());
+		gradebookManager.removeAllGrades(persistentGradebook.getId(), "test grader for delete all");
 		
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
 		generateGradeRecords(assign, 5);
@@ -4071,7 +4071,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		
 		boolean exists = gradebookManager.checkIfGradeExists(persistentGradebook.getId());
 		Assert.assertTrue(exists);
-		gradebookManager.removeAllGrades(persistentGradebook.getId());
+		gradebookManager.removeAllGrades(persistentGradebook.getId(), "test grader for delete all");
 		exists = gradebookManager.checkIfGradeExists(persistentGradebook.getId());
 		Assert.assertFalse(exists);
 		
@@ -4079,11 +4079,11 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		generateGradeRecords(assign, 5);
 		exists = gradebookManager.checkIfGradeExists(persistentGradebook.getId());
 		Assert.assertTrue(exists);
-		gradebookManager.removeAllGrades(persistentGradebook.getId());
+		gradebookManager.removeAllGrades(persistentGradebook.getId(), "test grader for delete all");
 		exists = gradebookManager.checkIfGradeExists(persistentGradebook.getId());
 		Assert.assertFalse(exists);
 		
 		//test for removing empty gradebook
-		gradebookManager.removeAllGrades(persistentGradebook.getId());
+		gradebookManager.removeAllGrades(persistentGradebook.getId(), "test grader for delete all");
 	}
 }

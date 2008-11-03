@@ -852,5 +852,5 @@ public interface GradebookManager {
      * 
      * @param gradebookId
      */
-    public void removeAllGrades(Long gradebookId);
+    public void removeAllGrades(Long gradebookId, String graderId);
 }
