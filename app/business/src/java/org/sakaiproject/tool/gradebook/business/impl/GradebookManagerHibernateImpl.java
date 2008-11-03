@@ -845,11 +845,20 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 			/** sychronize - add condition for null value */
                 			if(gradeRecordFromCall != null)
                 			{
-                				if(gradeRecordFromCall.getId() == null && isIquizCall && isUpdateAll && recordsFromCLDb != null)
+                				if(gradeRecordFromCall.getId() == null && isIquizCall && isUpdateAll && recordsFromCLDb != null && assignment != null && !assignment.getUngraded())
                 				{
                 					AssignmentGradeRecord returnedPersistentItem = (AssignmentGradeRecord) recordsFromCLDb.get(gradeRecordFromCall.getGradableObject().getId());
                 					if(returnedPersistentItem != null && returnedPersistentItem.getPointsEarned() != null && gradeRecordFromCall.getPointsEarned() != null
                 							&& !returnedPersistentItem.getPointsEarned().equals(gradeRecordFromCall.getPointsEarned()))
+                					{
+                						graderId = gradeRecordFromCall.getGraderId();
+                						updated = true;
+                						returnedPersistentItem.setGraderId(gradeRecordFromCall.getGraderId());
+                						returnedPersistentItem.setPointsEarned(gradeRecordFromCall.getPointsEarned());
+                						returnedPersistentItem.setDateRecorded(gradeRecordFromCall.getDateRecorded());
+                						session.saveOrUpdate(returnedPersistentItem);
+                					}
+                					else if(returnedPersistentItem != null && returnedPersistentItem.getPointsEarned() == null && gradeRecordFromCall.getPointsEarned() != null)
                 					{
                 						graderId = gradeRecordFromCall.getGraderId();
                 						updated = true;
@@ -871,7 +880,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 					session.saveOrUpdate(gradeRecordFromCall);
                 				}
                 			}
-                			if (assignment != null && !isUpdateAll && !isStudentView && synchronizer != null && !synchronizer.isProjectSite())
+                			if (assignment != null && !isUpdateAll && !isStudentView && synchronizer != null && !synchronizer.isProjectSite() && !assignment.getUngraded())
                 			{
                 				Object updateIquizRecord = synchronizer.getNeededUpdateIquizRecord(assignment, gradeRecordFromCall, assignment.getGradebook().getGrade_type());
                 				if(updateIquizRecord != null)
