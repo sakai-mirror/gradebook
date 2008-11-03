@@ -17,8 +17,9 @@
 
 	<h:selectBooleanCheckbox id="ungraded" value="#{bean.assignment.ungraded}"
 		onclick="assignmentUngraded((this.form.name));"
-		onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
-	<h:outputLabel for="ungraded" value="Non-calculating Item" />
+		onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"
+		rendered="#{bean.localGradebook.grade_type != 3}" />
+	<h:outputLabel for="ungraded" value="Non-calculating Item" rendered="#{bean.localGradebook.grade_type != 3}" />
 
 <h:panelGrid cellpadding="0" cellspacing="0" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite">
 
@@ -32,8 +33,8 @@
 	<h:outputText value="#{msgs.add_assignment_title}" rendered="#{bean.assignment.externallyMaintained}" />
 	<h:outputText value="#{bean.assignment.name}" rendered="#{bean.assignment.externallyMaintained}" />
 
-	<h:outputLabel for="points" id="pointsLabel" value="#{(bean.localGradebook.grade_type == 1) ? msgs.add_assignment_points : msgs.add_assignment_relative_weight}" rendered="#{!item.assignment.externallyMaintained}"/>
-	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained}">
+	<h:outputLabel for="points" id="pointsLabel" value="#{(bean.localGradebook.grade_type == 1) ? msgs.add_assignment_points : msgs.add_assignment_relative_weight}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}"/>
+	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}">
 		<h:inputText id="points" value="#{bean.assignment.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 			<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 			<f:validateDoubleRange minimum="0.01" />
@@ -88,8 +89,10 @@
 	
 	<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
 		<h:selectBooleanCheckbox id="countAssignment" value="#{bean.assignment.counted}"
-			onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
-		<h:outputLabel id="countAssignmentLabel" for="countAssignment" value="#{msgs.add_assignment_counted}" />
+			onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"
+			rendered="#{bean.localGradebook.grade_type != 3}" />
+		<h:outputLabel id="countAssignmentLabel" for="countAssignment" value="#{msgs.add_assignment_counted}"
+		rendered="#{bean.localGradebook.grade_type != 3}" />
 	</h:panelGrid>
 </h:panelGrid>
 <h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
