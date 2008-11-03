@@ -219,7 +219,7 @@
 							<h:outputText value="#{msgs.inst_view_not_counted_open}" rendered="#{!row.associatedAssignment.counted && !instructorViewBean.gradeEntryByLetter }" />
 							
 							<h:panelGroup rendered="#{!row.associatedAssignment.externallyMaintained && row.userCanGrade}">
-								<h:inputText id="Score" value="#{row.score}" size="4" 
+								<h:inputText id="Score" value="#{row.score}" size="8" 
 									 rendered="#{instructorViewBean.gradeEntryByPoints || instructorViewBean.gradeEntryByPercent}"
 									 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 							
