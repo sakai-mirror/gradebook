@@ -2674,15 +2674,17 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 			return false;
   }
 
-  public void removeAllGrades(final Long gradebookId, final String graderId)
+  public void removeAllGrades(final Long gradebookId)
   {
   	log.info("Trying to remove all grades in GradebookManagerHibernateImpl.removeAllGrades for gradebook: " + gradebookId);
+  	final String graderId = authn.getUserUid();
   	HibernateCallback hc = new HibernateCallback() {
   		public Object doInHibernate(Session session) throws HibernateException {
   			List<AssignmentGradeRecord> gradeRecords = getAllAssignmentRecord(gradebookId, session);
   			for(Iterator iter = gradeRecords.iterator(); iter.hasNext();)
   			{
   				AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord) iter.next();
+  				
   				session.save(new GradingEvent(gradeRecord.getAssignment(), graderId, gradeRecord.getStudentId(), "Deleted all"));
   				
   				log.info("Deleted grade: " + gradeRecord.getStudentId()  + " for assignment: " + gradeRecord.getAssignment().getName());
