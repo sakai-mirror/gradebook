@@ -15,7 +15,7 @@
 
 <!-- Grade Display -->
 		<h4><h:outputText value="#{msgs.feedback_options_grade_display}"/></h4>
-		<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
+		<h:panelGrid columns="5" columnClasses="prefixedCheckbox">
 			<%/*  Moved to gradebook setup page
 			<h:selectBooleanCheckbox id="displayAssignmentGrades" value="#{feedbackOptionsBean.localGradebook.assignmentsDisplayed}"
 				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
@@ -24,23 +24,30 @@
 			<h:selectBooleanCheckbox id="displayCourseGrades" value="#{feedbackOptionsBean.localGradebook.courseGradeDisplayed}"
 				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 			<h:outputLabel for="displayCourseGrades" value="#{msgs.feedback_options_grade_display_course_grades}" />
+			<h:outputLabel for="displayCourseGrades" value="#{msgs.feedback_options_grade_display_course_grades_2}" rendered="#{feedbackOptionsBean.localGradebook.grade_type==3}" />
+			<h:commandLink action="#{feedbackOptionsBean.navigateToCourseGrades}" immediate="true" rendered="#{feedbackOptionsBean.localGradebook.grade_type==3}">
+				<h:outputText value="#{msgs.appmenu_course_grades}"/>
+				<f:param name="pageName" value="courseGradeDetails" />
+			</h:commandLink>
+			<h:outputLabel for="displayCourseGrades" value="#{msgs.feedback_options_grade_display_course_grades_3}" rendered="#{feedbackOptionsBean.localGradebook.grade_type==3}" />
 		</h:panelGrid>
 
 <!-- Grade Conversion -->
-		<h4><h:outputText value="#{msgs.feedback_options_grade_conversion}"/></h4>
+		<h4><h:outputText value="#{msgs.feedback_options_grade_conversion}" rendered="#{feedbackOptionsBean.localGradebook.grade_type!=3}"/></h4>
 		<h:panelGrid cellpadding="0" cellspacing="0"
 			columns="2"
 			columnClasses="itemName"
-			styleClass="itemSummary">
+			styleClass="itemSummary"
+		 rendered="#{feedbackOptionsBean.localGradebook.grade_type!=3}">
 
-			<h:outputText value="#{msgs.feedback_options_grade_type}" />
+			<h:outputText value="#{msgs.feedback_options_grade_type}"  rendered="#{feedbackOptionsBean.localGradebook.grade_type!=3}" />
 
 			<h:panelGroup>
-				<h:selectOneMenu id="selectGradeType" value="#{feedbackOptionsBean.selectedGradeMappingId}">
-					<f:selectItems value="#{feedbackOptionsBean.gradeMappingsSelectItems}" />
+				<h:selectOneMenu id="selectGradeType" value="#{feedbackOptionsBean.selectedGradeMappingId}" rendered="#{feedbackOptionsBean.localGradebook.grade_type!=3}">
+					<f:selectItems value="#{feedbackOptionsBean.gradeMappingsSelectItems}"/>
 				</h:selectOneMenu>
 				<f:verbatim> </f:verbatim>
-				<h:commandButton actionListener="#{feedbackOptionsBean.changeGradeType}" value="#{msgs.feedback_options_change_grade_type}" />
+				<h:commandButton actionListener="#{feedbackOptionsBean.changeGradeType}" value="#{msgs.feedback_options_change_grade_type}" rendered="#{feedbackOptionsBean.localGradebook.grade_type!=3}" />
 			</h:panelGroup>
 		</h:panelGrid>
 
@@ -65,8 +72,8 @@
 
 <!-- RESET TO DEFAULTS LINK -->
 		<p>
-		<h:commandLink actionListener="#{feedbackOptionsBean.resetMappingValues}">
-			<h:outputText value="#{msgs.feedback_options_reset_mapping_values}" />
+		<h:commandLink actionListener="#{feedbackOptionsBean.resetMappingValues}" rendered="#{feedbackOptionsBean.localGradebook.grade_type!=3}">
+			<h:outputText value="#{msgs.feedback_options_reset_mapping_values}" rendered="#{feedbackOptionsBean.localGradebook.grade_type!=3}" />
 		</h:commandLink>
 		</p>
 
@@ -76,7 +83,8 @@
 			value="#{feedbackOptionsBean.gradeRows}"
 			var="gradeRow"
 			columnClasses="shorttext"
-			styleClass="listHier narrowTable">
+			styleClass="listHier narrowTable"
+    	    rendered="#{feedbackOptionsBean.localGradebook.grade_type!=3}">
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="#{msgs.feedback_options_grade_header}"/>
