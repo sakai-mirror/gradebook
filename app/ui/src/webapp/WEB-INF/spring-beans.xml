@@ -46,6 +46,7 @@
                 <value>spreadsheetEntireGBVerify</value>
                 <value>gradebookSetup</value>
                 <value>graderRules</value>
+                <value>delteAllGrades</value>
             </list>
 		</property>
 		<property name="userAbleToGradePages">

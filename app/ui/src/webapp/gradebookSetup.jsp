@@ -34,15 +34,15 @@
 			<h4><h:outputText value="#{msgs.grade_entry_heading}"/></h4>
 			
 			<div class="indnt1">
-				<div class="instruction"><h:outputText value="#{msgs.grade_entry_info}" escape="false"/></div>
+				<div class="instruction"><h:outputText value="#{msgs.grade_entry_info}" escape="false" rendered="#{!gradebookSetupBean.isExistingGrades}"/></div>
 			
-				<h:selectOneRadio value="#{gradebookSetupBean.gradeEntryMethod}" id="gradeEntryMethod1" layout="pageDirection"  rendered="#{gradebookSetupBean.enableLetterGrade}">
+				<h:selectOneRadio value="#{gradebookSetupBean.gradeEntryMethod}" id="gradeEntryMethod1" layout="pageDirection"  rendered="#{gradebookSetupBean.enableLetterGrade && !gradebookSetupBean.isExistingGrades}">
 					<f:selectItem itemValue="points" itemLabel="#{msgs.entry_opt_points}" />
 	        <f:selectItem itemValue="percent" itemLabel="#{msgs.entry_opt_percent}" /> 
 	        <f:selectItem itemValue="letterGrade" itemLabel="#{msgs.entry_opt_letters}"/>
 				</h:selectOneRadio>
 
-				<h:selectOneRadio value="#{gradebookSetupBean.gradeEntryMethod}" id="gradeEntryMethod2" layout="pageDirection"  rendered="#{!gradebookSetupBean.enableLetterGrade}">
+				<h:selectOneRadio value="#{gradebookSetupBean.gradeEntryMethod}" id="gradeEntryMethod2" layout="pageDirection"  rendered="#{!gradebookSetupBean.enableLetterGrade && !gradebookSetupBean.isExistingGrades}">
 					<f:selectItem itemValue="points" itemLabel="#{msgs.entry_opt_points}" />
 	        <f:selectItem itemValue="percent" itemLabel="#{msgs.entry_opt_percent}" /> 
 	        <f:selectItem itemValue="letterGrade" itemLabel="#{msgs.entry_opt_letters}"/>
@@ -80,6 +80,15 @@
 				</t:dataTable>
 				
 			</h:panelGroup>
+			
+			<div class="indnt1">
+		<h:outputText styleClass="instruction" value="#{msgs.gradebook_setup_message1}" rendered="#{gradebookSetupBean.isExistingGrades && !gradebookSetupBean.isLetterGrade}"/>
+		<h:outputText styleClass="instruction" value="#{msgs.gradebook_setup_message3}" rendered="#{gradebookSetupBean.isExistingGrades && gradebookSetupBean.isLetterGrade}"/> 
+		 <h:commandLink	action="#{gradebookSetupBean.navigateToDeleteAllGrades}" immediate="true" rendered="#{gradebookSetupBean.isExistingGrades}">
+			<h:outputText value="#{msgs.gradebook_setup_message2}" />
+		</h:commandLink> 
+		<h:outputText value="#{msgs.gradebook_setup_message4}" rendered="#{gradebookSetupBean.isExistingGrades}"/>
+		</div>
 				
 			<h4><h:outputText value="#{msgs.gb_setup_items_display}"/></h4>
 			

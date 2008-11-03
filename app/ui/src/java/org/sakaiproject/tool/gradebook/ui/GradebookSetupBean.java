@@ -66,6 +66,9 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private LetterGradePercentMapping defaultLGPM;
 	private boolean enableLetterGrade = false;
   private boolean isValidWithCourseGrade = true;
+  private boolean displayCategoryWeighting= false;
+  private boolean isLetterGrade = false;
+  private boolean isExistingGrades=false;
 	
 	private static final int NUM_EXTRA_CAT_ENTRIES = 50;
 	private static final String ENTRY_OPT_POINTS = "points";
@@ -451,12 +454,21 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 	public String processCategorySettingChange(ValueChangeEvent vce)
 	{
-		String changeAssign = (String) vce.getNewValue(); 
-		if (changeAssign != null && (changeAssign.equals(CATEGORY_OPT_NONE) || 
-				changeAssign.equals(CATEGORY_OPT_CAT_AND_WEIGHT) || 
-				changeAssign.equals(CATEGORY_OPT_CAT_ONLY)))
-		{
-			categorySetting = changeAssign;
+		Object changeAssign = (Object) vce.getNewValue();
+		if(changeAssign instanceof String) {
+			String newValue = (String) vce.getNewValue();
+			if (newValue != null && (newValue.equals(CATEGORY_OPT_NONE) || 
+					newValue.equals(CATEGORY_OPT_CAT_AND_WEIGHT) || 
+					newValue.equals(CATEGORY_OPT_CAT_ONLY)))
+			{
+				categorySetting = newValue;
+			}
+		}
+		if(changeAssign instanceof Boolean) {
+			Boolean isCatWeight = (Boolean) vce.getNewValue();
+			if(isCatWeight) {
+				categorySetting = CATEGORY_OPT_CAT_AND_WEIGHT;
+			}
 		}
 
 		return GB_SETUP_PAGE;
@@ -794,4 +806,33 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		return true;
 	}
 
+	public boolean isDisplayCategoryWeighting() {
+		return displayCategoryWeighting;
+	}
+
+	public void setDisplayCategoryWeighting(boolean displayCategoryWeighting) {
+		this.displayCategoryWeighting = displayCategoryWeighting;
+	}
+	
+	public String navigateToDeleteAllGrades() {
+		return "delteAllGrades";
+	}
+	
+	public boolean getIsLetterGrade() {
+		isLetterGrade = gradeEntryMethod.equals(ENTRY_OPT_LETTER);
+		return isLetterGrade;
+	}
+
+	public void setIsLetterGrade(boolean isLetterGrade) {
+		this.isLetterGrade = isLetterGrade;
+	}
+	
+	public boolean getIsExistingGrades() {
+		isExistingGrades = getGradebookManager().checkIfGradeExists(getGradebookId());
+		return isExistingGrades;
+	}
+
+	public void setExistingGrades(boolean isExistingGrades) {
+		this.isExistingGrades = isExistingGrades;
+	}
 }

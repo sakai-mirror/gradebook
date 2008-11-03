@@ -27,7 +27,7 @@ import java.util.*;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 /**
  * A Gradebook is the top-level object in the Sakai Gradebook tool.  Only one
  * Gradebook should be associated with any particular course (or site, as they
@@ -49,6 +49,7 @@ public class Gradebook implements Serializable {
     private boolean locked;
     private int grade_type;
     private int category_type;
+    private boolean isLetterGrade;
 
     /**
      * Default no-arg constructor needed for persistence
@@ -251,6 +252,19 @@ public class Gradebook implements Serializable {
 		public void setGrade_type(int grade_type)
 		{
 			this.grade_type = grade_type;
+		}
+
+		public boolean getIsLetterGrade() {
+			if(grade_type == GradebookService.GRADE_TYPE_LETTER) {
+				isLetterGrade = true;
+			}else { 
+				isLetterGrade = false;
+			}
+			return isLetterGrade;
+		}
+
+		public void setIsLetterGrade(boolean isLetterGrade) {
+			this.isLetterGrade = isLetterGrade;
 		}
 }
 

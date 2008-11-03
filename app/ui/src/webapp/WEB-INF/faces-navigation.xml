@@ -103,6 +103,13 @@
             <from-outcome>graderRules</from-outcome>
             <to-view-id>/graderRules.jsp</to-view-id>
         </navigation-case>
+         <navigation-case>
+            <from-outcome>delteAllGrades</from-outcome>
+            <to-view-id>/delteAllGrades.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        
+    
 
     </navigation-rule>
 </faces-config>
