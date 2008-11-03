@@ -210,12 +210,13 @@
 							<h:outputText value="#{msgs.inst_view_grade}" rendered="#{instructorViewBean.gradeEntryByPoints}" />
 							<h:outputText value="#{msgs.inst_view_grade_percent}" rendered="#{instructorViewBean.gradeEntryByPercent}" />
 							<h:outputText value="#{msgs.inst_view_grade_letter}" rendered="#{instructorViewBean.gradeEntryByLetter}" />
-							<h:outputText value="#{msgs.inst_view_footnote_symbol2}" rendered="#{!overviewBean.isLetterGrade}"/>
+							<h:outputText value="#{msgs.inst_view_footnote_symbol2}" rendered="#{!instructorViewBean.gradeEntryByLetter}" />
+
 						</t:commandSortHeader>
 					</f:facet>
 
 						<h:panelGroup rendered="#{row.assignment}" style="white-space:nowrap;">
-							<h:outputText value="#{msgs.inst_view_not_counted_open}" rendered="#{!row.associatedAssignment.counted}" />
+							<h:outputText value="#{msgs.inst_view_not_counted_open}" rendered="#{!row.associatedAssignment.counted && !instructorViewBean.gradeEntryByLetter }" />
 							
 							<h:panelGroup rendered="#{!row.associatedAssignment.externallyMaintained && row.userCanGrade}">
 								<h:inputText id="Score" value="#{row.score}" size="4" 
@@ -225,7 +226,7 @@
 									<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 								</h:inputText>
 								
-								<h:inputText id="LetterScore" value="#{row.score}" size="4" 
+								<h:inputText id="LetterScore" value="#{row.score}" size="8" 
 									 rendered="#{instructorViewBean.gradeEntryByLetter}"
 									 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 									<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
@@ -236,7 +237,7 @@
 								<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 							</h:outputText>
 							
-							<h:outputText value="#{msgs.inst_view_not_counted_close}" rendered="#{!row.associatedAssignment.counted}" />
+							<h:outputText value="#{msgs.inst_view_not_counted_close}" rendered="#{!row.associatedAssignment.counted && !instructorViewBean.gradeEntryByLetter}" />
 						</h:panelGroup>
 						
 						<h:outputText value="#{row}" escape="false" rendered="#{row.isCategory}">
@@ -244,7 +245,7 @@
 						</h:outputText>
         </h:column>
         
-        <h:column>
+        <h:column  rendered="#{!instructorViewBean.gradeEntryByLetter}">			
         	<f:facet name="header" >
         		<t:commandSortHeader columnName="itemValue" propertyName="itemValue" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.inst_view_item_value}"/>
