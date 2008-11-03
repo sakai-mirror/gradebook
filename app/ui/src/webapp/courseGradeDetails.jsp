@@ -13,22 +13,22 @@
 		
 		<h2><h:outputText value="#{msgs.course_grade_details_title}"/></h2>
 		<p class="instruction">
-			<h:outputText value="#{msgs.course_grade_details_null_msg}  " rendered="#{courseGradeDetailsBean.userAbleToGradeAll}"/>
-			<h:outputText value="#{msgs.course_grade_details_null_msg_ta_view} " rendered="#{!courseGradeDetailsBean.userAbleToGradeAll}"/>
+			<h:outputText value="#{msgs.course_grade_details_null_msg}  " rendered="#{courseGradeDetailsBean.userAbleToGradeAll && !overviewBean.isLetterGrade}"/>
+			<h:outputText value="#{msgs.course_grade_details_null_msg_ta_view} " rendered="#{!courseGradeDetailsBean.userAbleToGradeAll && !overviewBean.isLetterGrade}"/>
 		</p>
 
-		<h4><h:outputText value="#{msgs.course_grade_details_page_title}"/></h4>
+		<h4><h:outputText value="#{msgs.course_grade_details_page_title}" rendered="#{!overviewBean.isLetterGrade}"/></h4>
 		<div class="indnt1">
 		<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary">
-			<h:outputText id="pointsLabel" value="#{msgs.course_grade_details_points}" rendered="#{!courseGradeDetailsBean.weightingEnabled}"/>
-			<h:outputText id="points" value="#{courseGradeDetailsBean.totalPoints}" rendered="#{!courseGradeDetailsBean.weightingEnabled}">
+			<h:outputText id="pointsLabel" value="#{msgs.course_grade_details_points}" rendered="#{!courseGradeDetailsBean.weightingEnabled && !overviewBean.isLetterGrade}"/>
+			<h:outputText id="points" value="#{courseGradeDetailsBean.totalPoints}" rendered="#{!courseGradeDetailsBean.weightingEnabled && !overviewBean.isLetterGrade}">
 				<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 			</h:outputText>
 			
-			<h:outputText id="courseGradeLabel" value="#{msgs.avg_course_grade_name}" rendered="#{courseGradeDetailsBean.userAbleToGradeAll}" />
-			<h:panelGroup rendered="#{courseGradeDetailsBean.userAbleToGradeAll}">
+			<h:outputText id="courseGradeLabel" value="#{msgs.avg_course_grade_name}" rendered="#{courseGradeDetailsBean.userAbleToGradeAll && !overviewBean.isLetterGrade}" />
+			<h:panelGroup rendered="#{courseGradeDetailsBean.userAbleToGradeAll && !overviewBean.isLetterGrade}">
 				<h:outputText id="letterGrade" value="#{courseGradeDetailsBean.averageCourseGrade} " />
 				<h:outputText id="cumScore" value="#{courseGradeDetailsBean.courseGrade}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
@@ -43,7 +43,8 @@
 
 		<%@include file="/inc/globalMessages.jspf"%>
 		
-		<div class="instruction"><h:outputText value="#{msgs.course_grade_details_instruction}" escape="false"/></div>
+		<div class="instruction"><h:outputText value="#{msgs.course_grade_details_instruction}" escape="false" rendered="#{!overviewBean.isLetterGrade}"/></div>
+		<div class="instruction"><h:outputText value="#{msgs.course_grade_details_instruction_noncalc}" escape="false" rendered="#{overviewBean.isLetterGrade}"/></div>
 
 		<t:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
 			<%@include file="/inc/filterPaging.jspf"%>
@@ -75,32 +76,32 @@
 				</f:facet>
 				<h:outputText value="#{scoreRow.enrollment.user.displayId}"/>
 			</h:column>
-			<h:column rendered="#{!courseGradeDetailsBean.weightingEnabled}">
+			<h:column rendered="#{!courseGradeDetailsBean.weightingEnabled && !overviewBean.isLetterGrade}">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="pointsEarned" propertyName="pointsEarned" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
 						<h:outputText value="#{msgs.assignment_details_points}"/>
 		            </t:commandSortHeader>
 				</f:facet>
-				<h:outputText value="#{scoreRow.courseGradeRecord.pointsEarned}" rendered="#{scoreRow.calculatedLetterGrade != null}">
+				<h:outputText value="#{scoreRow.courseGradeRecord.pointsEarned}" rendered="#{scoreRow.calculatedLetterGrade != null && !overviewBean.isLetterGrade}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 				</h:outputText>
 				
-				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{scoreRow.calculatedLetterGrade == null}"/>
+				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{scoreRow.calculatedLetterGrade == null && !overviewBean.isLetterGrade}"/>
 			</h:column>
-			<h:column>
+			<h:column rendered="#{!overviewBean.isLetterGrade}">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="autoCalc" propertyName="autoCalc" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
 						<h:outputText value="#{msgs.course_grade_details_calculated_grade}"/>
 		            </t:commandSortHeader>
 				</f:facet>
-				<h:panelGroup rendered="#{scoreRow.calculatedLetterGrade !=  null}">
+				<h:panelGroup rendered="#{scoreRow.calculatedLetterGrade !=  null && !overviewBean.isLetterGrade}">
 					<h:outputFormat value="#{msgs.course_grade_details_grade_display}" >
 						<f:param value="#{scoreRow.calculatedLetterGrade}" />
 						<f:param value="#{scoreRow.calculatedPercentGrade}" />
 					</h:outputFormat>
 				</h:panelGroup>
 
-				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{scoreRow.calculatedLetterGrade == null}"/>
+				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{scoreRow.calculatedLetterGrade == null && !overviewBean.isLetterGrade}"/>
 
 			</h:column>
 			<h:column>
@@ -116,7 +117,8 @@
 			<h:column>
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="override" propertyName="override" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
-						<h:outputText value="#{msgs.course_grade_details_grade}"/>
+						<h:outputText value="#{msgs.course_grade_details_grade}" rendered="#{!overviewBean.isLetterGrade}"/>
+						<h:outputText value="#{msgs.course_grade_details_calculated_grade}" rendered="#{overviewBean.isLetterGrade}"/>
 		            </t:commandSortHeader>
 				</f:facet>
 				<t:div styleClass="shorttext">
