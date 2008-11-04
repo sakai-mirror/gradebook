@@ -57,13 +57,16 @@
 				<h:outputText id="titleLabel" value="#{msgs.assignment_details_title}"/>
 				<h:outputText id="title" value="#{assignmentDetailsBean.assignment.name}"/>
 
-				<h:outputText id="pointsLabel" value="#{msgs.assignment_details_points}"/>
-				<h:outputText id="points" value="#{assignmentDetailsBean.assignment.pointsPossible}">
+				<h:outputText id="pointsLabel" value="#{(assignmentDetailsBean.gradeEntryByPercent) ? msgs.assignment_details_relative_weight : msgs.assignment_details_points}"
+					rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}"/>
+				<h:outputText id="points" value="#{assignmentDetailsBean.assignment.pointsPossible}"
+					rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 				</h:outputText>
 
-				<h:outputText id="averageLabel" value="#{msgs.assignment_details_average}" rendered="#{overviewBean.userAbleToGradeAll}"/>
-				<h:panelGroup rendered="#{overviewBean.userAbleToGradeAll}">
+				<h:outputText id="averageLabel" value="#{msgs.assignment_details_average}"
+					rendered="#{overviewBean.userAbleToGradeAll && (assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent)}"/>
+				<h:panelGroup rendered="#{overviewBean.userAbleToGradeAll && (assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent)}">
 					<h:outputText id="average" value="#{assignmentDetailsBean.assignment}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_BASIC" />
 					</h:outputText>
