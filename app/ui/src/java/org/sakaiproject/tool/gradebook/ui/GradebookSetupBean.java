@@ -196,13 +196,17 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			FacesUtil.addErrorMessage(getLocalizedString("grade_entry_invalid"));
 			return "failure";
 		}
-    if(!isConflictWithCourseGrade())
-    {
-    	isValidWithCourseGrade = false;
-    	return null;
-    }
-    else
-    	isValidWithCourseGrade = true;
+		if(!isConflictWithCourseGrade())
+		{
+			isValidWithCourseGrade = false;
+			return null;
+		}
+		else
+			isValidWithCourseGrade = true;
+		
+		int origialGradeType = localGradebook.getGrade_type();
+		List<Assignment> assignmentsList = getGradebookManager().getAssignments(getGradebookId());
+		Iterator it = assignmentsList.iterator();
 
 		if (gradeEntryMethod.equals(ENTRY_OPT_PERCENT))
 		{
@@ -280,6 +284,29 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			}
 
 			getGradebookManager().updateGradebook(localGradebook);
+			
+			if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE  && origialGradeType==GradebookService.GRADE_TYPE_LETTER)
+			{
+				while (it.hasNext()) {
+					Assignment assignment = (Assignment) it.next();
+					assignment.getGradebook().setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+					assignment.setUngraded(false);
+					getGradebookManager().updateAssignment(assignment);
+				}
+
+			}
+			
+			if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_POINTS && origialGradeType==GradebookService.GRADE_TYPE_LETTER)
+			{
+				while (it.hasNext()) {
+					Assignment assignment = (Assignment) it.next();
+					assignment.getGradebook().setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+					assignment.setUngraded(false);
+					getGradebookManager().updateAssignment(assignment);
+				}
+
+			}
+			
 			reset();
 
 			FacesUtil.addRedirectSafeMessage(getLocalizedString("gb_save_msg"));
@@ -411,6 +438,27 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		}
 
 		getGradebookManager().updateGradebook(localGradebook);
+		
+		if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE  && origialGradeType==GradebookService.GRADE_TYPE_LETTER)
+		{
+			while (it.hasNext()) {
+				Assignment assignment = (Assignment) it.next();
+				assignment.getGradebook().setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+				assignment.setUngraded(false);
+				getGradebookManager().updateAssignment(assignment);
+			}
+		}
+
+		if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_POINTS && origialGradeType==GradebookService.GRADE_TYPE_LETTER)
+		{
+			while (it.hasNext()) {
+				Assignment assignment = (Assignment) it.next();
+				assignment.getGradebook().setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+				assignment.setUngraded(false);
+				getGradebookManager().updateAssignment(assignment);
+			}
+
+		}
 
 		FacesUtil.addRedirectSafeMessage(getLocalizedString("gb_save_msg"));
 		reset();
