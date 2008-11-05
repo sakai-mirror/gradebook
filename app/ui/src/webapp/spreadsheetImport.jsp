@@ -16,8 +16,8 @@
 			<h:selectBooleanCheckbox id="ungraded" value="#{spreadsheetUploadBean.assignment.ungraded}"
 				onclick="assignmentUngraded((this.form.name));"
 				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"
-				rendered="#{bean.localGradebook.grade_type != 3}" />
-			<h:outputLabel for="ungraded" value="Non-calculating Item" rendered="#{bean.localGradebook.grade_type != 3}" />
+				rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}" />
+			<h:outputLabel for="ungraded" value="Non-calculating Item" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}" />
 			 <h:panelGrid cellpadding="0" cellspacing="0" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite">
 					<h:outputLabel for="title" id="titleLabel" value="#{msgs.import_assignment_title}"/>
 					<h:panelGroup>
@@ -27,9 +27,9 @@
 						<h:message for="title" styleClass="alertMessageInline"/>
 					</h:panelGroup>
 
-					<h:outputLabel for="points" id="pointsLabel" value="#{msgs.import_assignment_points}" rendered="#{bean.localGradebook.grade_type != 3}"/>
+					<h:outputLabel for="points" id="pointsLabel" value="#{msgs.import_assignment_points}" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}"/>
 					<h:panelGroup>
-						<h:inputText id="points" value="#{spreadsheetUploadBean.assignment.pointsPossible}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{bean.localGradebook.grade_type != 3}">
+						<h:inputText id="points" value="#{spreadsheetUploadBean.assignment.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 							<f:validateDoubleRange minimum="0.01" />
 							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE_DOUBLE"/>
@@ -46,9 +46,9 @@
 						<h:message for="dueDate" styleClass="alertMessageInline" />
 					</h:panelGroup>
 					
-					<h:outputLabel for="category" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{spreadsheetUploadBean.categoriesEnabled}" />
+					<h:outputLabel for="category" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{spreadsheetUploadBean.categoriesEnabled && spreadsheetUploadBean.localGradebook.grade_type != 3}" />
 					<h:panelGroup rendered="#{spreadsheetUploadBean.categoriesEnabled}">
-						<h:selectOneMenu id="selectCategory" value="#{spreadsheetUploadBean.selectedCategory}">
+						<h:selectOneMenu id="selectCategory" value="#{spreadsheetUploadBean.selectedCategory}" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3 }">
 							<f:selectItems value="#{spreadsheetUploadBean.categoriesSelectList}" />
 						</h:selectOneMenu>
 						<f:verbatim><div class="instruction"></f:verbatim>
@@ -80,8 +80,8 @@
 					
 					<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
 						<h:selectBooleanCheckbox id="countAssignment" value="#{spreadsheetUploadBean.assignment.counted}"
-							onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{bean.localGradebook.grade_type != 3}"/>
-						<h:outputLabel id="countAssignmentLabel" for="countAssignment" value="#{msgs.add_assignment_counted}" rendered="#{bean.localGradebook.grade_type != 3}"/>
+							onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}"/>
+						<h:outputLabel id="countAssignmentLabel" for="countAssignment" value="#{msgs.add_assignment_counted}" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}"/>
 					</h:panelGrid>
 				</h:panelGrid>
 				<h:outputText escape="false" value="<script type='text/javascript'>cat = #{spreadsheetUploadBean.categoriesEnabled};</script>" />
