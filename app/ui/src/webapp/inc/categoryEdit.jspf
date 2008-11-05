@@ -9,10 +9,10 @@
       <f:selectItem itemValue="onlyCategories" itemLabel="#{msgs.opt_categories_only}" />
 	</h:selectOneRadio>
 	<h:selectBooleanCheckbox id="categoriesAndWeighting" value="#{gradebookSetupBean.displayCategoryWeighting}"	
-		rendered="#{!gradebookSetupBean.localGradebook.isLetterGrade}"
+		rendered="#{!gradebookSetupBean.isLetterGrade}"
 		valueChangeListener="#{gradebookSetupBean.processCategorySettingChange}" onclick="this.form.submit();"
-		styleClass="indnt2" />
-			<h:outputLabel for="categoriesAndWeighting" value="#{msgs.opt_categories_and_weighting}" rendered="#{!gradebookSetupBean.localGradebook.isLetterGrade}"/>
+		styleClass="indnt2" disabled="#{!gradebookSetupBean.displayCategories}"/>
+			<h:outputLabel for="categoriesAndWeighting" value="#{msgs.opt_categories_and_weighting}" rendered="#{!gradebookSetupBean.isLetterGrade}"/>
 	
 	<h:panelGroup rendered="#{gradebookSetupBean.displayCategories}">
 		<f:verbatim><div class="gbSection"></f:verbatim>

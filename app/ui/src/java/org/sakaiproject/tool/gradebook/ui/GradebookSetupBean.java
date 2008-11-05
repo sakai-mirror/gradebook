@@ -183,6 +183,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	{
 		return categorySetting.equals(CATEGORY_OPT_CAT_AND_WEIGHT);
 	}
+	
 
 	/**
 	 * Save gradebook settings (including categories and weighting)
@@ -521,6 +522,22 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 		return GB_SETUP_PAGE;
 	}
+	
+	public String processGradeEntryMethodChange(ValueChangeEvent vce)
+	{
+		Object changeAssign = (Object) vce.getNewValue();
+		if(changeAssign instanceof String) {
+			String newValue = (String) vce.getNewValue();
+			if (newValue != null && (newValue.equals(ENTRY_OPT_POINTS) || 
+					newValue.equals(ENTRY_OPT_PERCENT) || 
+					newValue.equals(ENTRY_OPT_LETTER)))
+			{
+				gradeEntryMethod = newValue;
+			}
+		}
+		return GB_SETUP_PAGE;
+	}
+
 
 	public String processCancelGradebookSetup()
 	{
@@ -644,13 +661,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
         this.pageName = pageName;
     }
     
-    /**
-     * Grading scale used if grade entry by letter
-     * @return
-     */
-    public List getLetterGradeRows() {
-    	return letterGradeRows;
-    }
     public void setLetterGradeRows(List letterGradeRows) {
     	this.letterGradeRows = letterGradeRows;
     }
@@ -866,6 +876,14 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		return "delteAllGrades";
 	}
 	
+    /**
+     * Grading scale used if grade entry by letter
+     * @return
+     */
+    public List getLetterGradeRows() {
+    	return letterGradeRows;
+    }
+
 	public boolean getIsLetterGrade() {
 		isLetterGrade = gradeEntryMethod.equals(ENTRY_OPT_LETTER);
 		return isLetterGrade;
