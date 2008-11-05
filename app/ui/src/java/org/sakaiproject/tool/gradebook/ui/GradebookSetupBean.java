@@ -286,6 +286,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 			getGradebookManager().updateGradebook(localGradebook);
 			
+		//Grade Entry change from Letter Grades to Percentage 	
 			if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE  && origialGradeType==GradebookService.GRADE_TYPE_LETTER)
 			{
 				while (it.hasNext()) {
@@ -296,7 +297,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				}
 
 			}
-			
+		//Grade Entry change from Letter Grades to Points	
 			if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_POINTS && origialGradeType==GradebookService.GRADE_TYPE_LETTER)
 			{
 				while (it.hasNext()) {
@@ -307,6 +308,36 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				}
 
 			}
+		//Grade Entry change from Points/Percentage to Letter Grades	
+			if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER && (origialGradeType==GradebookService.GRADE_TYPE_POINTS ||origialGradeType==GradebookService.GRADE_TYPE_PERCENTAGE))
+			{
+				while (it.hasNext()) {
+					Assignment assignment = (Assignment) it.next();
+					assignment.getGradebook().setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+					assignment.setUngraded(true);
+					getGradebookManager().updateAssignment(assignment);
+				}
+			}
+		//Grade Entry change from Points to Percentage	
+			if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE && origialGradeType==GradebookService.GRADE_TYPE_POINTS)
+			{
+				while (it.hasNext()) {
+					Assignment assignment = (Assignment) it.next();
+					assignment.getGradebook().setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+					getGradebookManager().updateAssignment(assignment);
+				}
+			}
+			
+		//Grade Entry change from Percentage to Points
+			if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_POINTS && origialGradeType==GradebookService.GRADE_TYPE_PERCENTAGE)
+			{
+				while (it.hasNext()) {
+					Assignment assignment = (Assignment) it.next();
+					assignment.getGradebook().setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+					getGradebookManager().updateAssignment(assignment);
+				}
+			}
+			
 			
 			reset();
 
@@ -440,6 +471,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 		getGradebookManager().updateGradebook(localGradebook);
 		
+//		Grade Entry change from Letter Grades to Percentage 	
 		if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE  && origialGradeType==GradebookService.GRADE_TYPE_LETTER)
 		{
 			while (it.hasNext()) {
@@ -448,8 +480,9 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				assignment.setUngraded(false);
 				getGradebookManager().updateAssignment(assignment);
 			}
-		}
 
+		}
+	//Grade Entry change from Letter Grades to Points	
 		if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_POINTS && origialGradeType==GradebookService.GRADE_TYPE_LETTER)
 		{
 			while (it.hasNext()) {
@@ -459,6 +492,35 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				getGradebookManager().updateAssignment(assignment);
 			}
 
+		}
+	//Grade Entry change from Points/Percentage to Letter Grades	
+		if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER && (origialGradeType==GradebookService.GRADE_TYPE_POINTS ||origialGradeType==GradebookService.GRADE_TYPE_PERCENTAGE))
+		{
+			while (it.hasNext()) {
+				Assignment assignment = (Assignment) it.next();
+				assignment.getGradebook().setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+				assignment.setUngraded(true);
+				getGradebookManager().updateAssignment(assignment);
+			}
+		}
+	//Grade Entry change from Points to Percentage	
+		if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE && origialGradeType==GradebookService.GRADE_TYPE_POINTS)
+		{
+			while (it.hasNext()) {
+				Assignment assignment = (Assignment) it.next();
+				assignment.getGradebook().setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+				getGradebookManager().updateAssignment(assignment);
+			}
+		}
+		
+	//Grade Entry change from Percentage to Points
+		if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_POINTS && origialGradeType==GradebookService.GRADE_TYPE_PERCENTAGE)
+		{
+			while (it.hasNext()) {
+				Assignment assignment = (Assignment) it.next();
+				assignment.getGradebook().setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+				getGradebookManager().updateAssignment(assignment);
+			}
 		}
 
 		FacesUtil.addRedirectSafeMessage(getLocalizedString("gb_save_msg"));
