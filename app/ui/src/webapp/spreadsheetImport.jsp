@@ -28,7 +28,7 @@
 					</h:panelGroup>
 
 					<h:outputLabel for="points" id="pointsLabel" value="#{msgs.import_assignment_points}" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}"/>
-					<h:panelGroup>
+					<h:panelGroup rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}">
 						<h:inputText id="points" value="#{spreadsheetUploadBean.assignment.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 							<f:validateDoubleRange minimum="0.01" />
