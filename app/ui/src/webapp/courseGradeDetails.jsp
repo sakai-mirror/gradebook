@@ -171,7 +171,7 @@
 			<h:commandButton
 				value="#{msgs.course_grade_details_calculate_course_grade}"
 				action="calculateCourseGrades"
-				rendered="#{courseGradeDetailsBean.userAbleToGradeAll}"
+				rendered="#{courseGradeDetailsBean.userAbleToGradeAll && !overviewBean.isLetterGrade}"
 				style="margin-left: 5em;"
 			/>
 			<h:commandButton
