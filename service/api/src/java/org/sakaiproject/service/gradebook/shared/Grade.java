@@ -38,6 +38,8 @@ public final class Grade
 	private final int grade_type;
 	private final boolean ungraded;
 	
+	public static final int MAX_GRADE_LENGTH = 8;
+	
 	/**
 	 * The only constructor for Grade. 
 	 * Make use to catch InvalidGradeException, NumberFormatException and GradebookException when create an object of Grade.
@@ -131,8 +133,8 @@ public final class Grade
 			}
 			else if(ungraded || grade_type == GradebookService.GRADE_TYPE_LETTER)
 			{
-				if(grade.length() > 8)
-					throw new InvalidGradeException("grade length is bigger than 8 for: " + grade + " of grade_type of: " + grade_type + ". ungraded is:" + ungraded);
+				if(grade.length() > MAX_GRADE_LENGTH)
+					throw new InvalidGradeException("grade length is bigger than " + MAX_GRADE_LENGTH + " for: " + grade + " of grade_type of: " + grade_type + ". ungraded is:" + ungraded);
 				else
 					return true;
 			}

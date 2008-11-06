@@ -856,8 +856,14 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         	Double ptsPossible = 0.0;
 
         	if (gradableObject instanceof Assignment) {
-         		ptsPossible = new Double(((Assignment) gradableObject).getPointsPossible());
-         		colName = ((Assignment)gradableObject).getName() + " [" + ptsPossible.toString() + "]";
+        		String ptsPossibleAsString = "";
+        		if(((Assignment) gradableObject).getUngraded()){
+        			ptsPossibleAsString = getLocalizedString("NON_CALCULATING_ITEM");
+        		}else{
+        			ptsPossible = new Double(((Assignment) gradableObject).getPointsPossible());
+        			ptsPossibleAsString = ptsPossible.toString();
+        		}
+         		colName = ((Assignment)gradableObject).getName() + " [" + ptsPossibleAsString + "]";
          	} else if (gradableObject instanceof CourseGrade && includeCourseGrade) {
          		colName = getLocalizedString("roster_course_grade_column_name");
          	}
