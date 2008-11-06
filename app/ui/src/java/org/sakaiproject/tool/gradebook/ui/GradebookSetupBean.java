@@ -292,7 +292,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				while (it.hasNext()) {
 					Assignment assignment = (Assignment) it.next();
 					assignment.getGradebook().setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
-					assignment.setUngraded(false);
 					getGradebookManager().updateAssignment(assignment);
 				}
 
@@ -303,7 +302,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				while (it.hasNext()) {
 					Assignment assignment = (Assignment) it.next();
 					assignment.getGradebook().setGrade_type(GradebookService.GRADE_TYPE_POINTS);
-					assignment.setUngraded(false);
 					getGradebookManager().updateAssignment(assignment);
 				}
 
@@ -477,7 +475,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			while (it.hasNext()) {
 				Assignment assignment = (Assignment) it.next();
 				assignment.getGradebook().setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
-				assignment.setUngraded(false);
 				getGradebookManager().updateAssignment(assignment);
 			}
 
@@ -488,7 +485,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			while (it.hasNext()) {
 				Assignment assignment = (Assignment) it.next();
 				assignment.getGradebook().setGrade_type(GradebookService.GRADE_TYPE_POINTS);
-				assignment.setUngraded(false);
 				getGradebookManager().updateAssignment(assignment);
 			}
 
