@@ -147,6 +147,23 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		return assignmentCategory;
 	}
 	
+	public boolean isGradesExistInAssignment() {
+		boolean gradesExist = getGradebookManager().isEnteredAssignmentScores(assignmentId);
+		return gradesExist;
+	}
+	
+	public boolean isNoncalcWithGrades() {
+		if (getGradebook().getGrade_type()==GradebookService.GRADE_TYPE_LETTER)
+		{
+			return false;
+		}
+		else if (isGradesExistInAssignment() && assignment.getUngraded())
+		{
+			return false;
+		}
+		return true;
+	}
+	
 	/**
 	 * Used to check if all gradebook items are valid before saving. Due to the way JSF works, had to turn off
 	 * validators for bulk assignments so had to perform checks here.
@@ -284,6 +301,9 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			Double origPointsPossible = originalAssignment.getPointsPossible();
 			Double newPointsPossible = assignment.getPointsPossible();
 			boolean scoresEnteredForAssignment = getGradebookManager().isEnteredAssignmentScores(assignmentId);
+			
+			//boolean origUngraded = originalAssignment.getUngraded();
+			//boolean newUngraded = assignment.getUngraded();
 			
 			// if ungraded, we don't care about points possible
 			if (!assignment.getUngraded() && getGradebook().getGrade_type()!=GradebookService.GRADE_TYPE_LETTER)

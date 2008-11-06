@@ -34,7 +34,7 @@
 				onclick="assignmentUngraded((this.form.name + ':bulkNewAssignmentsTable:' + #{rowIndex}));"
 				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"
 				rendered="#{bean.localGradebook.grade_type != 3}" />
-			<h:outputLabel for="ungraded" value="Non-calculating Item" rendered="#{bean.localGradebook.grade_type != 3}" />
+			<h:outputLabel for="ungraded" value="#{msgs.add_assignment_noncalc_item}" rendered="#{bean.localGradebook.grade_type != 3}" />
 		  
 <%-- Commented out with roll back of non-graded items 
 			<h:selectOneRadio value="#{item.ungraded}" id="assignNonGraded" layout="pageDirection" onclick="submit();" 
