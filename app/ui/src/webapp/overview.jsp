@@ -113,7 +113,8 @@
 				</h:commandLink>
 			</h:column>
 			
-			<h:column rendered="#{overviewBean.userAbleToGradeAll}">
+			
+			<h:column rendered="#{overviewBean.userAbleToGradeAll && !overviewBean.isLetterGrade}">
 				<f:facet name="header">
 		    	<t:commandSortHeader columnName="mean" propertyName="mean" immediate="true" arrow="true">
 						<h:outputText value="#{msgs.overview_assignments_header_average}" />
@@ -121,9 +122,10 @@
 		      </t:commandSortHeader>
 		    </f:facet>
 
-				<h:outputText value="#{gradebookItem}" escape="false">
+				<h:outputText value="#{gradebookItem}" escape="false" rendered="#{gradebookItem.assignment && gradebookItem.ungraded == false}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
+				<h:outputText value="#{msgs.overview_unassigned_cat_avg}" rendered="#{gradebookItem.assignment && gradebookItem.ungraded == true}"/>
 			</h:column>
 			
 			<h:column rendered="#{overviewBean.weightingEnabled}">
@@ -161,7 +163,7 @@
 				<h:outputText value="#{msgs.overview_released_false}" rendered="#{gradebookItem.assignment && gradebookItem.released == false}"/>
 			</h:column>
 			
-			<h:column>
+			<h:column rendered="#{!overviewBean.isLetterGrade}">
 				<f:facet name="header">
         	<t:commandSortHeader columnName="counted" propertyName="counted" immediate="true" arrow="true">
           	<h:outputText value="#{msgs.overview_included_in_cum}" escape="false"/>
@@ -169,6 +171,7 @@
         </f:facet>
 				<h:outputText value="#{msgs.overview_included_in_cum_true}" rendered="#{gradebookItem.assignment && gradebookItem.counted == true }"/>
 				<h:outputText value="#{msgs.overview_included_in_cum_false}" rendered="#{gradebookItem.assignment && gradebookItem.counted == false}"/>
+				<h:outputText value=" (#{msgs.overview_non_calc})" rendered ="#{gradebookItem.assignment && gradebookItem.ungraded == true}"/>
 			</h:column>
 			
 			<h:column rendered="#{overviewBean.displayGradeEditorCol}">
