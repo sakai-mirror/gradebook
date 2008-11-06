@@ -50,6 +50,7 @@ public class AssignmentPointsConverter extends PointsConverter {
 
 		String formattedScore;
 		boolean notCounted = false;
+		boolean ungraded = false;
 		Object workingValue = value;
 		boolean percentage = false;
 		
@@ -62,6 +63,9 @@ public class AssignmentPointsConverter extends PointsConverter {
 				// a category
 				if (!notCounted && assignment.getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
 					notCounted = assignment.getCategory() == null;
+				}
+				if(assignment.getUngraded()){
+					ungraded = true;
 				}
 			} else if (value instanceof AssignmentGradeRecord) {
 				Gradebook gradebook = ((GradableObject)((AbstractGradeRecord)value).getGradableObject()).getGradebook();
@@ -89,6 +93,10 @@ public class AssignmentPointsConverter extends PointsConverter {
 				if (!notCounted && assignment.getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
 					notCounted = assignment.getCategory() == null;
 				}
+				
+				if(assignment.getUngraded()){
+					ungraded = true;
+				}
 
 			} else if (value instanceof CourseGradeRecord) {
 				// display percentage
@@ -101,7 +109,7 @@ public class AssignmentPointsConverter extends PointsConverter {
 			formattedScore = FacesUtil.getLocalizedString("score_not_counted",
 					new String[] {formattedScore, FacesUtil.getLocalizedString("score_not_counted_tooltip")});
 		}
-		if(percentage && workingValue != null){
+		if(percentage && workingValue != null && !ungraded){
 			formattedScore += "%";
 		}
 		return formattedScore;

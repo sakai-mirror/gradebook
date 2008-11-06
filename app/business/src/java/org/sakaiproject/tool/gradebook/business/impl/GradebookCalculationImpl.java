@@ -339,7 +339,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 		double totalPointsEarned = 0;
 		double literalTotalPointsEarned = 0;
 		Iterator scoresIter = session.createQuery(
-				"select agr.pointsEarned, asn from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.pointsPossible > 0").
+				"select agr.pointsEarned, asn from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.pointsPossible > 0 and asn.ungraded=false").
 				setParameter("student", studentId).
 				setParameter("gbid", gradebookId).
 				list().iterator();

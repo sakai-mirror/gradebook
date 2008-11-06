@@ -52,12 +52,16 @@ public class ScoreConverter extends PointsConverter {
 		Object pointsPossible = null;
 		Gradebook gradebook;
 		boolean notCounted = true;
+		boolean ungraded = false;
 
 		if (value != null) {
 			if (value instanceof AssignmentGradeRow) {
 				AssignmentGradeRow gradeRow = (AssignmentGradeRow) value;
 				if (gradeRow.getAssociatedAssignment().isCounted())
 					notCounted=false;
+				if(gradeRow.getAssociatedAssignment().getUngraded()){
+					ungraded = true;
+				}
 				gradebook = gradeRow.getGradebook();
 				score = gradeRow.getScore();
 				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
@@ -78,7 +82,7 @@ public class ScoreConverter extends PointsConverter {
 		if (score != null) {
 			if (gradeEntryMethod.equals(POINTS)) {
 				formattedScore = FacesUtil.getLocalizedString("overview_avg_display_points", new String[] {formattedScore, formattedPtsPossible} );
-			} else if (gradeEntryMethod.equals(PERCENT)) {
+			} else if (gradeEntryMethod.equals(PERCENT) && !ungraded) {
 				formattedScore = FacesUtil.getLocalizedString("overview_avg_display_percent", new String[] {formattedScore} );
 			}
 			
