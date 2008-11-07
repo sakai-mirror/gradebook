@@ -12,6 +12,8 @@
 
 		<div class="indnt1">
 
+		<p class="instruction"><h:outputText value="#{msgs.edit_assignment_instruction}" /></p>
+
 		<t:aliasBean alias="#{bean}" value="#{editAssignmentBean}">
 			<%@include file="/inc/assignmentEditing.jspf"%>
 		</t:aliasBean>

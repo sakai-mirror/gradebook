@@ -11,6 +11,8 @@
 	<h:outputFormat value="#{msgs.edit_assignment_external_items}" rendered="#{bean.assignment.externallyMaintained}">
 		<f:param value="#{bean.assignment.externalAppName}"/>
 	</h:outputFormat>
+	<f:verbatim><br/></f:verbatim>
+	<h:outputText value="#{msgs.edit_assignment_noncalc_grades_saved}" rendered="#{!bean.gradeEntryByLetter && !bean.noncalcWithGrades}" />
 </div>
 
 <%@include file="/inc/globalMessages.jspf"%>
