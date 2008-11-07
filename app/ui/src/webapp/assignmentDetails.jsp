@@ -55,18 +55,21 @@
  			summary="Table contains information on assignment properties"
 			border="0">
 				<h:outputText id="titleLabel" value="#{msgs.assignment_details_title}"/>
-				<h:outputText id="title" value="#{assignmentDetailsBean.assignment.name}"/>
+				<h:panelGroup>
+					<h:outputText id="title" value="#{assignmentDetailsBean.assignment.name}"/>
+					<h:outputText id="noncalctitle" value="#{msgs.assignment_details_noncalc_title}" rendered="#{assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter}"/>
+				</h:panelGroup>
 
 				<h:outputText id="pointsLabel" value="#{(assignmentDetailsBean.gradeEntryByPercent) ? msgs.assignment_details_relative_weight : msgs.assignment_details_points}"
-					rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}"/>
+					rendered="#{!assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter}"/>
 				<h:outputText id="points" value="#{assignmentDetailsBean.assignment.pointsPossible}"
-					rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}">
+					rendered="#{!assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 				</h:outputText>
 
 				<h:outputText id="averageLabel" value="#{msgs.assignment_details_average}"
-					rendered="#{overviewBean.userAbleToGradeAll && (assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent)}"/>
-				<h:panelGroup rendered="#{overviewBean.userAbleToGradeAll && (assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent)}">
+					rendered="#{overviewBean.userAbleToGradeAll && (!assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter)}"/>
+				<h:panelGroup rendered="#{overviewBean.userAbleToGradeAll && (!assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter)}">
 					<h:outputText id="average" value="#{assignmentDetailsBean.assignment}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_BASIC" />
 					</h:outputText>
