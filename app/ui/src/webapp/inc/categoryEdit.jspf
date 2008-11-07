@@ -4,19 +4,23 @@
 
 <div class="indnt1 gbSection">
 	<h:selectOneRadio value="#{gradebookSetupBean.categorySetting}" id="categorySetting" layout="pageDirection" 
-			valueChangeListener="#{gradebookSetupBean.processCategorySettingChange}" onclick="this.form.submit();">
+			valueChangeListener="#{gradebookSetupBean.processCategorySettingChange}" onclick="this.form.submit();" 
+			rendered="#{!gradebookSetupBean.isLetterGrade}">
 			<f:selectItem itemValue="noCategories" itemLabel="#{msgs.opt_no_categories}" />
       <f:selectItem itemValue="onlyCategories" itemLabel="#{msgs.opt_categories_only}" />
+       <f:selectItem itemValue="categoriesAndWeighting" itemLabel="#{msgs.opt_categories_and_weighting}" />    
 	</h:selectOneRadio>
-	<h:selectBooleanCheckbox id="categoriesAndWeighting" value="#{gradebookSetupBean.displayCategoryWeighting}"	
-		rendered="#{!gradebookSetupBean.isLetterGrade}"
-		valueChangeListener="#{gradebookSetupBean.processCategorySettingChange}" onclick="this.form.submit();"
-		styleClass="indnt2" disabled="#{!gradebookSetupBean.displayCategories}"/>
-			<h:outputLabel for="categoriesAndWeighting" value="#{msgs.opt_categories_and_weighting}" rendered="#{!gradebookSetupBean.isLetterGrade}"/>
 	
-	<h:panelGroup rendered="#{gradebookSetupBean.displayCategories}">
+	<h:selectOneRadio value="#{gradebookSetupBean.categorySetting}" id="categorySetting2" layout="pageDirection" 
+			valueChangeListener="#{gradebookSetupBean.processCategorySettingChange}" onclick="this.form.submit();" 
+			rendered="#{gradebookSetupBean.isLetterGrade}">
+			<f:selectItem itemValue="noCategories" itemLabel="#{msgs.opt_no_categories}" />
+      <f:selectItem itemValue="onlyCategories" itemLabel="#{msgs.opt_categories_only}" />  
+	</h:selectOneRadio>
+	
+		<h:panelGroup rendered="#{gradebookSetupBean.displayCategories}">
 		<f:verbatim><div class="gbSection"></f:verbatim>
-			<h:outputText styleClass="instruction" value="#{msgs.categories_disclude_info}" rendered="#{gradebookSetupBean.displayCategoryWeighting}"/>
+			<h:outputText styleClass="instruction" value="#{msgs.categories_disclude_info}" rendered="#{gradebookSetupBean.displayWeighting}"/>
 		
 			<t:dataTable cellpadding="0" cellspacing="0"
 				id="categoriesTable"
@@ -32,7 +36,7 @@
 					</f:facet>
 					<h:inputText id="categoryName" value="#{category.name}"/>
 				</h:column>
-				<h:column rendered="#{gradebookSetupBean.displayCategoryWeighting}">
+				<h:column rendered="#{gradebookSetupBean.displayWeighting}">
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_list_weight}" />
 					</f:facet>
@@ -66,7 +70,7 @@
 				<h:outputText value="#{msgs.cat_list_more}" />
 			</h:outputLink>
 			
-			<h:panelGrid columns="2" styleClass="indnt10" rendered="#{gradebookSetupBean.displayCategoryWeighting}">
+			<h:panelGrid columns="2" styleClass="indnt10" rendered="#{gradebookSetupBean.displayWeighting}">
 				<h:outputText value="#{msgs.running_total}" styleClass="courseGrade"/>
 				<h:panelGroup id="runningTotal" styleClass="courseGrade #{gradebookSetupBean.runningTotalStyle}">
 					<h:outputText id="runningTotalVal" value="#{gradebookSetupBean.runningTotal}" />

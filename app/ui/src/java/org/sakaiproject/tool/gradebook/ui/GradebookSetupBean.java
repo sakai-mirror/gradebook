@@ -66,7 +66,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private LetterGradePercentMapping defaultLGPM;
 	private boolean enableLetterGrade = false;
   private boolean isValidWithCourseGrade = true;
-  private boolean displayCategoryWeighting= false;
   private boolean isLetterGrade = false;
   private boolean isExistingGrades=false;
 	
@@ -172,6 +171,11 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	 */
 	public boolean isDisplayCategories()
 	{
+		//If we have categories & Weighting setting, when we change from Points/Percentages to Letter grade, categorySetting will be null.  
+		if(categorySetting == null || (!categorySetting.equals(CATEGORY_OPT_CAT_ONLY) && 
+				!categorySetting.equals(CATEGORY_OPT_CAT_AND_WEIGHT) && !categorySetting.equals(CATEGORY_OPT_NONE))) {		
+			return false;
+		}
 		return !categorySetting.equals(CATEGORY_OPT_NONE);
 	}
 
@@ -561,23 +565,13 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 	public String processCategorySettingChange(ValueChangeEvent vce)
 	{
-		Object changeAssign = (Object) vce.getNewValue();
-		if(changeAssign instanceof String) {
-			String newValue = (String) vce.getNewValue();
-			if (newValue != null && (newValue.equals(CATEGORY_OPT_NONE) || 
-					newValue.equals(CATEGORY_OPT_CAT_AND_WEIGHT) || 
-					newValue.equals(CATEGORY_OPT_CAT_ONLY)))
-			{
-				categorySetting = newValue;
-			}
+		String changeAssign = (String) vce.getNewValue(); 
+		if (changeAssign != null && (changeAssign.equals(CATEGORY_OPT_NONE) || 
+				changeAssign.equals(CATEGORY_OPT_CAT_AND_WEIGHT) || 
+				changeAssign.equals(CATEGORY_OPT_CAT_ONLY)))
+		{
+			categorySetting = changeAssign;
 		}
-		if(changeAssign instanceof Boolean) {
-			Boolean isCatWeight = (Boolean) vce.getNewValue();
-			if(isCatWeight) {
-				categorySetting = CATEGORY_OPT_CAT_AND_WEIGHT;
-			}
-		}
-
 		return GB_SETUP_PAGE;
 	}
 	
@@ -922,13 +916,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		return true;
 	}
 
-	public boolean isDisplayCategoryWeighting() {
-		return displayCategoryWeighting;
-	}
-
-	public void setDisplayCategoryWeighting(boolean displayCategoryWeighting) {
-		this.displayCategoryWeighting = displayCategoryWeighting;
-	}
 	
 	public String navigateToDeleteAllGrades() {
 		return "delteAllGrades";
