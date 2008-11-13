@@ -2494,7 +2494,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     			/** synchronize from external application */
     			if (synchronizer != null && !synchronizer.isProjectSite() && !asn.getUngraded())
     			{
-    				synchronizer.addLegacyAssignment(name, gb.getGrade_type());
+    				synchronizer.addLegacyAssignment(name.trim(), gb.getGrade_type());
     			}
     			
     			// Save the new assignment
@@ -2550,7 +2550,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     			/** synchronize from external application */
     			if (synchronizer != null && !synchronizer.isProjectSite() && !asn.getUngraded())
     			{
-    				synchronizer.addLegacyAssignment(name, gb.getGrade_type());
+    				synchronizer.addLegacyAssignment(name.trim(), gb.getGrade_type());
     			}  
 
     			Long id = (Long)session.save(asn);
