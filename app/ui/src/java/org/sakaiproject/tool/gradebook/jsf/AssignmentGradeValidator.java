@@ -97,10 +97,14 @@ public class AssignmentGradeValidator implements Validator, Serializable {
 			throw new ValidatorException(new FacesMessage(
 					FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.Number.INVALID")));
 		} catch (InvalidGradeException ige) {
-			if(grade_type == GradebookService.GRADE_TYPE_POINTS || grade_type == GradebookService.GRADE_TYPE_PERCENTAGE) {
+			if(!ungraded && (grade_type == GradebookService.GRADE_TYPE_POINTS || grade_type == GradebookService.GRADE_TYPE_PERCENTAGE) && Double.parseDouble(stringValue) >= 0.0d ) {
 				throw new ValidatorException(new FacesMessage(
 						FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.PRECISION")));
 			}
+			if(!ungraded && (grade_type == GradebookService.GRADE_TYPE_POINTS || grade_type == GradebookService.GRADE_TYPE_PERCENTAGE) && Double.parseDouble(stringValue) < 0.0d) {
+				throw new ValidatorException(new FacesMessage(
+						FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.Number.GREATER")));
+			}		
 			if(grade_type == GradebookService.GRADE_TYPE_LETTER) {
 				throw new ValidatorException(new FacesMessage(
 						FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.LetterGrade.INVALID")));				
