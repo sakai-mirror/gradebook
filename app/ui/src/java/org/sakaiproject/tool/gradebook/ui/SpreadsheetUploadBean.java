@@ -1076,6 +1076,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         int index = 1;
         if (assignIter.hasNext()) assignIter.next();
         
+    	int grade_type = getGradebook().getGrade_type();
+       
         while (assignIter.hasNext()) {
         	String assignmentName = (String) assignIter.next();
         	String pointsPossibleAsString = null;
@@ -1107,8 +1109,6 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 				isUnGraded = assignment.getUngraded();
 			}
 			
-			int grade_type = assignment.getGradebook().getGrade_type();
-
         	Iterator it = studentRows.iterator();
 
            	int i = 1;
