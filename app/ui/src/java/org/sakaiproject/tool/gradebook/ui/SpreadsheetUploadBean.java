@@ -1007,7 +1007,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         				gbUpdated = true;
         			}
         			
-        		}else if (assignment.getPointsPossible() != null && !assignment.getPointsPossible().toString().equals(pointsPossibleAsString) &&
+        		}else if (!pointsPossibleAsString.equals(getLocalizedString("NON_CALCULATING_ITEM")) && assignment.getPointsPossible() != null && !assignment.getPointsPossible().toString().equals(pointsPossibleAsString) &&
         				!assignment.getPointsPossible().toString().equals(getLocalizedString("NON_CALCULATING_ITEM")) && !getGradeEntryByLetter()) {
         			if (assignment.isExternallyMaintained()) {
         				externallyMaintainedImportMsg.append(getLocalizedString("import_assignment_externally_maintained_settings",
