@@ -106,7 +106,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 			if (getGradeEntryByPoints() || getGradeEntryByPercent()) {
 				String originalScore = gradeRecord.getPointsEarned();
 				if ( (originalScore != null && !originalScore.equals(score)) ||
-						(originalScore == null && score != null) ) {
+						(originalScore == null && score != null && score.length() != 0)) {
 					gradeRecord.setPointsEarned(score);
 					updatedGradeRecords.add(gradeRecord);
 				}
@@ -122,7 +122,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				letterScore = letterScore.trim();
 			String originalLetterScore = gradeRecord.getPointsEarned();
 			if ((originalLetterScore != null && !originalLetterScore.equals(letterScore)) ||
-					(originalLetterScore == null && letterScore != null)) {
+					(originalLetterScore == null && letterScore != null && letterScore.length() != 0)) {
 				gradeRecord.setPointsEarned(letterScore);
 				updatedGradeRecords.add(gradeRecord);
 			}
