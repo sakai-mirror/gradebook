@@ -219,14 +219,16 @@
 							<h:outputText value="#{msgs.inst_view_not_counted_open}" rendered="#{!row.associatedAssignment.counted && !instructorViewBean.gradeEntryByLetter }" />
 							
 							<h:panelGroup rendered="#{!row.associatedAssignment.externallyMaintained && row.userCanGrade}">
-								<h:inputText id="Score" value="#{row.score}" size="8" 
+								<h:inputText id="Score" value="#{row.score}" size="8"
+									maxlength="8" 
 									 rendered="#{instructorViewBean.gradeEntryByPoints || instructorViewBean.gradeEntryByPercent}"
 									 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 							
 									<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 								</h:inputText>
 								
-								<h:inputText id="LetterScore" value="#{row.score}" size="8" 
+								<h:inputText id="LetterScore" value="#{row.score}" size="8"
+									maxlength="8"
 									 rendered="#{instructorViewBean.gradeEntryByLetter}"
 									 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 									<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
