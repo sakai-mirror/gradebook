@@ -99,13 +99,15 @@
 						</t:commandSortHeader>
 					</f:facet>
 					
-					<h:outputText value="#{row}" escape="false" rendered="#{row.isCategory}">
+					<h:outputText value="#{row}" escape="false" rendered="#{row.isCategory && !overviewBean.isLetterGrade && !row.associatedAssignment.ungraded}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER"/>
 					</h:outputText>
 
-          <h:outputText value="#{row}" escape="false" rendered="#{row.assignment}">
+			        <h:outputText value="#{row}" escape="false" rendered="#{row.assignment && !overviewBean.isLetterGrade && !row.associatedAssignment.ungraded}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.SCORE_CONVERTER"/>
 					</h:outputText>
+					
+					<h:outputText value="#{row.pointsEarned}" escape="false" rendered="#{overviewBean.isLetterGrade || row.associatedAssignment.ungraded}" />
         </h:column>
         
         <h:column rendered="#{studentViewBean.weightingEnabled}">
