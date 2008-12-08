@@ -64,11 +64,12 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 					return new ArrayList();
 				}
 				int gbGradeType = getGradebook(courseGrade.getGradebook().getId()).getGrade_type();
-				if( gbGradeType != GradebookService.GRADE_TYPE_POINTS && gbGradeType != GradebookService.GRADE_TYPE_PERCENTAGE)
-				{
-					if(log.isInfoEnabled()) log.error("Wrong grade type in GradebookCalculationImpl.getPointsEarnedCourseGradeRecords(CourseGrade, Collection)");
-					return new ArrayList();
-				}
+				//commented out for non-calculating grades. this may not be needed anymore
+				//if( gbGradeType != GradebookService.GRADE_TYPE_POINTS && gbGradeType != GradebookService.GRADE_TYPE_PERCENTAGE)
+				//{
+				//	if(log.isInfoEnabled()) log.error("Wrong grade type in GradebookCalculationImpl.getPointsEarnedCourseGradeRecords(CourseGrade, Collection)");
+				//	return new ArrayList();
+				//}
 
 				Query q = session.createQuery("from CourseGradeRecord as cgr where cgr.gradableObject.id=:gradableObjectId");
 				q.setLong("gradableObjectId", courseGrade.getId().longValue());
@@ -80,18 +81,21 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 				//double totalPointsPossible = getTotalPointsInternal(gradebookId, session);
 				//if(log.isDebugEnabled()) log.debug("Total points = " + totalPointsPossible);
 
-				for(Iterator iter = records.iterator(); iter.hasNext();) 
+				// no need to calculate anything for non-calculating gradebook
+				if (gbGradeType != GradebookService.GRADE_TYPE_LETTER)
 				{
-					CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
-					//double totalPointsEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session);
-					List totalEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session, gradebook, cates);
-					double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
-					double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
-					double totalPointsPossible = getTotalPointsInternal(gradebookId, session, gradebook, cates, cgr.getStudentId());
-					cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned);
-					if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
+					for(Iterator iter = records.iterator(); iter.hasNext();) 
+					{
+						CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
+						//double totalPointsEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session);
+						List totalEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session, gradebook, cates);
+						double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
+						double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
+						double totalPointsPossible = getTotalPointsInternal(gradebookId, session, gradebook, cates, cgr.getStudentId());
+						cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned);
+						if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
+					}
 				}
-
 				return records;
 			}
 		};
