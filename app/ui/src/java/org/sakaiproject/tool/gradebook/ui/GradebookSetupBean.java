@@ -201,13 +201,15 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			FacesUtil.addErrorMessage(getLocalizedString("grade_entry_invalid"));
 			return "failure";
 		}
-		if(!isConflictWithCourseGrade())
-		{
-			isValidWithCourseGrade = false;
-			return null;
-		}
-		else
-			isValidWithCourseGrade = true;
+		//SAK-15061
+//		if(!isConflictWithCourseGrade())
+//		{
+//			isValidWithCourseGrade = false;
+//			return null;
+//		}
+//		else
+//			isValidWithCourseGrade = true;
+		isValidWithCourseGrade = true;
 		
 		int origialGradeType = localGradebook.getGrade_type();
 		List<Assignment> assignmentsList = getGradebookManager().getAssignments(getGradebookId());
