@@ -35,12 +35,16 @@
 	<form rsf:id="form">
 	<fieldset>
 		<legend rsf:id="msg=gradebook.add-gradebook-item.gradebook_item_legend">Gradebook Item Details</legend>
+		
+		<input rsf:id="non-calc" type="checkbox" id="" /><label rsf:id="msg=gradebook.add-gradebook-item.non_calculating" for="non_calc">Non-calculating item</label>
+		
 		<ol>
 			<li>
 				<label rsf:id="title_label" for="title"><span class="reqStar">*</span> Title</label> <input rsf:id="title" id="title" type="text" size="30" maxlength="100"/>
 			</li>
-			<li>
-				<label rsf:id="point_label" for="point"><span class="reqStar">*</span> Gradebook Item Point Value</label> <input id="point" rsf:id="point" type="text" size="30" maxlength="100"/>
+			<li rsf:id="points-possible" id="">
+				<label rsf:id="point_label" for="point"><span class="reqStar">*</span> Gradebook Item Point Value</label> 
+				<input id="point" rsf:id="point" type="text" size="30" maxlength="100"/>
 			</li>
 			<li>
     			<fieldset>
@@ -64,8 +68,14 @@
 			<li>
 				<fieldset>
 					<ol>
-						<li><input rsf:id="release" type="checkbox" id="release"/> <label rsf:id="msg=gradebook.add-gradebook-item.release_label" for="release">Release this item to Students</label></li>
-						<li class="indent"><input rsf:id="course_grade" type="checkbox" id="course_grade"/> <label for="course_grade" rsf:id="msg=gradebook.add-gradebook-item.course_grade_label">Include this item in course grade calculations</label></li>
+						<li>
+							<input rsf:id="release" type="checkbox" id="release"/> 
+							<label rsf:id="msg=gradebook.add-gradebook-item.release_label" for="release">Release this item to Students</label>
+						</li>
+						<li class="indent" rsf:id="counted" id="">
+							<input rsf:id="course_grade" type="checkbox" id="course_grade"/> 
+							<label for="course_grade" rsf:id="msg=gradebook.add-gradebook-item.course_grade_label">Include this item in course grade calculations</label>
+						</li>
 					</ol>
 				</fieldset>
 			</li>
@@ -79,22 +89,21 @@
 </div>
 <script type="text/javascript">
 //<![CDATA[
-function show_due_date(){
-	el = jQuery("input:checkbox[@name='require_due_date']").get(0);
-	if (el) {
-		if (el.checked) {
-		    jQuery("#require_due_date_container").show();
-		} else {
-		    jQuery("#require_due_date_container").hide();
-		}
-	}
-}
+
 jQuery(document).ready(function(){
 	//Init require due date checkboxes
 	jQuery("input[@name='require_due_date']").each(function(){
-		this.onclick = show_due_date;
+		this.onclick = gbItemHelper.show_due_date;
 	});
-	show_due_date();
+	gbItemHelper.show_due_date();
+
+	// Init the released and counted checkboxes
+	gbItemHelper.handleReleaseVsCounted();
+	$("input:checkbox[@name='release'], input:checkbox[@name='course_grade']").click(gbItemHelper.handleReleaseVsCounted);
+
+	// Init the "Non-calculating" checkbox
+	gbItemHelper.hideOrDisplayNonCalcInfo();
+	$("input:checkbox[@name='non-calc']").click(gbItemHelper.hideOrDisplayNonCalcInfo);
 });
 //]]>
 </script>

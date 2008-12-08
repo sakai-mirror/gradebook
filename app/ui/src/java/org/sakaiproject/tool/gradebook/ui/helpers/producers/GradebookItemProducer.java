@@ -149,6 +149,11 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         UIVerbatim.make(form, "title_label", messageLocator.getMessage("gradebook.add-gradebook-item.title_label",
         		new Object[]{ reqStar }));
         
+        Assignment assignment = (Assignment) assignmentBeanLocator.locateBean(OTPKey);
+        
+        // checkbox to indicate if calculating item
+        UIBoundBoolean.make(form, "non-calc", assignmentOTP + ".ungraded", assignment.getUngraded());
+        
         // if this is a new gradebook item, use the name parameter passed via the url
         if (add) {
             // add the name first as a UIELBinding to force it to save this value
@@ -156,20 +161,23 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
             form.parameters.add( new UIELBinding(assignmentOTP + ".name", newItemName));
             UIInput.make(form, "title", assignmentOTP + ".name", newItemName);
         } else {
-            UIInput.make(form, "title", assignmentOTP + ".name");
+            UIInput.make(form, "title", assignmentOTP + ".name", assignment.getName());
+        }
+        
+        // only display points possible info if not a letter grade gradebook
+        if (gradebook.getGrade_type() != GradebookService.GRADE_TYPE_LETTER) {
+        	UIOutput.make(form, "points-possible");
+            UIInput.make(form, "point", assignmentOTP + ".pointsPossible");
         }
         
         if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
         	UIVerbatim.make(form, "point_label", messageLocator.getMessage("gradebook.add-gradebook-item.point_label",
         			new Object[]{ reqStar }));
-        } else {
+        } else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE){
         	UIVerbatim.make(form, "point_label", messageLocator.getMessage("gradebook.add-gradebook-item.percentage_label",
         			new Object[]{ reqStar }));
         }
-        UIInput.make(form, "point", assignmentOTP + ".pointsPossible");
         
-        
-        Assignment assignment = (Assignment) assignmentBeanLocator.locateBean(OTPKey);
         Boolean require_due_date = (assignment.getDueDate() != null);
 		UIBoundBoolean.make(form, "require_due_date", "#{GradebookItemBean.requireDueDate}", require_due_date);
 		UIMessage.make(form, "require_due_date_label", "gradebook.add-gradebook-item.require_due_date");
@@ -206,7 +214,12 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         }
         
         UIBoundBoolean.make(form, "release", assignmentOTP + ".released", assignment.isReleased());
-        UIBoundBoolean.make(form, "course_grade", assignmentOTP + ".counted", assignment.isCounted());
+        
+        // only display "counted" if not letter grade gradebook
+        if (gradebook.getGrade_type() != GradebookService.GRADE_TYPE_LETTER) {
+        	UIOutput.make(form, "counted");
+        	UIBoundBoolean.make(form, "course_grade", assignmentOTP + ".counted", assignment.isCounted());
+        }
         
         form.parameters.add( new UIELBinding("#{GradebookItemBean.gradebookId}", gradebookId));
         

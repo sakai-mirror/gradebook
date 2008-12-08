@@ -107,18 +107,23 @@ public class GradeGradebookItemProducer extends HelperAwareProducer implements V
         //Start Form
         UIForm form = UIForm.make(tofill, "form");
 
-        if (gradeEntryType == GradebookService.GRADE_TYPE_POINTS){
-        	UIVerbatim.make(form, "points_label", messageLocator.getMessage("gradebook.grade-gradebook-item.points_label",
-        		new Object[]{ reqStar }));
-        	UIMessage.make(form, "points_out_of", "gradebook.grade-gradebook-item.points_out_of", new Object[]{ assignment.getPoints()});
-        } else if (gradeEntryType == GradebookService.GRADE_TYPE_PERCENTAGE){
-        	UIVerbatim.make(form, "points_label", messageLocator.getMessage("gradebook.grade-gradebook-item.percentage_label",
-            		new Object[]{ reqStar }));
-        	//show percent sign
-        	UIMessage.make(form, "percent_sign", "gradebook.grade-gradebook-item.percent_sign");
-        } else if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER){
-        	UIVerbatim.make(form, "points_label", messageLocator.getMessage("gradebook.grade-gradebook-item.letter_label",
-            		new Object[]{ reqStar }));
+        if (assignment.getUngraded()) {
+        	UIVerbatim.make(form, "points_label", messageLocator.getMessage("gradebook.grade-gradebook-item.non_calc_label",
+    				new Object[]{ reqStar }));
+        } else {
+        	if (gradeEntryType == GradebookService.GRADE_TYPE_POINTS){
+        		UIVerbatim.make(form, "points_label", messageLocator.getMessage("gradebook.grade-gradebook-item.points_label",
+        				new Object[]{ reqStar }));
+        		UIMessage.make(form, "points_out_of", "gradebook.grade-gradebook-item.points_out_of", new Object[]{ assignment.getPoints()});
+        	} else if (gradeEntryType == GradebookService.GRADE_TYPE_PERCENTAGE){
+        		UIVerbatim.make(form, "points_label", messageLocator.getMessage("gradebook.grade-gradebook-item.percentage_label",
+        				new Object[]{ reqStar }));
+        		//show percent sign
+        		UIMessage.make(form, "percent_sign", "gradebook.grade-gradebook-item.percent_sign");
+        	} else if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER){
+        		UIVerbatim.make(form, "points_label", messageLocator.getMessage("gradebook.grade-gradebook-item.letter_label",
+        				new Object[]{ reqStar }));
+        	}
         }
         
         // add the grade info now. the UIInputs only pass along the parameter info

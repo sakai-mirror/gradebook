@@ -57,7 +57,7 @@ public class GradebookItemBean {
 	}
 	
 	public String processActionAddItem(){
-		Boolean errorFound = Boolean.FALSE;
+		boolean errorFound = false;
 		
 		Gradebook gradebook = gradebookManager.getGradebook(this.gradebookId);
 		
@@ -71,31 +71,37 @@ public class GradebookItemBean {
 			//check for null name
 			if (assignment.getName() == null || assignment.getName().equals("")) {
 				messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.null_name"));
-				errorFound = Boolean.TRUE;
+				errorFound = true;
 			}
 			
-			//check for null points
-			if (assignment.getPointsPossible() == null ||
-			        assignment.getPointsPossible().doubleValue() <= 0) {
-			    if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
-			        messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.invalid_rel_weight"));
-			    } else {
-		             messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.invalid_points"));
-			    }
-				errorFound = Boolean.TRUE;
-			}
-			
-			// check for more than 2 decimal places
-			if (assignment.getPointsPossible() != null) {
-			    String pointsAsString = assignment.getPointsPossible().toString();
-			    String[] decimalSplit = pointsAsString.split("\\.");
-			    if (decimalSplit.length == 2) {
-			        String decimal = decimalSplit[1];
-			        if (decimal != null && decimal.length() > 2) {
-			            messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.invalid_decimal"));
-			            errorFound = Boolean.TRUE;
-			        }
-			    }
+			if (assignment.getUngraded()) {
+				// ungraded items have null points possible and are not counted
+				assignment.setPointsPossible(null);
+				assignment.setCounted(false);
+			} else {
+				//check for null points
+				if (assignment.getPointsPossible() == null ||
+						assignment.getPointsPossible().doubleValue() <= 0) {
+					if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
+						messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.invalid_rel_weight"));
+					} else {
+						messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.invalid_points"));
+					}
+					errorFound = true;
+				}
+
+				// check for more than 2 decimal places
+				if (assignment.getPointsPossible() != null) {
+					String pointsAsString = assignment.getPointsPossible().toString();
+					String[] decimalSplit = pointsAsString.split("\\.");
+					if (decimalSplit.length == 2) {
+						String decimal = decimalSplit[1];
+						if (decimal != null && decimal.length() > 2) {
+							messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.invalid_decimal"));
+							errorFound = true;
+						}
+					}
+				}
 			}
 			
 			if (this.requireDueDate == null || this.requireDueDate == Boolean.FALSE) {
@@ -104,7 +110,7 @@ public class GradebookItemBean {
 			
 			if (assignment.isCounted() && !assignment.isReleased()) {
 			    messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.counted_not_released"));
-                errorFound = Boolean.TRUE;
+                errorFound = true;
 			}
 				
 			if (errorFound) {
@@ -119,8 +125,13 @@ public class GradebookItemBean {
 						id = gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
 								assignment.getPointsPossible(), assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased());
 					} else {
-						id = gradebookManager.createAssignment(this.gradebookId, assignment.getName(), assignment.getPointsPossible(), 
+						if (assignment.getUngraded()) {
+							id = gradebookManager.createUngradedAssignment(this.gradebookId, assignment.getName(), 
+									assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased());
+						} else {
+							id = gradebookManager.createAssignment(this.gradebookId, assignment.getName(), assignment.getPointsPossible(), 
 								assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased());
+						}
 					}
 					assignment.setId(id);
 					//new UIELBinding("Assignment." + key + ".id", id);
@@ -129,7 +140,7 @@ public class GradebookItemBean {
 				} catch (ConflictingAssignmentNameException e){
 					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.conflicting_name",
 							new Object[] {assignment.getName() }, "Assignment." + key + ".name"));
-					errorFound = Boolean.TRUE;
+					errorFound = true;
 				}
 			} else {
 				//we are editing an existing object
@@ -152,7 +163,7 @@ public class GradebookItemBean {
 				} catch (ConflictingAssignmentNameException e){
 					messages.addMessage(new TargettedMessage("gradebook.add-gradebook-item.conflicting_name",
 							new Object[] {assignment.getName() }, "Assignment." + key + ".name"));
-					errorFound = Boolean.TRUE;
+					errorFound = true;
 				}
 			}
 		}
