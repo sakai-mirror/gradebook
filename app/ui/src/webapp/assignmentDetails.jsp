@@ -91,7 +91,7 @@
 				<h:panelGrid cellpadding="0" cellspacing="0" columns="1" rendered="#{assignmentDetailsBean.userAbleToEditAssessments}">
 					<h:outputText
 						value="#{msgs.score_not_counted_tooltip}"
-						rendered="#{assignmentDetailsBean.assignment.notCounted}"
+						rendered="#{assignmentDetailsBean.assignment.notCounted && !assignmentDetailsBean.gradeEntryByLetter}"
 					/>
 					<h:commandLink
 						action="#{assignmentDetailsBean.navigateToEdit}"
