@@ -598,15 +598,6 @@ public abstract class EnrollmentTableBean
 		}
 
 		public String getGrade() {
-			if (grade != null) {
-				try {
-					Double gradeDouble = new Double(grade);
-					// we may have gained decimal places in the conversion from points to %
-					grade = FacesUtil.getRoundDown(gradeDouble.doubleValue(), 2) + "";
-				} catch (NumberFormatException nfe) {
-					// ignore b/c may be letter grade
-				}
-			}
 			return grade;
 		}
 
