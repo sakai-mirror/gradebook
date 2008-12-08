@@ -911,4 +911,46 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		
 		assertEquals(GradebookService.GRADE_TYPE_LETTER, gradebookService.getGradeEntryType(GRADEBOOK_UID_NO_CAT));
 	}
+	
+	public void testGetAssignments() throws Exception {
+		// try this as a student first
+		authn.setAuthnContext(STUDENT_IN_SECTION_UID1);
+		try {
+			gradebookService.getAssignments(GRADEBOOK_UID_NO_CAT);
+			fail("Did not catch student accessing getAssignments without permission!");
+		} catch (SecurityException se) {}
+		
+		authn.setAuthnContext(INSTRUCTOR_UID);
+		List<Assignment> assignments = gradebookService.getAssignments(GRADEBOOK_UID_NO_CAT);
+		assertEquals(2, assignments.size());
+		
+		Gradebook gradebookNoCat = gradebookManager.getGradebook(GRADEBOOK_UID_NO_CAT);
+		// add a non-calc item and see if it is included
+		gradebookManager.createUngradedAssignment(gradebookNoCat.getId(), "ungraded assign", null, true, true);
+		
+		// now try to get assignments again
+		assignments = gradebookService.getAssignments(GRADEBOOK_UID_NO_CAT);
+		assertEquals(3, assignments.size());
+	}
+	
+	public void testGetCalculatingAssignments() throws Exception {
+		// try this as a student first
+		authn.setAuthnContext(STUDENT_IN_SECTION_UID1);
+		try {
+			gradebookService.getCalculatingAssignments(GRADEBOOK_UID_NO_CAT);
+			fail("Did not catch student accessing getAssignments without permission!");
+		} catch (SecurityException se) {}
+		
+		authn.setAuthnContext(INSTRUCTOR_UID);
+		List<Assignment> assignments = gradebookService.getCalculatingAssignments(GRADEBOOK_UID_NO_CAT);
+		assertEquals(2, assignments.size());
+		
+		Gradebook gradebookNoCat = gradebookManager.getGradebook(GRADEBOOK_UID_NO_CAT);
+		// add a non-calc item and see if it is included
+		gradebookManager.createUngradedAssignment(gradebookNoCat.getId(), "ungraded assign", null, true, true);
+		
+		// now try to get assignments again - should not include the new one!
+		assignments = gradebookService.getCalculatingAssignments(GRADEBOOK_UID_NO_CAT);
+		assertEquals(2, assignments.size());
+	}
 }

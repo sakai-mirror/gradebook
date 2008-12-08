@@ -171,9 +171,22 @@ public interface GradebookService {
 
 	/**
 	 * @return Returns a list of Assignment objects describing the assignments
-	 *         that are currently defined in the given gradebook.
+	 *         that are currently defined in the given gradebook. Includes non-calculating assignments.
+	 * @throws GradebookNotFoundException
+	 * @throws SecurityException if user is not allowed to edit or grade for the given gradebookUid
 	 */
 	public List getAssignments(String gradebookUid)
+			throws GradebookNotFoundException;
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @return Returns a list of Assignment objects describing the assignments
+	 *         that are currently defined in the given gradebook. Excludes non-calculating assignments.
+	 * @throws GradebookNotFoundException
+	 * @throws SecurityException if user is not allowed to edit or grade for the given gradebookUid
+	 */
+	public List<Assignment> getCalculatingAssignments(String gradebookUid)
 			throws GradebookNotFoundException;
 
 	/**

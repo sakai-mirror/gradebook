@@ -158,9 +158,18 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 		return null;
 	}
+	
+	public List<org.sakaiproject.service.gradebook.shared.Assignment> getCalculatingAssignments(String gradebookUid)
+		throws GradebookNotFoundException {
+		return getAssignments(gradebookUid, false);
+	}
 
 	public List<org.sakaiproject.service.gradebook.shared.Assignment> getAssignments(String gradebookUid)
 		throws GradebookNotFoundException {
+		return getAssignments(gradebookUid, true);
+	}
+	
+	private List<org.sakaiproject.service.gradebook.shared.Assignment> getAssignments(String gradebookUid, boolean includeNonCalc) {
 		if (!isUserAbleToViewAssignments(gradebookUid)) {
 			log.warn("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to get assignments list");
 			throw new SecurityException("You do not have permission to perform this operation");
@@ -177,7 +186,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		List<org.sakaiproject.service.gradebook.shared.Assignment> assignments = new ArrayList<org.sakaiproject.service.gradebook.shared.Assignment>();
 		for (Iterator iter = internalAssignments.iterator(); iter.hasNext(); ) {
 			Assignment assignment = (Assignment)iter.next();
-			assignments.add(getAssignmentDefinition(assignment));
+			if (includeNonCalc || !assignment.getUngraded()) {
+				assignments.add(getAssignmentDefinition(assignment));
+			}
 		}
 		return assignments;
 	}
