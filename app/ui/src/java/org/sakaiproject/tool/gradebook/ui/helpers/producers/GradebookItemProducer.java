@@ -28,7 +28,6 @@ import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
-import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
@@ -160,7 +159,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
             UIInput.make(form, "title", assignmentOTP + ".name");
         }
         
-        if (gradebook.getGrade_type() != GradebookService.GRADE_TYPE_PERCENTAGE) {
+        if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
         	UIVerbatim.make(form, "point_label", messageLocator.getMessage("gradebook.add-gradebook-item.point_label",
         			new Object[]{ reqStar }));
         } else {
@@ -172,9 +171,8 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         
         Assignment assignment = (Assignment) assignmentBeanLocator.locateBean(OTPKey);
         Boolean require_due_date = (assignment.getDueDate() != null);
-		UIBoundBoolean require_due = UIBoundBoolean.make(form, "require_due_date", "#{GradebookItemBean.requireDueDate}", require_due_date);
-		UIMessage require_due_label = UIMessage.make(form, "require_due_date_label", "gradebook.add-gradebook-item.require_due_date");
-		UILabelTargetDecorator.targetLabel(require_due_label, require_due);
+		UIBoundBoolean.make(form, "require_due_date", "#{GradebookItemBean.requireDueDate}", require_due_date);
+		UIMessage.make(form, "require_due_date_label", "gradebook.add-gradebook-item.require_due_date");
 		
 		UIOutput require_due_container = UIOutput.make(form, "require_due_date_container");
 		UIInput dueDateField = UIInput.make(form, "due_date:", assignmentOTP + ".dueDate");
@@ -207,8 +205,8 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
 	        UISelect.make(form, "category", category_values, category_labels, "#{GradebookItemBean.categoryId}", categoryId);
         }
         
-        UIBoundBoolean.make(form, "release", assignmentOTP + ".released");
-        UIBoundBoolean.make(form, "course_grade", "#{GradebookItemBean.counted}", !assignment.isNotCounted());
+        UIBoundBoolean.make(form, "release", assignmentOTP + ".released", assignment.isReleased());
+        UIBoundBoolean.make(form, "course_grade", assignmentOTP + ".counted", assignment.isCounted());
         
         form.parameters.add( new UIELBinding("#{GradebookItemBean.gradebookId}", gradebookId));
         
