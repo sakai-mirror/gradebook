@@ -22,8 +22,8 @@
 		<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary">
-			<h:outputText id="pointsLabel" value="#{msgs.course_grade_details_points}" rendered="#{!courseGradeDetailsBean.weightingEnabled && !overviewBean.isLetterGrade}"/>
-			<h:outputText id="points" value="#{courseGradeDetailsBean.totalPoints}" rendered="#{!courseGradeDetailsBean.weightingEnabled && !overviewBean.isLetterGrade}">
+			<h:outputText id="pointsLabel" value="#{msgs.course_grade_details_points}" rendered="#{!courseGradeDetailsBean.weightingEnabled && !overviewBean.isLetterGrade && !courseGradeDetailsBean.gradeEntryByPercent}"/>
+			<h:outputText id="points" value="#{courseGradeDetailsBean.totalPoints}" rendered="#{!courseGradeDetailsBean.weightingEnabled && !overviewBean.isLetterGrade && !courseGradeDetailsBean.gradeEntryByPercent}">
 				<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 			</h:outputText>
 			
@@ -76,7 +76,7 @@
 				</f:facet>
 				<h:outputText value="#{scoreRow.enrollment.user.displayId}"/>
 			</h:column>
-			<h:column rendered="#{!courseGradeDetailsBean.weightingEnabled && !overviewBean.isLetterGrade}">
+			<h:column rendered="#{!courseGradeDetailsBean.weightingEnabled && !overviewBean.isLetterGrade && !courseGradeDetailsBean.gradeEntryByPercent}">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="pointsEarned" propertyName="pointsEarned" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
 						<h:outputText value="#{msgs.assignment_details_points}"/>
