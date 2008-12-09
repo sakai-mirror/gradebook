@@ -288,13 +288,21 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
 function assignmentReleased(myForm, releasedChanged) {
 	var releasedCheckboxEl =  getTheElement(myForm + ':released');
 	var countedCheckboxEl =   getTheElement(myForm + ':countAssignment');
-	var ungradedCheckboxEl =  getTheElement(myForm + ':ungraded');
 
-	if (releasedCheckboxEl.checked == false) {
-		countedCheckboxEl.checked = false;
-		countedCheckboxEl.disabled = true;
-	} else if (releasedCheckboxEl.checked == true) {
-		countedCheckboxEl.disabled = false;
+	if (undefined != releasedCheckboxEl)
+	{
+		if (releasedCheckboxEl.checked == false) {
+			if (undefined != countedCheckboxEl)
+			{
+				countedCheckboxEl.checked = false;
+				countedCheckboxEl.disabled = true;
+			}
+		} else if (releasedCheckboxEl.checked == true) {
+			if (undefined != countedCheckboxEl)
+			{
+				countedCheckboxEl.disabled = false;
+			}
+		}
 	}
 }
 
@@ -308,21 +316,51 @@ function assignmentUngraded(myForm) {
 	var pointsInputEl =  getTheElement(myForm + ':points');
 	var pointsLabelEl =  getTheElement(myForm + ':pointsLabel');
 
-	if (ungradedCheckboxEl.checked == true) {
-		countedCheckboxEl.checked = false;
-		countedCheckboxEl.disabled = true;
-		countedCheckboxEl.style.display="none";
-		countedLabelEl.style.display="none";
-		pointsInputEl.value = "";
-		pointsInputEl.style.display="none";
-		pointsLabelEl.style.display="none";
-	} else if (ungradedCheckboxEl.checked == false) {
-		releasedCheckboxEl.checked = true;
-		countedCheckboxEl.disabled = false;
-		countedCheckboxEl.style.display="inline";
-		countedLabelEl.style.display="inline";
-		pointsInputEl.style.display="inline";
-		pointsLabelEl.style.display="inline";
+	if (undefined != ungradedCheckboxEl)
+	{
+		if (ungradedCheckboxEl.checked == true) {
+			if (undefined != countedCheckboxEl)
+			{
+				countedCheckboxEl.checked = false;
+				countedCheckboxEl.disabled = true;
+				countedCheckboxEl.style.display="none";
+			}
+			if (undefined != countedLabelEl)
+			{
+				countedLabelEl.style.display="none";
+			}
+			if (undefined != pointsInputEl)
+			{
+				pointsInputEl.value = "";
+				pointsInputEl.style.display="none";
+			}
+			if (undefined != pointsLabelEl)
+			{
+				pointsLabelEl.style.display="none";
+			}
+		} else if (ungradedCheckboxEl.checked == false) {
+			if (undefined != releasedCheckboxEl)
+			{
+				releasedCheckboxEl.checked = true;
+			}
+			if (undefined != countedCheckboxEl)
+			{
+				countedCheckboxEl.disabled = false;
+				countedCheckboxEl.style.display="inline";
+			}
+			if (undefined != countedLabelEl)
+			{
+				countedLabelEl.style.display="inline";
+			}
+			if (undefined != pointsInputEl)
+			{
+				pointsInputEl.style.display="inline";
+			}
+			if (undefined != pointsLabelEl)
+			{
+				pointsLabelEl.style.display="inline";
+			}
+		}
 	}
 }
 
