@@ -89,7 +89,8 @@
 			</h:panelGroup>
 			
 			<div class="indnt1">
-		<h:outputText styleClass="instruction" value="#{msgs.gradebook_setup_message1}" rendered="#{gradebookSetupBean.isExistingGrades && !gradebookSetupBean.isLetterGrade}"/>
+		<h:outputText styleClass="instruction" value="#{msgs.gradebook_setup_message1}" rendered="#{gradebookSetupBean.isExistingGrades && gradebookSetupBean.isPointGrade}"/>
+		<h:outputText styleClass="instruction" value="#{msgs.gradebook_setup_message5}" rendered="#{gradebookSetupBean.isExistingGrades && gradebookSetupBean.isPercentageGrade}"/>
 		<h:outputText styleClass="instruction" value="#{msgs.gradebook_setup_message3}" rendered="#{gradebookSetupBean.isExistingGrades && gradebookSetupBean.isLetterGrade}"/> 
 		 <h:commandLink	action="#{gradebookSetupBean.navigateToDeleteAllGrades}" immediate="true" rendered="#{gradebookSetupBean.isExistingGrades}">
 			<h:outputText value="#{msgs.gradebook_setup_message2}" />
