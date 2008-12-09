@@ -162,7 +162,7 @@
 				/>
 			<h:commandButton
 				value="#{msgs.assignment_details_cancel}"
-				action="overview"
+				action="courseGradeDetails"
 				immediate="true"
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				disabled="#{courseGradeDetailsBean.allStudentsViewOnly}"
