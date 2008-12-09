@@ -242,7 +242,7 @@
 							<h:outputText value="#{msgs.inst_view_not_counted_close}" rendered="#{!row.associatedAssignment.counted && !instructorViewBean.gradeEntryByLetter}" />
 						</h:panelGroup>
 						
-						<h:outputText value="#{row}" escape="false" rendered="#{row.isCategory}">
+						<h:outputText value="#{row}" escape="false" rendered="#{row.isCategory && !instructorViewBean.gradeEntryByLetter}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER"/>
 						</h:outputText>
         </h:column>
