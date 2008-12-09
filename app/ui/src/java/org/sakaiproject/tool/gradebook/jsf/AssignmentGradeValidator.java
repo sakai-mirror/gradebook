@@ -36,8 +36,12 @@ import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.service.gradebook.shared.Grade;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.InvalidDecimalGradeException;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.GradebookException;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeLengthException;
+import org.sakaiproject.service.gradebook.shared.NegativeGradeException;
+import org.sakaiproject.service.gradebook.shared.NonNumericGradeException;
 
 import org.sakaiproject.tool.gradebook.ui.AssignmentDetailsBean;
 import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
@@ -93,22 +97,22 @@ public class AssignmentGradeValidator implements Validator, Serializable {
 
 		try {
 			Grade grade = new Grade(stringValue, grade_type, ungraded);
-		} catch (NumberFormatException nfe) {
+		} catch (NonNumericGradeException nnge) {
 			throw new ValidatorException(new FacesMessage(
 					FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.Number.INVALID")));
+		} catch (NegativeGradeException nge) {
+			throw new ValidatorException(new FacesMessage(
+					FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.Number.GREATER")));
+		} catch (InvalidDecimalGradeException idge) {
+			throw new ValidatorException(new FacesMessage(
+					FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.PRECISION")));
+		} catch (InvalidGradeLengthException igle) {
+			throw new ValidatorException(new FacesMessage(
+					FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.LetterGrade.INVALID")));				
 		} catch (InvalidGradeException ige) {
-			if(!ungraded && (grade_type == GradebookService.GRADE_TYPE_POINTS || grade_type == GradebookService.GRADE_TYPE_PERCENTAGE) && Double.parseDouble(stringValue) >= 0.0d ) {
-				throw new ValidatorException(new FacesMessage(
-						FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.PRECISION")));
-			}
-			if(!ungraded && (grade_type == GradebookService.GRADE_TYPE_POINTS || grade_type == GradebookService.GRADE_TYPE_PERCENTAGE) && Double.parseDouble(stringValue) < 0.0d) {
-				throw new ValidatorException(new FacesMessage(
-						FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.Number.GREATER")));
-			}		
-			if(grade_type == GradebookService.GRADE_TYPE_LETTER) {
-				throw new ValidatorException(new FacesMessage(
-						FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.LetterGrade.INVALID")));				
-			}
+			logger.error("Unknown type of InvalidGradeException thrown while validating grade: " + stringValue);
+			throw new ValidatorException(new FacesMessage(
+					FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.Number.INVALID")));
 		} catch (GradebookException gbe) {
 			logger.info("Gradebook grade_type is invalid");
 		}			

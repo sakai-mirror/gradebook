@@ -55,7 +55,11 @@ import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
+import org.sakaiproject.service.gradebook.shared.InvalidDecimalGradeException;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeLengthException;
+import org.sakaiproject.service.gradebook.shared.NegativeGradeException;
+import org.sakaiproject.service.gradebook.shared.NonNumericGradeException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.service.gradebook.shared.Grade;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -1709,38 +1713,58 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  return studentGrades;
   }
   
-  public boolean isGradeValid(Long assignmentItemId, String grade) {
-	  if (assignmentItemId == null) {
-		  throw new IllegalArgumentException("Null assignmentItemId passed to isGradeValid");
+  public boolean isGradeValid(Long gradebookItemId, String grade) {
+	  if (gradebookItemId == null) {
+		  throw new IllegalArgumentException("Null gradebookItemId passed to isGradeValid");
 	  }
 	  Assignment assignment;
-	  assignment = getAssignment(assignmentItemId);
+	  assignment = getAssignment(gradebookItemId);
 	  
-	  if(assignment != null)
-	  	return isGradeValid(grade, assignment.getGradebook().getGrade_type(), assignment.getUngraded());
-	  else
-	  	return false;
+	  if (assignment == null) {
+		  throw new AssessmentNotFoundException("No gradebook item with id: " + gradebookItemId + " found");
+	  }
+	  
+	  return isGradeValid(grade, assignment.getGradebook().getGrade_type(), assignment.getUngraded());
   }
   
   private boolean isGradeValid(String grade, int gradeEntryType, boolean ungraded) {
-  	try
-  	{
-  		Grade g = new Grade(grade, gradeEntryType, ungraded);
-  	}
-  	catch(InvalidGradeException ige)
-  	{
-  		return false;
-  	}
-  	catch(NumberFormatException nfe)
-  	{
-  		return false;
-  	}
-  	catch(GradebookException ge)
-  	{
-  		return false;
-  	}
+	  boolean gradeIsValid;
+	  try {
+		  Grade g = new Grade(grade, gradeEntryType, ungraded);
+		  gradeIsValid = true;
+	  } catch (InvalidGradeException ige) {
+		  gradeIsValid = false;
+	  } 
 
-  	return true;
+	  return gradeIsValid;
+  }
+  
+  public void validateGrade(Long gradebookItemId, String grade) {
+	  if (gradebookItemId == null) {
+		  throw new IllegalArgumentException("Null gradebookItemId passed to validateGrade");
+	  }
+	  Assignment assignment;
+	  assignment = getAssignment(gradebookItemId);
+	  
+	  if (assignment == null) {
+		  throw new AssessmentNotFoundException("No gradebook item with id: " + gradebookItemId + " found");
+	  }
+	  
+	  if(assignment != null) {
+		  try {
+			  Grade g = new Grade(grade, assignment.getGradebook().getGrade_type(), assignment.getUngraded());
+		  } catch (NonNumericGradeException nnge) {
+			  throw new NonNumericGradeException(nnge.getMessage());
+		  } catch (InvalidDecimalGradeException idge) {
+			  throw new InvalidDecimalGradeException(idge.getMessage());
+		  } catch (NegativeGradeException nge) {
+			  throw new NegativeGradeException(nge.getMessage());
+		  } catch (InvalidGradeLengthException igle) {
+			  throw new InvalidGradeLengthException(igle.getMessage());
+		  } catch (InvalidGradeException ige) {
+			  throw new InvalidGradeException(ige.getMessage());
+		  }
+	  }
   }
 
   public List<String> identifyStudentsWithInvalidGrades(Long assignmentId, Map<String, String> studentIdToGradeMap) {

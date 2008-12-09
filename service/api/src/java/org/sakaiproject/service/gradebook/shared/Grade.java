@@ -38,20 +38,25 @@ public final class Grade
 	private final int grade_type;
 	private final boolean ungraded;
 	
-	public static final int MAX_GRADE_LENGTH = 8;
-	
 	/**
 	 * The only constructor for Grade. 
-	 * Make use to catch InvalidGradeException, NumberFormatException and GradebookException when create an object of Grade.
+	 * Make sure to catch InvalidGradeException and GradebookException when create an object of Grade.
+	 * For more specific exception information, catch NegativeGradeException, InvalidDecimalGradeException,
+	 * InvalidGradeLengthException, NonNumericGradeException
 	 * 
 	 * @param grade
 	 * @param grade_type
 	 * @param ungraded
-	 * @throws InvalidGradeException
+	 * @throws NegativeGradeException
+	 * @throws InvalidDecimalGradeException
+	 * @throws InvalidGradeLengthException
+	 * @throws NonNumericGradeException
+	 * @throws InvalidGradeException a catch-all for invalid grade exceptions
 	 * @throws GradebookException
 	 */
 	public Grade(String grade, int grade_type, boolean ungraded)
-	throws InvalidGradeException, NumberFormatException, GradebookException
+	throws NegativeGradeException, InvalidDecimalGradeException, InvalidGradeLengthException, NonNumericGradeException,
+	InvalidGradeException, GradebookException
 	{
 		try
 		{
@@ -67,9 +72,19 @@ public final class Grade
 				this.ungraded = ungraded;		
 			}
 		}
-		catch(NumberFormatException nfe)
+		catch(NegativeGradeException nge)
 		{
-			throw new NumberFormatException(nfe.getMessage());
+			throw new NegativeGradeException(nge.getMessage());
+		}
+		catch(InvalidDecimalGradeException idge)
+		{
+			throw new InvalidDecimalGradeException(idge.getMessage());
+		}
+		catch(NonNumericGradeException nnge) {
+			throw new NonNumericGradeException(nnge.getMessage());
+		}
+		catch(InvalidGradeLengthException igle) {
+			throw new InvalidGradeLengthException(igle.getMessage());
 		}
 		catch(InvalidGradeException ige)
 		{
@@ -112,29 +127,35 @@ public final class Grade
 				{
 					Double gradeDouble = new Double(grade);
 					double gradeValue = gradeDouble.doubleValue();
+					
+					// ensure grade is >= 0
 					if(gradeValue < 0.0d)
 					{
-						return false;
+						throw new NegativeGradeException("Grade: " + gradeValue + " is not valid for a " +
+								"calculating gradebook item. Grade must be >= 0.");
 					}
+					
+					// make sure there are at most 2 decimal places
 					BigDecimal bd = new BigDecimal(gradeValue);
 					bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
 					double roundedVal = bd.doubleValue();
 					double diff = gradeValue - roundedVal;
 					if(diff != 0) 
 					{
-						return false;
+						throw new InvalidDecimalGradeException("Grade: " + grade + " is not valid for a " +
+								"calculating gradebook. Grade must have no more than 2 decimal places.");
 					}
 					return true;
 				}
 				catch(NumberFormatException nfe)
 				{
-					throw new NumberFormatException("grade:" + grade +  " is not a number for points/percentage based gradebook.");
+					throw new NonNumericGradeException("grade:" + grade +  " is not a number. A numeric value is required for a calculating gb item.");
 				}
 			}
 			else if(ungraded || grade_type == GradebookService.GRADE_TYPE_LETTER)
 			{
-				if(grade.length() > MAX_GRADE_LENGTH)
-					throw new InvalidGradeException("grade length is bigger than " + MAX_GRADE_LENGTH + " for: " + grade + " of grade_type of: " + grade_type + ". ungraded is:" + ungraded);
+				if(grade.length() > GradebookService.MAX_GRADE_LENGTH)
+					throw new InvalidGradeLengthException("grade length is bigger than " + GradebookService.MAX_GRADE_LENGTH + " for: " + grade + " of grade_type of: " + grade_type + ". ungraded is:" + ungraded);
 				else
 					return true;
 			}

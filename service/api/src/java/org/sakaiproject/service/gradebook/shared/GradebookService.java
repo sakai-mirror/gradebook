@@ -52,6 +52,12 @@ public interface GradebookService {
 	public static final int CATEGORY_TYPE_NO_CATEGORY = 1;
 	public static final int CATEGORY_TYPE_ONLY_CATEGORY = 2;
 	public static final int CATEGORY_TYPE_WEIGHTED_CATEGORY = 3;
+	
+	/**
+	 * the maximum number of characters allowed for grades for non-calculating
+	 * gradebook items
+	 */
+	public static final int MAX_GRADE_LENGTH = 8;
 
 	public static final String[] validLetterGrade = {"a+", "a", "a-", "b+", "b", "b-",
     "c+", "c", "c-", "d+", "d", "d-", "f"};
@@ -601,15 +607,30 @@ public interface GradebookService {
 	
 	/**
 	 * 
-	 * @param assignmentItemId
+	 * @param gradebookItemId
 	 * @param grade
 	 * @return true if the given grade is a valid grade given the gradebook's grade
 	 * entry type.  ie, if gradebook is set to grade entry by points, will check for valid point value.
 	 * if entry by letter, will check for valid letter, etc
-	 * @throws GradebookNotFoundException if no gradebook exists with given gradebookUid
+	 * @throws AssessmentNotFoundException if no gradebook item exists with given gradebookItemId
 	 */
 	public boolean isGradeValid(Long assignmentItemId, String grade)
 		throws GradebookNotFoundException;
+	
+	/**
+	 * Used for validating an input grade. Will throw a meaningful exception if there is a 
+	 * problem with the given grade.  Assume valid if no exception thrown. Use the
+	 * {@link GradebookService.isGradeValid} method if you simply want a true/false answer
+	 * @param gradebookItemId
+	 * @param grade
+	 * @throws NegativeGradeException
+	 * @throws InvalidDecimalGradeException
+	 * @throws InvalidGradeLengthException
+	 * @throws NonNumericGradeException
+	 * @throws InvalidGradeException a catch-all for grade validation. 
+	 * @throws AssessmentNotFoundException if no gradebook item exists with the given gradebookItemId
+	 */
+	public void validateGrade(Long gradebookItemId, String grade);
 	
 	/**
 	 * 

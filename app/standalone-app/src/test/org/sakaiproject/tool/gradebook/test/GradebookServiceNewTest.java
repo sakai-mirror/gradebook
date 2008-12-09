@@ -62,7 +62,11 @@ import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.InvalidDecimalGradeException;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeLengthException;
+import org.sakaiproject.service.gradebook.shared.NegativeGradeException;
+import org.sakaiproject.service.gradebook.shared.NonNumericGradeException;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
@@ -678,6 +682,86 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		gradebookManager.updateGradebook(gradebookNoCat);
 		invalidStudentIds = gradebookService.identifyStudentsWithInvalidGrades(asn1IdNoCat, studentIdGradeMap);
 		assertEquals(0, invalidStudentIds.size());
+	}
+	
+	public void testValidateGrade() throws Exception {
+		// try a null gradebookUuid
+		try {
+			gradebookService.validateGrade(null, null);
+			fail("did not catch null gradebookUuid passed to isGradeValid");
+		} catch (IllegalArgumentException iae) {}
+		
+		// let's start with a points-based gradebook
+		Gradebook gradebookNoCat = gradebookManager.getGradebook(GRADEBOOK_UID_NO_CAT);
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+		gradebookManager.updateGradebook(gradebookNoCat);
+		
+		// null grades are valid - no exception should be thrown
+		gradebookService.validateGrade(asn1IdNoCat, null);
+		// try some valid positive point values
+		gradebookService.validateGrade(asn1IdNoCat, "25.34");
+		gradebookService.validateGrade(asn1IdNoCat, "0");
+		// negative should fail
+		try {
+			gradebookService.validateGrade(asn1IdNoCat, "-1");
+			fail("Did not catch negative grade passed to validateGrade");
+		} catch (NegativeGradeException nge) {}
+
+		// more than 2 decimal places should fail
+		try {
+			gradebookService.validateGrade(asn1IdNoCat, "10.125");
+			fail("did not catch >2 decimals passed to validateGrade");
+		} catch (InvalidDecimalGradeException idge) {}
+		// try non-numeric
+		try {
+			gradebookService.validateGrade(asn1IdNoCat, "A");
+			fail("did not catch non-numeric value passed to validateGrade");
+		} catch (NonNumericGradeException nnge) {}
+		
+		// switch to %-based gradebook
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+		gradebookManager.updateGradebook(gradebookNoCat);
+		
+		// null grades are valid
+		gradebookService.validateGrade(asn1IdNoCat, null);
+		// try some positive point values
+		gradebookService.validateGrade(asn1IdNoCat, "25.34");
+		gradebookService.validateGrade(asn1IdNoCat, "0");
+		// negative should fail
+		try {
+			gradebookService.validateGrade(asn1IdNoCat, "-1");
+			fail("did not catch negative grade passed to validateGrade");
+		} catch (NegativeGradeException nge) {}
+		
+		// more than 2 decimal places should fail
+		 try {
+			 gradebookService.validateGrade(asn1IdNoCat, "10.125");
+			 fail("did not catch >2 decimals passed to validateGrade");
+		 } catch (InvalidDecimalGradeException idge) {}
+		// try non-numeric
+		try {
+			gradebookService.validateGrade(asn1IdNoCat, "A");
+			fail("did not catch non-numeric grade passed to validateGrade");
+		} catch (NonNumericGradeException nnge) {}
+		
+		// switch to letter-based gradebook
+		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+		gradebookManager.updateGradebook(gradebookNoCat);
+		// null grades are valid
+		gradebookService.validateGrade(asn1IdNoCat, null);
+		// try some point values
+		gradebookService.validateGrade(asn1IdNoCat, "25.34");
+		gradebookService.validateGrade(asn1IdNoCat, "0");
+		// negative should pass
+		gradebookService.validateGrade(asn1IdNoCat, "-1");
+		// try some valid ones
+		gradebookService.validateGrade(asn1IdNoCat, "A");
+		gradebookService.validateGrade(asn1IdNoCat, "c-");
+		// try long grade over 8 characters
+		try {
+			gradebookService.validateGrade(asn1IdNoCat, "123456789");
+			fail("did not catch grade w/ >" + GradebookService.MAX_GRADE_LENGTH + " chars passed to validateGrade");
+		} catch (InvalidGradeLengthException igle) {}
 	}
 	
 	public void testSaveGradeAndCommentForStudent() throws Exception {

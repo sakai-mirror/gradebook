@@ -41,6 +41,10 @@ import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
 import org.sakaiproject.service.gradebook.shared.Grade;
+import org.sakaiproject.service.gradebook.shared.InvalidDecimalGradeException;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeLengthException;
+import org.sakaiproject.service.gradebook.shared.NegativeGradeException;
+import org.sakaiproject.service.gradebook.shared.NonNumericGradeException;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -1124,23 +1128,22 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
         				try{
         					Grade grade = new Grade(scoreAsString, grade_type, isUnGraded);
-        				}  catch (NumberFormatException nfe) {
+        				}  catch (NonNumericGradeException nfe) {
         					FacesUtil.addErrorMessage(getLocalizedString(IMPORT_ASSIGNMENT_NOTSUPPORTED, new String[] {assignmentName}));
         					return false;
+        				} catch (InvalidDecimalGradeException idge) {
+        					FacesUtil.addErrorMessage(getLocalizedString(IMPORT_ASSIGNMENT_PRECISION, new String[]{assignmentName}));
+        					return false;
+        				} catch (NegativeGradeException nge) {
+        					FacesUtil.addErrorMessage(getLocalizedString(IMPORT_ASSIGNMENT_NEG_VALUE, new String[]{assignmentName}));
+        					return false;
+        				} catch (InvalidGradeLengthException igle) {
+        					FacesUtil.addErrorMessage(getLocalizedString("import_assignment_invalid_ungraded_score", new String[] {assignmentName}));
+        					return false;
         				} catch (InvalidGradeException ige) {
-        					if(!isUnGraded && (grade_type == GradebookService.GRADE_TYPE_POINTS || grade_type == GradebookService.GRADE_TYPE_PERCENTAGE) && Double.parseDouble(scoreAsString) >= 0.0d) {
-        						FacesUtil.addErrorMessage(getLocalizedString(IMPORT_ASSIGNMENT_PRECISION, new String[]{assignmentName}));
-        						return false;
-        					}
-        					if(!isUnGraded && (grade_type == GradebookService.GRADE_TYPE_POINTS || grade_type == GradebookService.GRADE_TYPE_PERCENTAGE) && Double.parseDouble(scoreAsString) < 0.0d) {
-        						FacesUtil.addErrorMessage(getLocalizedString(IMPORT_ASSIGNMENT_NEG_VALUE, new String[]{assignmentName}));
-        						return false;
-        					}			
-        					if( isUnGraded || grade_type == GradebookService.GRADE_TYPE_LETTER) {
-        						FacesUtil.addErrorMessage(getLocalizedString("import_assignment_invalid_ungraded_score", new String[] {assignmentName}));
-
-        						return false;
-        					}
+        					logger.error("An unknown exception occurred validating an uploaded score! score: " + scoreAsString);
+        					FacesUtil.addErrorMessage(getLocalizedString("import_assignment_invalid_unknown", new String[] {scoreAsString, row.getUserId(), assignmentName}));
+        					return false;
         				} catch (GradebookException gbe) {
         					logger.info("Gradebook grade_type is invalid");
         					return false;
@@ -1266,7 +1269,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 				}
 			} else if (getGradeEntryByLetter() || assignment.getUngraded()) {
 				if (gr == null) {
-					if (score != null && score.length() > 0 && score.length() <= Grade.MAX_GRADE_LENGTH) {
+					if (score != null && score.length() > 0 && score.length() <= GradebookService.MAX_GRADE_LENGTH) {
 						if (!assignment.isExternallyMaintained()) {
 							gr = new AssignmentGradeRecord(assignment,userid,null);
 							gr.setPointsEarned(score);		                
@@ -1280,7 +1283,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 					String gbPointsEarned = gr.getPointsEarned();
 
 					if (((gbPointsEarned != null && !gbPointsEarned.equals(score)) ||
-							(gbPointsEarned == null && score != null)) && score.length() <= Grade.MAX_GRADE_LENGTH)  {
+							(gbPointsEarned == null && score != null)) && score.length() <= GradebookService.MAX_GRADE_LENGTH)  {
 					
 						gr.setPointsEarned(score);
 						if (!assignment.isExternallyMaintained())
@@ -1377,43 +1380,31 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	assignment.setCounted(false);
         	assignment.setUngraded(true);
         }
-        
-//        LetterGradePercentMapping lgpm = new LetterGradePercentMapping();
-//        if (getGradeEntryByLetter()) {
-//        	lgpm = getGradebookManager().getLetterGradePercentMapping(getGradebook());
-//        }
 
         Iterator iter = scores.entrySet().iterator();
         while(iter.hasNext()){
         	Map.Entry entry  = (Map.Entry) iter.next();
         	if(!entry.getKey().equals("Assignment")) {
-        		
-        			if ((getGradeEntryByPoints() || getGradeEntryByPercent()) && !assignment.getUngraded()){
-        				String points =  (String) entry.getValue();
-        				try{
-        					if(logger.isDebugEnabled()) logger.debug("checking if " +points +" is a numeric value");
-
-        					double score = Double.parseDouble(points);
-
-        					if (score < 0) {
-        						FacesUtil.addErrorMessage(getLocalizedString("import_assignment_negative"));
-        						return "spreadsheetPreview";
-        					}
-
-        				}catch(NumberFormatException e){
-        					if(logger.isDebugEnabled()) logger.debug(points + " is not a numeric value");
-        					FacesUtil.addErrorMessage(getLocalizedString("import_assignment_notsupported"));
-
-        					return "spreadsheetPreview";
-        				}
-        			} else if (getGradeEntryByLetter() || assignment.getUngraded()) {
-            			String score = (String) entry.getValue();
-            			if(score.length() > Grade.MAX_GRADE_LENGTH){
-            				FacesUtil.addErrorMessage(getLocalizedString("import_assignment_invalid_ungraded_score", new String[] {"" + Grade.MAX_GRADE_LENGTH}));
-    						return "spreadsheetPreview";
-            			}
-        			}
-        		
+        		String score = (String) entry.getValue();
+        		try {
+        			Grade grade = new Grade(score, getGradebook().getGrade_type(), assignment.getUngraded());
+        		} catch (NegativeGradeException nge) {
+        			FacesUtil.addErrorMessage(getLocalizedString("import_assignment_negative"));
+					return "spreadsheetPreview";
+        		} catch (NonNumericGradeException nnge) {
+        			FacesUtil.addErrorMessage(getLocalizedString("import_assignment_notsupported"));
+					return "spreadsheetPreview";
+        		} catch (InvalidGradeLengthException igle) {
+        			FacesUtil.addErrorMessage(getLocalizedString("import_assignment_invalid_ungraded_score", new String[] {"" + GradebookService.MAX_GRADE_LENGTH}));
+					return "spreadsheetPreview";
+        		} catch (InvalidDecimalGradeException idge) {
+        			FacesUtil.addErrorMessage(getLocalizedString("import_assignment_precision"));
+					return "spreadsheetPreview";
+        		} catch (InvalidGradeException ige) {
+        			logger.error("Unknown type of InvalidGradeException thrown while validating grade: " + score);
+        			FacesUtil.addErrorMessage(getLocalizedString("import_assignment_invalid_grade", new String[] {score}));
+					return "spreadsheetPreview";
+        		}
         	}
         }
 

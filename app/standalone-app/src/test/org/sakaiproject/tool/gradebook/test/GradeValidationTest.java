@@ -4,8 +4,12 @@ import junit.framework.TestCase;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.Grade;
+import org.sakaiproject.service.gradebook.shared.InvalidDecimalGradeException;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.GradebookException;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeLengthException;
+import org.sakaiproject.service.gradebook.shared.NegativeGradeException;
+import org.sakaiproject.service.gradebook.shared.NonNumericGradeException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,7 +41,7 @@ public class GradeValidationTest extends TestCase
   		Grade g = new Grade("85.555", GradebookService.GRADE_TYPE_POINTS, false);
   		fail();
   	}
-  	catch(InvalidGradeException ige)
+  	catch(InvalidDecimalGradeException ige)
   	{
   		log.info(ige.getMessage());
   	}
@@ -46,7 +50,16 @@ public class GradeValidationTest extends TestCase
   		Grade g = new Grade("-0.5", GradebookService.GRADE_TYPE_POINTS, false);
   		fail();
   	}
-  	catch(InvalidGradeException ige)
+  	catch(NegativeGradeException ige)
+  	{
+  		log.info(ige.getMessage());
+  	}
+  	try
+  	{
+  		Grade g = new Grade("abc", GradebookService.GRADE_TYPE_POINTS, false);
+  		fail();
+  	}
+  	catch(NonNumericGradeException ige)
   	{
   		log.info(ige.getMessage());
   	}
@@ -64,7 +77,7 @@ public class GradeValidationTest extends TestCase
   		Grade g = new Grade("85.555", GradebookService.GRADE_TYPE_PERCENTAGE, false);
   		fail();
   	}
-  	catch(InvalidGradeException ige)
+  	catch(InvalidDecimalGradeException ige)
   	{
   		log.info(ige.getMessage());
   	}
@@ -73,7 +86,7 @@ public class GradeValidationTest extends TestCase
   		Grade g = new Grade("abcd", GradebookService.GRADE_TYPE_PERCENTAGE, false);
   		fail();
   	}
-  	catch(NumberFormatException nfe)
+  	catch(NonNumericGradeException nfe)
   	{
   		log.info(nfe.getMessage());
   	}
@@ -82,10 +95,15 @@ public class GradeValidationTest extends TestCase
   		Grade g = new Grade("-0.5", GradebookService.GRADE_TYPE_PERCENTAGE, false);
   		fail();
   	}
-  	catch(InvalidGradeException ige)
+  	catch(NegativeGradeException ige)
   	{
   		log.info(ige.getMessage());
   	}
+  	
+	Grade g = new Grade("85.55", GradebookService.GRADE_TYPE_PERCENTAGE, false);
+	g = new Grade("85.5", GradebookService.GRADE_TYPE_PERCENTAGE, false);
+	g = new Grade("0", GradebookService.GRADE_TYPE_PERCENTAGE, false);
+	g = new Grade("-0.0", GradebookService.GRADE_TYPE_PERCENTAGE, false);
   }
   
   public void testUngrade() throws Exception 
@@ -95,7 +113,7 @@ public class GradeValidationTest extends TestCase
   		Grade g = new Grade("85.555555", GradebookService.GRADE_TYPE_PERCENTAGE, true);
   		fail();
   	}
-  	catch(InvalidGradeException ige)
+  	catch(InvalidGradeLengthException ige)
   	{
   		log.info(ige.getMessage());
   	}
