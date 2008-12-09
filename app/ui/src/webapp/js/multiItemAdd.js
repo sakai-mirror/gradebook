@@ -164,30 +164,51 @@ function copyPanes(rowIndex1, rowIndex2, idPrefix) {
 	
 	var curEl1 = getEl(idPrefix + rowIndex1 + ':title');
 	var curEl2 = getEl(idPrefix + rowIndex2 + ':title');
-	curEl1.value = curEl2.value;
+	if (undefined != curEl1 || undefined != curEl2)
+	{
+		curEl1.value = curEl2.value;
+	}
 	
 	curEl1 = getEl(idPrefix + rowIndex1 + ':points');
 	curEl2 = getEl(idPrefix + rowIndex2 + ':points');
-	curEl1.value = curEl2.value;
+	if (undefined != curEl1 || undefined != curEl2)
+	{
+		curEl1.value = curEl2.value;
+	}
 //	if (radioEl1[1].checked) curEl1.style.display = 'none'; Commented out with non-graded item rollback
 	
 	curEl1 = getEl(idPrefix + rowIndex1 + ':dueDate');
 	curEl2 = getEl(idPrefix + rowIndex2 + ':dueDate');
-	curEl1.value = curEl2.value;
+	if (undefined != curEl1 || undefined != curEl2)
+	{
+		curEl1.value = curEl2.value;
+	}
 	
 	curEl1 = getEl(idPrefix + rowIndex1 + ':selectCategory');
-	if (curEl1) {
-		curEl2 = getEl(idPrefix + rowIndex2 + ':selectCategory');
-		curEl1.selectedIndex = curEl2.selectedIndex;
+	if (undefined != curEl1)
+	{
+		if (curEl1) {
+			curEl2 = getEl(idPrefix + rowIndex2 + ':selectCategory');
+			if (undefined != curEl2)
+			{
+				curEl1.selectedIndex = curEl2.selectedIndex;
+			}
+		}
 	}
 	
 	curEl1 = getEl(idPrefix + rowIndex1 + ':released');
 	curEl2 = getEl(idPrefix + rowIndex2 + ':released');
-	curEl1.checked = curEl2.checked;
+	if (undefined != curEl1 || undefined != curEl2)
+	{
+		curEl1.checked = curEl2.checked;
+	}
 	
 	curEl1 = getEl(idPrefix + rowIndex1 + ':countAssignment');
 	curEl2 = getEl(idPrefix + rowIndex2 + ':countAssignment');
-	curEl1.checked = curEl2.checked;
+	if (undefined != curEl1 || undefined != curEl2)
+	{
+		curEl1.checked = curEl2.checked;
+	}
 	
 	// copy/hide error messages
 	curEl1 = getEl(idPrefix + rowIndex1 + ':noTitleErrMsg');
@@ -261,28 +282,49 @@ function copyPanes(rowIndex1, rowIndex2, idPrefix) {
 //*********************************************************************
 function eraseAndHide(idPrefix, rowIndex) {
 	var curEl = getEl(idPrefix + ':title');
-	curEl.value = "";
+	if (undefined != curEl)
+	{
+		curEl.value = "";
+	}
 	
 	curEl = getEl(idPrefix + ':points');
-	curEl.value = "";
-	curEl.style.display = 'inline';
+	if (undefined != curEl)
+	{
+		curEl.value = "";
+		curEl.style.display = 'inline';
+	}
 	
 	curEl = getEl(idPrefix + ':dueDate');
+	if (undefined != curEl)
+	{
 	curEl.value = "";
+	}
 	
 	curEl = getEl(idPrefix + ':selectCategory');
+	if (undefined != curEl)
+	{
 	if (curEl) curEl.selectedIndex = 0;
+	}
 	
 	curEl = getEl(idPrefix + ':released');
+	if (undefined != curEl)
+	{
 	curEl.value = true;
 	curEl.checked = true;
+	}
 	
 	curEl = getEl(idPrefix + ':countAssignment');
+	if (undefined != curEl)
+	{
 	curEl.value = true;
 	curEl.checked = true;
+	}
 	
 	curEl = getEl(idPrefix + ':hiddenAdd');
+	if (undefined != curEl)
+	{
 	curEl.value = 'false';
+	}
 	
 //	Commented out with non-graded item roll back
 //	curEl = document.getElementsByName(idPrefix + ':assignNonGraded');
