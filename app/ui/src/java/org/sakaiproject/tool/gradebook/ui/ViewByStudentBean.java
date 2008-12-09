@@ -127,12 +127,18 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
 
         pointsEarnedComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
-            	int comp = doubleOrNothingComparator.compare(((AssignmentGradeRow)o1).getPointsEarned(), ((AssignmentGradeRow)o2).getPointsEarned());
-                if (comp == 0) {
-					return nameComparator.compare(o1, o2);
-				} else {
-					return comp;
-				}
+            	String string1 = ((AssignmentGradeRow)o1).getPointsEarned();
+            	String string2 = ((AssignmentGradeRow)o2).getPointsEarned();
+            	
+            	if(string1 == null && string2 == null) {
+                    return 0;
+                } else if(string1 == null && string2 != null) {
+                    return -1;
+                } else if(string1 != null && string2 == null) {
+                    return 1;
+                } else {
+            	return string1.compareTo(string2);
+                }
             }
         };
         gradeAsPercentageComparator = new Comparator() {
