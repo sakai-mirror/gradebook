@@ -122,8 +122,13 @@ public class GradebookItemBean {
 				Long id = null;
 				try {
 					if (this.categoryId != null && this.categoryId != CATEGORY_UNASSIGNED){
-						id = gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
-								assignment.getPointsPossible(), assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased());
+						if (assignment.getUngraded()) {
+							id = gradebookManager.createUngradedAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
+									assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased());
+						} else {
+							id = gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
+									assignment.getPointsPossible(), assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased());
+						}
 					} else {
 						if (assignment.getUngraded()) {
 							id = gradebookManager.createUngradedAssignment(this.gradebookId, assignment.getName(), 
