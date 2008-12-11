@@ -339,10 +339,6 @@ function assignmentUngraded(myForm) {
 				pointsLabelEl.style.display="none";
 			}
 		} else if (ungradedCheckboxEl.checked == false) {
-			if (undefined != releasedCheckboxEl)
-			{
-				releasedCheckboxEl.checked = true;
-			}
 			if (undefined != countedCheckboxEl)
 			{
 				countedCheckboxEl.disabled = false;
