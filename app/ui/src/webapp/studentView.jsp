@@ -107,7 +107,12 @@
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.SCORE_CONVERTER"/>
 					</h:outputText>
 					
-					<h:outputText value="#{row.pointsEarned}" escape="false" rendered="#{!row.isCategory && (overviewBean.isLetterGrade || row.associatedAssignment.ungraded)}" />
+					<h:outputText value="#{row.pointsEarned}" escape="false" rendered="#{!row.isCategory && overviewBean.isLetterGrade}" />
+					
+					<h:outputText value="#{msgs.inst_view_not_counted_open}" escape="false" rendered="#{!row.isCategory && !overviewBean.isLetterGrade && row.associatedAssignment.ungraded && row.pointsEarned != null}" />
+					<h:outputText value="#{row.pointsEarned}" escape="false" rendered="#{!row.isCategory && !overviewBean.isLetterGrade && row.associatedAssignment.ungraded}" />
+					<h:outputText value="#{msgs.inst_view_not_counted_close}" escape="false" rendered="#{!row.isCategory && !overviewBean.isLetterGrade && row.associatedAssignment.ungraded && row.pointsEarned != null}" />
+					
         </h:column>
         
         <h:column rendered="#{studentViewBean.weightingEnabled}">
