@@ -308,6 +308,10 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			// if ungraded, we don't care about points possible
 			if (!assignment.getUngraded() && getGradebook().getGrade_type()!=GradebookService.GRADE_TYPE_LETTER)
 			{
+				if (assignment.getPointsPossible() == null) {
+					FacesUtil.addErrorMessage(getLocalizedString("add_assignment_no_points"));
+					return "failure";
+				}
 				/* If grade entry by percentage or letter and the points possible has changed for this assignment,
 				 * we need to convert all of the stored point values to retain the same value
 				 */
