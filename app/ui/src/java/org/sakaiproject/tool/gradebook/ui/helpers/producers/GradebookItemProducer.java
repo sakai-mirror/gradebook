@@ -152,7 +152,11 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         Assignment assignment = (Assignment) assignmentBeanLocator.locateBean(OTPKey);
         
         // checkbox to indicate if calculating item
-        UIBoundBoolean.make(form, "non-calc", assignmentOTP + ".ungraded", assignment.getUngraded());
+        // only display if not a letter-grade gradebook
+        if (gradebook.getGrade_type() != GradebookService.GRADE_TYPE_LETTER) {
+        	UIOutput.make(tofill, "non-calc-container");
+        	UIBoundBoolean.make(form, "non-calc", assignmentOTP + ".ungraded", assignment.getUngraded());
+        }
         
         // if this is a new gradebook item, use the name parameter passed via the url
         if (add) {

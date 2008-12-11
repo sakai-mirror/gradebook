@@ -74,6 +74,10 @@ public class GradebookItemBean {
 				errorFound = true;
 			}
 			
+			if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
+				assignment.setUngraded(true);
+			}
+			
 			if (assignment.getUngraded()) {
 				// ungraded items have null points possible and are not counted
 				assignment.setPointsPossible(null);
