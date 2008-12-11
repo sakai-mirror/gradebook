@@ -601,9 +601,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
                 }
 
 				col.getChildren().add(contents);
-				if ((!(colpos == 0 && getGradeEntryByLetter())) && (!(getGradeEntryByLetter() && columnData.getCategoryColumn()))){
-					rosterDataTable.getChildren().add(col);
-				}
+				
+				rosterDataTable.getChildren().add(col);
 			}
 		}
 	}
