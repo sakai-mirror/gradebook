@@ -1537,6 +1537,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
         throws ConflictingAssignmentNameException, StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
+          		session.evict(assignment);
           		if(assignment.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
           		{
           			assignment.setUngraded(true);
