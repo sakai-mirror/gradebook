@@ -1395,7 +1395,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         			FacesUtil.addErrorMessage(getLocalizedString("import_assignment_notsupported"));
 					return "spreadsheetPreview";
         		} catch (InvalidGradeLengthException igle) {
-        			FacesUtil.addErrorMessage(getLocalizedString("import_assignment_invalid_ungraded_score", new String[] {"" + GradebookService.MAX_GRADE_LENGTH}));
+        			FacesUtil.addErrorMessage(getLocalizedString("import_assignment_invalid_ungraded_score", new String[] {assignment.getName()}));
 					return "spreadsheetPreview";
         		} catch (InvalidDecimalGradeException idge) {
         			FacesUtil.addErrorMessage(getLocalizedString("import_assignment_precision"));
