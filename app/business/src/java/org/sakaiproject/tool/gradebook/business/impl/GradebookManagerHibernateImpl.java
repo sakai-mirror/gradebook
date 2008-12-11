@@ -2683,8 +2683,15 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 		{
 			synchronizer.removeAllGrades(getAssignments(gradebookId), grade_type);
 		}
-
+		
 		getHibernateTemplate().deleteAll(gradeRecords);
+		
+		String graderId = authn.getUserUid();
+		for(Iterator iter = gradeRecords.iterator(); iter.hasNext();)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord) iter.next();
+			logGradingEvent(agr.getStudentId(), graderId, agr.getAssignment(), null);
+		}
 	}
 
 	/**
@@ -2703,5 +2710,23 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 			}
 		};
 		return (List) getHibernateTemplate().execute(hc);
+	}
+	
+	private void logGradingEvent(final String studentId, final String graderId, final Assignment assignment, final String grade) 
+	{
+		if (studentId == null || graderId == null || assignment == null) {
+			throw new IllegalArgumentException("null value for studentId or graderId or assignment passed to logGradingEvent");
+		}
+
+		Gradebook gradebook = assignment.getGradebook();
+		HibernateCallback hc = new HibernateCallback()
+		{
+			public Object doInHibernate(Session session) throws HibernateException 
+			{
+				session.save(new GradingEvent(assignment, graderId, studentId, grade));
+				return null;
+			}
+		};
+		getHibernateTemplate().execute(hc);
 	}
 }
