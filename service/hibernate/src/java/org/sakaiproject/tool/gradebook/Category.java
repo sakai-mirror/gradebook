@@ -226,13 +226,14 @@ public class Category implements Serializable
 					} 
 					else 
 					{
-						total = total.add(new BigDecimal(score.toString()));
 						if(assign.getPointsPossible() != null)
 						{
 							if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
-								totalPossible = totalPossible.add(new BigDecimal(assign.getPointsPossible().toString()));
+								total = total.add(new BigDecimal(score.toString()));
 							else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
-								totalPossible = new BigDecimal("100.0");
+								total = total.add(new BigDecimal(score.toString()).multiply(new BigDecimal(assign.getPointsPossible())).divide(new BigDecimal("100")));
+							if(gbGradeType == GradebookService.GRADE_TYPE_POINTS || gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
+								totalPossible = totalPossible.add(new BigDecimal(assign.getPointsPossible().toString()));
 							numOfAssignments ++;
 						}
 						numScored++;
@@ -299,17 +300,15 @@ public class Category implements Serializable
 							if (score != null) 
 							{
 								BigDecimal bdScore = new BigDecimal(score.toString());
-								total = total.add(bdScore);
 								if(assignment.getPointsPossible() != null)
 								{
 									if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
+										total = total.add(bdScore);
+									else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
+										total = total.add(bdScore.multiply(new BigDecimal(assignment.getPointsPossible())).divide(new BigDecimal("100")));
+									if(gbGradeType == GradebookService.GRADE_TYPE_POINTS || gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
 									{
 										BigDecimal bdPointsPossible = new BigDecimal(assignment.getPointsPossible().toString());
-										totalPossible = totalPossible.add(bdPointsPossible);
-									}
-									else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
-									{
-										BigDecimal bdPointsPossible = new BigDecimal("100.0");
 										totalPossible = totalPossible.add(bdPointsPossible);
 									}
 									numOfAssignments ++;

@@ -2727,9 +2727,10 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assert.assertTrue(cate.getAverageTotalPoints() == null);
 		cate = gradebookManager.getCategory(cate2Long);
 		cate.calculateStatisticsPerStudent(gradeRecords, "studentId1");
+
 		Assert.assertTrue(cate.getMean().doubleValue() == 1.0);
-		Assert.assertTrue(cate.getAverageScore().doubleValue() == 1.0);
-		Assert.assertTrue(cate.getAverageTotalPoints().doubleValue() == 100.0);
+		Assert.assertTrue(cate.getAverageScore().doubleValue() == 0.1);
+		Assert.assertTrue(cate.getAverageTotalPoints().doubleValue() == 10.0);
 	}
 	
 	public void testGetLetterGradePercentMapping() throws Exception
