@@ -341,7 +341,16 @@ function assignmentUngraded(myForm) {
 		} else if (ungradedCheckboxEl.checked == false) {
 			if (undefined != countedCheckboxEl)
 			{
-				countedCheckboxEl.disabled = false;
+				if (undefined != releasedCheckboxEl)
+				{
+					if(releasedCheckboxEl.checked){
+						countedCheckboxEl.disabled = false;
+					}else{
+						countedCheckboxEl.disabled = true;
+					}
+				}else{
+					countedCheckboxEl.disabled = false;
+				}
 				countedCheckboxEl.style.display="inline";
 			}
 			if (undefined != countedLabelEl)
