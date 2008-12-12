@@ -216,7 +216,7 @@
 					</f:facet>
 
 						<h:panelGroup rendered="#{row.assignment}" style="white-space:nowrap;">
-							<h:outputText value="#{msgs.inst_view_not_counted_open}" rendered="#{!row.associatedAssignment.counted && !instructorViewBean.gradeEntryByLetter }" />
+							<h:outputText value="#{msgs.inst_view_not_counted_open}" rendered="#{(!row.associatedAssignment.counted && !instructorViewBean.gradeEntryByLetter) || (!instructorViewBean.gradeEntryByLetter && instructorViewBean.weightingEnabled && row.associatedAssignment.category == null) }" />
 							
 							<h:panelGroup rendered="#{!row.associatedAssignment.externallyMaintained && row.userCanGrade}">
 								<h:inputText id="Score" value="#{row.score}" size="8"
@@ -239,7 +239,7 @@
 								<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 							</h:outputText>
 							
-							<h:outputText value="#{msgs.inst_view_not_counted_close}" rendered="#{!row.associatedAssignment.counted && !instructorViewBean.gradeEntryByLetter}" />
+							<h:outputText value="#{msgs.inst_view_not_counted_close}" rendered="#{(!row.associatedAssignment.counted && !instructorViewBean.gradeEntryByLetter) || (!instructorViewBean.gradeEntryByLetter && instructorViewBean.weightingEnabled && row.associatedAssignment.category == null)}" />
 						</h:panelGroup>
 						
 						<h:outputText value="#{row}" escape="false" rendered="#{row.isCategory && !instructorViewBean.gradeEntryByLetter}">
