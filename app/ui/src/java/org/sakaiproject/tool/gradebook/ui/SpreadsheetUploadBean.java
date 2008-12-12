@@ -857,6 +857,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         try{
             scores =  spreadsheet.getSelectedAssignment();
             assignment.setName((String) scores.get("Assignment"));
+            assignment.setPointsPossible(null);
+        	assignment.setCounted(false);
+        	assignment.setUngraded(false);
         }catch(NullPointerException npe){
             if(logger.isDebugEnabled()) logger.debug("scores not set");
         }
