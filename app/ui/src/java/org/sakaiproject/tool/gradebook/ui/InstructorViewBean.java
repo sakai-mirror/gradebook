@@ -229,7 +229,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 
 						String newScore = gradeRow.getScore();
 						if ( (originalScore != null && !originalScore.equals(newScore)) ||
-								(originalScore == null && newScore != null) ) {
+								(originalScore == null && newScore != null && newScore.length() != 0) ) {
 							gradeRecord.setPointsEarned(newScore);
 							updatedGradeRecords.add(gradeRecord);
 						}
