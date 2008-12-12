@@ -250,7 +250,8 @@
         <h:column  rendered="#{!instructorViewBean.gradeEntryByLetter}">			
         	<f:facet name="header" >
         		<t:commandSortHeader columnName="itemValue" propertyName="itemValue" immediate="true" arrow="true">
-							<h:outputText value="#{msgs.inst_view_item_value}"/>
+							<h:outputText value="#{msgs.inst_view_item_value_points}" rendered="#{instructorViewBean.gradeEntryByPoints}"/>
+							<h:outputText value="#{msgs.inst_view_item_value_percentage}" rendered="#{instructorViewBean.gradeEntryByPercent}"/>
 						</t:commandSortHeader>
         	</f:facet>
         	
