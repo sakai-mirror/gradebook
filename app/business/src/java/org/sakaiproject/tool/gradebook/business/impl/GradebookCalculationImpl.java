@@ -114,11 +114,11 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 					return new ArrayList();
 				}
 				int gbGradeType = getGradebook(courseGrade.getGradebook().getId()).getGrade_type();
-				if( gbGradeType != GradebookService.GRADE_TYPE_POINTS && gbGradeType != GradebookService.GRADE_TYPE_PERCENTAGE)
-				{
-					if(log.isInfoEnabled()) log.error("Wrong grade type in GradebookCalculationImpl.getPointsEarnedCourseGradeRecords");
-					return new ArrayList();
-				}
+//				if( gbGradeType != GradebookService.GRADE_TYPE_POINTS && gbGradeType != GradebookService.GRADE_TYPE_PERCENTAGE)
+//				{
+//					if(log.isInfoEnabled()) log.error("Wrong grade type in GradebookCalculationImpl.getPointsEarnedCourseGradeRecords");
+//					return new ArrayList();
+//				}
 
 				Query q = session.createQuery("from CourseGradeRecord as cgr where cgr.gradableObject.id=:gradableObjectId");
 				q.setLong("gradableObjectId", courseGrade.getId().longValue());

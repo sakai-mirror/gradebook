@@ -24,11 +24,11 @@
   	<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary"
-			rendered="#{rosterBean.userAbleToGradeAll && !rosterBean.gradeEntryByLetter}">
-			<h:outputText id="courseGradeLabel" value="#{msgs.avg_course_grade_name}" rendered="#{!rosterBean.gradeEntryByLetter}" />
+			>
+			<h:outputText id="courseGradeLabel" value="#{msgs.avg_course_grade_name}"/>
 			<h:panelGroup>
-				<h:outputText id="letterGrade" value="#{rosterBean.avgCourseGradeLetter} " rendered="#{!rosterBean.gradeEntryByLetter}" />
-				<h:outputText id="cumScore" value="#{rosterBean.avgCourseGrade}" rendered="#{!rosterBean.gradeEntryByLetter}">
+				<h:outputText id="letterGrade" value="#{rosterBean.avgCourseGradeLetter} "/>
+				<h:outputText id="cumScore" value="#{rosterBean.avgCourseGrade}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
 			</h:panelGroup>
