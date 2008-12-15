@@ -1345,7 +1345,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     		
     		if (assignment.getName().trim().equals(name.trim())) {
     			// remove for performance
-    			assignList.remove(assignment);
+    			//assignList.remove(assignment);
     			return assignment;
     		}
     	}
