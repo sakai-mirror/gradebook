@@ -898,9 +898,22 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	
         	assignmentName = parsedAssignmentName[0].trim();
         	if (parsedAssignmentName.length > 1) {
-        		String [] parsedPointsPossible = parsedAssignmentName[1].split("\\]");
+        		String [] parsedPointsPossible = parsedAssignmentName[parsedAssignmentName.length - 1].split("\\]");
         		pointsPossibleAsString = parsedPointsPossible[0].trim();
+        		
+        		if(parsedAssignmentName.length > 2){
+        			//fix name:
+        			assignmentName = parsedAssignmentName[0];
+        			for(int i = 1; i < parsedAssignmentName.length - 1; i++){
+        				assignmentName += " [";
+        				if(i == parsedAssignmentName.length - 2)
+        					assignmentName += parsedAssignmentName[i].trim();
+        				else
+        					assignmentName += parsedAssignmentName[i];        				
+        			}
+        		}
         	}
+ 
         	
         	// probably last column but not sure, so continue
         	if (getLocalizedString(CUMULATIVE_GRADE_STRING).equals(assignmentName)) {
@@ -1093,8 +1106,20 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	
         	assignmentName = parsedAssignmentName[0].trim();
         	if (parsedAssignmentName.length > 1) {
-        		String [] parsedPointsPossible = parsedAssignmentName[1].split("\\]");
+        		String [] parsedPointsPossible = parsedAssignmentName[parsedAssignmentName.length - 1].split("\\]");
         		pointsPossibleAsString = parsedPointsPossible[0].trim();
+        		
+        		if(parsedAssignmentName.length > 2){
+        			//fix name:
+        			assignmentName = parsedAssignmentName[0];
+        			for(int i = 1; i < parsedAssignmentName.length - 1; i++){
+        				assignmentName += " [";
+        				if(i == parsedAssignmentName.length - 2)
+        					assignmentName += parsedAssignmentName[i].trim();
+        				else
+        					assignmentName += parsedAssignmentName[i];        				
+        			}
+        		}
         	}
 
         	// probably last column but not sure, so continue
