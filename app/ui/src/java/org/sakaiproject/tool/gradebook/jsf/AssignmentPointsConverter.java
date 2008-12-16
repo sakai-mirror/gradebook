@@ -53,12 +53,16 @@ public class AssignmentPointsConverter extends PointsConverter {
 		boolean ungraded = false;
 		Object workingValue = value;
 		boolean percentage = false;
+		boolean letterGrade = false;
 		
 		if (value != null) {
 			if (value instanceof Assignment) {
 				Assignment assignment = (Assignment)value;
 				workingValue = assignment.getPointsPossible();
 				notCounted = assignment.isNotCounted();
+				if (assignment.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
+					letterGrade = true;
+				}
 				// if weighting enabled, item is not counted if not assigned
 				// a category
 				if (!notCounted && assignment.getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
@@ -77,6 +81,7 @@ public class AssignmentPointsConverter extends PointsConverter {
 						workingValue = ((AbstractGradeRecord)value).getPointsEarned();	
 					} else if (gradeType == GradebookService.GRADE_TYPE_LETTER) {
 						workingValue = agr.getPointsEarned();
+						letterGrade = true;
 					} else {
 						//display percentage
 						percentage = true;
@@ -104,10 +109,15 @@ public class AssignmentPointsConverter extends PointsConverter {
 				workingValue = ((AbstractGradeRecord)value).getGradeAsPercentage();
 			}
 		}
-		formattedScore = super.getAsString(context, component, workingValue);
-		if (notCounted) {
+		formattedScore = super.getAsString(context, component, workingValue);	
+		if (notCounted && letterGrade) {
 			formattedScore = FacesUtil.getLocalizedString("score_not_counted",
 					new String[] {formattedScore, FacesUtil.getLocalizedString("score_not_counted_tooltip")});
+		} else {
+			if (notCounted) {
+				formattedScore = FacesUtil.getLocalizedString("score_not_counted_with_paren",
+					new String[] {formattedScore, FacesUtil.getLocalizedString("score_not_counted_tooltip")});
+			}
 		}
 		if(percentage && workingValue != null && !ungraded){
 			formattedScore += "%";
