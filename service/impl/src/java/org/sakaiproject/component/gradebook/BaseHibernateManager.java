@@ -369,6 +369,43 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         };
         return ((Integer)getHibernateTemplate().execute(hc)).intValue() > 0;
     }
+    
+    public List<CourseGradeRecord> getExplicitlyEnteredCourseGradeRecords(final Long gradebookId) {
+    	List<CourseGradeRecord> courseGradeRecords = new ArrayList<CourseGradeRecord>();
+        final Set<String> studentUids = getAllStudentUids(getGradebookUid(gradebookId));
+        if (studentUids != null && !studentUids.isEmpty()) {
+        	HibernateCallback hc = new HibernateCallback() {
+                public Object doInHibernate(Session session) throws HibernateException {
+                	List<CourseGradeRecord> recordList = new ArrayList<CourseGradeRecord>();
+                    if (studentUids.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+                        Query q = session.createQuery(
+                                "select cgr from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=:gradebookId and cgr.studentId in (:studentUids)");
+                        q.setLong("gradebookId", gradebookId.longValue());
+                        q.setParameterList("studentUids", studentUids);
+                        recordList = (List)q.list();
+                        if (log.isDebugEnabled()) log.debug("total number of explicitly entered course grade records = " + recordList.size());
+                    } else {
+                        Query q = session.createQuery(
+                                "select cgr from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=:gradebookId");
+                        q.setLong("gradebookId", gradebookId.longValue());
+                        List<CourseGradeRecord> fullList = (List)q.list();
+                        if (fullList != null) {
+                        	for (CourseGradeRecord courseGradeRec : fullList) {
+                        		if (studentUids.contains(courseGradeRec.getStudentId())) {
+                        			recordList.add(courseGradeRec);
+                        		}
+                        	}
+                        }
+                        if (log.isDebugEnabled()) log.debug("total number of explicitly entered course grade records = " + recordList.size());
+                    }
+                    return recordList;
+                }
+            };
+            courseGradeRecords = (List<CourseGradeRecord>) getHibernateTemplate().execute(hc);
+        }
+        
+        return courseGradeRecords;
+    }
 
 	public Authn getAuthn() {
         return authn;

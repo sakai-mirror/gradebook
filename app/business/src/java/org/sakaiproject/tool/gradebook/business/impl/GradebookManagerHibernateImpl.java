@@ -2693,6 +2693,18 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 			AssignmentGradeRecord agr = (AssignmentGradeRecord) iter.next();
 			logGradingEvent(agr.getStudentId(), graderId, agr.getAssignment(), null);
 		}
+		
+		// now remove any course grade overrides, as well
+		List<CourseGradeRecord> overrides = getExplicitlyEnteredCourseGradeRecords(gradebookId);
+		if (overrides != null && !overrides.isEmpty()) {
+			for (CourseGradeRecord override : overrides) {
+				override.setEnteredGrade(null);
+			}
+			
+			CourseGrade courseGrade = getCourseGrade(gradebookId);
+			// update the course grade records
+			updateCourseGradeRecords(courseGrade, overrides);
+		}
 	}
 
 	/**

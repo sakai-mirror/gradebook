@@ -184,6 +184,14 @@ public interface GradebookManager {
      * @return Whether there are course grade records that have a non-null enteredGrade field
      */
     public boolean isExplicitlyEnteredCourseGradeRecords(Long gradebookId);
+    
+    /**
+     * 
+     * @param gradebookId
+     * @return a list of the CourseGradeRecords with explicitly entered grade records for
+     * all students in the gradebook with the given id
+     */
+    public List<CourseGradeRecord> getExplicitlyEnteredCourseGradeRecords(final Long gradebookId);
 
     /**
      * Gets whether scores have been entered for the given assignment.

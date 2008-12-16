@@ -862,7 +862,8 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	}
 	
 	public boolean getIsExistingGrades() {
-		isExistingGrades = getGradebookManager().checkIfGradeExists(getGradebookId());
+		isExistingGrades = getGradebookManager().checkIfGradeExists(getGradebookId())
+			|| getGradebookManager().isExplicitlyEnteredCourseGradeRecords(getGradebookId());
 		return isExistingGrades;
 	}
 

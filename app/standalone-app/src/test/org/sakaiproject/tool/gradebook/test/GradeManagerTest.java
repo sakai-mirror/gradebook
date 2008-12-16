@@ -115,6 +115,21 @@ public class GradeManagerTest extends GradebookTestBase {
         }
 
         gradebookManager.updateCourseGradeRecords(courseGrade, gradeRecordMap.values());
+        
+        // check to see if we get these overrides
+        List<CourseGradeRecord> overrides = gradebookManager.getExplicitlyEnteredCourseGradeRecords(gradebook.getId());
+        Assert.assertEquals(3, overrides.size());
+        for (CourseGradeRecord override : overrides) {
+        	if (override.getStudentId().equals(studentUidsList.get(0))) {
+        		Assert.assertEquals("C-", override.getEnteredGrade());
+        	} else if (override.getStudentId().equals(studentUidsList.get(1))) {
+        		Assert.assertEquals("D+", override.getEnteredGrade());
+        	} else if (override.getStudentId().equals(studentUidsList.get(2))) {
+        		Assert.assertEquals("F", override.getEnteredGrade());
+        	} else {
+        		Assert.fail("Unexpected course grade rec returned by getExplicitlyEnteredCourseGradeRecords");
+        	}
+        }
 
         GradeMapping gradeMapping = gradebook.getSelectedGradeMapping();
 
