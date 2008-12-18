@@ -619,8 +619,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	}
 	
 	public String getColLock() {
-		if (isUserAbleToGradeAll() || getSelectedCategoryUid() != null)
-			return "3";
+		if (isUserAbleToGradeAll() || getSelectedCategoryUid() != null) {
+			return Integer.toString(gradableObjectColumns.size() + 1); 
+		}
 		else
 			return "2";
 	}
