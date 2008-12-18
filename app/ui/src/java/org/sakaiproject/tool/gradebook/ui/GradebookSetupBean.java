@@ -214,8 +214,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		isValidWithCourseGrade = true;
 		
 		int origialGradeType = localGradebook.getGrade_type();
-		List<Assignment> assignmentsList = getGradebookManager().getAssignments(getGradebookId());
-		Iterator it = assignmentsList.iterator();
 
 		if (gradeEntryMethod.equals(ENTRY_OPT_PERCENT))
 		{
@@ -293,7 +291,10 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			}
 
 			getGradebookManager().updateGradebook(localGradebook);
-			
+
+			List<Assignment> assignmentsList = getGradebookManager().getAssignments(getGradebookId());
+			Iterator it = assignmentsList.iterator();
+
 		//Grade Entry change from Points/Percentage to Letter Grades	
 			if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER && (origialGradeType==GradebookService.GRADE_TYPE_POINTS ||origialGradeType==GradebookService.GRADE_TYPE_PERCENTAGE))
 			{
@@ -436,6 +437,9 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 		getGradebookManager().updateGradebook(localGradebook);
 		
+		List<Assignment> assignmentsList = getGradebookManager().getAssignments(getGradebookId());
+		Iterator it = assignmentsList.iterator();
+
 	//Grade Entry change from Points/Percentage to Letter Grades	
 		if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER && (origialGradeType==GradebookService.GRADE_TYPE_POINTS ||origialGradeType==GradebookService.GRADE_TYPE_PERCENTAGE))
 		{
