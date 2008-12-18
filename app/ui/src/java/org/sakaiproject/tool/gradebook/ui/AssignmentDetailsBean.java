@@ -439,8 +439,10 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         
         String messageKey = null;
         if (updatedGradeRecords.size() > 0) {
-        	if (excessiveScores.size() > 0) {
-        		messageKey = "assignment_details_scores_saved_excessive";
+        	if (excessiveScores.size() > 0 && getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
+        		messageKey = "assignment_details_scores_saved_excessive_points";
+        	} else if (excessiveScores.size() > 0 && getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
+        		messageKey = "assignment_details_scores_saved_excessive_percentage";      		
         	} else if (updatedComments.size() > 0) {
         		messageKey = "assignment_details_scores_comments_saved";
         	} else {
