@@ -10,7 +10,7 @@
   .errHide { display:none; }
  </style>
 
-<h:outputText value="#{msgs.flag_required}" rendered="#{!bean.assignment.externallyMaintained}"/>
+<h:outputText value="* " styleClass="reqStarInline"/><h:outputText value="#{msgs.flag_required}" rendered="#{!bean.assignment.externallyMaintained}"/>
 
 <t:div id="bulkAssignments" styleClass="gbSection">
 	<t:dataTable cellpadding="0" cellspacing="0"
@@ -43,8 +43,11 @@
 		    <h:panelGrid cellpadding="0" cellspacing="5" columns="2" 
 		    		columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" 
 		  			styleClass="highlightPanel" width="100%">
+		  			<h:panelGroup styleClass="shorttext required">
+				  		<h:outputText value="*" styleClass="reqStar"/>
 						<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}"
 							rendered="#{!item.assignment.externallyMaintained}"/>
+					</h:panelGroup>
 			
 						<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
 							<h:inputText id="title" value="#{item.assignment.name}" 
@@ -75,7 +78,10 @@
 					</h:panelGroup>  
 				</h:panelGroup>
 	<%-- Commented out for non-graded rollback && item.ungraded == 'normal' --%>
-				<h:outputLabel for="points" id="pointsLabel" value="#{(bean.localGradebook.grade_type == 1) ? msgs.add_assignment_points : msgs.add_assignment_relative_weight}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}"/>
+				<h:panelGroup styleClass="shorttext required">
+				  	<h:outputText value="*" styleClass="reqStar" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}"/>
+					<h:outputLabel for="points" id="pointsLabel" value="#{(bean.localGradebook.grade_type == 1) ? msgs.add_assignment_points : msgs.add_assignment_relative_weight}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}"/>
+				</h:panelGroup>
 				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
 					<h:inputText id="points" value="#{item.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{bean.localGradebook.grade_type != 3}" />
 					<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
