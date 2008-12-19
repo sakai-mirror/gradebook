@@ -75,7 +75,7 @@
 						</t:commandSortHeader>
 					</f:facet>
 					<h:outputText value="#{row.associatedAssignment.name}" rendered="#{row.assignment}"/>
-					<h:outputText value="#{row.name}" styleClass="categoryHeading" rendered="#{row.isCategory}"/>
+					<h:outputText value="#{row.name}" styleClass="categoryHeading" rendered="#{row.category}"/>
 				</h:column>
 				
 				<h:column>
@@ -99,7 +99,7 @@
 						</t:commandSortHeader>
 					</f:facet>
 					
-					<h:outputText value="#{row}" escape="false" rendered="#{row.isCategory}">
+					<h:outputText value="#{row}" escape="false" rendered="#{row.category}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER"/>
 					</h:outputText>
 
@@ -115,7 +115,7 @@
 			      </t:commandSortHeader>
 			    </f:facet>
 	
-					<h:outputText value="#{row.weight}" rendered="#{row.isCategory}">
+					<h:outputText value="#{row.weight}" rendered="#{row.category}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE" />
 					</h:outputText>
 				</h:column>

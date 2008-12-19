@@ -64,7 +64,7 @@ public class CourseGrade extends GradableObject {
     /**
      * @see org.sakaiproject.tool.gradebook.GradableObject#isCategory()
      */
-    public boolean getIsCategory() {
+    public boolean isCategory() {
         return false;
     }
 

@@ -120,7 +120,7 @@ public class AssignmentGradeRow implements Serializable {
      * Used by GradebookItemTable
      * @return false
      */
-    public boolean getIsCategory() {
+    public boolean isCategory() {
     	return false;
     }
     
