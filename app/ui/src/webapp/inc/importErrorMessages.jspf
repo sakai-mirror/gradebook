@@ -1,7 +1,11 @@
 
 
 <%-- Display unknown user names. --%>
-<h:panelGrid rendered="#{spreadsheetUploadBean.hasUnknownUser}" styleClass="alertMessage">
+<f:subview id="unknowUsers" rendered="#{spreadsheetUploadBean.hasUnknownUser}">
+<f:verbatim>
+<div class="alertMessage">
+</f:verbatim>
+
 	<h:outputText value="#{msgs.import_entire_bad_ids_alert}" />
             	
     <h:dataTable id="unknownUsers" value="#{spreadsheetUploadBean.unknownUsers}" var="unknownUserId">
@@ -12,10 +16,16 @@
 
 	<h:outputText value="#{msgs.import_entire_bad_ids_alert_end}" rendered="#{spreadsheetUploadBean.unknownSize > 1}" />
 	<h:outputText value="#{msgs.import_entire_bad_ids_alert_end}" rendered="#{spreadsheetUploadBean.unknownSize == 1}" />
-</h:panelGrid> 
+<f:verbatim>
+</div>
+</f:verbatim>
+</f:subview> 
 
 <%-- Display invalid imported gradebook items. --%>
-<h:panelGrid rendered="#{spreadsheetUploadBean.hasUnknownAssignments}" styleClass="alertMessage">
+<f:subview id="invalidItems"  rendered="#{spreadsheetUploadBean.hasUnknownAssignments}">
+<f:verbatim>
+<div class="alertMessage">
+</f:verbatim>
 	<h:outputText value="#{msgs.import_verify_assignment_no_exists}" />
             	
     <h:dataTable id="unknownAssignments" value="#{spreadsheetUploadBean.unknownAssignments}" var="unknownAssignmentId">
@@ -25,7 +35,10 @@
 	</h:dataTable>
 
 	<h:outputText value="#{msgs.import_verify_assignment_no_exists_bottom}" />
-</h:panelGrid> 
+<f:verbatim>
+</div>
+</f:verbatim>
+</f:subview>  
 
 <%-- Display invalid scores for assignments. --%>
 <%--<h:panelGrid rendered="#{spreadsheetUploadBean.hasInvalidScores}" styleClass="alertMessage">
