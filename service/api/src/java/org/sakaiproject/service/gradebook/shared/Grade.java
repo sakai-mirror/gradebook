@@ -117,6 +117,9 @@ public final class Grade
 			return true;
 		else
 		{
+			if(grade.length() > GradebookService.MAX_GRADE_LENGTH)
+				throw new InvalidGradeLengthException("grade length is greater than " + GradebookService.MAX_GRADE_LENGTH + " for: " + grade + " of grade_type of: " + grade_type + ". ungraded is:" + ungraded);
+			
 			if(grade_type != GradebookService.GRADE_TYPE_POINTS && grade_type != GradebookService.GRADE_TYPE_PERCENTAGE && grade_type != GradebookService.GRADE_TYPE_LETTER)
 			{
 				throw new GradebookException("Gradebook grade_type is invalid: it has to be 1, 2 or 3. Refer to GradebookService.");
@@ -154,10 +157,7 @@ public final class Grade
 			}
 			else if(ungraded || grade_type == GradebookService.GRADE_TYPE_LETTER)
 			{
-				if(grade.length() > GradebookService.MAX_GRADE_LENGTH)
-					throw new InvalidGradeLengthException("grade length is bigger than " + GradebookService.MAX_GRADE_LENGTH + " for: " + grade + " of grade_type of: " + grade_type + ". ungraded is:" + ungraded);
-				else
-					return true;
+				return true;
 			}
 			return false;
 		}
