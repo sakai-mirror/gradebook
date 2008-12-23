@@ -73,6 +73,11 @@ public class ScoreConverter extends PointsConverter {
 					gradeEntryMethod = LETTER;
 					score = gradeRow.getLetterScore();
 				}
+				// if weighting enabled, item is not counted if not assigned
+				// a category
+				if (!notCounted && gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
+					notCounted = gradeRow.getAssociatedAssignment().getCategory() == null;
+				}
 			}
 		}
 		
