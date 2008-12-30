@@ -593,7 +593,6 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 			throw new IllegalArgumentException("null value for studentId or graderId or assignment passed to GradebookExternalAssessmentServiceImpl.logGradingEvent");
 		}
 
-		Gradebook gradebook = assignment.getGradebook();
 		session.save(new GradingEvent(assignment, graderId, studentId, grade));
 	}
 }
