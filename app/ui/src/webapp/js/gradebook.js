@@ -315,6 +315,7 @@ function assignmentUngraded(myForm) {
 	var releasedCheckboxEl =  getTheElement(myForm + ':released');
 	var pointsInputEl =  getTheElement(myForm + ':points');
 	var pointsLabelEl =  getTheElement(myForm + ':pointsLabel');
+	var categoryInstructionTextEl = getTheElement(myForm + ':nonCalCategoryInstructionText');
 
 	if (undefined != ungradedCheckboxEl)
 	{
@@ -338,6 +339,7 @@ function assignmentUngraded(myForm) {
 			{
 				pointsLabelEl.style.display="none";
 			}
+			categoryInstructionTextEl.style.display="none";
 		} else if (ungradedCheckboxEl.checked == false) {
 			if (undefined != countedCheckboxEl)
 			{
@@ -365,6 +367,7 @@ function assignmentUngraded(myForm) {
 			{
 				pointsLabelEl.style.display="inline";
 			}
+			categoryInstructionTextEl.style.display="inline";
 		}
 	}
 }

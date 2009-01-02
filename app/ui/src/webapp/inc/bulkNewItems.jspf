@@ -121,7 +121,7 @@
 						<f:selectItems value="#{bean.categoriesSelectList}" />
 					</h:selectOneMenu>
 
-					<h:outputText value="#{msgs.add_assignment_category_info}" styleClass="instruction" rendered="#{bean.weightingEnabled}"/>
+					<h:outputText id="nonCalCategoryInstructionText" value="#{msgs.add_assignment_category_info}" styleClass="instruction" rendered="#{bean.weightingEnabled}"/>
 				</h:panelGroup>
 			  </h:panelGrid>
 

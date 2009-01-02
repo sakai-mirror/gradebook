@@ -69,7 +69,7 @@
 			<f:selectItems value="#{bean.categoriesSelectList}" />
 		</h:selectOneMenu>
 		<f:verbatim><div class="instruction"></f:verbatim>
-			<h:outputText value="#{msgs.add_assignment_category_info}" rendered="#{bean.weightingEnabled}"/>
+			<h:outputText id="nonCalCategoryInstructionText" value="#{msgs.add_assignment_category_info}" rendered="#{bean.weightingEnabled}"/>
 		<f:verbatim></div></f:verbatim>			
 	</h:panelGroup>
 	
