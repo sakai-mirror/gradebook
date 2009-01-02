@@ -376,7 +376,8 @@ public class Assignment extends GradableObject {
     		{
     			mean = null;
     			averageTotal = null;
-    			log.error("Calling calculateStatistics in Assignmnet for UNGRADED items.");
+    			if(log.isDebugEnabled())
+    				log.debug("Calling calculateStatistics in Assignmnet for UNGRADED items.");
     		}
     		else
     		{
