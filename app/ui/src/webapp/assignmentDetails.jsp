@@ -214,7 +214,8 @@
 			<h:column>
 				<f:facet name="header">
 		      <t:commandSortHeader columnName="studentScore" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
-					  <h:outputText value="#{msgs.assignment_details_grade}"/>
+					  <h:outputText value="#{msgs.assignment_details_grade}" rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByLetter}"/>
+					  <h:outputText value="#{msgs.assignment_details_percent}" rendered="#{assignmentDetailsBean.gradeEntryByPercent}"/>
 		      </t:commandSortHeader>
 				</f:facet>
 
