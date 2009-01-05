@@ -609,6 +609,9 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		// try non-numeric
 		assertFalse(gradebookService.isGradeValid(asn1IdNoCat, "A"));
 		
+		assertFalse(gradebookService.isGradeValid(asn1IdNoCat, "123456789"));
+		assertTrue(gradebookService.isGradeValid(asn1IdNoCat, "12345678"));
+
 		// switch to %-based gradebook
 		gradebookNoCat.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
 		gradebookManager.updateGradebook(gradebookNoCat);

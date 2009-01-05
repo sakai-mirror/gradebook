@@ -54,8 +54,7 @@ public interface GradebookService {
 	public static final int CATEGORY_TYPE_WEIGHTED_CATEGORY = 3;
 	
 	/**
-	 * the maximum number of characters allowed for grades for non-calculating
-	 * gradebook items
+	 * the maximum number of characters allowed for grades
 	 */
 	public static final int MAX_GRADE_LENGTH = 8;
 

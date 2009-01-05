@@ -22,7 +22,7 @@ package org.sakaiproject.service.gradebook.shared;
 
 
 /**
- * indicates that a non-calculating grade has more than the allowed number of characters.
+ * indicates that a grade has more than the allowed number of characters.
  * this maximum length is set in {@link GradebookService.MAX_GRADE_LENGTH}
  * 
  */
