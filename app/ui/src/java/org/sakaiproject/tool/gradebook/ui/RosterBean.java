@@ -690,7 +690,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     public void exportCsvNoCourseGrade(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting gradebook " + getGradebookUid() + " as CSV");
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
-        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false), 
+        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false, false), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterCsv());
     }
@@ -699,11 +699,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         if(logger.isInfoEnabled()) logger.info("exporting roster as CSV for gradebook " + getGradebookUid());
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
         if (isUserAbleToGradeAll()) {
-        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true), 
+        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true, true), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterCsv());
         } else {
-        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false), 
+        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false, true), 
             		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
             		new SpreadsheetDataFileWriterCsv());
         }
@@ -714,17 +714,17 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
         if (isUserAbleToGradeAll()) {
-        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true), 
+        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true, true), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterXls());
         } else {
-        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false), 
+        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false, true), 
             		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
             		new SpreadsheetDataFileWriterXls());
         }
     }
     
-    private List<List<Object>> getSpreadsheetData(boolean includeCourseGrade) {
+    private List<List<Object>> getSpreadsheetData(boolean includeCourseGrade, boolean includeCategories) {
     	// Get the full list of filtered enrollments and scores (not just the current page's worth).
     	Map enrRecItemIdFunctionMap = getWorkingEnrollmentsForAllItems();
     	List filteredEnrollments = new ArrayList(enrRecItemIdFunctionMap.keySet());  
@@ -749,27 +749,30 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		Map filteredGradesMap = new HashMap();
 		Map filteredCategoriesMap = new HashMap();
 		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentUids);
-		List categories = new ArrayList();
-		//next get all of the categories
-		List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+		if(includeCategories){
+			List categories = new ArrayList();
+			//next get all of the categories
+			List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
 
-		// first, remove the CourseGrade from the Category list
-		for (Iterator catIter = categoryListWithCG.iterator(); catIter.hasNext();) {
-			Object catOrCourseGrade = catIter.next();
-			if (catOrCourseGrade instanceof Category) {
-				categories.add((Category)catOrCourseGrade);
+			// first, remove the CourseGrade from the Category list
+			for (Iterator catIter = categoryListWithCG.iterator(); catIter.hasNext();) {
+				Object catOrCourseGrade = catIter.next();
+				if (catOrCourseGrade instanceof Category) {
+					categories.add((Category)catOrCourseGrade);
+				}
+			}				
+
+			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
+				getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords, studentIdItemIdFunctionMap);
+				categories = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categories, getGradebook().getCategory_type());
+			} else {
+				getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords);
 			}
-		}				
-		
-		if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
-			getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords, studentIdItemIdFunctionMap);
-			categories = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categories, getGradebook().getCategory_type());
-		} else {
-			getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords);
+			getGradebookManager().addToCategoryResultMap(filteredCategoriesMap, categories, filteredGradesMap, studentIdItemIdFunctionMap);
 		}
-		getGradebookManager().addToCategoryResultMap(filteredCategoriesMap, categories, filteredGradesMap, studentIdItemIdFunctionMap);
 		
 		Category selCategoryView = getSelectedCategory();
+		
         
 		List gradableObjects = new ArrayList();
 		List allAssignments = new ArrayList(); 
@@ -838,7 +841,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	        getGradebookManager().addToGradeRecordMap(filteredGradesMap, courseGradeRecords);
 	        gradableObjects.add(courseGrade);
 		}
-    	return getSpreadsheetData(filteredEnrollments, filteredGradesMap, filteredCategoriesMap, gradableObjects, includeCourseGrade);
+    	return getSpreadsheetData(filteredEnrollments, filteredGradesMap, filteredCategoriesMap, gradableObjects, includeCourseGrade, includeCategories);
     }
  
     /**
@@ -855,7 +858,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
      * @return
      */
     private List<List<Object>> getSpreadsheetData(List enrollments, Map gradesMap, Map filteredCategoriesMap, List gradableObjects,
-    												boolean includeCourseGrade) {
+    												boolean includeCourseGrade, boolean includeCategories) {
     	List<List<Object>> spreadsheetData = new ArrayList<List<Object>>();
 
     	// Build column headers and points possible rows.
@@ -871,14 +874,16 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         	Double ptsPossible = 0.0;
 
         	if (gradableObject instanceof Assignment) {
-	        	//we want this to show up after the last assignment for the category
-	        	//so only add it when a category changes (new category or null)
-        		if(assignmentCat != ((Assignment) gradableObject).getCategory() &&
-        				assignmentCat != null){	
-        			if(getWeightingEnabled()){
-        				headerRow.add(assignmentCat.getName() + " (" + assignmentCat.getWeight() * 100 + "%)");      				
-        			}else{
-        				headerRow.add(assignmentCat.getName());
+        		if(includeCategories){
+        			//we want this to show up after the last assignment for the category
+        			//so only add it when a category changes (new category or null)
+        			if(assignmentCat != ((Assignment) gradableObject).getCategory() &&
+        					assignmentCat != null){	
+        				if(getWeightingEnabled()){
+        					headerRow.add(assignmentCat.getName() + " (" + assignmentCat.getWeight() * 100 + "%)");      				
+        				}else{
+        					headerRow.add(assignmentCat.getName());
+        				}
         			}
         		}
         		assignmentCat = ((Assignment) gradableObject).getCategory();
@@ -892,12 +897,14 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         		}
          		colName = ((Assignment)gradableObject).getName() + " [" + ptsPossibleAsString + "]";
          	} else if (gradableObject instanceof CourseGrade && includeCourseGrade) {
-         		//if the category is not null add it to the end before the course grade is added
-         		if(assignmentCat != null){
-         			if(getWeightingEnabled()){
-         				headerRow.add(assignmentCat.getName() + " (" + assignmentCat.getWeight() * 100 + "%)");      				
-         			}else{
-         				headerRow.add(assignmentCat.getName());
+         		if(includeCategories){
+         			//if the category is not null add it to the end before the course grade is added
+         			if(assignmentCat != null){
+         				if(getWeightingEnabled()){
+         					headerRow.add(assignmentCat.getName() + " (" + assignmentCat.getWeight() * 100 + "%)");      				
+         				}else{
+         					headerRow.add(assignmentCat.getName());
+         				}
          			}
          		}
          		assignmentCat = null;
@@ -907,13 +914,15 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
          	headerRow.add(colName);
         }
         
-        //if assignmentCat is not null, this means there is still one category left
-        //in the hopper.  We need to add this to the end.
-        if(assignmentCat != null){	
-        	if(getWeightingEnabled()){
-        		headerRow.add(assignmentCat.getName() + " (" + assignmentCat.getWeight() * 100 + "%)");      				
-        	}else{
-        		headerRow.add(assignmentCat.getName());
+        if(includeCategories){
+        	//if assignmentCat is not null, this means there is still one category left
+        	//in the hopper.  We need to add this to the end.
+        	if(assignmentCat != null){	
+        		if(getWeightingEnabled()){
+        			headerRow.add(assignmentCat.getName() + " (" + assignmentCat.getWeight() * 100 + "%)");      				
+        		}else{
+        			headerRow.add(assignmentCat.getName());
+        		}
         	}
         }
         
@@ -932,20 +941,24 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         		Object score = null;
         		String letterScore = null;
         		if(gradableObject instanceof Assignment){
-    	    		//we want this to show up after the last assignment for the category
-		        	//so only add it when a category changes (new category or null)
-        			if(((Assignment) gradableObject).getCategory() != assignmentCat &&
-        					assignmentCat != null){        				
-        				if(filteredCategoriesMap.get(studentUid) != null && ((Map) filteredCategoriesMap.get(studentUid)).get(assignmentCat.getId()) != null)
-        					row.add(categoryScoreConverter(((Map) ((Map) filteredCategoriesMap.get(studentUid)).get(assignmentCat.getId()))));
+        			if(includeCategories){
+        				//we want this to show up after the last assignment for the category
+        				//so only add it when a category changes (new category or null)
+        				if(((Assignment) gradableObject).getCategory() != assignmentCat &&
+        						assignmentCat != null){        				
+        					if(filteredCategoriesMap.get(studentUid) != null && ((Map) filteredCategoriesMap.get(studentUid)).get(assignmentCat.getId()) != null)
+        						row.add(categoryScoreConverter(((Map) ((Map) filteredCategoriesMap.get(studentUid)).get(assignmentCat.getId()))));
+        				}
         			}
         			assignmentCat = ((Assignment) gradableObject).getCategory();
         		}else{
-        			//if assignmentCat is not null then there is a category score that needs to be
-        			//tagged to the end of the last assignment added.
-        			if(assignmentCat != null){        				
-        				if(filteredCategoriesMap.get(studentUid) != null && ((Map) filteredCategoriesMap.get(studentUid)).get(assignmentCat.getId()) != null)
-        					row.add(categoryScoreConverter(((Map) ((Map) filteredCategoriesMap.get(studentUid)).get(assignmentCat.getId()))));
+        			if(includeCategories){
+        				//if assignmentCat is not null then there is a category score that needs to be
+        				//tagged to the end of the last assignment added.
+        				if(assignmentCat != null){        				
+        					if(filteredCategoriesMap.get(studentUid) != null && ((Map) filteredCategoriesMap.get(studentUid)).get(assignmentCat.getId()) != null)
+        						row.add(categoryScoreConverter(((Map) ((Map) filteredCategoriesMap.get(studentUid)).get(assignmentCat.getId()))));
+        				}
         			}
         			assignmentCat = null;
         		}
@@ -974,12 +987,14 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     			
         		row.add(score);
         	}
-        	//if assignmentCat is not null, this means there is still one category left
-	        //in the hopper.  We need to add this to the end.
-        	if(assignmentCat != null){        				
-				if(filteredCategoriesMap.get(studentUid) != null && ((Map) filteredCategoriesMap.get(studentUid)).get(assignmentCat.getId()) != null)
-					row.add(categoryScoreConverter(((Map) ((Map) filteredCategoriesMap.get(studentUid)).get(assignmentCat.getId()))));
-			}
+        	if(includeCategories){
+        		//if assignmentCat is not null, this means there is still one category left
+        		//in the hopper.  We need to add this to the end.
+        		if(assignmentCat != null){        				
+        			if(filteredCategoriesMap.get(studentUid) != null && ((Map) filteredCategoriesMap.get(studentUid)).get(assignmentCat.getId()) != null)
+        				row.add(categoryScoreConverter(((Map) ((Map) filteredCategoriesMap.get(studentUid)).get(assignmentCat.getId()))));
+        		}
+        	}
         	
         	spreadsheetData.add(row);
         }
