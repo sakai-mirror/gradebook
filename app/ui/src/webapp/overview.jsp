@@ -109,10 +109,14 @@
 		      </t:commandSortHeader>
 		    </f:facet>
 
-				<h:outputText value="#{gradebookItem}" escape="false" rendered="#{gradebookItem.assignment && gradebookItem.ungraded == false}">
+				<h:outputText value="#{gradebookItem}" escape="false" rendered="#{gradebookItem.isCategory}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
-				<h:outputText value="#{msgs.overview_unassigned_cat_avg}" rendered="#{gradebookItem.assignment && gradebookItem.ungraded == true}"/>
+				<h:outputText value="#{gradebookItem}" escape="false" rendered="#{gradebookItem.assignment && gradebookItem.ungraded == false && !gradebookItem.isCategory}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
+				</h:outputText>
+				<h:outputText value="#{msgs.overview_unassigned_cat_avg}" rendered="#{gradebookItem.assignment && gradebookItem.ungraded == true && !gradebookItem.isCategory}"/>
+				
 			</h:column>
 			
 			<h:column rendered="#{overviewBean.weightingEnabled}">
