@@ -410,6 +410,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		Long idParam = (Long)params.get("assignmentId");
 		if (idParam != null) {
 			setAssignmentId(idParam);
+			isAllCommentsEditable = false;
 		}
 	}
 
