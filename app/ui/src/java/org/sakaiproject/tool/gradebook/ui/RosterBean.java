@@ -749,8 +749,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		Map filteredGradesMap = new HashMap();
 		Map filteredCategoriesMap = new HashMap();
 		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentUids);
+		
+		List categories = new ArrayList();
 		if(includeCategories){
-			List categories = new ArrayList();
 			//next get all of the categories
 			List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
 
@@ -761,16 +762,18 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 					categories.add((Category)catOrCourseGrade);
 				}
 			}				
-
-			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
-				getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords, studentIdItemIdFunctionMap);
-				categories = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categories, getGradebook().getCategory_type());
-			} else {
-				getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords);
-			}
-			getGradebookManager().addToCategoryResultMap(filteredCategoriesMap, categories, filteredGradesMap, studentIdItemIdFunctionMap);
 		}
-		
+		if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
+			getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords, studentIdItemIdFunctionMap);
+			if(includeCategories){
+				categories = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categories, getGradebook().getCategory_type());				
+			}
+		} else {
+			getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords);
+		}
+		getGradebookManager().addToCategoryResultMap(filteredCategoriesMap, categories, filteredGradesMap, studentIdItemIdFunctionMap);
+
+
 		Category selCategoryView = getSelectedCategory();
 		
         
