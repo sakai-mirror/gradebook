@@ -86,10 +86,10 @@
 			columnClasses="itemName"
 			styleClass="itemSummary gbSection"
 			rendered="#{rosterBean.userAbleToGradeAll}">
-			<h:outputText value="#{msgs.course_grade_name}" rendered="#{!instructorViewBean.gradeEntryByLetter}"/>
+			<h:outputText value="#{msgs.course_grade_name}"/>
 			<h:panelGroup>
-				<h:outputText id="letterGrade" value="#{instructorViewBean.courseGradeLetter} " rendered="#{!instructorViewBean.gradeEntryByLetter}" />
-				<h:outputText id="cumScore" value="#{instructorViewBean.courseGrade}" rendered="#{!instructorViewBean.gradeEntryByLetter}">
+				<h:outputText id="letterGrade" value="#{instructorViewBean.courseGradeLetter}"/>
+				<h:outputText id="cumScore" value="#{instructorViewBean.courseGrade}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
 			</h:panelGroup>	
