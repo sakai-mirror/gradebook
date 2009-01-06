@@ -102,6 +102,5 @@
 </div>
 
 <script type="text/javascript">
-	assignmentReleased('gbForm', false);
 	assignmentUngraded('gbForm');
 </script>

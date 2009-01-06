@@ -285,9 +285,11 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
 
 // if user unchecks box to release items, we must uncheck
 // and disable the option to include item in cumulative score
+// we will also add check the counted box if ungraded is false or undefined
 function assignmentReleased(myForm, releasedChanged) {
 	var releasedCheckboxEl =  getTheElement(myForm + ':released');
 	var countedCheckboxEl =   getTheElement(myForm + ':countAssignment');
+	var ungradedCheckboxEl =  getTheElement(myForm + ':ungraded');
 
 	if (undefined != releasedCheckboxEl)
 	{
@@ -301,6 +303,23 @@ function assignmentReleased(myForm, releasedChanged) {
 			if (undefined != countedCheckboxEl)
 			{
 				countedCheckboxEl.disabled = false;
+				if (undefined != ungradedCheckboxEl)
+				{
+					if (ungradedCheckboxEl == true)
+					{
+						// extra insurance its off when it should be
+						countedCheckboxEl.checked = false;
+					}
+					else
+					{
+						countedCheckboxEl.checked = true;
+					}
+				}
+				else
+				{
+					// if the ungraded checkbox does not exist
+					countedCheckboxEl.checked = true;
+				}	
 			}
 		}
 	}
