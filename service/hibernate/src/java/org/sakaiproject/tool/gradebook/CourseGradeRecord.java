@@ -41,6 +41,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
     private String calculatedPointsEarned;	// Not persisted
 
     public static Comparator<CourseGradeRecord> calcComparator;
+    public static Comparator<CourseGradeRecord> calcComparatorIgnoreEnteredGrade;
 
     static {
         calcComparator = new Comparator<CourseGradeRecord>() {
@@ -59,6 +60,24 @@ public class CourseGradeRecord extends AbstractGradeRecord {
                 //return cgr1.getPointsEarned().compareTo(cgr2.getPointsEarned());
                 //   Better to use getGradeAsPercentage
                 return cgr1.getGradeAsPercentage().compareTo(cgr2.getGradeAsPercentage());
+            }
+        };
+    }
+    
+    static {
+        calcComparatorIgnoreEnteredGrade = new Comparator<CourseGradeRecord>() {
+            public int compare(CourseGradeRecord cgr1, CourseGradeRecord cgr2) {
+                if((cgr1 == null || cgr2 == null) || (cgr1.getAutoCalculatedGrade() == null && cgr2.getAutoCalculatedGrade() == null)) {
+                    return 0;
+                }
+                if(cgr1 == null || cgr1.getAutoCalculatedGrade() == null) {
+                    return -1;
+                }
+                if(cgr2 == null || cgr2.getAutoCalculatedGrade() == null) {
+                    return 1;
+                }
+
+                return cgr1.getAutoCalculatedGrade().compareTo(cgr2.getAutoCalculatedGrade());
             }
         };
     }

@@ -170,7 +170,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 			Comparator comparator = null;
 			if (sortColumn.equals(CourseGrade.SORT_BY_CALCULATED_GRADE) ||
                 sortColumn.equals(CourseGrade.SORT_BY_POINTS_EARNED)) {
-                comparator = CourseGradeRecord.calcComparator;
+                comparator = CourseGradeRecord.calcComparatorIgnoreEnteredGrade;
             } else if (sortColumn.equals(CourseGrade.SORT_BY_OVERRIDE_GRADE)) {
             	comparator = CourseGradeRecord.getOverrideComparator(courseGrade.getGradebook().getSelectedGradeMapping());
             }
