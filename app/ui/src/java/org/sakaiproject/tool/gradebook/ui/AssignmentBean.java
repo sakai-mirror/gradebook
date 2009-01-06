@@ -341,7 +341,9 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 				if (origPointsPossible == null)
 					origPointsPossible = new Double(0); // prevents a null pointer from a gradebook switch from a letter to another type
 				if ((!origPointsPossible.equals(newPointsPossible)) && scoresEnteredForAssignment) {
-					if (getGradeEntryByPercent() || getGradeEntryByLetter())
+					if (getGradeEntryByPercent())
+						FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_percentage", new String[] {assignment.getName()}));
+					else if (getGradeEntryByLetter())
 						FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_converted", new String[] {assignment.getName()}));
 					else
 						FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_scored", new String[] {assignment.getName()}));
