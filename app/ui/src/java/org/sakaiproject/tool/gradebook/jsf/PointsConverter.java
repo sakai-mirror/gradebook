@@ -52,6 +52,14 @@ public class PointsConverter extends NumberConverter {
 			if (value instanceof Number) {
 				// Truncate to 2 decimal places.
 				value = new Double(FacesUtil.getRoundDown(((Number)value).doubleValue(), 2));
+			}else{
+				//since non-calc changes, value may have been passed as a string
+				try{
+					double dVal = Double.parseDouble(value.toString());
+					value = new Double(FacesUtil.getRoundDown(dVal, 2));
+				}catch (Exception e) {
+					//do nothing... value was not a double
+				}				
 			}
 			formattedScore = super.getAsString(context, component, value);
 		}
