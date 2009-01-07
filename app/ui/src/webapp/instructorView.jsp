@@ -235,9 +235,7 @@
 								</h:inputText>
 							</h:panelGroup>
 							
-							<h:outputText value="#{row.score}" rendered="#{row.associatedAssignment.externallyMaintained || !row.userCanGrade}">
-								<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
-							</h:outputText>
+							<h:outputText value="#{row.score}" rendered="#{row.associatedAssignment.externallyMaintained || !row.userCanGrade}"/>
 							
 							<h:outputText value="#{msgs.inst_view_not_counted_close}" rendered="#{(!row.associatedAssignment.counted && !instructorViewBean.gradeEntryByLetter) || (!instructorViewBean.gradeEntryByLetter && instructorViewBean.weightingEnabled && row.associatedAssignment.category == null)}" />
 						</h:panelGroup>
