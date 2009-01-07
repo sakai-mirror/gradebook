@@ -28,33 +28,52 @@ function gethandles(){
    });
    q1_width = $("#q1").width();
    $(q3_div).width(q1_width);
+   
+   // #q2 contains the "data" headers that contain the assignment titles
+   // the structure is #q1 div:div:ul:li.  #q4 is the table that contains the grade info
+   
+   // make sure all of the assignment name headers have a minimum width
+   $(q2_ul_li).each(function(c){
+	   if($(this).width() < 50) $(this).css("width", "45px"); 
+   });
+
+   // for each assignment name header, check to see which is wider:
+   // the associated data cell or the header. set both to the largest width
+   $(q2_ul_li).each(function(i){
+	   this_width = $(this).width() + paddingRight *2;
+	   q4_tr_td = $("#q4 tr:first td:eq(" + i + ")");
+	   match_width = $(q4_tr_td).width() + paddingRight *2;
+	   new_width = (match_width < this_width ? this_width : match_width);
+	   $(q4_tr_td).width(new_width);
+	   $(this).width(new_width);
+   });  
+
+   // now we need to set the width of the header section and the associated
+   // table containing the grade data
    total = 0; count = 0;
    $(q2_ul_li).each(function(c){
-   	  if($(this).width() < 50) $(this).css("width", "45px"); 
-      total += $(this).width() + paddingRight * 2; count=c+1;
+	   total += $(this).width() + paddingRight * 2; count=c+1;
    });
    total += count * 2;
    q4_table = $("#q4 table")
    if($(q4_table).width() > total){
-      $(q2_div_ul).width($(q4_table).width());
+	   $(q2_div_ul).width($(q4_table).width());
    }else{
-      $(q4_table).width(total);
+	   $(q4_table).width(total);
    }
-   $(q2_ul_li).each(function(i){
-      $("#q4 tr:first td:eq(" + i + ")").width($(this).width() - paddingRight * 2
-         + paddingRight * 2);
-   });   
+
    $("#q3 tr").each(function(i){
-   	  thisHeight = $(this).height();
-   	  thatHeight = $("#q4 tr:eq(" + i + ")").height();
-      if(thisHeight > thatHeight){
-         ie ? $("#q4 tr:eq(" + i + ")").height(thisHeight - 12) 
-            : $("#q4 tr:eq(" + i + ")").height(thisHeight);
-      } else {
-         ie ? $(this).css("height", thatHeight - 12 + "px") 
-            :$(this).css("height",thatHeight + "px");
-      }
+	   thisHeight = $(this).height();
+	   thatHeight = $("#q4 tr:eq(" + i + ")").height();
+	   if(thisHeight > thatHeight){
+		   ie ? $("#q4 tr:eq(" + i + ")").height(thisHeight - 12) 
+				   : $("#q4 tr:eq(" + i + ")").height(thisHeight);
+	   } else {
+		   ie ? $(this).css("height", thatHeight - 12 + "px") 
+				   :$(this).css("height",thatHeight + "px");
+	   }
    });
+   
    //check if we need scrollbars - SAK-9969
    q4_div = $("#q4 div");
    q3s = $("#q3");
