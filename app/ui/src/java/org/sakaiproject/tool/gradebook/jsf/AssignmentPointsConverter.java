@@ -22,11 +22,8 @@
 
 package org.sakaiproject.tool.gradebook.jsf;
 
-import java.io.Serializable;
-
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.convert.Converter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,7 +47,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  * display individual student grades.  See {@link CourseGradeConverter} {@link ClassAvgConverter} {@link PointsConverter}
  * for converting calculations
  */
-public class AssignmentPointsConverter implements Converter, Serializable{
+public class AssignmentPointsConverter extends PointsConverter{
 	private static final Log log = LogFactory.getLog(AssignmentPointsConverter.class);
 
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
@@ -123,7 +120,12 @@ public class AssignmentPointsConverter implements Converter, Serializable{
 		if(workingValue == null){
 			formattedScore = FacesUtil.getLocalizedString("score_null_placeholder");
 		}else{
-			formattedScore = workingValue.toString();
+			if(value != null && value instanceof CourseGradeRecord){
+				formattedScore = super.getAsString(context, component, workingValue);
+			}else{
+				formattedScore = workingValue.toString();
+			}
+			
 		}
 			
 		if (notCounted && letterGrade) {
