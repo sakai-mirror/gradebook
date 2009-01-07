@@ -129,7 +129,24 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
             public int compare(Object o1, Object o2) {
             	String string1 = ((AssignmentGradeRow)o1).getPointsEarned();
             	String string2 = ((AssignmentGradeRow)o2).getPointsEarned();
-            	
+            	try
+            	{
+	            	if (Double.valueOf(string1) != null && Double.valueOf(string2) != null)
+	            	{
+	            		int comp = doubleOrNothingComparator.compare(Double.valueOf(string1), Double.valueOf(string2));
+	            		if (comp == 0)
+	            		{
+							return nameComparator.compare(o1, o2);
+	            		}
+	            		else
+	            		{
+	            			return comp;
+	            		}
+					}
+            	}
+            	catch (Exception e) {
+            		// no error
+            	}
             	if(string1 == null && string2 == null) {
                     return 0;
                 } else if(string1 == null && string2 != null) {
