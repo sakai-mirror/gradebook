@@ -22,8 +22,11 @@
 
 package org.sakaiproject.tool.gradebook.jsf;
 
+import java.io.Serializable;
+
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.convert.Converter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,14 +44,19 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  * they should be displayed in a special way. If the points belong to an
  * assignment which doesn't count toward the final grade, they should be
  * displayed in a special way with a tooltip "title" attribute.
+ * 
+ * This converter does not convert numeric values since we want to display
+ * what the user has entered exactly.  This converter should only be used to
+ * display individual student grades.  See {@link CourseGradeConverter} {@link ClassAvgConverter} {@link PointsConverter}
+ * for converting calculations
  */
-public class AssignmentPointsConverter extends PointsConverter {
+public class AssignmentPointsConverter implements Converter, Serializable{
 	private static final Log log = LogFactory.getLog(AssignmentPointsConverter.class);
 
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
 		if (log.isDebugEnabled()) log.debug("getAsString(" + context + ", " + component + ", " + value + ")");
 
-		String formattedScore;
+		String formattedScore = null;
 		boolean notCounted = false;
 		boolean ungraded = false;
 		Object workingValue = value;
@@ -109,7 +117,15 @@ public class AssignmentPointsConverter extends PointsConverter {
 				workingValue = ((AbstractGradeRecord)value).getGradeAsPercentage();
 			}
 		}
-		formattedScore = super.getAsString(context, component, workingValue);	
+		
+		//we do not want to convert the assignment value since NON-CAL changes.
+		//but if value is null, display a "-" (null place holder)
+		if(workingValue == null){
+			formattedScore = FacesUtil.getLocalizedString("score_null_placeholder");
+		}else{
+			formattedScore = workingValue.toString();
+		}
+			
 		if (notCounted && letterGrade) {
 			formattedScore = FacesUtil.getLocalizedString("score_not_counted",
 					new String[] {formattedScore, FacesUtil.getLocalizedString("score_not_counted_tooltip")});
@@ -123,5 +139,12 @@ public class AssignmentPointsConverter extends PointsConverter {
 			formattedScore += "%";
 		}
 		return formattedScore;
+	}
+
+	public Object getAsObject(FacesContext arg0, UIComponent arg1, String arg2) {
+		if (arg2 == null) {
+			return null;
+		}
+		return arg2;
 	}
 }
