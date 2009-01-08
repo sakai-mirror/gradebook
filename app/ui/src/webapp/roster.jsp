@@ -59,11 +59,11 @@
 		                <h:outputText value="#{msgs.roster_student_name}"/>
 		            </t:commandSortHeader>
 		    </f:facet>
-				<h:commandLink action="instructorView">
+				<h:outputLink value="instructorView">
 					<h:outputText value="#{row.sortName}"/>
 					<f:param name="studentUid" value="#{row.studentUid}"/>
 					<f:param name="returnToPage" value="roster" />
-				</h:commandLink>
+				</h:outputLink>
 			</h:column>
 			<h:column id="studentIdData">
 				<f:facet name="header">
