@@ -57,6 +57,7 @@
 				<h:outputText id="titleLabel" value="#{msgs.assignment_details_title}"/>
 				<h:panelGroup>
 					<h:outputText id="title" value="#{assignmentDetailsBean.assignment.name}"/>
+					<h:outputText id="noncalctitlespace" value=" " rendered="#{assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter}"/>
 					<h:outputText id="noncalctitle" value="#{msgs.assignment_details_noncalc_title}" rendered="#{assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter}"/>
 				</h:panelGroup>
 
