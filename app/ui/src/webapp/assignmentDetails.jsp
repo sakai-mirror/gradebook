@@ -224,13 +224,13 @@
 						<h:inputText id="Score" value="#{scoreRow.score}" size="6" 
 							 maxlength="8"
 							 rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}"
-							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton1');">
 							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 						</h:inputText>
 						<h:inputText id="LetterScore" value="#{scoreRow.letterScore}" size="6" 
 							 maxlength="8"
 							 rendered="#{assignmentDetailsBean.gradeEntryByLetter}"
-							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton1');">
 							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE" />
 						</h:inputText>
 						</h:panelGroup>
