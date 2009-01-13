@@ -353,45 +353,45 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					gradeDef.setDateRecorded(null);
 					gradeDef.setGrade(null);
 					gradeDef.setGraderUid(null);
+					gradeDef.setGradeComment(null);
 					log.debug("Student " + getUserUid() + " in gradebook " + gradebookUid + " retrieving score for unreleased assignment " + assignment.getName());		
 				
 				} else {
 				
 					AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid, session);
 					CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, gbItemId, studentUid);
+					String commentText = gradeComment != null ? gradeComment.getCommentText() : null;
 					if (log.isDebugEnabled()) log.debug("gradeRecord=" + gradeRecord);
 					
 					if (gradeRecord == null) {
 						gradeDef.setDateRecorded(null);
 						gradeDef.setGrade(null);
 						gradeDef.setGraderUid(null);
+						gradeDef.setGradeComment(commentText);
 					} else {
 						gradeDef.setDateRecorded(gradeRecord.getDateRecorded());
 						gradeDef.setGraderUid(gradeRecord.getGraderId());
-
+						gradeDef.setGradeComment(commentText);
+						
 						//comment out for non-cal dev.
-//						if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
-//							List<AssignmentGradeRecord> gradeList = new ArrayList<AssignmentGradeRecord>();
-//							gradeList.add(gradeRecord);
-//							convertPointsToLetterGrade(gradebook, gradeList);
-//							AssignmentGradeRecord gradeRec = (AssignmentGradeRecord)gradeList.get(0);
-//							if (gradeRec != null) {
-//								gradeDef.setGrade(gradeRec.getLetterEarned());
-//							}
-//						} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
-//							Double percent = calculateEquivalentPercent(assignment.getPointsPossible(), gradeRecord.getPointsEarned());
-//							if (percent != null) {
-//								gradeDef.setGrade(percent.toString());
-//							}
-//						} else {
+						/*if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
+							List<AssignmentGradeRecord> gradeList = new ArrayList<AssignmentGradeRecord>();
+							gradeList.add(gradeRecord);
+							convertPointsToLetterGrade(gradebook, gradeList);
+							AssignmentGradeRecord gradeRec = (AssignmentGradeRecord)gradeList.get(0);
+							if (gradeRec != null) {
+								gradeDef.setGrade(gradeRec.getLetterEarned());
+							}
+						} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
+							Double percent = calculateEquivalentPercent(assignment.getPointsPossible(), gradeRecord.getPointsEarned());
+							if (percent != null) {
+								gradeDef.setGrade(percent.toString());
+							}
+						} else {*/
 							if (gradeRecord.getPointsEarned() != null) {
 								gradeDef.setGrade(gradeRecord.getPointsEarned().toString());
 							}
 //						}
-					}
-					
-					if (gradeComment != null) {
-						gradeDef.setGradeComment(gradeComment.getCommentText());
 					}
 				}
 				
