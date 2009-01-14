@@ -84,6 +84,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private String rowCount;
     private boolean hasUnknownUser;
     private boolean hasUnknownAssignments;
+    private boolean updatingAnyExternalAssignments;
     private Long spreadsheetId;
     private Map scores;
     private Assignment assignment;
@@ -877,6 +878,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     public String importDataAndSaveAll(){
     	boolean gbUpdated = false;
     	hasUnknownAssignments = false;
+    	updatingAnyExternalAssignments = false;
     	externallyMaintainedImportMsg = new StringBuilder();
     	   	
         if(logger.isDebugEnabled())logger.debug("importDataAll()");
@@ -894,7 +896,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         int index = 1;
         if (assignIter.hasNext()) assignIter.next();
         
-        boolean anyExternalAssignments = false;
+        
         
         while (assignIter.hasNext()) {
         	String assignmentName = (String) assignIter.next();
@@ -1022,8 +1024,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         		if((pointsPossibleAsString.equals(getLocalizedString("NON_CALCULATING_ITEM")) || getGradeEntryByLetter()) && 
         					!assignment.getUngraded()){
         			
-        			if (assignment.isExternallyMaintained()) {
-        				anyExternalAssignments = true;
+        			if (assignment.isExternallyMaintained()) {        				
         				externallyMaintainedImportMsg.append(getLocalizedString("import_assignment_externally_maintained_settings",
         						new String[] {assignment.getName(), assignment.getExternalAppName()}) + "<br />");
         			} else if (pointsPossibleAsString != null) {
@@ -1070,7 +1071,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                	FacesUtil.addRedirectSafeMessage(getLocalizedString(IMPORT_SOME_SUCCESS_STRING));
             }
         } 
-        else if (! hasUnknownAssignments && !anyExternalAssignments) {
+        else if (! hasUnknownAssignments && !updatingAnyExternalAssignments) {
         	FacesUtil.addRedirectSafeMessage(getLocalizedString(IMPORT_NO_CHANGES));
         }
        	
@@ -1330,9 +1331,11 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 			}
 		}
 		
-		if (updatingExternalGrade)
+		if (updatingExternalGrade){
+			updatingAnyExternalAssignments = true;
 			externallyMaintainedImportMsg.append(getLocalizedString("import_assignment_externally_maintained_grades",
 					new String[] {assignment.getName(), assignment.getExternalAppName()}) + "<br/>");
+		}
 		
 		return updatedGradeRecords;
     }
