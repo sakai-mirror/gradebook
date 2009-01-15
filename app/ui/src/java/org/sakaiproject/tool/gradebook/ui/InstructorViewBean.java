@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
@@ -242,9 +243,15 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 
 		if(updatedGradeRecords.size() > 0){
 			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
-			String messageKey = (excessiveScores.size() > 0) ?
-					"inst_view_scores_saved_excessive" :
-						"inst_view_scores_saved";
+			
+			String messageKey = null;
+			if (excessiveScores.size() > 0 && getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
+				messageKey = "inst_view_scores_saved_excessive_points"; 	                 
+			} else if (excessiveScores.size() > 0 && getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
+				messageKey = "inst_view_scores_saved_excessive_percentage";
+			} else {
+				messageKey = "inst_view_scores_saved";
+			}
 			
 			// Let the user know.
 			FacesUtil.addMessage(getLocalizedString(messageKey));
