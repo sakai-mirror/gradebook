@@ -943,10 +943,16 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         		
         		if (pointsPossibleAsString != null) {
         			Double pointsPossible = null;
-        			if(!pointsPossibleAsString.equals(getLocalizedString("NON_CALCULATING_ITEM"))){      				
+        			if(!pointsPossibleAsString.equals(getLocalizedString("NON_CALCULATING_ITEM"))){
+        				try{
         				pointsPossible = new Double(pointsPossibleAsString);
         				if (pointsPossible != null)
         					pointsPossible = new Double(FacesUtil.getRoundDown(pointsPossible.doubleValue(), 2));
+        				}catch(Exception e){
+        					//pointsPossible was not a number, set it to ungraded
+        					pointsPossible = null;
+        					ungraded = true;
+        				}
         			}else{
         				ungraded = true;
         			}
@@ -1041,8 +1047,16 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         				externallyMaintainedImportMsg.append(getLocalizedString("import_assignment_externally_maintained_settings",
         						new String[] {assignment.getName(), assignment.getExternalAppName()}) + "<br />");
         			} else if (pointsPossibleAsString != null) {
-        				assignment.setPointsPossible(new Double(pointsPossibleAsString));
-        				assignment.setUngraded(false);
+        				try{
+        					double pointsPossible = new Double(pointsPossibleAsString);
+        					assignment.setPointsPossible(pointsPossible);
+        					assignment.setUngraded(false);
+        				}catch(Exception e){
+        					//points possible was not a number, so count it as ungraded
+        					assignment.setPointsPossible(null);
+            				assignment.setUngraded(true);
+            				assignment.setCounted(false);            				
+        				}
         				getGradebookManager().updateAssignment(assignment);
         				gbUpdated = true;
         			}
