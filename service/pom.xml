@@ -8,6 +8,7 @@
     <version>3.0.0-milestone01</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
+  <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-gradebook-service</artifactId>
   <name>sakai-gradebook-service</name>
   <modules>
