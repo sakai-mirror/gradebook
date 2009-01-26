@@ -59,7 +59,7 @@
   <classpathentry kind="var" path="M2_REPO/relaxngDatatype/relaxngDatatype/20020414/relaxngDatatype-20020414.jar"/>
   <classpathentry kind="var" path="M2_REPO/uk/org/ponder/rsfutil/RSFComponents-evolvers/0.7.3/RSFComponents-evolvers-0.7.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/uk/org/ponder/rsfutil/rsfutil/0.7.3/rsfutil-0.7.3.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-component-manager/1.0RC2-SNAPSHOT/sakai-component-manager-1.0RC2-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-component-manager/1.0/sakai-component-manager-1.0.jar"/>
   <classpathentry kind="src" path="/sakai-gradebook-app-business"/>
   <classpathentry kind="src" path="/sakai-gradebook-service-api"/>
   <classpathentry kind="src" path="/sakai-gradebook-service-hibernate"/>
@@ -69,9 +69,9 @@
   <classpathentry kind="src" path="/sakai-jsf-tool"/>
   <classpathentry kind="src" path="/sakai-jsf-widgets"/>
   <classpathentry kind="src" path="/sakai-jsf-widgets-myfaces"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-api/1.0RC2-SNAPSHOT/sakai-kernel-api-1.0RC2-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-api/1.0/sakai-kernel-api-1.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-impl/1.0RC2-SNAPSHOT/sakai-kernel-impl-1.0RC2-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.0RC2-SNAPSHOT/sakai-kernel-util-1.0RC2-SNAPSHOT.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.0/sakai-kernel-util-1.0.jar"/>
   <classpathentry kind="src" path="/sakai-sections-api"/>
   <classpathentry kind="src" path="/sakai-sections-impl-standalone"/>
   <classpathentry kind="src" path="/sakai-sections-integrationsupport"/>
