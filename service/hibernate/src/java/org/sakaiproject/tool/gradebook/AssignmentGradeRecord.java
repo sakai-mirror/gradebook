@@ -53,7 +53,7 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
         super();
         this.gradableObject = assignment;
         this.studentId = studentId;
-        this.pointsEarned = grade;
+        this.pointsEarned = grade == null ? null : grade.trim();
 	}
 	
 	public static Comparator<AssignmentGradeRecord> calcComparator;
@@ -98,7 +98,7 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
 	 * @param pointsEarned The pointsEarned to set.
 	 */
 	public void setPointsEarned(String pointsEarned) {
-		this.pointsEarned = pointsEarned;
+		this.pointsEarned = pointsEarned == null ? null : pointsEarned.trim();
 	}
 
     /**
