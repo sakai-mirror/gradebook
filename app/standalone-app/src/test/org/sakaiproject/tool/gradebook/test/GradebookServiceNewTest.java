@@ -348,7 +348,7 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		Assert.assertEquals(GradebookService.GRADE_TYPE_LETTER, gradeDef.getGradeEntryType());
 		Assert.assertEquals(STUDENT_IN_SECTION_UID1, gradeDef.getStudentUid());
 		Assert.assertTrue(gradeDef.isGradeReleased());
-		Assert.assertEquals("B+", gradeDef.getGrade());
+		Assert.assertEquals("35", gradeDef.getGrade());
         Assert.assertEquals(graderComment, gradeDef.getGradeComment());
 		Assert.assertEquals(INSTRUCTOR_UID, gradeDef.getGraderUid());
 		Assert.assertNotNull(gradeDef.getDateRecorded());
