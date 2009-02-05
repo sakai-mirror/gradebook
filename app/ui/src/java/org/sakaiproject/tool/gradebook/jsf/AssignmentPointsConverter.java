@@ -109,9 +109,15 @@ public class AssignmentPointsConverter extends PointsConverter{
 				}
 
 			} else if (value instanceof CourseGradeRecord) {
-				// display percentage
-				percentage = true;
-				workingValue = ((AbstractGradeRecord)value).getGradeAsPercentage();
+				Gradebook gradebook = ((GradableObject)((AbstractGradeRecord)value).getGradableObject()).getGradebook();
+				int gradeType = gradebook.getGrade_type();
+				if (gradeType == GradebookService.GRADE_TYPE_LETTER) {					
+					workingValue = ((CourseGradeRecord) value).getDisplayGrade();
+				}else{
+					// display percentage
+					percentage = true;
+					workingValue = ((AbstractGradeRecord)value).getGradeAsPercentage();
+				}
 			}
 		}
 		

@@ -973,9 +973,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         				if (gradeRecord.isCourseGradeRecord()) { 
         					if (includeCourseGrade) {
         						//SAK-15144 show percentages even when it is a points gb 
-        						if (getGradeEntryByPercent() || getGradeEntryByLetter() || getGradeEntryByPoints()) {
+        						if (getGradeEntryByPercent() || getGradeEntryByPoints()) {
         							score = gradeRecord.getGradeAsPercentage();
-        						} else {
+        						} else if(getGradeEntryByLetter()){
+        							score = ((CourseGradeRecord) gradeRecord).getDisplayGrade();
+        						} else {        						
         							score = gradeRecord.getPointsEarned();
         						}
         					}
