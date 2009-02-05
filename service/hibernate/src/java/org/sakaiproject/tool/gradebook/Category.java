@@ -202,7 +202,8 @@ public class Category implements Serializable
 		int gbGradeType = getGradebook().getGrade_type();
 		if(gbGradeType == GradebookService.GRADE_TYPE_LETTER)
 		{
-			log.error("Calling calculateStatistics in Category for letter grade type gradebook.");
+			if(log.isDebugEnabled())
+				log.debug("Calling calculateStatistics in Category for letter grade type gradebook.");
     	averageScore = null;
     	averageTotalPoints = null;
     	mean = null;
@@ -265,7 +266,8 @@ public class Category implements Serializable
 		int gbGradeType = getGradebook().getGrade_type();
 		if(gbGradeType == GradebookService.GRADE_TYPE_LETTER)
 		{
-			log.error("Calling calculateStatisticsPerStudent in Category for letter grade type gradebook.");
+			if(log.isDebugEnabled())
+				log.debug("Calling calculateStatisticsPerStudent in Category for letter grade type gradebook.");
     	averageScore = null;
     	averageTotalPoints = null;
     	mean = null;
