@@ -75,12 +75,12 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				// Ensure that the externalId is unique within this gradebook
-				Integer externalIdConflicts = (Integer)session.createQuery(
+				Long externalIdConflicts = (Long)session.createQuery(
 					"select count(asn) from Assignment as asn where asn.externalId=? and asn.gradebook.uid=?").
 					setString(0, externalId).
 					setString(1, gradebookUid).
 					uniqueResult();
-				if (externalIdConflicts.intValue() > 0) {
+				if (externalIdConflicts.longValue() > 0) {
 					throw new ConflictingExternalIdException("An external assessment with that ID already exists in gradebook uid=" + gradebookUid);
 				}
 
