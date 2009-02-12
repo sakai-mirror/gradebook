@@ -89,6 +89,7 @@
 			<h:outputText value="#{msgs.course_grade_name}"/>
 			<h:panelGroup>
 				<h:outputText id="letterGrade" value="#{instructorViewBean.courseGradeLetter}"/>
+				<h:outputText value=" " />
 				<h:outputText id="cumScore" value="#{instructorViewBean.courseGrade}" rendered="#{!instructorViewBean.gradeEntryByLetter}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
