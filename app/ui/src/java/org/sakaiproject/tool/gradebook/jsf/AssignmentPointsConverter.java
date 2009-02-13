@@ -135,8 +135,15 @@ public class AssignmentPointsConverter extends PointsConverter{
 		}
 			
 		if (notCounted && letterGrade) {
-			formattedScore = FacesUtil.getLocalizedString("score_not_counted",
+			Gradebook gradebook = ((GradableObject)((AbstractGradeRecord)value).getGradableObject()).getGradebook();
+			int gradeCategory = gradebook.getCategory_type();
+			if (gradeCategory == GradebookService.CATEGORY_TYPE_NO_CATEGORY) {
+				formattedScore = FacesUtil.getLocalizedString("score_not_counted_without_paren",
 					new String[] {formattedScore, FacesUtil.getLocalizedString("score_not_counted_tooltip")});
+			} else {	
+				formattedScore = FacesUtil.getLocalizedString("score_not_counted",
+					new String[] {formattedScore, FacesUtil.getLocalizedString("score_not_counted_tooltip")});
+			}
 		} else {
 			if (notCounted) {
 				formattedScore = FacesUtil.getLocalizedString("score_not_counted_with_paren",
