@@ -221,7 +221,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		session.evict(assignment);
 
 		Assignment asnFromDb = (Assignment)session.load(Assignment.class, assignment.getId());
-		long numNameConflicts = ((Long)session.createQuery(
+		long numNameConflicts = ((Number)session.createQuery(
 				"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false and go.id != ?").
 				setString(0, assignment.getName()).
 				setEntity(1, assignment.getGradebook()).
@@ -247,7 +247,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-                long numNameConflicts = ((Long)session.createQuery(
+                long numNameConflicts = ((Number)session.createQuery(
                         "select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
                         setString(0, name).
                         setEntity(1, gb).
@@ -324,13 +324,13 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-                Long total;
+                Number total;
                 if (studentUids.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
                     Query q = session.createQuery(
                             "select count(cgr) from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=:gradebookId and cgr.studentId in (:studentUids)");
                     q.setLong("gradebookId", gradebookId.longValue());
                     q.setParameterList("studentUids", studentUids);
-                    total = (Long)q.list().get(0);
+                    total = (Number)q.list().get(0);
                     if (log.isInfoEnabled()) log.info("total number of explicitly entered course grade records = " + total);
                 } else {
                     total = new Long(0);
@@ -348,7 +348,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                 return total;
             }
         };
-        return ((Long)getHibernateTemplate().execute(hc)).longValue() > 0;
+        return ((Number)getHibernateTemplate().execute(hc)).longValue() > 0;
     }
 
 	public Authn getAuthn() {
@@ -386,7 +386,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-    			long numNameConflicts = ((Long)session.createQuery(
+    			long numNameConflicts = ((Number)session.createQuery(
     					"select count(ca) from Category as ca where ca.name = ? and ca.gradebook = ? and ca.removed=false ").
     					setString(0, name).
     					setEntity(1, gb).
@@ -520,7 +520,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     		public Object doInHibernate(Session session) throws HibernateException {
     			session.evict(category);
     			Category persistentCat = (Category)session.load(Category.class, category.getId());
-    			long numNameConflicts = ((Long)session.createQuery(
+    			long numNameConflicts = ((Number)session.createQuery(
     			"select count(ca) from Category as ca where ca.name = ? and ca.gradebook = ? and ca.id != ? and ca.removed=false").
     			setString(0, category.getName()).
     			setEntity(1, category.getGradebook()).
@@ -848,7 +848,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-    			long numNameConflicts = ((Long)session.createQuery(
+    			long numNameConflicts = ((Number)session.createQuery(
     			"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
     			setString(0, name).
     			setEntity(1, gb).
@@ -891,7 +891,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
     			Category cat = (Category)session.load(Category.class, categoryId);
-    			long numNameConflicts = ((Long)session.createQuery(
+    			long numNameConflicts = ((Number)session.createQuery(
     			"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
     			setString(0, name).
     			setEntity(1, gb).

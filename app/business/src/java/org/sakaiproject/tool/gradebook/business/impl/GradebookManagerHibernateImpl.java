@@ -968,7 +968,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     public boolean isEnteredAssignmentScores(final Long assignmentId) {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-                Long total = (Long)session.createQuery(
+                Number total = (Number)session.createQuery(
                         "select count(agr) from AssignmentGradeRecord as agr where agr.gradableObject.id=? and agr.pointsEarned is not null").
                         setLong(0, assignmentId.longValue()).
                         uniqueResult();
@@ -976,7 +976,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 return total;
             }
         };
-        return ((Long)getHibernateTemplate().execute(hc)).longValue() > 0;
+        return ((Number)getHibernateTemplate().execute(hc)).longValue() > 0;
     }
 
     /**
@@ -1928,7 +1928,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                     session.evict(spreadsheet);
 
                     Spreadsheet sptFromDb = (Spreadsheet)session.load(Spreadsheet.class, spreadsheet.getId());
-                    long numNameConflicts = ((Long)session.createQuery(
+                    long numNameConflicts = ((Number)session.createQuery(
                             "select count(spt) from Spreadsheet as spt where spt.name = ? and spt.gradebook = ? and spt.id != ?").
                             setString(0, spreadsheet.getName()).
                             setEntity(1, spreadsheet.getGradebook()).
@@ -1958,7 +1958,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-                long numNameConflicts = ((Long)session.createQuery(
+                long numNameConflicts = ((Number)session.createQuery(
                         "select count(spt) from Spreadsheet as spt where spt.name = ? and spt.gradebook = ? ").
                         setString(0, name).
                         setEntity(1, gb).
@@ -2736,7 +2736,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-    			long numNameConflicts = ((Long)session.createQuery(
+    			long numNameConflicts = ((Number)session.createQuery(
     					"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
     					setString(0, name).
     					setEntity(1, gb).
@@ -2787,7 +2787,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
     			Category cat = (Category)session.load(Category.class, categoryId);
-    			long numNameConflicts = ((Long)session.createQuery(
+    			long numNameConflicts = ((Number)session.createQuery(
     			"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
     			setString(0, name).
     			setEntity(1, gb).
