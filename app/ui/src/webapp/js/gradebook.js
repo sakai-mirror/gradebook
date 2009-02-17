@@ -335,6 +335,8 @@ function assignmentUngraded(myForm) {
 	var pointsInputEl =  getTheElement(myForm + ':points');
 	var pointsLabelEl =  getTheElement(myForm + ':pointsLabel');
 	var categoryInstructionTextEl = getTheElement(myForm + ':nonCalCategoryInstructionText');
+	var pointsLabelAst =  getTheElement(myForm + ':pointsLabelAsterisk');
+	var pointsLabelEditAst = getTheElement(myForm + ':pointsLabelEditAsterisk');
 
 	if (undefined != ungradedCheckboxEl)
 	{
@@ -353,6 +355,14 @@ function assignmentUngraded(myForm) {
 			{
 				pointsInputEl.value = "";
 				pointsInputEl.style.display="none";
+			}
+			if (undefined != pointsLabelAst)
+			{
+				pointsLabelAst.style.display="none";
+			}
+			if (undefined != pointsLabelEditAst)
+			{
+				pointsLabelEditAst.style.display="none";
 			}
 			if (undefined != pointsLabelEl)
 			{
@@ -381,6 +391,14 @@ function assignmentUngraded(myForm) {
 			if (undefined != pointsInputEl)
 			{
 				pointsInputEl.style.display="inline";
+			}
+			if (undefined != pointsLabelAst)
+			{
+				pointsLabelAst.style.display="inline";
+			}
+			if (undefined != pointsLabelEditAst)
+			{
+				pointsLabelEditAst.style.display="inline";
 			}
 			if (undefined != pointsLabelEl)
 			{
