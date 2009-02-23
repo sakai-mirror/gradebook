@@ -139,7 +139,7 @@ public final class Grade
 					}
 					
 					// make sure there are at most 2 decimal places
-					BigDecimal bd = new BigDecimal(gradeValue);
+					BigDecimal bd = new BigDecimal(grade);
 					bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
 					double roundedVal = bd.doubleValue();
 					double diff = gradeValue - roundedVal;
