@@ -189,14 +189,6 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
         if (!isMappingValid(localGradebook.getSelectedGradeMapping())) {
             return null;
         }
-        if(!isConflictWithLetterGrade(localGradebook.getSelectedGradeMapping()))
-        {
-        	isValidWithLetterGrade = false;
-        	return null;
-        }
-        else
-        	isValidWithLetterGrade = true;
-
 		try {
 			getGradebookManager().updateGradebook(localGradebook);
             FacesUtil.addRedirectSafeMessage(getLocalizedString("feedback_options_submit_success"));

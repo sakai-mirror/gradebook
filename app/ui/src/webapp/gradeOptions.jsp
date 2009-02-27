@@ -62,7 +62,8 @@
    		  <h:outputText value=" " rendered="#{!feedbackOptionsBean.isExistingConflictScale}"/>
 		  <h:outputText value="#{msgs.feedback_options_existing_conflict3}" rendered="#{!feedbackOptionsBean.isExistingConflictScale}"/>
 		</h:panelGroup>
---%>		
+--%>	
+<%-- /*this error message doesn't need to show up for non-calc gradebook
 		<h:panelGroup rendered="#{!feedbackOptionsBean.isValidWithLetterGrade}" styleClass="validation">
 		  <h:outputText value="#{msgs.feedback_options_cannot_change_percentage1}" rendered="#{!feedbackOptionsBean.isValidWithLetterGrade}"/>
 		  <h:outputLink value="http://kb.iu.edu/data/aitz.html" rendered="#{!feedbackOptionsBean.isValidWithLetterGrade}" target="support_window2">
@@ -71,7 +72,7 @@
   		  <h:outputText value=" " rendered="#{!feedbackOptionsBean.isValidWithLetterGrade}"/>
 		  <h:outputText value="#{msgs.feedback_options_cannot_change_percentage3}" rendered="#{!feedbackOptionsBean.isValidWithLetterGrade}"/>
 		</h:panelGroup>	
-
+--%>
 <!-- RESET TO DEFAULTS LINK -->
 		<p>
 		<h:commandLink actionListener="#{feedbackOptionsBean.resetMappingValues}" rendered="#{feedbackOptionsBean.localGradebook.grade_type!=3}">
