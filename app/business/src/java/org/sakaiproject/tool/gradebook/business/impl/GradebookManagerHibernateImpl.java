@@ -145,16 +145,25 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     			Long gradebookId = courseGrade.getGradebook().getId();
     			Gradebook gradebook = getGradebook(gradebookId);
     			List cates = getCategories(gradebookId);
+    			
+    			// get all of the AssignmentGradeRecords here to avoid repeated db calls
+    			Map<String, List<AssignmentGradeRecord>> gradeRecMap = getGradeRecordMapForStudents(session, gradebookId, studentUids);
+    			
+    			// get all of the counted assignments
+    			List<Assignment> countedAssigns = getCountedAssignments(session, gradebookId);
+    			
     			//double totalPointsPossible = getTotalPointsInternal(gradebookId, session);
     			//if(log.isDebugEnabled()) log.debug("Total points = " + totalPointsPossible);
 
     			for(Iterator iter = records.iterator(); iter.hasNext();) {
     				CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
     				//double totalPointsEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session);
-    				List totalEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session, gradebook, cates);
+    				List<AssignmentGradeRecord> studentGradeRecs = gradeRecMap.get(cgr.getStudentId());
+    				
+    				List totalEarned = getTotalPointsEarnedInternal(cgr.getStudentId(), gradebook, cates, studentGradeRecs, countedAssigns);
     				double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
     				double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
-    				double totalPointsPossible = getTotalPointsInternal(gradebookId, session, gradebook, cates, cgr.getStudentId());
+    				double totalPointsPossible = getTotalPointsInternal(gradebook, cates, cgr.getStudentId(), studentGradeRecs, countedAssigns);
     				cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned);
     				if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
     			}
@@ -1155,7 +1164,19 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
        	return totalPointsEarned;
     }
 
-    abstract List getTotalPointsEarnedInternal(final Long gradebookId, final String studentId, final Session session, final Gradebook gradebook, final List categories);
+    /**
+     *
+     * @param studentId
+     * @param gradebook
+     * @param categories
+     * @param gradeRecsthe AssignmentGradeRecords for the given student
+     * @param countedAssigns - the Assignments in this gradebook that are counted toward the course grade.
+     * use {@link #getCountedAssignments(Session, Long)} to retrieve this list
+     * @return the total points earned that count toward the course grade.
+     * a List is returned with two elements:
+     * [1] is (Double) totalPointsEarned
+     */
+    abstract List getTotalPointsEarnedInternal(final String studentId, final Gradebook gradebook, final List categories, final List<AssignmentGradeRecord> gradeRecs, List<Assignment> countedAssigns);
 //    private List getTotalPointsEarnedInternal(final Long gradebookId, final String studentId, final Session session, final Gradebook gradebook, final List categories) 
 //    {
 //    	double totalPointsEarned = 0;
@@ -1284,8 +1305,19 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 	List cates = getCategories(gradebook.getId());
                 	//double totalPointsPossible = getTotalPointsInternal(gradebook.getId(), session);
                 	//double totalPointsEarned = getTotalPointsEarnedInternal(gradebook.getId(), studentId, session);
-                	double totalPointsPossible = getTotalPointsInternal(gradebook.getId(), session, gradebook, cates, studentId);
-                	List totalEarned = getTotalPointsEarnedInternal(gradebook.getId(), studentId, session, gradebook, cates);
+                    
+                	// get the grade recs for this student
+                    List<String> studentUids = new ArrayList<String>();
+                    studentUids.add(studentId);
+                    Map<String, List<AssignmentGradeRecord>> gradeRecMap = getGradeRecordMapForStudents(session, gradebook.getId(), studentUids);
+                    List<AssignmentGradeRecord> gradeRecs = gradeRecMap.get(studentId);
+                    
+                    // get the counted assignments for this gradebook
+                    List<Assignment> countedAssigns = getCountedAssignments(session, gradebook.getId());
+                    
+                	double totalPointsPossible = getTotalPointsInternal(gradebook, cates, studentId, gradeRecs, countedAssigns);
+                	
+                	List totalEarned = getTotalPointsEarnedInternal(studentId, gradebook, cates, gradeRecs, countedAssigns);
                 	double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
                 	double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
                 	courseGradeRecord.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned);
@@ -1596,7 +1628,18 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
         return totalPointsPossible;
     }
     
-    abstract double getTotalPointsInternal(final Long gradebookId, Session session, final Gradebook gradebook, final List categories, final String studentId);
+    /**
+     *
+     * @param gradebook
+     * @param categories
+     * @param studentId
+     * @param studentGradeRecs - the AssignmentGradeRecords for the given student
+     * @param countedAssigns - the Assignments in this gradebook that are counted toward the course grade. use {@link #getCountedAssignments(Session, Long)}
+     * @return the total points possible for the given student. if the grade rec is
+     * null or doesn't exist for a counted assignment, then that assignment does not count toward the course grade
+     * for this particular student.
+     */
+    abstract double getTotalPointsInternal(final Gradebook gradebook, final List categories, final String studentId, List<AssignmentGradeRecord> studentGradeRecs, List<Assignment> countedAssigns);
 //    private double getTotalPointsInternal(final Long gradebookId, Session session, final Gradebook gradebook, final List categories, final String studentId)
 //    {
 //    	double totalPointsPossible = 0;
@@ -2742,4 +2785,81 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 		};
 		getHibernateTemplate().execute(hc);
 	}
+	
+	/**
+	 * 
+	 * @param session
+	 * @param gradebookId
+	 * @param studentUids
+	 * @return a map of studentUid to a list of that student's AssignmentGradeRecords for the given studentUids list
+	 * in the given gradebook.  the grade records are all recs for assignments that are not removed and
+	 * have a points possible > 0
+	 */
+	protected Map<String,List<AssignmentGradeRecord>> getGradeRecordMapForStudents(Session session, Long gradebookId, Collection<String> studentUids) {
+	    Map<String,List<AssignmentGradeRecord>> filteredGradeRecs = new HashMap<String,List<AssignmentGradeRecord>>();
+	    if (studentUids != null) {
+	        List<AssignmentGradeRecord> allGradeRecs = new ArrayList<AssignmentGradeRecord>();
+
+	        if (studentUids.size() >= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+	            allGradeRecs = session.createQuery(
+	                    "from AssignmentGradeRecord agr where agr.gradableObject.gradebook.id=:gbid " +
+	                    "and agr.gradableObject.removed=false and agr.gradableObject.pointsPossible > 0").
+	                    setParameter("gbid", gradebookId).
+	                    list();
+	        } else {
+	            String query = "from AssignmentGradeRecord agr where agr.gradableObject.gradebook.id=:gbid and " +
+	            "agr.gradableObject.removed=false and agr.gradableObject.pointsPossible > 0 and " +
+	            "agr.studentId in (:studentUids)";
+	            
+	            allGradeRecs = session.createQuery(
+	                    query).
+	                    setParameter("gbid", gradebookId).
+	                    setParameterList("studentUids", studentUids).
+	                    list();
+	        }
+
+	        if (allGradeRecs != null) {
+	            for (AssignmentGradeRecord gradeRec : allGradeRecs) {
+	                if (studentUids.contains(gradeRec.getStudentId())) {
+	                    String studentId = gradeRec.getStudentId();
+	                    List<AssignmentGradeRecord> gradeRecList = filteredGradeRecs.get(studentId);
+	                    if (gradeRecList == null) {
+	                        gradeRecList = new ArrayList<AssignmentGradeRecord>();
+	                        gradeRecList.add(gradeRec);
+	                        filteredGradeRecs.put(studentId, gradeRecList);
+	                    } else {
+	                        gradeRecList.add(gradeRec);
+	                        filteredGradeRecs.put(studentId, gradeRecList);
+	                    }
+	                }
+	            }
+	        }
+	    }
+
+	    return filteredGradeRecs;
+	}
+	
+	/**
+	 * 
+	 * @param session
+	 * @param gradebookId
+	 * @return a list of Assignments that have not been removed, are "counted", graded,
+	 * and have a points possible > 0
+	 */
+	protected List<Assignment> getCountedAssignments(Session session, Long gradebookId) {
+	    List<Assignment> assignList = new ArrayList<Assignment>();
+	    
+	    List results = session.createQuery(
+        "from Assignment as asn where asn.gradebook.id=:gbid and asn.removed=false and " +
+        "asn.notCounted=false and asn.ungraded=false and asn.pointsPossible > 0").
+        setParameter("gbid", gradebookId).
+        list();
+	    
+	    if (results != null) {
+	        assignList = results;
+	    }
+	    
+	    return assignList;
+	}
 }
+
