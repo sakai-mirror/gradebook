@@ -25,7 +25,7 @@
 		
 		<property name="removed" column="REMOVED" type="boolean" />
 		
-		<property name="extraCredit" column="IS_EXTRA_CREDIT" type="boolean" not-null="false" />
+		<property name="isExtraCredit" column="IS_EXTRA_CREDIT" type="boolean" not-null="false" />
   </class>
   
  	<database-object>

@@ -26,7 +26,7 @@
 				id="categoriesTable"
 				value="#{gradebookSetupBean.categories}"
 				var="category"
-	      columnClasses="bogus,bogus,specialLink"
+	      columnClasses="bogus,bogus,bogus,specialLink"
 	      		rowClasses="#{gradebookSetupBean.rowClasses}"
 				styleClass="listHier narrowTable"
 				rowIndexVar="rowIndex">
@@ -54,6 +54,12 @@
 						<h:outputText value="#{msgs.cat_list_num_items}" />
 					</f:facet>
 					<h:outputText value="#{category.assignmentCount} #{msgs.cat_items}" />
+				</h:column>
+				<h:column rendered="#{gradebookSetupBean.displayWeighting}">
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_list_adjustment}" />
+					</f:facet>
+					<h:selectBooleanCheckbox id="adjustment" value="#{category.isExtraCredit}" onchange="javascript:updateRunningTotal(this.form);"/>
 				</h:column>
 				<h:column>
 					<f:facet name="header">

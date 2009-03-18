@@ -437,7 +437,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
        eventTrackingService.postEvent(message,objectReference);
     }
 
-    public Long createCategory(final Long gradebookId, final String name, final Double weight, final int drop_lowest) 
+    public Long createCategory(final Long gradebookId, final String name, final Double weight, final int drop_lowest, final Boolean is_extra_credit) 
     throws ConflictingCategoryNameException, StaleObjectModificationException {
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
@@ -461,6 +461,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			ca.setWeight(weight);
     			ca.setDrop_lowest(drop_lowest);
     			ca.setRemoved(false);
+    			ca.setIsExtraCredit(is_extra_credit);
 
     			Long id = (Long)session.save(ca);
 

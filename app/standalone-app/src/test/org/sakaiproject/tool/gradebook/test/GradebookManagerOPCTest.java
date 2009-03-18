@@ -48,8 +48,8 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		String className = this.getClass().getName();
 		gradebookFrameworkService.addGradebook(className, className);
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
-		cate1Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 1", new Double(0.40), 0);
-		cate2Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 2", new Double(0.60), 0);
+		cate1Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 1", new Double(0.40), 0, null);
+		cate2Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 2", new Double(0.60), 0, null);
 
 		List list = (List) gradebookManager.getCategories(persistentGradebook.getId());
 
@@ -234,7 +234,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
-		gradebookManager.createCategory(persistentGradebook.getId(), "cate 3", new Double(0), 0);
+		gradebookManager.createCategory(persistentGradebook.getId(), "cate 3", new Double(0), 0, null);
 		List list = (List) gradebookManager.getCategories(persistentGradebook.getId());
 		for(int i=0; i<list.size(); i++)
 		{

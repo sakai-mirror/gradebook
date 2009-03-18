@@ -119,7 +119,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			letterGradeRows.add(new LetterGradeRow(lgpm, grade, editable));
 		}
 	}
-
+	
 	private void reset()
 	{
 		localGradebook = null;
@@ -346,7 +346,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 			// we need to make sure all of the weights add up to 100
 			calculateRunningTotal();
-			if (runningTotal != 100)
+			if (neededTotal != 0)
 			{
 				FacesUtil.addErrorMessage(getLocalizedString("cat_weight_total_not_100"));
 				return "failure";
@@ -383,13 +383,18 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 							uiCategory.getWeight() == null) {
 						uiCategory.setWeight(new Double(0));
 					}
+					
+					if (localGradebook.getCategory_type() != GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY || uiCategory.getIsExtraCredit() == null)
+					{
+						uiCategory.setIsExtraCredit(null);
+					}
 
 					if (categoryId == null) {
 						// must be a new or blank category
 						if (uiCategory.getWeight() != null && uiCategory.getWeight().doubleValue() > 0) {
-							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), new Double(uiCategory.getWeight().doubleValue()/100), 0);
+							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), new Double(uiCategory.getWeight().doubleValue()/100), 0, uiCategory.getIsExtraCredit());
 						} else {
-							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), uiCategory.getWeight(), 0);
+							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), uiCategory.getWeight(), 0, uiCategory.getIsExtraCredit());
 						}
 					}
 					else {
@@ -400,6 +405,10 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 							updatedCategory.setWeight(new Double (uiCategory.getWeight().doubleValue()/100));
 						} else {
 							updatedCategory.setWeight(uiCategory.getWeight());
+						}
+						if (uiCategory.getIsExtraCredit()!=null)
+						{
+							updatedCategory.setIsExtraCredit(uiCategory.getIsExtraCredit());
 						}
 						
 						getGradebookManager().updateCategory(updatedCategory);
@@ -544,6 +553,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				assignmentCount = cat.getAssignmentList().size();
 			}
 			cat.setAssignmentCount(assignmentCount);
+//			initializeAdjustments();
 			if (cat.getName() == null || cat.getName().trim().length() == 0)
 			{
 				if (cat.getId() != null) 
@@ -678,6 +688,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private void calculateRunningTotal()
 	{
 		double total = 0;
+		double extraCredit = 0;
 
 		if (categories != null && categories.size() > 0)
 		{
@@ -689,15 +700,32 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 					continue;
 				}
 				Category cat = (Category) obj;
-				if (cat.getWeight() != null)
+				Boolean iec = cat.getIsExtraCredit();
+				if (iec!=null)
 				{
-					double weight = cat.getWeight().doubleValue();
-					total += weight;
+					if (cat.getWeight() != null && !cat.getIsExtraCredit())
+					{
+						double weight = cat.getWeight().doubleValue();
+						total += weight;
+					}
+					else if (cat.getWeight() != null && cat.getIsExtraCredit())
+					{
+						double weight = cat.getWeight().doubleValue();
+						extraCredit += weight;
+					}
+				}
+				else
+				{
+					if (cat.getWeight() != null)
+					{
+						double weight = cat.getWeight().doubleValue();
+						total += weight;
+					}
 				}
 			}
 		}
 
-		runningTotal = total;
+		runningTotal = total + extraCredit; // this will probably change later, but make it function to spec for now
 		neededTotal = 100 - total;
 	}
 	

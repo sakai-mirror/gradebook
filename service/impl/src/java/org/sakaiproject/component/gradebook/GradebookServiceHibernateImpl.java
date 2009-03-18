@@ -570,7 +570,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					if (assignmentDef.getCategoryName() != null) {
 						if(!newCategory) {}
 						else if(newCategory && categoryCount == 1) {
-							catId = createCategory(gradebook.getId(), assignmentDef.getCategoryName(), assignmentDef.getWeight(), 0);
+							catId = createCategory(gradebook.getId(), assignmentDef.getCategoryName(), assignmentDef.getWeight(), 0, null);
 							Category catTempt = getCategory(catId);
 							
 							catList_tempt.add(catTempt);
@@ -617,7 +617,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			Iterator itUpdate = catList.iterator();
 			while(itUpdate.hasNext()){
 				Category catObj = (Category)itUpdate.next();
-				createCategory(gradebook.getId(), catObj.getName(), catObj.getWeight(), 0);				
+				createCategory(gradebook.getId(), catObj.getName(), catObj.getWeight(), 0, catObj.getIsExtraCredit());				
 			}
 		}
 		//deal with no categories

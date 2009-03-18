@@ -67,7 +67,7 @@ public class Assignment extends GradableObject {
     private Category category;
     private Double averageTotal;
     private boolean ungraded;
-    private Boolean extraCredit;
+    private Boolean isExtraCredit;
 	private Double assignmentWeighting;
 
 
@@ -459,14 +459,16 @@ public class Assignment extends GradableObject {
 			this.ungraded = ungraded;
 		}
 		
-		public Boolean isExtraCredit() {
-			return extraCredit;
+		public Boolean getIsExtraCredit() {
+			return isExtraCredit;
 		}
-		
-		public void setExtraCredit(Boolean isExtraCredit) {
-			this.extraCredit = isExtraCredit;
+
+
+		public void setIsExtraCredit(Boolean isExtraCredit) {
+			this.isExtraCredit = isExtraCredit;
 		}
-		
+
+
 		public Double getAssignmentWeighting() {
 			return assignmentWeighting;
 		}

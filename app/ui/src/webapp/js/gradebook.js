@@ -155,6 +155,7 @@ function getTheElement(thisid)
 // Update the running total
 function updateRunningTotal(thisForm) {
 	var runningTotal = 0.0;
+	var adjustmentTotal = 0.0;
 	
   for (var i=0; i < thisForm.elements.length; ++i) {
   	formElement = thisForm.elements[i];
@@ -163,15 +164,24 @@ function updateRunningTotal(thisForm) {
     var highlightTotal = true;
 
     if (elementNamePieces[3] == "weightInput") {
+    	// probably a better way to get the adjustment checkbox, but this works
+    	var adjustmentValEl = getTheElement(elementNamePieces[0] + ":" + elementNamePieces[1] + ":" + elementNamePieces[2] + ":adjustment");
         weight = parseFloat(formElement.value);
-
-        if (weight >= 0) {
+        if (weight >= 0)
+        {
+        	if (undefined != adjustmentValEl)
+        	{
+   				if (adjustmentValEl.checked == true)
+   				{
+           			adjustmentTotal += weight;
+           		}
+           	}
             runningTotal += weight;
         }
     }
   }
   
-  var neededTotal = 100.0 - runningTotal;
+  var neededTotal = 100.0 - runningTotal + adjustmentTotal;
 
   var runningTotalValEl = getTheElement(thisForm.name + ":runningTotalVal");
   var runningTotalEl = getTheElement(thisForm.name + ":runningTotal");
