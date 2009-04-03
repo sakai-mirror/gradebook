@@ -94,7 +94,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private String selectedCategory;
     private Gradebook localGradebook;
     private StringBuilder externallyMaintainedImportMsg;
-
+    private List gradeEntrySelectList;
+    
     // Used for bulk upload of gradebook items
     // Holds list of unknown user ids
     private List unknownUsers = new ArrayList();
@@ -109,6 +110,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private static final String IMPORT_ASSIGNMENT_NEG_VALUE = "import_assignment_entire_negative_score";
     private static final String IMPORT_ASSIGNMENT_PRECISION = "import_assignment_entire_precision";
     private static final String IMPORT_ASSIGNMENT_NOTSUPPORTED_TO_ORIGNIAL = "import_assignment_entire_notsupported_to_original";
+    public static final String GB_POINTS_ENTRY = "Points";
+    public static final String GB_PERCENTAGE_ENTRY = "Percentage";
+    public static final String GB_NON_CALCULATING_ENTRY = "Non-calculating";
     
     private String pageName;
     
@@ -133,6 +137,40 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             if(logger.isDebugEnabled()) logger.debug("displayid "+enr.getUser().getDisplayId() + "  userid "+enr.getUser().getUserUid());
             rosterMap.put(enr.getUser().getDisplayId(),enr.getUser());
         }
+        
+        if (assignment == null) {
+			if (assignmentId != null) {
+				assignment = getGradebookManager().getAssignment(assignmentId);
+			}
+			if (assignment == null) {
+				// it is a new assignment
+				assignment = new Assignment();
+				assignment.setReleased(true);
+			}
+		}
+        
+        gradeEntrySelectList = new ArrayList();
+		
+		if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_POINTS) 
+		{
+			gradeEntrySelectList.add(new SelectItem(GB_POINTS_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_points")));
+			gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
+			if (assignment.getUngraded() == true) {
+				assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
+			}
+		}
+		else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE)
+		{
+			gradeEntrySelectList.add(new SelectItem(GB_PERCENTAGE_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_percentage")));
+			gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
+			if (assignment.getUngraded() == true) {
+				assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
+			}
+		}
+		else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER)
+		{
+			assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
+		}
         
         selectedCategory = AssignmentBean.UNASSIGNED_CATEGORY;
         categoriesSelectList = new ArrayList();
@@ -241,7 +279,12 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     public void setAssignmentColumnSelectItems(List assignmentColumnSelectItems) {
         this.assignmentColumnSelectItems = assignmentColumnSelectItems;
     }
-
+    
+    public List getGradeEntrySelectList() 
+	{
+    	return gradeEntrySelectList;
+    }
+    
     public boolean isSaved() {
         return saved;
     }
@@ -1421,7 +1464,12 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
         logger.debug("********************" + scores);
         
-
+        if (assignment.getSelectedGradeEntryValue().equals(GB_NON_CALCULATING_ENTRY)) {
+			assignment.setUngraded(true);
+		} else {
+			assignment.setUngraded(false);
+		}
+        
         if(!assignment.getUngraded() && !getGradeEntryByLetter()){
         	if(assignment.getPointsPossible() == null || "".equals(assignment.getPointsPossible())){
         		FacesUtil.addErrorMessage(getLocalizedString("gbItemPoint_required"));

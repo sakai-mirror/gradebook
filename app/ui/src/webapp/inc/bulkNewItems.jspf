@@ -12,6 +12,13 @@
 
 <h:outputText value="* " styleClass="reqStarInline"/><h:outputText value="#{msgs.flag_required}" rendered="#{!bean.assignment.externallyMaintained}"/>
 
+<div class="checkbox indnt1">
+<h:selectOneRadio layout="pageDirection" value="#{addAssignmentBean.selectGradebookItem}" id="selectGradebookItem1" onclick="this.form.submit();">
+	<f:selectItem itemValue="individual" itemLabel="#{msgs.add_assignment_individually}" />
+	<f:selectItem itemValue="bulk" itemLabel="#{msgs.add_assignment_bulk}"/>
+</h:selectOneRadio>
+</div>	
+<%--/*<h:inputHidden id="numTotalBulkItems" value="#{addAssignmentBean.numTotalBulkItems}" />*/--%>
 <t:div id="bulkAssignments" styleClass="gbSection">
 	<t:dataTable cellpadding="0" cellspacing="0"
 		id="bulkNewAssignmentsTable"
@@ -27,12 +34,13 @@
 		  		Done to deal with removing item in 'middle' 				--%>
 		  	<h:inputHidden id="hiddenAdd" value="#{item.saveThisItem}" />
 		  	
+		  	<%--/*
 			<h:selectBooleanCheckbox id="ungraded" value="#{item.assignment.ungraded}"
 				onclick="assignmentUngraded((this.form.name + ':bulkNewAssignmentsTable:' + #{rowIndex}));"
 				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"
 				rendered="#{bean.localGradebook.grade_type != 3}" />
 			<h:outputLabel for="ungraded" value="#{msgs.add_assignment_noncalc_item}" rendered="#{bean.localGradebook.grade_type != 3}" />
-		  
+			*/--%>
 <%-- Commented out with roll back of non-graded items 
 			<h:selectOneRadio value="#{item.ungraded}" id="assignNonGraded" layout="pageDirection" onclick="submit();" 
 				valueChangeListener="#{item.processUngradedSettingChange}">
@@ -43,6 +51,14 @@
 		    <h:panelGrid cellpadding="0" cellspacing="5" columns="2" 
 		    		columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" 
 		  			styleClass="highlightPanel" width="100%">
+		    		<h:outputLabel for="selectGradeEntry" id="gradeEntryLabel" value="#{msgs.add_assignment_type}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}" />
+					<h:panelGroup rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}">
+						<h:selectOneMenu id="selectGradeEntry" value="#{item.selectedGradeEntryValue}"
+							onclick="assignmentNonCalc((this.form.name + ':bulkNewAssignmentsTable:' + #{rowIndex}));"
+							onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+							<f:selectItems value="#{bean.gradeEntrySelectList}" />
+						</h:selectOneMenu>
+					</h:panelGroup>
 		  			<h:panelGroup>
 				  		<h:outputText value="* " styleClass="reqStarInline"/>
 						<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}"
@@ -51,6 +67,7 @@
 			
 						<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
 							<h:inputText id="title" value="#{item.assignment.name}" 
+								valueChangeListener="#{addAssignmentBean.processItemTitleChange}"
 								onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 							</h:inputText>
 							<h:outputText id="noTitleErrMsg"  value="#{msgs.add_assignment_no_title}" 
@@ -80,10 +97,15 @@
 	<%-- Commented out for non-graded rollback && item.ungraded == 'normal' --%>
 				<h:panelGroup>
 				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}"/>
-					<h:outputLabel for="points" id="pointsLabel" value="#{(bean.localGradebook.grade_type == 1) ? msgs.add_assignment_points : msgs.add_assignment_relative_weight}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}"/>
+					<h:outputLabel for="points" id="pointsLabel" value="#{(bean.localGradebook.grade_type == 1) ? msgs.add_assignment_points : msgs.add_assignment_relative_weight}" 
+						rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}"/>
 				</h:panelGroup>
 				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
-					<h:inputText id="points" value="#{item.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{bean.localGradebook.grade_type != 3}" />
+					<h:inputText id="points" value="#{item.pointsPossible}" 
+						valueChangeListener="#{addAssignmentBean.processPointsPossibleChange}"
+						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"
+						rendered="#{bean.localGradebook.grade_type != 3}" />
+					<%-- valueChangeListener="#{addAssignmentBean.processPointsPossibleChange}" --%>
 					<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
 									rendered="#{item.bulkNoPointsError == 'blank'}" />
 					<h:outputText id="blankPtsErrMsgH"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline errHide"
@@ -127,6 +149,7 @@
 
 			  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="prefixedCheckbox">
 	   			<h:selectBooleanCheckbox id="released" value="#{item.assignment.released}"
+	   				valueChangeListener="#{addAssignmentBean.processReleaseChange}" 
     				onclick="assignmentReleased((this.form.name + ':bulkNewAssignmentsTable:' + #{rowIndex}), true);"
 					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
 				<h:outputLabel for="released" value="#{msgs.add_assignment_released}" />
@@ -139,17 +162,31 @@
  				
  				<h:panelGroup>
 					<h:selectBooleanCheckbox id="countAssignment" value="#{item.assignment.counted}"
+						valueChangeListener="#{addAssignmentBean.processCountedChange}" 
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{bean.localGradebook.grade_type != 3}" />
 						<%-- Commented out due to non-graded rollback rendered="#{item.ungraded == 'normal'}"/> --%>
 					<h:outputLabel id="countAssignmentLabel" for="countAssignment" value="#{msgs.add_assignment_counted}" rendered="#{bean.localGradebook.grade_type != 3}" />
 				</h:panelGroup>
 		  	  </h:panelGrid>
 			  	<h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
-
+			  
+			  	
 	  		  <f:verbatim><hr class="itemSeparator" /></f:verbatim>
 		</h:column>	
 	</t:dataTable>
 </t:div>
+<div>
+<h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="prefixedCheckbox">
+	<h:panelGroup rendered="#{addAssignmentBean.isBulkDisplay}">
+		<h:outputLabel id="gradeEntryBulkLabel" value="#{msgs.add_assignment_bulk_number}" />
+	</h:panelGroup>
+	<h:panelGroup rendered="#{addAssignmentBean.isBulkDisplay}">
+		<h:selectOneMenu id="selectBulkGradebookItem" value="#{addAssignmentBean.selectBulkGradebookItem}" valueChangeListener="#{addAssignmentBean.processNumBulkItemValue}">
+			<f:selectItems value="#{bean.addBulkItemSelectList}" />
+		</h:selectOneMenu>
+	</h:panelGroup>
+</h:panelGrid>
+</div>
 		<%
 		  if (thisId == null) 
 		  {

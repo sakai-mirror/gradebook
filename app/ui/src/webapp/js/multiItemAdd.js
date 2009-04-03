@@ -424,6 +424,35 @@ function getNumTotalItem() {
 }
 
 //*********************************************************************
+//getNumTotalBulkItemsEl
+//
+//This gets numTotalBulkItems element so can be manipulated
+//*********************************************************************
+/*
+function getNumTotalItemBulkEl() {
+	var numTotalBulkItemEl;
+
+	// Get the hidden numTotalBulkItems textbox to update it
+	// prefix added by jsf when rendering
+	return getEl('gbForm:numTotalBulkItems');
+}
+*/
+//*********************************************************************
+//getNumTotalBulkItems
+//
+//This gets numTotalBulkItems element value so can be updated
+//*********************************************************************
+/*
+function getNumTotalBulkItem() {
+	var numTotalBulkItemEl;
+
+	// Get the hidden numTotalBulkItems textbox to update it
+	// prefix added by jsf when rendering
+	numTotalBulkItemEl = getEl('gbForm:numTotalBulkItems');
+	return parseInt(numTotalBulkItemEl.value);
+}
+*/
+//*********************************************************************
 // getHiddenAdd
 //
 // Returns the hiddenAdd element to be set based on container element

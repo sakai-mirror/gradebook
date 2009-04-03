@@ -69,7 +69,7 @@ public class Assignment extends GradableObject {
     private boolean ungraded;
     private Boolean isExtraCredit;
 	private Double assignmentWeighting;
-
+	public String selectedGradeEntryValue;
 
 	static {
         dateComparator = new Comparator() {
@@ -476,5 +476,13 @@ public class Assignment extends GradableObject {
 
 		public void setAssignmentWeighting(Double assignmentWeighting) {
 			this.assignmentWeighting = assignmentWeighting;
+		}
+		
+		public String getSelectedGradeEntryValue() {
+			return selectedGradeEntryValue;
+		}
+
+		public void setSelectedGradeEntryValue(String selectedGradeEntryValue) {
+			this.selectedGradeEntryValue = selectedGradeEntryValue;
 		}
 }

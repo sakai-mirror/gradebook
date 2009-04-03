@@ -162,6 +162,10 @@
 		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.AssignmentBean</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
 		<managed-property>
+			<property-name>breadcrumbPageParam</property-name>
+			<value>#{param.breadcrumbPage}</value>
+		</managed-property>
+		<managed-property>
 			<property-name>pageName</property-name>
 			<value>addAssignment</value>
 		</managed-property>

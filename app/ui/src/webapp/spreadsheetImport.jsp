@@ -12,13 +12,26 @@
        <p/>
        <%@include file="/inc/globalMessages.jspf"%>
        <h4><h:outputText value="#{msgs.import_assignment_header}"/></h4>
-
+       		<%--/*
 			<h:selectBooleanCheckbox id="ungraded" value="#{spreadsheetUploadBean.assignment.ungraded}"
 				onclick="assignmentUngraded((this.form.name));"
 				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"
 				rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}" />
 			<h:outputLabel for="ungraded" value="Non-calculating Item" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}" />
-			 <h:panelGrid cellpadding="0" cellspacing="0" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite">
+			*/--%>
+			
+			
+			<h:panelGrid cellpadding="0" cellspacing="0" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite">
+				<h:outputLabel for="selectGradeEntry" id="gradeEntryLabel" value="#{msgs.add_assignment_type}" 
+					rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}" />
+				<h:panelGroup rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}">
+					<h:selectOneMenu id="selectGradeEntry" value="#{spreadsheetUploadBean.assignment.selectedGradeEntryValue}"
+						onclick="assignmentNonCalc((this.form.name));"
+						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+						<f:selectItems value="#{spreadsheetUploadBean.gradeEntrySelectList}" />
+					</h:selectOneMenu>
+				</h:panelGroup>
+			
 					<h:outputLabel for="title" id="titleLabel" value="#{msgs.import_assignment_title}"/>
 					<h:panelGroup>
 						<h:inputText id="title" value="#{spreadsheetUploadBean.assignment.name}" required="true" >

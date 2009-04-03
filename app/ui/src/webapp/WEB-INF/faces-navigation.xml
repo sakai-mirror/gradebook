@@ -23,6 +23,10 @@
 			<to-view-id>/assignmentDetails.jsp</to-view-id>
 		</navigation-case>
 		<navigation-case>
+		<from-outcome>addBulkGradebookItem</from-outcome>
+		<to-view-id>/addBulkGradebookItem.jsp</to-view-id>
+		</navigation-case>
+		<navigation-case>
 			<from-outcome>courseGradeDetails</from-outcome>
 			<to-view-id>/courseGradeDetails.jsp</to-view-id>
 		</navigation-case>

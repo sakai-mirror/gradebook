@@ -47,18 +47,22 @@
 
 		<%-- Calls a javascript function to add another Add Gradebook Item Pane --%>
 		<h:outputLink id="addSecond" value="#" styleClass="addSecond act" >
-			<h:outputText value="#{msgs.add_assignment_add_pane}" />
+			<h:outputText value="#{msgs.add_assignment_add_pane}" rendered="#{!addAssignmentBean.isBulkDisplay}" />
 		</h:outputLink>
 
 		<%-- Keeps track of how many panes are displayed --%>
 		<h:inputHidden id="numTotalItems" value="#{addAssignmentBean.numTotalItems}" />
-		
 		<p class="act calendarPadding">
 			<h:commandButton
 				id="saveButton"
 				styleClass="active"
-				value="#{msgs.add_assignment_submit}"
+				value="#{msgs.add_assignment_submit}" rendered="#{!addAssignmentBean.isBulkDisplay}"
 				action="#{addAssignmentBean.saveNewAssignment}"/>
+			<h:commandButton
+				id="continueButton"
+				styleClass="active"
+				value="#{msgs.add_assignment_continue}" rendered="#{addAssignmentBean.isBulkDisplay}"
+				action="addBulkGradebookItem"/>
 			<h:commandButton
 				value="#{msgs.add_assignment_cancel}"
 				action="overview" immediate="true"/>

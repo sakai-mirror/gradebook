@@ -17,15 +17,23 @@
 </div>
 
 <%@include file="/inc/globalMessages.jspf"%>
-
+	<%--
 	<h:selectBooleanCheckbox id="ungraded" value="#{bean.assignment.ungraded}"
 		onclick="assignmentUngraded((this.form.name));"
 		onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"
 		rendered="#{bean.noncalcWithGrades && !bean.assignment.externallyMaintained}" />
 	<h:outputLabel for="ungraded" value="#{msgs.add_assignment_noncalc_item}" rendered="#{bean.noncalcWithGrades && !bean.assignment.externallyMaintained}" />
-
+	--%>
 <h:panelGrid cellpadding="0" cellspacing="0" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite">
-
+	
+	<h:outputLabel id="gradeEntryLabel" value="#{msgs.add_assignment_type}" rendered="#{!bean.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}" />
+	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}">
+		<h:selectOneMenu id="selectGradeEntry" value="#{bean.assignment.selectedGradeEntryValue}"
+			onclick="assignmentNonCalc((this.form.name));"
+			onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+			<f:selectItems value="#{bean.gradeEntrySelectList}" />
+		</h:selectOneMenu>
+	</h:panelGroup>
 	<h:panelGroup>
 		<h:outputText value="* " styleClass="reqStarInline"/>
 		<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}" rendered="#{!bean.assignment.externallyMaintained}"/>
@@ -41,7 +49,8 @@
 
 	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained && bean.noncalcWithGrades}">
 		<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{!bean.assignment.externallyMaintained && bean.noncalcWithGrades}"/>
-		<h:outputLabel for="points" id="pointsLabel" value="#{(bean.localGradebook.grade_type == 1) ? msgs.add_assignment_points : msgs.add_assignment_relative_weight}" rendered="#{!bean.assignment.externallyMaintained && bean.noncalcWithGrades}"/>
+		<h:outputLabel for="points" id="pointsLabel" value="#{(bean.localGradebook.grade_type == 1) ? msgs.add_assignment_points : msgs.add_assignment_relative_weight}" 
+			rendered="#{!bean.assignment.externallyMaintained && bean.noncalcWithGrades}"/>
 	</h:panelGroup>
 	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained && bean.noncalcWithGrades}">
 		<h:inputText id="points" value="#{bean.assignment.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
@@ -115,4 +124,5 @@
 
 <script type="text/javascript">
 	assignmentUngraded('gbForm');
+	assignmentNonCalc('gbForm');
 </script>

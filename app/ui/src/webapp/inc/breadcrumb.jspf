@@ -20,7 +20,9 @@
 
 	<%-- Here we are at the bottom, render final spot --%>
 	<h:outputText value="#{msgs.breadcrumb_add}" rendered="#{bean.adding}" />
-
+	
+	<h:outputText value="#{msgs.breadcrumb_add_bulk_item}" rendered="#{bean.fromPage eq 'addBulkGradebookItem'}" />
+	
 	<h:outputText value="#{msgs.breadcrumb_edit}" rendered="#{bean.editing}" />
 	
 	<%-- if adding, will render as blank, if editing, will display assignment name

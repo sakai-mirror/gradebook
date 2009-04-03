@@ -300,7 +300,7 @@ function assignmentReleased(myForm, releasedChanged) {
 	var releasedCheckboxEl =  getTheElement(myForm + ':released');
 	var countedCheckboxEl =   getTheElement(myForm + ':countAssignment');
 	var ungradedCheckboxEl =  getTheElement(myForm + ':ungraded');
-
+	
 	if (undefined != releasedCheckboxEl)
 	{
 		if (releasedCheckboxEl.checked == false) {
@@ -418,6 +418,69 @@ function assignmentUngraded(myForm) {
 		}
 	}
 }
+
+//similar as above, but we want to insure the counted checkbox
+//is unchecked and disabled for an checked non-calculating item
+function assignmentNonCalc(myForm) {
+	var ungradedDropdownEl =  getTheElement(myForm + ':selectGradeEntry');
+	var countedCheckboxEl =   getTheElement(myForm + ':countAssignment');
+	var countedLabelEl =   getTheElement(myForm + ':countAssignmentLabel');
+	var releasedCheckboxEl =  getTheElement(myForm + ':released');
+	var pointsInputEl =  getTheElement(myForm + ':points');
+	var pointsLabelEl =  getTheElement(myForm + ':pointsLabel');
+	var categoryInstructionTextEl = getTheElement(myForm + ':nonCalCategoryInstructionText');
+	var pointsLabelAst =  getTheElement(myForm + ':pointsLabelAsterisk');
+	var pointsLabelEditAst = getTheElement(myForm + ':pointsLabelEditAsterisk');
+
+	if (undefined != ungradedDropdownEl)
+	{
+		if (ungradedDropdownEl[ungradedDropdownEl.selectedIndex].value == "Non-calculating") {
+			if (undefined != countedCheckboxEl)
+			{
+				countedCheckboxEl.checked = false;
+				countedCheckboxEl.disabled = true;
+				countedCheckboxEl.style.display="none";
+			}
+			if (undefined != countedLabelEl)
+			{
+				countedLabelEl.style.display="none";
+			}
+			if (undefined != pointsInputEl)
+			{
+				pointsInputEl.value = "";
+				pointsInputEl.style.display="none";
+			}
+			if (undefined != pointsLabelAst)
+			{
+				pointsLabelAst.style.display="none";
+			}
+			if (undefined != pointsLabelEditAst)
+			{
+				pointsLabelEditAst.style.display="none";
+			}
+			if (undefined != pointsLabelEl)
+			{
+				pointsLabelEl.style.display="none";
+			}
+			categoryInstructionTextEl.style.display="none";
+		} 
+	}
+}
+
+
+//This gets numTotalBulkGradebookItems element so can be manipulated
+function addBulkItems(myForm) {
+	var numBulkInputEl =  getTheElement(myForm + ':selectBulkGradebookItem');
+	var numBulkGradebookItems = parseInt(numBulkInputEl[numBulkInputEl.selectedIndex].value);
+	
+	if (undefined != numBulkInputEl)
+	{
+		//TODO
+		
+	} 
+	
+}
+
 
 // if the containing frame is small, then offsetHeight is pretty good for all but ie/xp.
 // ie/xp reports clientHeight == offsetHeight, but has a good scrollHeight
