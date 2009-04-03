@@ -463,8 +463,45 @@ function assignmentNonCalc(myForm) {
 				pointsLabelEl.style.display="none";
 			}
 			categoryInstructionTextEl.style.display="none";
-		} 
+		} else if (ungradedDropdownEl[ungradedDropdownEl.selectedIndex].value == "Points" || ungradedDropdownEl[ungradedDropdownEl.selectedIndex].value == "Percentage") {
+			if (undefined != countedCheckboxEl)
+			{
+				if (undefined != releasedCheckboxEl)
+				{
+					if(releasedCheckboxEl.checked){
+						countedCheckboxEl.disabled = false;
+					}else{
+						countedCheckboxEl.disabled = true;
+					}
+				}else{
+					countedCheckboxEl.disabled = false;
+				}
+				countedCheckboxEl.style.display="inline";
+			}
+			if (undefined != countedLabelEl)
+			{
+				countedLabelEl.style.display="inline";
+			}
+			if (undefined != pointsInputEl)
+			{
+				pointsInputEl.style.display="inline";
+			}
+			if (undefined != pointsLabelAst)
+			{
+				pointsLabelAst.style.display="inline";
+			}
+			if (undefined != pointsLabelEditAst)
+			{
+				pointsLabelEditAst.style.display="inline";
+			}
+			if (undefined != pointsLabelEl)
+			{
+				pointsLabelEl.style.display="inline";
+			}
+			categoryInstructionTextEl.style.display="inline";
+		}
 	}
+
 }
 
 
