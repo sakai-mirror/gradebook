@@ -76,15 +76,19 @@ public class AssignmentGradeValidator implements Validator, Serializable {
 				
 		int grade_type = -1;
 		boolean ungraded = false;
+		Boolean extraCredit = false;
 		
 		if(adb != null) {
 			grade_type = adb.getAssignment().getGradebook().getGrade_type();
 			ungraded = adb.getAssignment().getUngraded();
+			if (adb.getAssignment().getIsExtraCredit()!=null)
+			extraCredit = adb.getAssignment().getIsExtraCredit();
 		}
 		
 		if(agr != null) {
 			grade_type = agr.getAssociatedAssignment().getGradebook().getGrade_type();
 			ungraded = agr.getAssociatedAssignment().getUngraded();
+			extraCredit = agr.getAssociatedAssignment().getIsExtraCredit();
 		}
 		
 		String stringValue = null;
@@ -96,7 +100,7 @@ public class AssignmentGradeValidator implements Validator, Serializable {
 		}
 
 		try {
-			Grade grade = new Grade(stringValue, grade_type, ungraded);
+			Grade grade = new Grade(stringValue, grade_type, ungraded, extraCredit);
 		} catch (NonNumericGradeException nnge) {
 			throw new ValidatorException(new FacesMessage(
 					FacesUtil.getLocalizedString(context, "org.sakaiproject.gradebook.tool.jsf.AssignmentGradeValidator.Number.INVALID")));

@@ -1225,12 +1225,15 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	Assignment assignment = getAssignmentByName(grAssignments, assignmentName);
         	
          	boolean isUnGraded = false;
+         	Boolean isExtraCredit = false;
 			if(assignment == null){
 				if(pointsPossibleAsString != null){
 					isUnGraded = pointsPossibleAsString.equals(getLocalizedString("NON_CALCULATING_ITEM"));
+					isExtraCredit = pointsPossibleAsString.equals(getLocalizedString("ADJUSTMENT_ITEM"));
 				}
 			}else{
 				isUnGraded = assignment.getUngraded();
+				isExtraCredit = assignment.getIsExtraCredit();
 			}
 			
         	Iterator it = studentRows.iterator();
@@ -1247,7 +1250,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         			if (scoreAsString != null && scoreAsString.length() > 0) {
 
         				try{
-        					Grade grade = new Grade(scoreAsString, grade_type, isUnGraded);
+        					Grade grade = new Grade(scoreAsString, grade_type, isUnGraded, isExtraCredit);
         				}  catch (NonNumericGradeException nfe) {
         					FacesUtil.addErrorMessage(getLocalizedString(IMPORT_ASSIGNMENT_NOTSUPPORTED, new String[] {assignmentName}));
         					return false;
@@ -1514,7 +1517,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	if(!entry.getKey().equals("Assignment")) {
         		String score = (String) entry.getValue();
         		try {
-        			Grade grade = new Grade(score, getGradebook().getGrade_type(), assignment.getUngraded());
+        			Grade grade = new Grade(score, getGradebook().getGrade_type(), assignment.getUngraded(), assignment.getIsExtraCredit());
         		} catch (NegativeGradeException nge) {
         			FacesUtil.addErrorMessage(getLocalizedString("import_assignment_negative"));
 					return "spreadsheetPreview";

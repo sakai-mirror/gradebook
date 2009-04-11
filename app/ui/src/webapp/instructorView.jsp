@@ -252,13 +252,13 @@
 							<h:outputText value="#{msgs.inst_view_item_value_percentage}" rendered="#{instructorViewBean.gradeEntryByPercent}"/>
 						</t:commandSortHeader>
         	</f:facet>
-        	<h:outputText value="#{msgs.inst_view_item_value_adjustment}" rendered="#{row.associatedAssignment.isExtraCredit == true}" />
-        	<h:outputText value="#{msgs.inst_view_item_value_adjustment_open}" rendered="#{(row.associatedAssignment.isExtraCredit == true) && row.associatedAssignment.pointsPossible!=null}" />
-        	<h:outputText value="#{row.associatedAssignment.pointsPossible}" rendered="#{(row.associatedAssignment.isExtraCredit == true) && row.associatedAssignment.pointsPossible!=null && row.assignment}">
+        	<h:outputText value="#{msgs.inst_view_item_value_adjustment}" rendered="#{row.assignment && row.associatedAssignment.isExtraCredit == true}" />
+        	<h:outputText value="#{msgs.inst_view_item_value_adjustment_open}" rendered="#{row.assignment && (row.associatedAssignment.isExtraCredit == true) && row.associatedAssignment.pointsPossible!=null}" />
+        	<h:outputText value="#{row.associatedAssignment.pointsPossible}" rendered="#{row.assignment && (row.associatedAssignment.isExtraCredit == true) && row.associatedAssignment.pointsPossible!=null}">
         		<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS"/>
         	</h:outputText>
-        	<h:outputText value="#{msgs.inst_view_item_value_adjustment_close}" rendered="#{(row.associatedAssignment.isExtraCredit == true) && row.associatedAssignment.pointsPossible!=null}" />
-        	<h:outputText value="#{row.associatedAssignment.pointsPossible}" rendered="#{(row.associatedAssignment.isExtraCredit != true) && row.assignment}">
+        	<h:outputText value="#{msgs.inst_view_item_value_adjustment_close}" rendered="#{row.assignment && (row.associatedAssignment.isExtraCredit == true) && row.associatedAssignment.pointsPossible!=null}" />
+        	<h:outputText value="#{row.associatedAssignment.pointsPossible}" rendered="#{row.assignment && (row.associatedAssignment.isExtraCredit != true) && row.assignment}">
         		<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS"/>
         	</h:outputText>
         </h:column>

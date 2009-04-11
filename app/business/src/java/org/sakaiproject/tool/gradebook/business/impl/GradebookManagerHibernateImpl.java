@@ -753,20 +753,26 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 		// Check for excessive (AKA extra credit) scoring.
               			if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
               			{
-              				if (gradeRecordFromCall.getPointsEarned() != null &&
-              						!gradeRecordFromCall.getPointsEarned().equals("") &&
-              						!assignment.getUngraded() && !assignment.getUngraded() &&
-              						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(assignment.getPointsPossible()) > 0) {
-              					studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
+              				if (!assignment.getIsExtraCredit())
+              				{
+	              				if (gradeRecordFromCall.getPointsEarned() != null &&
+	              						!gradeRecordFromCall.getPointsEarned().equals("") &&
+	              						!assignment.getUngraded() && !assignment.getUngraded() &&
+	              						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(assignment.getPointsPossible()) > 0) {
+	              					studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
+	              				}
               				}
               			}
               			else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
               			{
-              				if (gradeRecordFromCall.getPointsEarned() != null &&
-              						!gradeRecordFromCall.getPointsEarned().equals("") &&
-              						!assignment.getUngraded() && !assignment.getUngraded() &&
-              						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(new Double("100.0")) > 0) {
-              					studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
+              				if (!assignment.getIsExtraCredit())
+              				{
+	              				if (gradeRecordFromCall.getPointsEarned() != null &&
+	              						!gradeRecordFromCall.getPointsEarned().equals("") &&
+	              						!assignment.getUngraded() && !assignment.getUngraded() &&
+	              						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(new Double("100.0")) > 0) {
+	              					studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
+	              				}
               				}
               			}
                 		// Log the grading event, and keep track of the students with saved/updated grades
@@ -967,19 +973,25 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 	                	// Check for excessive (AKA extra credit) scoring.
               			if(assignment.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_POINTS)
               			{
-  	                	if (gradeRecordFromCall.getPointsEarned() != null &&
-  	                			!assignment.getUngraded() && 
-  	                			new Double(gradeRecordFromCall.getPointsEarned()).compareTo(pointsPossible) > 0) {
-  	                		assignmentsWithExcessiveScores.add(assignment);
-  	                	}
+              				if (!assignment.getIsExtraCredit())
+              				{
+		  	                	if (gradeRecordFromCall.getPointsEarned() != null &&
+		  	                			!assignment.getUngraded() && 
+		  	                			new Double(gradeRecordFromCall.getPointsEarned()).compareTo(pointsPossible) > 0) {
+		  	                		assignmentsWithExcessiveScores.add(assignment);
+		  	                	}
+              				}
               			}
               			else if(assignment.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
               			{
-  	                	if (gradeRecordFromCall.getPointsEarned() != null &&
-  	                			!assignment.getUngraded() && 
-  	                			new Double(gradeRecordFromCall.getPointsEarned()).compareTo(new Double("100.0")) > 0) {
-  	                		assignmentsWithExcessiveScores.add(assignment);
-  	                	}
+              				if (!assignment.getIsExtraCredit())
+              				{
+		  	                	if (gradeRecordFromCall.getPointsEarned() != null &&
+		  	                			!assignment.getUngraded() && 
+		  	                			new Double(gradeRecordFromCall.getPointsEarned()).compareTo(new Double("100.0")) > 0) {
+		  	                		assignmentsWithExcessiveScores.add(assignment);
+		  	                	}
+              				}
               			}
 	
 	                	// Log the grading event, and keep track of the students with saved/updated grades
@@ -1740,11 +1752,13 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 
     			if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
     			{
-    				totalPointsPossible += pointsPossible.doubleValue();
+    				if (pointsPossible!=null)
+    					totalPointsPossible += pointsPossible.doubleValue();
     			}
     			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY)
  					{
-    				totalPointsPossible += pointsPossible.doubleValue();
+    				if (pointsPossible!=null)
+    					totalPointsPossible += pointsPossible.doubleValue();
  					}
     			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && categories != null)
     			{
@@ -1753,7 +1767,8 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     					Category cate = (Category) categories.get(i);
     					if(cate != null && !cate.isRemoved() && asn.getCategory() != null && cate.getId().equals(asn.getCategory().getId()))
     					{
-    						totalPointsPossible += pointsPossible.doubleValue();
+    						if (pointsPossible!=null)
+    							totalPointsPossible += pointsPossible.doubleValue();
     						break;
     					}
     				}

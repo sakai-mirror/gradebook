@@ -37,7 +37,8 @@ public final class Grade
 	private final String grade;
 	private final int grade_type;
 	private final boolean ungraded;
-	
+	private final Boolean extraCredit;
+
 	/**
 	 * The only constructor for Grade. 
 	 * Make sure to catch InvalidGradeException and GradebookException when create an object of Grade.
@@ -47,6 +48,7 @@ public final class Grade
 	 * @param grade
 	 * @param grade_type
 	 * @param ungraded
+	 * @param extraCredit
 	 * @throws NegativeGradeException
 	 * @throws InvalidDecimalGradeException
 	 * @throws InvalidGradeLengthException
@@ -54,13 +56,13 @@ public final class Grade
 	 * @throws InvalidGradeException a catch-all for invalid grade exceptions
 	 * @throws GradebookException
 	 */
-	public Grade(String grade, int grade_type, boolean ungraded)
+	public Grade(String grade, int grade_type, boolean ungraded, Boolean extraCredit)
 	throws NegativeGradeException, InvalidDecimalGradeException, InvalidGradeLengthException, NonNumericGradeException,
 	InvalidGradeException, GradebookException
 	{
 		try
 		{
-			boolean validBoolean = isValid(grade, grade_type, ungraded);
+			boolean validBoolean = isValid(grade, grade_type, ungraded, extraCredit);
 			if(!validBoolean)
 			{
 				throw new InvalidGradeException("Invalid grade:" + grade + " for grade_type of:" + grade_type);
@@ -70,6 +72,7 @@ public final class Grade
 				this.grade = grade;
 				this.grade_type = grade_type;
 				this.ungraded = ungraded;		
+				this.extraCredit = extraCredit;
 			}
 		}
 		catch(NegativeGradeException nge)
@@ -111,7 +114,11 @@ public final class Grade
 		return ungraded;
 	}
 	
-	public boolean isValid(String grade, int grade_type, boolean ungraded)
+	public Boolean getExtraCredit() {
+		return extraCredit;
+	}
+	
+	public boolean isValid(String grade, int grade_type, boolean ungraded, Boolean extraCredit)
 	{
 		if(grade == null || grade.trim().equals(""))
 			return true;
@@ -131,11 +138,27 @@ public final class Grade
 					Double gradeDouble = new Double(grade);
 					double gradeValue = gradeDouble.doubleValue();
 					
-					// ensure grade is >= 0
-					if(gradeValue < 0.0d)
+					// if this is an extra credit/adjustment item, we ignore the negative number exception since that is allowed.
+					if (extraCredit!=null)
 					{
-						throw new NegativeGradeException("Grade: " + gradeValue + " is not valid for a " +
-								"calculating gradebook item. Grade must be >= 0.");
+						if (!extraCredit)
+						{
+							// ensure grade is >= 0
+							if(gradeValue < 0.0d)
+							{
+								throw new NegativeGradeException("Grade: " + gradeValue + " is not valid for a " +
+										"calculating gradebook item. Grade must be >= 0.");
+							}
+						}
+					}
+					else
+					{
+						// ensure grade is >= 0
+						if(gradeValue < 0.0d)
+						{
+							throw new NegativeGradeException("Grade: " + gradeValue + " is not valid for a " +
+									"calculating gradebook item. Grade must be >= 0.");
+						}
 					}
 					
 					// make sure there are at most 2 decimal places

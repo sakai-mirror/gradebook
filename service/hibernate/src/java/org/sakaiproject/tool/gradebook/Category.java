@@ -305,29 +305,41 @@ public class Category implements Serializable
 				{
 					Assignment assignment = gradeRecord.getAssignment();
 
-					if (assignment.isCounted() && !assignment.getUngraded() && assignment.getPointsPossible().doubleValue() > 0.0) 
+					boolean adjustmentItemWithNoPoints = false;
+					if (assignment.getIsExtraCredit()!=null)
 					{
-						Category assignCategory = assignment.getCategory();
-						if (assignCategory != null && assignCategory.getId().equals(id))
+						if (assignment.getIsExtraCredit())
 						{
-							String score = gradeRecord.getPointsEarned();
-							if (score != null) 
+							if (assignment.getPointsPossible()==null)
+								adjustmentItemWithNoPoints = true;
+						}
+					}
+					if (!adjustmentItemWithNoPoints)
+					{
+						if (assignment.isCounted() && !assignment.getUngraded() && assignment.getPointsPossible().doubleValue() > 0.0) 
+						{
+							Category assignCategory = assignment.getCategory();
+							if (assignCategory != null && assignCategory.getId().equals(id))
 							{
-								BigDecimal bdScore = new BigDecimal(score.toString());
-								if(assignment.getPointsPossible() != null)
+								String score = gradeRecord.getPointsEarned();
+								if (score != null) 
 								{
-									if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
-										total = total.add(bdScore);
-									else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
-										total = total.add(bdScore.multiply(new BigDecimal(assignment.getPointsPossible())).divide(new BigDecimal("100")));
-									if(gbGradeType == GradebookService.GRADE_TYPE_POINTS || gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
+									BigDecimal bdScore = new BigDecimal(score.toString());
+									if(assignment.getPointsPossible() != null)
 									{
-										BigDecimal bdPointsPossible = new BigDecimal(assignment.getPointsPossible().toString());
-										totalPossible = totalPossible.add(bdPointsPossible);
+										if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
+											total = total.add(bdScore);
+										else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
+											total = total.add(bdScore.multiply(new BigDecimal(assignment.getPointsPossible())).divide(new BigDecimal("100")));
+										if(gbGradeType == GradebookService.GRADE_TYPE_POINTS || gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
+										{
+											BigDecimal bdPointsPossible = new BigDecimal(assignment.getPointsPossible().toString());
+											totalPossible = totalPossible.add(bdPointsPossible);
+										}
+										numOfAssignments ++;
 									}
-									numOfAssignments ++;
+									numScored++;
 								}
-								numScored++;
 							}
 						}
 					}

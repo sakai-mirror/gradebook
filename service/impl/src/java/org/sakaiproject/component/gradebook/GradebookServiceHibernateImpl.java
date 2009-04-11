@@ -1726,13 +1726,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  throw new AssessmentNotFoundException("No gradebook item with id: " + gradebookItemId + " found");
 	  }
 	  
-	  return isGradeValid(grade, assignment.getGradebook().getGrade_type(), assignment.getUngraded());
+	  return isGradeValid(grade, assignment.getGradebook().getGrade_type(), assignment.getUngraded(), assignment.getIsExtraCredit());
   }
   
-  private boolean isGradeValid(String grade, int gradeEntryType, boolean ungraded) {
+  private boolean isGradeValid(String grade, int gradeEntryType, boolean ungraded, Boolean extraCredit) {
 	  boolean gradeIsValid;
 	  try {
-		  Grade g = new Grade(grade, gradeEntryType, ungraded);
+		  Grade g = new Grade(grade, gradeEntryType, ungraded, extraCredit);
 		  gradeIsValid = true;
 	  } catch (InvalidGradeException ige) {
 		  gradeIsValid = false;
@@ -1754,7 +1754,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  
 	  if(assignment != null) {
 		  try {
-			  Grade g = new Grade(grade, assignment.getGradebook().getGrade_type(), assignment.getUngraded());
+			  Grade g = new Grade(grade, assignment.getGradebook().getGrade_type(), assignment.getUngraded(), assignment.getIsExtraCredit());
 		  } catch (NonNumericGradeException nnge) {
 			  throw new NonNumericGradeException(nnge.getMessage());
 		  } catch (InvalidDecimalGradeException idge) {
@@ -1785,7 +1785,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  {
 		  	for (String studentId : studentIdToGradeMap.keySet()) {
 		  		String grade = studentIdToGradeMap.get(studentId);
-		  		if (!isGradeValid(grade, assignment.getGradebook().getGrade_type(), assignment.getUngraded())) {
+		  		if (!isGradeValid(grade, assignment.getGradebook().getGrade_type(), assignment.getUngraded(), assignment.getIsExtraCredit())) {
 		  			studentsWithInvalidGrade.add(studentId);
 		  		}
 		  	}
