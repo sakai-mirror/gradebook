@@ -143,7 +143,17 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 				for (Iterator iter = assignments.iterator(); iter.hasNext(); ) 
 				{
 					Assignment assignment = (Assignment)iter.next();
-					if (!assignment.isCounted() || assignment.getUngraded() || assignment.getPointsPossible().doubleValue() <= 0.0) 
+					boolean isExtraCredit = false;
+					if (assignment.getIsExtraCredit()!=null)
+					{
+						isExtraCredit = assignment.getIsExtraCredit();
+					}
+					// separate check since points possible could be null
+					if (isExtraCredit)
+					{
+						assignmentsNotCounted.add(assignment.getId());
+					}
+					else if (!assignment.isCounted() || assignment.getUngraded() || assignment.getPointsPossible().doubleValue() <= 0.0) 
 					{
 						assignmentsNotCounted.add(assignment.getId());
 					}

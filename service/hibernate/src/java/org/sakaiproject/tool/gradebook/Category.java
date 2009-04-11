@@ -220,24 +220,36 @@ public class Category implements Serializable
 				Double score = assign.getAverageTotal();
 				//    	if(assign.isReleased())
 				//    	{
-				if(assign.isCounted() && !assign.getUngraded() && assign.getPointsPossible().doubleValue() > 0.0)
+				boolean adjustmentWithNoPoints = false;
+				if (assign.getIsExtraCredit()!=null)
 				{
-					if (score == null) 
+					if (assign.getIsExtraCredit())
 					{
-					} 
-					else 
+						if (assign.getPointsPossible() == null)
+							adjustmentWithNoPoints = true;
+					}
+				}
+				if (!adjustmentWithNoPoints)
+				{
+					if(assign.isCounted() && !assign.getUngraded() && assign.getPointsPossible().doubleValue() > 0.0)
 					{
-						if(assign.getPointsPossible() != null)
+						if (score == null) 
 						{
-							if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
-								total = total.add(new BigDecimal(score.toString()));
-							else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
-								total = total.add(new BigDecimal(score.toString()).multiply(new BigDecimal(assign.getPointsPossible())).divide(new BigDecimal("100")));
-							if(gbGradeType == GradebookService.GRADE_TYPE_POINTS || gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
-								totalPossible = totalPossible.add(new BigDecimal(assign.getPointsPossible().toString()));
-							numOfAssignments ++;
+						} 
+						else 
+						{
+							if(assign.getPointsPossible() != null)
+							{
+								if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
+									total = total.add(new BigDecimal(score.toString()));
+								else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
+									total = total.add(new BigDecimal(score.toString()).multiply(new BigDecimal(assign.getPointsPossible())).divide(new BigDecimal("100")));
+								if(gbGradeType == GradebookService.GRADE_TYPE_POINTS || gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
+									totalPossible = totalPossible.add(new BigDecimal(assign.getPointsPossible().toString()));
+								numOfAssignments ++;
+							}
+							numScored++;
 						}
-						numScored++;
 					}
 				}
 				//    	}

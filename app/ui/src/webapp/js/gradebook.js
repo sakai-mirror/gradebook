@@ -431,6 +431,8 @@ function assignmentNonCalc(myForm) {
 	var categoryInstructionTextEl = getTheElement(myForm + ':nonCalCategoryInstructionText');
 	var pointsLabelAst =  getTheElement(myForm + ':pointsLabelAsterisk');
 	var pointsLabelEditAst = getTheElement(myForm + ':pointsLabelEditAsterisk');
+	var categoryDropDown1 = getTheElement(myForm + ':selectCategory');
+	var categoryDropDown2 = getTheElement(myForm + ':selectCategory2');
 
 	if (undefined != ungradedDropdownEl)
 	{
@@ -462,7 +464,15 @@ function assignmentNonCalc(myForm) {
 			{
 				pointsLabelEl.style.display="none";
 			}
-			categoryInstructionTextEl.style.display="none";
+			if (undefined != categoryInstructionTextEl)
+			{
+				categoryInstructionTextEl.style.display="none";
+			}
+			if (undefined != categoryDropDown2)
+			{
+				categoryDropDown1.style.display="inline";
+				categoryDropDown2.style.display="none";
+			}
 		} else if (ungradedDropdownEl[ungradedDropdownEl.selectedIndex].value == "Points" || ungradedDropdownEl[ungradedDropdownEl.selectedIndex].value == "Percentage") {
 			if (undefined != countedCheckboxEl)
 			{
@@ -496,12 +506,114 @@ function assignmentNonCalc(myForm) {
 			}
 			if (undefined != pointsLabelEl)
 			{
+				if (ungradedDropdownEl.options[0].value == "Percentage")
+				{
+					pointsLabelEl.innerHTML = "Gradebook Item Relative Weight";
+				}
+				else if (ungradedDropdownEl.options[0].value == "Points")
+				{
+					pointsLabelEl.innerHTML = "Gradebook Item Point Value";
+				}
 				pointsLabelEl.style.display="inline";
 			}
-			categoryInstructionTextEl.style.display="inline";
-		}
+			if (undefined != categoryInstructionTextEl)
+			{
+				categoryInstructionTextEl.style.display="inline";
+			}
+			if (undefined != categoryDropDown2)
+			{
+				categoryDropDown1.style.display="inline";
+				categoryDropDown2.style.display="none";
+			}
+		} else if (ungradedDropdownEl[ungradedDropdownEl.selectedIndex].value == "Adjustment") {
+				if (undefined != countedCheckboxEl)
+				{
+					if (undefined != releasedCheckboxEl)
+					{
+						if(releasedCheckboxEl.checked){
+							countedCheckboxEl.disabled = false;
+						}else{
+							countedCheckboxEl.disabled = true;
+						}
+					}else{
+						countedCheckboxEl.disabled = false;
+					}
+					countedCheckboxEl.style.display="inline";
+				}
+				if (undefined != countedLabelEl)
+				{
+					countedLabelEl.style.display="inline";
+				}
+				if (undefined != pointsInputEl)
+				{
+					if (ungradedDropdownEl.options[0].value == "Percentage")
+					{
+						pointsInputEl.value = "";
+						pointsInputEl.style.display="none";
+					}
+					else
+					{
+						pointsInputEl.style.display="inline";
+					}
+				}
+				if (undefined != pointsLabelAst)
+				{
+					pointsLabelAst.style.display="none";
+				}
+				if (undefined != pointsLabelEditAst)
+				{
+					pointsLabelEditAst.style.display="inline";
+				}
+				if (undefined != pointsLabelEl)
+				{
+					if (ungradedDropdownEl.options[0].value == "Percentage")
+					{
+						pointsLabelEl.style.display="none";
+					}
+					else
+					{
+						pointsLabelEl.innerHTML = "Adjustment Item Point Value";
+						pointsLabelEl.style.display="inline";
+					}
+				}
+				if (undefined != categoryInstructionTextEl)
+				{
+					categoryInstructionTextEl.style.display="inline";
+				}
+				if (undefined != categoryDropDown2)
+				{
+					categoryDropDown1.style.display="none";
+					syncAdjustmentDropdowns(myForm);
+					categoryDropDown2.style.display="inline";
+				}
+			}
 	}
 
+}
+
+function syncAdjustmentDropdowns(myForm) {
+	var categoryDropDown1 = getTheElement(myForm + ':selectCategory');
+	var categoryDropDown2 = getTheElement(myForm + ':selectCategory2');
+	
+	if (undefined != categoryDropDown2)
+	{
+		categoryDropDown1.selectedIndex=categoryDropDown2.options[categoryDropDown2.selectedIndex].value;
+	}
+}
+
+function adjustmentDropdownOnLoad(myForm) {
+	var categoryDropDown1 = getTheElement(myForm + ':selectCategory');
+	var categoryDropDown2 = getTheElement(myForm + ':selectCategory2');
+	
+	if (undefined != categoryDropDown2)
+	{
+		for (i=0;i<categoryDropDown2.options.length;i++){
+			if (categoryDropDown2.options[i].value==categoryDropDown1.options[categoryDropDown1.selectedIndex].value){
+				categoryDropDown2.selectedIndex=i;
+				return true;
+			}
+		}
+	}
 }
 
 

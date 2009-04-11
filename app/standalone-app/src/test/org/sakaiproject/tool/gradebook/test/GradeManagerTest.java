@@ -69,7 +69,7 @@ public class GradeManagerTest extends GradebookTestBase {
 		});
 		addUsersEnrollments(gradebook, studentUidsList);
 
-        gradebookManager.createAssignment(gradebook.getId(), "Assignment #1", new Double(20), new Date(), Boolean.FALSE,Boolean.FALSE);
+        gradebookManager.createAssignment(gradebook.getId(), "Assignment #1", new Double(20), new Date(), Boolean.FALSE,Boolean.FALSE, null);
         Assignment persistentAssignment = (Assignment)gradebookManager.
             getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
 
@@ -176,7 +176,7 @@ public class GradeManagerTest extends GradebookTestBase {
 		});
 		addUsersEnrollments(gradebook, studentUidsList);
 
-        gradebookManager.createAssignment(gradebook.getId(), "Excessive Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
+        gradebookManager.createAssignment(gradebook.getId(), "Excessive Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE, null);
         Assignment asn = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
 
         // Create a grade record set
@@ -194,7 +194,7 @@ public class GradeManagerTest extends GradebookTestBase {
         Set students = new HashSet();
         students.add("entered1");
 
-        Long asgId = gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE
+        Long asgId = gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE, null
         );
         Assignment asn = (Assignment)gradebookManager.getAssignmentsWithStats(gradebook.getId(), Assignment.DEFAULT_SORT, true).get(0);
 
@@ -222,7 +222,7 @@ public class GradeManagerTest extends GradebookTestBase {
 		List studentUidsList = Arrays.asList(new String[] {
 			studentId,
 		});
-        gradebookManager.createAssignment(gradebook.getId(), "GradingEvent Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
+        gradebookManager.createAssignment(gradebook.getId(), "GradingEvent Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE, null);
         Assignment assignment = (Assignment)gradebookManager.getAssignments(gradebook.getId()).get(0);
 
         // Create a map of studentUserUids to grades
@@ -251,7 +251,7 @@ public class GradeManagerTest extends GradebookTestBase {
 
     public void testDroppedStudents() throws Exception {
         Gradebook gradebook = gradebookManager.getGradebook(this.getClass().getName());
-        Long asgId = gradebookManager.createAssignment(gradebook.getId(), "Dropped Students Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE);
+        Long asgId = gradebookManager.createAssignment(gradebook.getId(), "Dropped Students Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE, null);
         Assignment asn = gradebookManager.getAssignment(asgId);
 
         // We need to operate on whatever grade records already exist in the db
@@ -299,8 +299,8 @@ public class GradeManagerTest extends GradebookTestBase {
 		});
 		addUsersEnrollments(gradebook, studentUidsList);
 
-        Long id1 = gradebookManager.createAssignment(gradebook.getId(), "asn1", new Double(10), null, Boolean.FALSE,Boolean.TRUE);
-        Long id2 = gradebookManager.createAssignment(gradebook.getId(), "asn2", new Double(20), new Date(10), Boolean.FALSE,Boolean.TRUE);
+        Long id1 = gradebookManager.createAssignment(gradebook.getId(), "asn1", new Double(10), null, Boolean.FALSE,Boolean.TRUE, null);
+        Long id2 = gradebookManager.createAssignment(gradebook.getId(), "asn2", new Double(20), new Date(10), Boolean.FALSE,Boolean.TRUE, null);
 
         Assignment asn1 = gradebookManager.getAssignmentWithStats(id1);
         Assignment asn2 = gradebookManager.getAssignmentWithStats(id2);
@@ -359,8 +359,8 @@ public class GradeManagerTest extends GradebookTestBase {
 		});
 		addUsersEnrollments(gradebook, studentUidsList);
 
-        Long id1 = gradebookManager.createAssignment(gradebook.getId(), "asn1", new Double(10), null, Boolean.FALSE,Boolean.FALSE);
-        Long id2 = gradebookManager.createAssignment(gradebook.getId(), "asn2", new Double(20), new Date(10), Boolean.FALSE,Boolean.FALSE);
+        Long id1 = gradebookManager.createAssignment(gradebook.getId(), "asn1", new Double(10), null, Boolean.FALSE,Boolean.FALSE, null);
+        Long id2 = gradebookManager.createAssignment(gradebook.getId(), "asn2", new Double(20), new Date(10), Boolean.FALSE,Boolean.FALSE, null);
 
         Assignment asn1 = gradebookManager.getAssignmentWithStats(id1);
         Assignment asn2 = gradebookManager.getAssignmentWithStats(id2);

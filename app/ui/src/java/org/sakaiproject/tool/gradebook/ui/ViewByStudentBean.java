@@ -83,6 +83,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     protected static final String SORT_BY_POINTS_EARNED = "pointsEarned";
     protected static final String SORT_BY_GRADE = "grade";
     protected static final String SORT_BY_ITEM_VALUE = "itemValue";
+    protected static final String SORT_BY_ITEM_TYPE = "itemType";
     public static Comparator nameComparator;
     public static Comparator dateComparator;
     public static Comparator pointsPossibleComparator;
@@ -91,6 +92,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     private static Comparator doubleOrNothingComparator;
     private static Comparator itemValueComparator;
     private static Comparator gradeEditorComparator;
+    public static Comparator itemTypeComparator;
     static {
         nameComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
@@ -183,9 +185,15 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
         		return Assignment.gradeEditorComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
         	}
         };
+        itemTypeComparator = new Comparator() {
+        	public int compare(Object o1, Object o2) {
+        		return Assignment.itemTypeComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
+        	}
+        };
 
         columnSortMap = new HashMap();
         columnSortMap.put(SORT_BY_NAME, ViewByStudentBean.nameComparator);
+        columnSortMap.put(SORT_BY_ITEM_TYPE, ViewByStudentBean.itemTypeComparator);
         columnSortMap.put(SORT_BY_DATE, ViewByStudentBean.dateComparator);
         columnSortMap.put(SORT_BY_POINTS_POSSIBLE, ViewByStudentBean.pointsPossibleComparator);
         columnSortMap.put(SORT_BY_POINTS_EARNED, ViewByStudentBean.pointsEarnedComparator);

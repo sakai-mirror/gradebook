@@ -113,7 +113,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 		integrationSupport.addSectionMembership(TA_UID, section.getUuid(), Role.TA);
 
         // Add an internal assignment.
-        asnId = gradebookManager.createAssignment(gradebook.getId(), ASN_TITLE, ASN_POINTS, new Date(), Boolean.FALSE,Boolean.FALSE);
+        asnId = gradebookManager.createAssignment(gradebook.getId(), ASN_TITLE, ASN_POINTS, new Date(), Boolean.FALSE,Boolean.FALSE, null);
 
         // Add an external assessment.
         //gradebookExternalAssessmentService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, null, "Samigo");
@@ -137,8 +137,8 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
     	double originalFirstGradeValue = nonDefaultGradeMapping.getGradeMap().get(firstGrade).doubleValue();
     	if (log.isDebugEnabled()) log.debug("nonDefaultGradeMapping=" + nonDefaultGradeMapping.getGradingScale().getUid() + ", firstGrade=" + firstGrade + ", value=" + originalFirstGradeValue);
 
-    	gradebookManager.createAssignment(gradebook.getId(), "Duplicate", new Double(100), null, Boolean.TRUE, Boolean.TRUE);
-    	gradebookManager.createAssignment(gradebook.getId(), "Released", new Double(50), null, Boolean.FALSE, Boolean.TRUE);
+    	gradebookManager.createAssignment(gradebook.getId(), "Duplicate", new Double(100), null, Boolean.TRUE, Boolean.TRUE, null);
+    	gradebookManager.createAssignment(gradebook.getId(), "Released", new Double(50), null, Boolean.FALSE, Boolean.TRUE, null);
     	nonDefaultGradeMapping.getGradeMap().put(firstGrade, new Double(originalFirstGradeValue - 1.0));
     	gradebook.setSelectedGradeMapping(nonDefaultGradeMapping);
 		gradebook.setAssignmentsDisplayed(false);	// Override the defaults
@@ -152,7 +152,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
     	// Create the target gradebook.
     	String migrateToUid = "MigrateTo";
  		Gradebook newGradebook = getNewGradebook(migrateToUid);
-		gradebookManager.createAssignment(newGradebook.getId(), "Duplicate", new Double(1.0), new Date(), Boolean.FALSE, Boolean.FALSE);
+		gradebookManager.createAssignment(newGradebook.getId(), "Duplicate", new Double(1.0), new Date(), Boolean.FALSE, Boolean.FALSE, null);
 
     	// Try to merge the old definition in.
  		gradebookService.mergeGradebookDefinitionXml(migrateToUid, gradebookXml);

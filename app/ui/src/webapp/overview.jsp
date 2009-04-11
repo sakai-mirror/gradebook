@@ -52,11 +52,11 @@
 			var="gradebookItem"
 			sortColumn="#{overviewBean.assignmentSortColumn}"
       sortAscending="#{overviewBean.assignmentSortAscending}"
-      columnClasses="attach,left,center,center,center,center,center,center,external"
+      columnClasses="attach,left,center,center,center,center,center,center,center,external"
 			styleClass="listHier lines nolines"
 			expanded="true"
 			rowClasses="#{overviewBean.rowStyles}"
-			headerClasses="attach,left,center,center,center,center,center,center,external">
+			headerClasses="attach,left,center,center,center,center,center,center,center,external">
 			
 			<h:column id="_toggle" rendered="#{overviewBean.categoriesEnabled}">
 				<f:facet name="header">
@@ -98,6 +98,15 @@
 					<h:outputText value="#{msgs.overview_edit}" />
 					<f:param name="assignmentId" value="#{gradebookItem.id}"/>
 				</h:commandLink>
+			</h:column>
+			
+			<h:column>
+				<f:facet name="header">
+					<t:commandSortHeader columnName="itemType" propertyName="itemType" immediate="true" arrow="true">
+						<h:outputText value="#{msgs.overview_assignments_header_item_type}" />
+		      		</t:commandSortHeader>
+				</f:facet>
+				<h:outputText value="#{gradebookItem.itemType}" rendered="#{!gradebookItem.isCategory}"/>
 			</h:column>
 			
 			

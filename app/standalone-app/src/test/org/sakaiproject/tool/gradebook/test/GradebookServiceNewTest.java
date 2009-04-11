@@ -144,8 +144,8 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		integrationSupport.addSectionMembership(TA_UID, section1.getUuid(), Role.TA);
 
 		// Add internal assignments
-		asn1IdNoCat = gradebookManager.createAssignment(gradebookNoCat.getId(), ASN_TITLE1, ASN_POINTS1, new Date(), Boolean.FALSE,Boolean.FALSE);
-		asn2IdNoCat = gradebookManager.createAssignment(gradebookNoCat.getId(), ASN_TITLE2, ASN_POINTS2, new Date(), Boolean.FALSE,Boolean.FALSE);
+		asn1IdNoCat = gradebookManager.createAssignment(gradebookNoCat.getId(), ASN_TITLE1, ASN_POINTS1, new Date(), Boolean.FALSE,Boolean.FALSE, null);
+		asn2IdNoCat = gradebookManager.createAssignment(gradebookNoCat.getId(), ASN_TITLE2, ASN_POINTS2, new Date(), Boolean.FALSE,Boolean.FALSE, null);
 		
 		// set up gb with categories ///////////////////
 		gradebookFrameworkService.addGradebook(GRADEBOOK_UID_WITH_CAT, GRADEBOOK_UID_WITH_CAT);
@@ -172,10 +172,10 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 
 		// Add an internal assignment.
 		cat1Id = gradebookManager.createCategory(gradebookWithCat.getId(), CAT1_NAME, new Double(0), 0, null);
-		asn1IdWithCat = gradebookManager.createAssignmentForCategory(gradebookWithCat.getId(), cat1Id, ASN_TITLE1, ASN_POINTS1, new Date(), Boolean.FALSE,Boolean.FALSE);
+		asn1IdWithCat = gradebookManager.createAssignmentForCategory(gradebookWithCat.getId(), cat1Id, ASN_TITLE1, ASN_POINTS1, new Date(), Boolean.FALSE,Boolean.FALSE, null);
 		
 		cat2Id = gradebookManager.createCategory(gradebookWithCat.getId(), CAT2_NAME, new Double(0), 0, null);
-		asn2IdWithCat = gradebookManager.createAssignmentForCategory(gradebookWithCat.getId(), cat2Id, ASN_TITLE2, ASN_POINTS2, new Date(), Boolean.FALSE,Boolean.FALSE);
+		asn2IdWithCat = gradebookManager.createAssignmentForCategory(gradebookWithCat.getId(), cat2Id, ASN_TITLE2, ASN_POINTS2, new Date(), Boolean.FALSE,Boolean.FALSE, null);
 
 	}
 
@@ -194,15 +194,15 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 			if(i == 0)
 			{
 				Long assgn1Long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cat.getId(), 
-						cat.getName() + "_assignment_1", new Double(10.0), new Date(), new Boolean(false), new Boolean(true));
+						cat.getName() + "_assignment_1", new Double(10.0), new Date(), new Boolean(false), new Boolean(true), null);
 			}
 			if(i == 1)
 			{
 				Long assgn3Long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cat.getId(), 
-						cat.getName() + "_assignment_1", new Double(10.0), new Date(), new Boolean(false), new Boolean(true));
+						cat.getName() + "_assignment_1", new Double(10.0), new Date(), new Boolean(false), new Boolean(true), null);
 			}
 			Long assign2 = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cat.getId(), 
-					cat.getName() + "_assignment_2", new Double(10.0), new Date(), new Boolean(false), new Boolean(true));
+					cat.getName() + "_assignment_2", new Double(10.0), new Date(), new Boolean(false), new Boolean(true), null);
 		}
 
 		Category cat1 = gradebookManager.getCategory(cate1Long);

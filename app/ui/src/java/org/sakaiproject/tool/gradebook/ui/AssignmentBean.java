@@ -53,6 +53,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 	private Long assignmentId;
     private Assignment assignment;
     private List categoriesSelectList;
+    private List categoriesAdjustmentSelectList;
     private String assignmentCategory;
     private List gradeEntrySelectList;
     private boolean isBulkDisplay = false;
@@ -79,6 +80,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     public static final String GB_POINTS_ENTRY = "Points";
     public static final String GB_PERCENTAGE_ENTRY = "Percentage";
     public static final String GB_NON_CALCULATING_ENTRY = "Non-calculating";
+    public static final String GB_ADJUSTMENT_ENTRY = "Adjustment";
     private static final String GB_ADD_ASSIGNMENT_PAGE = "addAssignment";
     
     
@@ -119,16 +121,30 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		{
 			gradeEntrySelectList.add(new SelectItem(GB_POINTS_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_points")));
 			gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
-			if (assignment.getUngraded() == true) {
+			gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
+			if (assignment.getUngraded()) {
 				assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
+			}
+			if (assignment.getIsExtraCredit()!=null) {
+				if (assignment.getIsExtraCredit())
+				{
+					assignment.selectedGradeEntryValue = GB_ADJUSTMENT_ENTRY;
+				}
 			}
 		}
 		else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE)
 		{
 			gradeEntrySelectList.add(new SelectItem(GB_PERCENTAGE_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_percentage")));
 			gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
-			if (assignment.getUngraded() == true) {
+			gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
+			if (assignment.getUngraded()) {
 				assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
+			}
+			if (assignment.getIsExtraCredit()!=null) {
+				if (assignment.getIsExtraCredit())
+				{
+					assignment.selectedGradeEntryValue = GB_ADJUSTMENT_ENTRY;
+				}
 			}
 		}
 		else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER)
@@ -151,9 +167,11 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		}
 		
 		categoriesSelectList = new ArrayList();
+		categoriesAdjustmentSelectList = new ArrayList();
 
 		// The first choice is always "Unassigned"
 		categoriesSelectList.add(new SelectItem(UNASSIGNED_CATEGORY, FacesUtil.getLocalizedString("cat_unassigned")));
+		categoriesAdjustmentSelectList.add(new SelectItem(UNASSIGNED_CATEGORY, FacesUtil.getLocalizedString("cat_unassigned")));
 		List gbCategories = getGradebookManager().getCategories(getGradebookId());
 		if (gbCategories != null && gbCategories.size() > 0)
 		{
@@ -161,6 +179,13 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			while (catIter.hasNext()) {
 				Category cat = (Category) catIter.next();
 				categoriesSelectList.add(new SelectItem(cat.getId().toString(), cat.getName()));
+				if (cat.getIsExtraCredit()!=null)
+				{
+					if (!cat.getIsExtraCredit())
+					{
+						categoriesAdjustmentSelectList.add(new SelectItem(cat.getId().toString(), cat.getName()));
+					}
+				}
 			}
 		}
 
@@ -271,15 +296,29 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 					newAssignmentNameList.add(bulkAssignment.getName().trim());
 				}
 
+				boolean adjustmentWithNoPoints = false; // used for some logic later
+				
 				// if ungraded, we don't care about points possible
 				if (bulkAssignDecoBean.getSelectedGradeEntryValue().equals(GB_NON_CALCULATING_ENTRY)) {
 					bulkAssignment.setUngraded(true);
+				}
+				if (bulkAssignDecoBean.getSelectedGradeEntryValue().equals(GB_ADJUSTMENT_ENTRY)) {
+					bulkAssignment.setIsExtraCredit(true);
+					bulkAssignment.setUngraded(false); // extra insurance
+					if (bulkAssignDecoBean.getPointsPossible() == null || ("".equals(bulkAssignDecoBean.getPointsPossible().trim()))) {
+						adjustmentWithNoPoints = true;
+					}
 				}
 				if (!bulkAssignment.getUngraded() && getGradebook().getGrade_type()!=GradebookService.GRADE_TYPE_LETTER)
 				{
 					// Check if points possible is blank else convert to double. Exception at else point
 					// means non-numeric value entered.
-					if (bulkAssignDecoBean.getPointsPossible() == null || ("".equals(bulkAssignDecoBean.getPointsPossible().trim()))) {
+					if (adjustmentWithNoPoints)
+					{
+						// if this is the case, we want to skip the rest of this stuff as its ok
+						bulkAssignDecoBean.setBulkNoPointsError("OK");
+					}
+					else if (bulkAssignDecoBean.getPointsPossible() == null || ("".equals(bulkAssignDecoBean.getPointsPossible().trim()))) {
 						bulkAssignDecoBean.setBulkNoPointsError("blank");
 						saveAll = false;
 						resultString = "failure";
@@ -497,30 +536,52 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			//boolean origUngraded = originalAssignment.getUngraded();
 			//boolean newUngraded = assignment.getUngraded();
 			
+			boolean adjustmentWithNoPoints = false; // used for some logic later
+			
 			// if ungraded, we don't care about points possible
 			if (assignment.getSelectedGradeEntryValue().equals(GB_NON_CALCULATING_ENTRY)) {
 				assignment.setUngraded(true);
-			} else {
+				assignment.setIsExtraCredit(false); // extra insurance
+			}
+			else if (assignment.getSelectedGradeEntryValue().equals(GB_ADJUSTMENT_ENTRY)) {
+				assignment.setIsExtraCredit(true);
+				assignment.setUngraded(false); // extra insurance
+				if (getGradebook().getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE)
+				{
+					// Adjustment item in a percent gradebook should never have points possible
+					assignment.setPointsPossible(null);
+				}
+				if (assignment.getPointsPossible() == null || ("".equals(assignment.getPointsPossible()))) {
+					adjustmentWithNoPoints = true;
+				}
+			}
+			else
+			{
+				// back to a normal type of item so set these types to false
 				assignment.setUngraded(false);
+				assignment.setIsExtraCredit(false);
 			}
 			if (!assignment.getUngraded() && getGradebook().getGrade_type()!=GradebookService.GRADE_TYPE_LETTER)
 			{
-				if (assignment.getPointsPossible() == null) {
-					FacesUtil.addErrorMessage(getLocalizedString("add_assignment_no_points"));
-					return "failure";
-				}
-				/* If grade entry by percentage or letter and the points possible has changed for this assignment,
-				 * we need to convert all of the stored point values to retain the same value
-				 */
-				if ((getGradeEntryByPercent() || getGradeEntryByLetter()) && scoresEnteredForAssignment) {
-					if (!newPointsPossible.equals(origPointsPossible)) {
-						List enrollments = getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.STUDENT);
-				        List studentUids = new ArrayList();
-				        for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
-				            studentUids.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
-				        }
-				        // commented this out... not sure what we want to do here
-						//getGradebookManager().convertGradePointsForUpdatedTotalPoints(getGradebook(), originalAssignment, assignment.getPointsPossible(), studentUids);
+				if (!adjustmentWithNoPoints)
+				{
+					if (assignment.getPointsPossible() == null) {
+						FacesUtil.addErrorMessage(getLocalizedString("add_assignment_no_points"));
+						return "failure";
+					}
+					/* If grade entry by percentage or letter and the points possible has changed for this assignment,
+					 * we need to convert all of the stored point values to retain the same value
+					 */
+					if ((getGradeEntryByPercent() || getGradeEntryByLetter()) && scoresEnteredForAssignment) {
+						if (!newPointsPossible.equals(origPointsPossible)) {
+							List enrollments = getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.STUDENT);
+					        List studentUids = new ArrayList();
+					        for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
+					            studentUids.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
+					        }
+					        // commented this out... not sure what we want to do here
+							//getGradebookManager().convertGradePointsForUpdatedTotalPoints(getGradebook(), originalAssignment, assignment.getPointsPossible(), studentUids);
+						}
 					}
 				}
 			}
@@ -624,6 +685,10 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     public List getCategoriesSelectList() {
     	return categoriesSelectList;
     }
+    
+    public List getCategoriesAdjustmentSelectList() {
+		return categoriesAdjustmentSelectList;
+	}
     
     public List getAddItemSelectList() {
 		return addItemSelectList;

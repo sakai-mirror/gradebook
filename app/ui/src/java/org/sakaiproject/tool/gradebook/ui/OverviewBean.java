@@ -61,6 +61,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
         columnSortMap.put(Assignment.SORT_BY_NAME, Assignment.nameComparator);
         columnSortMap.put(Assignment.SORT_BY_DATE, Assignment.dateComparator);
         columnSortMap.put(Assignment.SORT_BY_RELEASED,Assignment.releasedComparator);
+        columnSortMap.put(Assignment.SORT_BY_ITEM_TYPE, Assignment.itemTypeComparator);
         columnSortMap.put(Assignment.SORT_BY_MEAN, Assignment.meanComparator);
         columnSortMap.put(Assignment.SORT_BY_POINTS, Assignment.pointsComparator);
         columnSortMap.put(Assignment.SORT_BY_COUNTED, Assignment.countedComparator);
@@ -131,6 +132,8 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 							Assignment assign = (Assignment) assignIter.next();
 							if (assign.isExternallyMaintained())
 								displayGradeEditorCol = true;
+							// set assignment type
+							assign.setItemType(assign.getItemType());
 							gradebookItemList.add(assign);
 						}
 					}
@@ -156,6 +159,8 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 						Assignment assignWithNoCat = (Assignment) unassignedIter.next();
 						if (assignWithNoCat.isExternallyMaintained())
 							displayGradeEditorCol = true;
+						// set assignment type
+						assignWithNoCat.setItemType(assignWithNoCat.getItemType());
 						gradebookItemList.add(assignWithNoCat);
 					}
 				}
@@ -175,6 +180,8 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 						Assignment assign = (Assignment) go;
 						if (assign.isExternallyMaintained())
 							displayGradeEditorCol = true;
+						// set assignment type
+						assign.setItemType(assign.getItemType());
 						gradebookItemList.add(assign);
 					}
 				}

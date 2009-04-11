@@ -1412,6 +1412,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	Comparator comp;
   	if(Assignment.SORT_BY_NAME.equals(sortBy)) {
   		comp = Assignment.nameComparator;
+  	} else if(Assignment.SORT_BY_ITEM_TYPE.equals(sortBy)) {
+  		comp = Assignment.itemTypeComparator;
   	} else if(Assignment.SORT_BY_MEAN.equals(sortBy)) {
   		comp = Assignment.meanComparator;
   	} else if(Assignment.SORT_BY_POINTS.equals(sortBy)) {

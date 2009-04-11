@@ -60,6 +60,9 @@
 					<h:outputText id="noncalctitlespace" value=" " rendered="#{assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter}"/>
 					<h:outputText id="noncalctitle" value="#{msgs.assignment_details_noncalc_title}" rendered="#{assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter}"/>
 				</h:panelGroup>
+				
+				<h:outputText id="itemTypeLabel" value="#{msgs.assignment_details_item_type}"/>
+				<h:outputText id="itemType" value="#{assignmentDetailsBean.assignment.itemType}" />
 
 				<h:outputText id="pointsLabel" value="#{(assignmentDetailsBean.gradeEntryByPercent) ? msgs.assignment_details_relative_weight : msgs.assignment_details_points}"
 					rendered="#{!assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter}"/>
@@ -215,7 +218,7 @@
 			<h:column>
 				<f:facet name="header">
 		      <t:commandSortHeader columnName="studentScore" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
-					  <h:outputText value="#{msgs.assignment_details_grade}"/>
+					  <h:outputText value="#{(assignmentDetailsBean.assignment.isExtraCredit) ? msgs.assignment_details_adjustment_score : msgs.assignment_details_grade}"/>
 		      </t:commandSortHeader>
 				</f:facet>
 

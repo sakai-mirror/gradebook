@@ -131,7 +131,7 @@ public class GradebookItemBean {
 									assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased());
 						} else {
 							id = gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
-									assignment.getPointsPossible(), assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased());
+									assignment.getPointsPossible(), assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased(), null);
 						}
 					} else {
 						if (assignment.getUngraded()) {
@@ -139,7 +139,7 @@ public class GradebookItemBean {
 									assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased());
 						} else {
 							id = gradebookManager.createAssignment(this.gradebookId, assignment.getName(), assignment.getPointsPossible(), 
-								assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased());
+								assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased(), assignment.getIsExtraCredit());
 						}
 					}
 					assignment.setId(id);

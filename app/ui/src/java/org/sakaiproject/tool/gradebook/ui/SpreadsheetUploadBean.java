@@ -944,6 +944,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         while (assignIter.hasNext()) {
         	String assignmentName = (String) assignIter.next();
         	String pointsPossibleAsString = null;
+        	boolean isAdjustmentItem = false;
+        	boolean isPercentageGradebook = getGradeEntryByPercent();
         	
         	String [] parsedAssignmentName = assignmentName.split(" \\[");
         	
@@ -951,6 +953,18 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	if (parsedAssignmentName.length > 1) {
         		String [] parsedPointsPossible = parsedAssignmentName[parsedAssignmentName.length - 1].split("\\]");
         		pointsPossibleAsString = parsedPointsPossible[0].trim();
+        		
+        		// this checks if the assignment being imported is an adjustment item and set the variables accordingly
+        		if(pointsPossibleAsString.startsWith(getLocalizedString("ADJUSTMENT_ITEM")))
+        		{
+        			isAdjustmentItem = true;
+        			// if this makes it into the next block, pointsPossibleAsString will have the points value
+        			if (pointsPossibleAsString.length() > 2)
+        			{
+	        			String [] temp = pointsPossibleAsString.split("\\:");
+	        			pointsPossibleAsString = temp[1].trim();
+        			}
+        		}
         		
         		if(parsedAssignmentName.length > 2){
         			//fix name:
@@ -986,24 +1000,37 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         		
         		if (pointsPossibleAsString != null) {
         			Double pointsPossible = null;
-        			if(!pointsPossibleAsString.equals(getLocalizedString("NON_CALCULATING_ITEM"))){
-        				try{
-        				pointsPossible = new Double(pointsPossibleAsString);
-        				if (pointsPossible != null)
-        					pointsPossible = new Double(FacesUtil.getRoundDown(pointsPossible.doubleValue(), 2));
-        				}catch(Exception e){
+        			if(!pointsPossibleAsString.equals(getLocalizedString("NON_CALCULATING_ITEM")) && !pointsPossibleAsString.equals(getLocalizedString("ADJUSTMENT_ITEM"))){
+        				try
+        				{
+	        				pointsPossible = new Double(pointsPossibleAsString);
+	        				if (pointsPossible != null)
+	        					pointsPossible = new Double(FacesUtil.getRoundDown(pointsPossible.doubleValue(), 2));
+        				}
+        				catch(Exception e)
+        				{
         					//pointsPossible was not a number, set it to ungraded
         					pointsPossible = null;
         					ungraded = true;
         				}
-        			}else{
-        				ungraded = true;
+        			}
+        			else
+        			{
+        				if (isAdjustmentItem)
+        					ungraded = false;
+        				else
+        					ungraded = true;
         			}
         			// params: gradebook id, name of assignment, points possible, due date, NOT counted, is released
         			if(ungraded){
         				assignmentId = getGradebookManager().createUngradedAssignment(getGradebookId(), assignmentName, null, Boolean.FALSE, Boolean.TRUE);
         			}else{
-        				assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignmentName, pointsPossible, null, Boolean.FALSE, Boolean.TRUE);
+        				// if this is an adjustment item and we have a percentage based gradebook, set points possible to null since they are not related
+        				if (isAdjustmentItem && isPercentageGradebook)
+        				{
+        					pointsPossible = null;
+        				}
+        				assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignmentName, pointsPossible, null, Boolean.FALSE, Boolean.TRUE, isAdjustmentItem);
         			}
         			assignment = getGradebookManager().getAssignment(assignmentId);
         		}
@@ -1514,13 +1541,13 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         		if(assignment.getUngraded()){
         			assignmentId = getGradebookManager().createUngradedAssignmentForCategory(getGradebookId(), newCategory.getId(), assignment.getName(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
         		}else{
-        			assignmentId = getGradebookManager().createAssignmentForCategory(getGradebookId(), newCategory.getId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
+        			assignmentId = getGradebookManager().createAssignmentForCategory(getGradebookId(), newCategory.getId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()), null);
         		}
         	} else {
         		if(assignment.getUngraded()){
         			assignmentId = getGradebookManager().createUngradedAssignment(getGradebookId(), assignment.getName(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
         		}else{
-        			assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
+        			assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()), new Boolean(assignment.getIsExtraCredit()));
         		}
         	}
         	

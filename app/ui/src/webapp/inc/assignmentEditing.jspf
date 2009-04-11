@@ -89,6 +89,11 @@
 		<h:selectOneMenu id="selectCategory" value="#{bean.assignmentCategory}">
 			<f:selectItems value="#{bean.categoriesSelectList}" />
 		</h:selectOneMenu>
+		
+		<%-- Javascript should copy the value over to the above dropdown and will be the field used for writing to the DB --%>
+		<h:selectOneMenu id="selectCategory2" rendered="#{bean.weightingEnabled}" onclick="syncAdjustmentDropdowns((this.form.name));" >
+			<f:selectItems value="#{bean.categoriesAdjustmentSelectList}" />
+		</h:selectOneMenu>
 		<f:verbatim><div class="instruction"></f:verbatim>
 			<h:outputText id="nonCalCategoryInstructionText" value="#{msgs.add_assignment_category_info}" rendered="#{bean.weightingEnabled}"/>
 		<f:verbatim></div></f:verbatim>			
@@ -123,6 +128,6 @@
 </div>
 
 <script type="text/javascript">
-	assignmentUngraded('gbForm');
+	adjustmentDropdownOnLoad('gbForm');
 	assignmentNonCalc('gbForm');
 </script>

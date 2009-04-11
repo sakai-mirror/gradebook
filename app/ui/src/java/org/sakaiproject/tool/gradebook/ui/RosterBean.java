@@ -54,6 +54,7 @@ import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
@@ -561,10 +562,25 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		                br.setValue("<br />");
 		                br.setEscape(false);
 		                
+		                Boolean extraCredit = getGradebookManager().getAssignment(columnData.getAssignmentId()).getIsExtraCredit();
+		                
 		                //make a panel group to add link 
 		                HtmlPanelGroup pg = new HtmlPanelGroup();
 		                pg.getChildren().add(sortHeader);
 		                pg.getChildren().add(br);
+		                if (extraCredit!=null)
+		                {
+		                	if (extraCredit)
+		                	{
+		                		HtmlOutputText ai = new HtmlOutputText();
+		                		ai.setValue("Adjustment");
+		                		pg.getChildren().add(ai);
+		                		HtmlOutputText br2 = new HtmlOutputText();
+				                br2.setValue("<br />");
+				                br2.setEscape(false);
+		                		pg.getChildren().add(br2);
+		                	}
+		                }
 		                pg.getChildren().add(detailsLink);
 		                
 		                col.setHeader(pg);
@@ -894,8 +910,38 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         		if(((Assignment) gradableObject).getUngraded()){
         			ptsPossibleAsString = getLocalizedString("NON_CALCULATING_ITEM");
         		}else{
-        			ptsPossible = new Double(((Assignment) gradableObject).getPointsPossible());
-        			ptsPossibleAsString = ptsPossible.toString();
+        			if (((Assignment) gradableObject).getIsExtraCredit()!=null)
+        			{
+        				if (((Assignment) gradableObject).getIsExtraCredit())
+        				{
+	        				if (((Assignment) gradableObject).getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
+	        				{
+	        					ptsPossibleAsString = "ai";
+	        				}
+	        				else
+	        				{
+	        					if (((Assignment) gradableObject).getPointsPossible()!=null)
+	        					{
+	        						ptsPossible = new Double(((Assignment) gradableObject).getPointsPossible());
+	        						ptsPossibleAsString = "ai:" + ptsPossible.toString();
+	        					}
+	        					else
+	        					{
+	        						ptsPossibleAsString = "ai";
+	        					}
+	        				}
+        				}
+        				else
+            			{
+            				ptsPossible = new Double(((Assignment) gradableObject).getPointsPossible());
+            				ptsPossibleAsString = ptsPossible.toString();
+            			}
+        			}
+        			else
+        			{
+        				ptsPossible = new Double(((Assignment) gradableObject).getPointsPossible());
+        				ptsPossibleAsString = ptsPossible.toString();
+        			}
         		}
          		colName = ((Assignment)gradableObject).getName() + " [" + ptsPossibleAsString + "]";
          	} else if (gradableObject instanceof CourseGrade && includeCourseGrade) {

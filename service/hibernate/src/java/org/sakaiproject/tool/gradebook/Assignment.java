@@ -45,7 +45,14 @@ public class Assignment extends GradableObject {
     public static String SORT_BY_RELEASED ="released";
     public static String SORT_BY_COUNTED = "counted";
     public static String SORT_BY_EDITOR = "gradeEditor";
+    public static String SORT_BY_ITEM_TYPE = "itemType";
     public static String DEFAULT_SORT = SORT_BY_DATE;
+    
+    public static String item_type_points = "Points";
+    public static String item_type_percentage = "Percentage";
+    public static String item_type_letter = "Letter Grade";
+    public static String item_type_nonCalc = "Non-calculating";
+    public static String item_type_adjustment = "Adjustment";
 
     public static Comparator dateComparator;
     public static Comparator nameComparator;
@@ -54,6 +61,7 @@ public class Assignment extends GradableObject {
     public static Comparator releasedComparator;
     public static Comparator countedComparator;
     public static Comparator gradeEditorComparator;
+    public static Comparator itemTypeComparator;
 
     private Double pointsPossible;
     private Date dueDate;
@@ -69,6 +77,7 @@ public class Assignment extends GradableObject {
     private boolean ungraded;
     private Boolean isExtraCredit;
 	private Double assignmentWeighting;
+	private String itemType;
 	public String selectedGradeEntryValue;
 
 	static {
@@ -188,6 +197,23 @@ public class Assignment extends GradableObject {
                     return comp;
                 }
             }
+        };
+        
+        itemTypeComparator = new Comparator() {
+			public int compare(Object o1, Object o2) {
+				if(log.isDebugEnabled()) log.debug("Comparing assignment + " + o1 + " to " + o2 + " by item type");
+				Assignment one = (Assignment)o1;
+                Assignment two = (Assignment)o2;
+                String oneType = one.getItemType();
+                String twoType = two.getItemType();
+
+                int comp = String.valueOf(oneType).compareTo(String.valueOf(twoType));
+                if(comp == 0) {
+                    return one.getName().compareTo(two.getName());
+                } else {
+                    return comp;
+                }
+			}
         };
     }
 
@@ -476,6 +502,48 @@ public class Assignment extends GradableObject {
 
 		public void setAssignmentWeighting(Double assignmentWeighting) {
 			this.assignmentWeighting = assignmentWeighting;
+		}
+		
+		public String getItemType() {
+			Gradebook gb = getGradebook();
+			if (gb!=null)
+			{
+				if (getIsExtraCredit()!=null)
+				{
+					if (getIsExtraCredit())
+					{
+						// if we made it in here, go ahead and return since adjustment item takes priority over the rest
+						itemType = item_type_adjustment;
+						return itemType;
+					}
+				}
+				
+				if (getUngraded())
+				{
+					// if we made it in here, go ahead and return since non-calc item takes priority over the rest
+					itemType = item_type_nonCalc;
+					return itemType;
+				}
+				
+				if(gb.getGrade_type() == GradebookService.GRADE_TYPE_POINTS)
+				{
+					itemType = item_type_points;
+				}
+				else if(gb.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
+				{
+					itemType = item_type_percentage;
+				}
+				else if(gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
+				{
+					itemType = item_type_letter;
+				}
+			}
+			return itemType;
+		}
+
+
+		public void setItemType(String itemType) {
+			this.itemType = itemType;
 		}
 		
 		public String getSelectedGradeEntryValue() {

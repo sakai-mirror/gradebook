@@ -56,8 +56,8 @@
 				var="row"
         sortColumn="#{studentViewBean.sortColumn}"
 				sortAscending="#{studentViewBean.sortAscending}"
-				columnClasses="attach,left,center,center,center,center,external"
-				headerClasses="attach,left,center,center,center,center comments,bogus"
+				columnClasses="attach,left,center,center,center,center,center,external"
+				headerClasses="attach,left,center,center,center,center,center comments,bogus"
 				rowClasses="#{studentViewBean.rowStyles}"
 				styleClass="listHier wideTable lines"
 				rendered="#{studentViewBean.assignmentsReleased}"
@@ -77,6 +77,15 @@
 					</f:facet>
 					<h:outputText value="#{row.associatedAssignment.name}" rendered="#{row.assignment}"/>
 					<h:outputText value="#{row.name}" styleClass="categoryHeading" rendered="#{row.isCategory}"/>
+				</h:column>
+				
+				<h:column>
+					<f:facet name="header">
+						<t:commandSortHeader columnName="itemType" propertyName="itemType" immediate="true" arrow="true">
+							<h:outputText value="#{msgs.student_view_item_type}" />
+		      			</t:commandSortHeader>
+					</f:facet>
+					<h:outputText value="#{row.associatedAssignment.itemType}" rendered="#{!row.isCategory}"/>
 				</h:column>
 				
 				<h:column>
