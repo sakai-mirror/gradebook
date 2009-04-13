@@ -99,7 +99,7 @@
 		<f:verbatim></div></f:verbatim>
 	</h:panelGroup>
 </div>
-cat_adjustment_popup_message
+
 <f:verbatim>
 <div style="visibility: hidden; left: 589px; top: 386px;" class="dhtmlPopup" id="dhtmlPopup_adjustmentDescription">
 	<table cellspacing="0" cellpadding="0" border="0">
