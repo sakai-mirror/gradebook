@@ -57,7 +57,13 @@
 				</h:column>
 				<h:column rendered="#{gradebookSetupBean.displayWeighting}">
 					<f:facet name="header">
-						<h:outputText value="#{msgs.cat_list_adjustment}" />
+						<h:panelGroup>
+							<h:outputText value="#{msgs.cat_list_adjustment}" />
+							<h:outputLink value="#"
+								onclick="javascript:dhtmlPopupToggle('adjustmentDescription', event);return false;">
+								<h:outputText value="?" />
+							</h:outputLink>
+						</h:panelGroup>
 					</f:facet>
 					<h:selectBooleanCheckbox id="adjustment" value="#{category.isExtraCredit}" onchange="javascript:updateRunningTotal(this.form);"/>
 				</h:column>
@@ -93,6 +99,30 @@
 		<f:verbatim></div></f:verbatim>
 	</h:panelGroup>
 </div>
+cat_adjustment_popup_message
+<f:verbatim>
+<div style="visibility: hidden; left: 589px; top: 386px;" class="dhtmlPopup" id="dhtmlPopup_adjustmentDescription">
+	<table cellspacing="0" cellpadding="0" border="0">
+		<tbody>
+			<tr>
+				<td><b>
+</f:verbatim>
+					   <h:outputText value="#{msgs.cat_adjustment_popup_title}"/>
+<f:verbatim>
+					   </b></td>
+			</tr>
+			<tr>
+				<td>
+</f:verbatim>
+						<h:outputText value="#{msgs.cat_adjustment_popup_message}"/>
+<f:verbatim>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+</f:verbatim>
+
 <%
   String thisId = request.getParameter("panel");
   if (thisId == null) 
