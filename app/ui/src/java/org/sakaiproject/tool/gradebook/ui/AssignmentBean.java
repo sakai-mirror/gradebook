@@ -60,6 +60,8 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     private boolean releaseChange = true;
     private boolean countedChange = true;
     private boolean isNonCalc;
+    private Category selectedCategory;
+    private boolean selectedCategoryDropsScores;
     
     // added to support bulk gradebook item creation
     public List newBulkItems; 
@@ -216,7 +218,9 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 	private BulkAssignmentDecoratedBean getNewAssignment() {
 		Assignment assignment = new Assignment();
 		assignment.setReleased(true);
-		
+		if(selectedCategory != null && selectedCategory.isDropScores()) {
+		    assignment.setPointsPossible(selectedCategory.getPointValue());
+		}
 		BulkAssignmentDecoratedBean bulkAssignmentDecoBean = new BulkAssignmentDecoratedBean(assignment, getItemCategoryString(assignment));
 
 		return bulkAssignmentDecoBean;
@@ -771,6 +775,22 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		return category;
     }    
 
+    public boolean isSelectedCategoryDropsScores() {
+        return selectedCategoryDropsScores;
+    }
+
+    public void setSelectedCategoryDropsScores(boolean selectedCategoryDropsScores) {
+        this.selectedCategoryDropsScores = selectedCategoryDropsScores;
+    }
+
+    public Category getSelectedCategory() {
+        return selectedCategory;
+    }
+
+    public void setSelectedCategory(Category selectedCategory) {
+        this.selectedCategory = selectedCategory;
+    }
+
     /**
      * For bulk assignments, need to set the proper classes as a string
      */
@@ -894,16 +914,48 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		}
 		return GB_ADD_ASSIGNMENT_PAGE;
 	}
-	
-	public String processItemTitleChange(ValueChangeEvent vce)
-	{ 
-		String changeItemTitle = (String) vce.getNewValue(); 
-		if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))	
-		{
-			itemTitleChange = changeItemTitle;
-		}
-		return GB_ADD_ASSIGNMENT_PAGE;
-	}
+    
+    public String processCategoryChange(ValueChangeEvent vce)
+    { 
+        String changeCategory = (String) vce.getNewValue(); 
+        if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))  
+        {
+            List<Category> categories = getGradebookManager().getCategories(getGradebookId());
+            if (categories != null && categories.size() > 0)
+            {
+                for (Category category : categories) {
+                    if(changeCategory.equals(category.getId().toString())) {
+                        selectedCategoryDropsScores = category.isDropScores();
+                        selectedCategory = category;
+                        break;
+                    }
+                }
+            }
+        }
+        return GB_ADD_ASSIGNMENT_PAGE;
+    }
+    
+    /*
+     * 
+        Category assignCategory = assignment.getCategory();
+        if (assignCategory != null) {
+            assignmentCategory = assignCategory.getId().toString();
+        }
+        else {
+            assignmentCategory = getLocalizedString("cat_unassigned");
+        }
+
+     */
+    
+    public String processItemTitleChange(ValueChangeEvent vce)
+    { 
+        String changeItemTitle = (String) vce.getNewValue(); 
+        if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))  
+        {
+            itemTitleChange = changeItemTitle;
+        }
+        return GB_ADD_ASSIGNMENT_PAGE;
+    }
 	
 	public String processPointsPossibleChange(ValueChangeEvent vce)
 	{ 

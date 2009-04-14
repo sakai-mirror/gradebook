@@ -23,9 +23,19 @@
 		
 		<property name="drop_lowest" column="DROP_LOWEST" type="integer" not-null="false" />
 		
+		<property name="dropLowest" column="DROP_LOWEST_FOR_CAT" type="integer" not-null="false" />
+		
 		<property name="removed" column="REMOVED" type="boolean" />
 		
 		<property name="isExtraCredit" column="IS_EXTRA_CREDIT" type="boolean" not-null="false" />
+		
+		<property name="dropHighest" column="DROP_HIGHEST" type="integer" not-null="false" />
+		
+		<property name="keepHighest" column="KEEP_HIGHEST" type="integer" not-null="false" />
+
+		<property name="pointValue" column="POINT_VALUE" type="double" not-null="false" />
+
+		<property name="relativeWeight" column="RELATIVE_WEIGHT" type="integer" not-null="false" />
   </class>
   
  	<database-object>

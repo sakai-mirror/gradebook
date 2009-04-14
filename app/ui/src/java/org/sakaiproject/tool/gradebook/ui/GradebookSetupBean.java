@@ -53,7 +53,8 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private static final Log logger = LogFactory.getLog(GradebookSetupBean.class);
 
 	private String gradeEntryMethod;
-	private String categorySetting;
+    private String categorySetting;
+    private boolean showDropsDisplayed;
 	private List categories;
 	private Gradebook localGradebook;
 	private List categoriesToRemove;
@@ -65,19 +66,21 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private LetterGradePercentMapping lgpm;
 	private LetterGradePercentMapping defaultLGPM;
 	private boolean enableLetterGrade = false;
-  private boolean isValidWithCourseGrade = true;
-  private boolean isLetterGrade = false;
-  private boolean isPointGrade = false;
-  private boolean isPercentageGrade = false;
-  private boolean isExistingGrades=false;
-	
-	private static final int NUM_EXTRA_CAT_ENTRIES = 50;
+    private boolean isValidWithCourseGrade = true;
+    private boolean isLetterGrade = false;
+    private boolean isPointGrade = false;
+    private boolean isPercentageGrade = false;
+    private boolean isExistingGrades=false;
+
+    private static final int NUM_EXTRA_CAT_ENTRIES = 50;
 	private static final String ENTRY_OPT_POINTS = "points";
 	private static final String ENTRY_OPT_PERCENT = "percent";
 	private static final String ENTRY_OPT_LETTER = "letterGrade";
 	private static final String CATEGORY_OPT_NONE = "noCategories";
 	private static final String CATEGORY_OPT_CAT_ONLY = "onlyCategories";
 	private static final String CATEGORY_OPT_CAT_AND_WEIGHT = "categoriesAndWeighting";
+    private static final String DROP_OPT_HIDE = "hideDrop";
+    private static final String DROP_OPT_SHOW = "showDrop";
 
 	private static final String GB_SETUP_PAGE = "gradebookSetup";
 	private static final String GB_OVERVIEW_PAGE = "overview";
@@ -125,6 +128,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		localGradebook = null;
 		categories = null;
 		categorySetting = null;
+		showDropsDisplayed = false;
 		gradeEntryMethod = null;
 		isValidWithCourseGrade = true;
 	}
@@ -144,15 +148,25 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		this.gradeEntryMethod = gradeEntryMethod;
 	} 
 
-	public String getCategorySetting()
-	{	
-		return categorySetting;
-	}
+    public String getCategorySetting()
+    {   
+        return categorySetting;
+    }
 
-	public void setCategorySetting(String categorySetting)
-	{
-		this.categorySetting = categorySetting;
-	} 
+    public void setCategorySetting(String categorySetting)
+    {
+        this.categorySetting = categorySetting;
+    } 
+
+    public boolean getShowDropsDisplayed()
+    {   
+        return showDropsDisplayed;
+    }
+
+    public void setShowDropsDisplayed(boolean showDropsDisplayed)
+    {
+        this.showDropsDisplayed = showDropsDisplayed;
+    } 
 
 	/**
 	 * 
@@ -352,7 +366,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				return "failure";
 			}
 		}
-
+		
 		/* now we need to iterate through the categories and
 		 	1) remove categories
 		 	2) add any new categories
@@ -392,9 +406,9 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 					if (categoryId == null) {
 						// must be a new or blank category
 						if (uiCategory.getWeight() != null && uiCategory.getWeight().doubleValue() > 0) {
-							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), new Double(uiCategory.getWeight().doubleValue()/100), 0, uiCategory.getIsExtraCredit());
+							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), new Double(uiCategory.getWeight().doubleValue()/100), 0, uiCategory.getDropLowest(), uiCategory.getDropHighest(), uiCategory.getKeepHighest(), uiCategory.getPointValue(), uiCategory.getRelativeWeight(), uiCategory.getIsExtraCredit());
 						} else {
-							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), uiCategory.getWeight(), 0, uiCategory.getIsExtraCredit());
+							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), uiCategory.getWeight(), 0, uiCategory.getDropLowest(), uiCategory.getDropHighest(), uiCategory.getKeepHighest(), uiCategory.getPointValue(), uiCategory.getRelativeWeight(), uiCategory.getIsExtraCredit());
 						}
 					}
 					else {
@@ -410,6 +424,12 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 						{
 							updatedCategory.setIsExtraCredit(uiCategory.getIsExtraCredit());
 						}
+						
+						updatedCategory.setDropLowest(uiCategory.getDropLowest());
+                        updatedCategory.setDropHighest(uiCategory.getDropHighest());
+                        updatedCategory.setKeepHighest(uiCategory.getKeepHighest());
+                        updatedCategory.setPointValue(uiCategory.getPointValue());
+                        updatedCategory.setRelativeWeight(uiCategory.getRelativeWeight());
 						
 						getGradebookManager().updateCategory(updatedCategory);
 					}
@@ -497,19 +517,30 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		}
 
 		return GB_SETUP_PAGE;
-	}
+    }
 
-	public String processCategorySettingChange(ValueChangeEvent vce)
-	{
-		String changeAssign = (String) vce.getNewValue(); 
-		if (changeAssign != null && (changeAssign.equals(CATEGORY_OPT_NONE) || 
-				changeAssign.equals(CATEGORY_OPT_CAT_AND_WEIGHT) || 
-				changeAssign.equals(CATEGORY_OPT_CAT_ONLY)))
-		{
-			categorySetting = changeAssign;
-		}
-		return GB_SETUP_PAGE;
-	}
+    public String processCategorySettingChange(ValueChangeEvent vce)
+    {
+        String changeAssign = (String) vce.getNewValue(); 
+        if (changeAssign != null && (changeAssign.equals(CATEGORY_OPT_NONE) || 
+                changeAssign.equals(CATEGORY_OPT_CAT_AND_WEIGHT) || 
+                changeAssign.equals(CATEGORY_OPT_CAT_ONLY)))
+        {
+            categorySetting = changeAssign;
+        }
+        return GB_SETUP_PAGE;
+    }
+
+    public String processShowDropsChange(ValueChangeEvent vce)
+    {
+        Boolean changeAssign = (Boolean)vce.getNewValue(); 
+        if (changeAssign != null && (changeAssign.equals(DROP_OPT_HIDE) || 
+                changeAssign.equals(DROP_OPT_SHOW)))
+        {
+            showDropsDisplayed = changeAssign;
+        }
+        return GB_SETUP_PAGE;
+    }
 	
 	public String processGradeEntryMethodChange(ValueChangeEvent vce)
 	{
@@ -920,5 +951,4 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	public void setPercentageGrade(boolean isPercentageGrade) {
 		this.isPercentageGrade = isPercentageGrade;
 	}
-	
 }

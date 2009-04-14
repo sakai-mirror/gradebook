@@ -260,6 +260,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 		    			gradeRecords.add(gradeRecord);
 				
 		    		}
+		    		applyDropScores(gradeRecords);
 		    		category.calculateStatisticsPerStudent(gradeRecords, studentUid);
 	
 		    		Map studentCategoryMap = (Map) categoryResultMap.get(studentUid);
@@ -1349,6 +1350,8 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                     // get the counted assignments for this gradebook
                     List<Assignment> countedAssigns = getCountedAssignments(session, gradebook.getId());
                     
+                    applyDropScores(gradeRecs);
+                    
                 	double totalPointsPossible = getTotalPointsInternal(gradebook, cates, studentId, gradeRecs, countedAssigns);
                 	
                 	List totalEarned = getTotalPointsEarnedInternal(studentId, gradebook, cates, gradeRecs, countedAssigns);
@@ -1494,6 +1497,9 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
         Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
         List assignments = getAssignments(gradebookId);
         List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecords(gradebookId, studentUids);
+        
+        applyDropScores(gradeRecords);
+        
         for (Iterator iter = assignments.iterator(); iter.hasNext(); ) {
         	Assignment assignment = (Assignment)iter.next();
         	assignment.calculateStatistics(gradeRecords);
@@ -1508,13 +1514,14 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
         CourseGrade courseGrade = getCourseGrade(gradebookId);
         Map gradeRecordMap = new HashMap();
         List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecords(gradebookId, studentUids);
+        applyDropScores(gradeRecords);
         addToGradeRecordMap(gradeRecordMap, gradeRecords);
         
         for (Iterator iter = assignments.iterator(); iter.hasNext(); ) {
         	Assignment assignment = (Assignment)iter.next();
         	assignment.calculateStatistics(gradeRecords);
         }
-        
+    
         List<CourseGradeRecord> courseGradeRecords = getPointsEarnedCourseGradeRecords(courseGrade, studentUids, assignments, gradeRecordMap);
         courseGrade.calculateStatistics(courseGradeRecords, studentUids.size());
         
@@ -1595,6 +1602,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     	Long gradebookId = assignment.getGradebook().getId();
         Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
         List<AssignmentGradeRecord> gradeRecords = getAssignmentGradeRecords(assignment, studentUids);
+        applyDropScores(gradeRecords);
         assignment.calculateStatistics(gradeRecords);
         return assignment;
     }
@@ -2243,6 +2251,8 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     	
 //    	List releasedAssignments = new ArrayList();
     	List gradeRecords = getAllAssignmentGradeRecords(gradebookId, allStudentUids);
+        applyDropScores(gradeRecords);
+
     	Map cateMap = new HashMap();
     	for (Iterator iter = allAssignments.iterator(); iter.hasNext(); )
     	{
@@ -2352,6 +2362,8 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     	Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
     	List assignments = getAssignmentsWithNoCategory(gradebookId, assignmentSort, assignAscending);
     	List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecords(gradebookId, studentUids);
+        applyDropScores(gradeRecords);
+
     	for (Iterator iter = assignments.iterator(); iter.hasNext(); ) {
     		Assignment assignment = (Assignment)iter.next();
     		assignment.calculateStatistics(gradeRecords);
@@ -2832,6 +2844,100 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 		};
 		getHibernateTemplate().execute(hc);
 	}
+
+    /**
+     * set the droppedFromGrade attribute of each 
+     * of the n highest and the n lowest scores of a 
+     * student based on the assignment's category
+     * @param gradeRecords
+     * @return void
+     */
+    public void applyDropScores(Collection<AssignmentGradeRecord> gradeRecords) {
+        long start = System.currentTimeMillis();
+        
+        List<String> studentIds = new ArrayList<String>();
+        List<Category> categories = new ArrayList<Category>();
+        for(AssignmentGradeRecord gradeRecord : gradeRecords) {
+            
+            if(gradeRecord == null) {
+                continue;
+            }
+            
+            // reset
+            gradeRecord.setDroppedFromGrade(false);
+            
+            // get all the students represented
+            String studentId = gradeRecord.getStudentId();
+            if(!studentIds.contains(studentId)) {
+                studentIds.add(studentId);
+            }
+            // get all the categories represented
+            Category cat = gradeRecord.getAssignment().getCategory();
+            if(cat != null && !categories.contains(cat)) {
+                categories.add(cat);
+            }
+        }
+        
+        log.debug("categories size is: " + categories.size());
+        
+        if(categories == null || categories.size() < 1) {
+            log.warn("There were no categories present in gradeRecords");
+            return;
+        }
+        for(Category cat : categories) {
+            log.debug("cat is: " + cat);
+            Integer dropHighest = cat.getDropHighest();
+            Integer dropLowest = cat.getDropLowest();
+            Integer keepHighest = cat.getKeepHighest();
+            
+            if((dropHighest != null && dropHighest > 0) || (dropLowest != null && dropLowest > 0) || (keepHighest != null && keepHighest > 0)) {
+                
+                for(String studentId : studentIds) {
+                    // get the student's gradeRecords for this category
+                    List<AssignmentGradeRecord> gradesByCategory = new ArrayList<AssignmentGradeRecord>();
+                    for(AssignmentGradeRecord gradeRecord : gradeRecords) {
+                        if(gradeRecord == null) {
+                            continue;
+                        }
+                        if(gradeRecord.getStudentId() == null || gradeRecord.getStudentId().length() < 1) {
+                            log.warn("AssignmentGradeRecord.studentId cannot be null; gradeRecord" + gradeRecord.getId() + " will not be considered for calculation of dropped grade");
+                        } else if(gradeRecord.getAssignment().getCategory() == null) {
+                            log.warn("AssignmentGradeRecord.assignment.category cannot be null; gradeRecord" + gradeRecord.getId() + " will not be considered for calculation of dropped grade");
+                        } else if(gradeRecord.getStudentId().equals(studentId) && gradeRecord.getAssignment().getCategory().equals(cat)) {
+                            gradesByCategory.add(gradeRecord);
+                        }
+                    }
+                    
+                    log.debug("gradesByCategory size is " + gradesByCategory.size());
+                    
+                    if(dropHighest != null && gradesByCategory.size() > dropHighest + dropLowest) {
+                        for(int i=0; i<dropHighest; i++) {
+                            AssignmentGradeRecord highest = Collections.max(gradesByCategory, AssignmentGradeRecord.numericComparator);
+                            highest.setDroppedFromGrade(true);
+                            gradesByCategory.remove(highest);
+                            log.debug("dropHighest applied to " + highest);
+                        }
+                    }
+                    
+                    if(keepHighest != null && gradesByCategory.size() > (gradesByCategory.size() - keepHighest)) {
+                        dropLowest = gradesByCategory.size() - keepHighest;
+                    }
+                    
+                    if(dropLowest != null &&  gradesByCategory.size() > dropLowest + dropHighest) {
+                        for(int i=0; i<dropLowest; i++) {
+                            AssignmentGradeRecord lowest = Collections.min(gradesByCategory, AssignmentGradeRecord.numericComparator);
+                            lowest.setDroppedFromGrade(true);
+                            gradesByCategory.remove(lowest);
+                            log.debug("dropLowest applied to " + lowest);
+                        }
+                    }
+                }
+            }
+        }
+        
+        log.info("GradebookManager.applyDropScores took " + (System.currentTimeMillis() - start) + " millis to execute");
+    }
+
 	
 	/**
 	 * 

@@ -171,10 +171,10 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		integrationSupport.addSectionMembership(TA_UID, section2.getUuid(), Role.TA);
 
 		// Add an internal assignment.
-		cat1Id = gradebookManager.createCategory(gradebookWithCat.getId(), CAT1_NAME, new Double(0), 0, null);
+		cat1Id = gradebookManager.createCategory(gradebookWithCat.getId(), CAT1_NAME, new Double(0), 0, new Integer(0), new Integer(0), new Integer(0), new Double(0), new Integer(0), null);
 		asn1IdWithCat = gradebookManager.createAssignmentForCategory(gradebookWithCat.getId(), cat1Id, ASN_TITLE1, ASN_POINTS1, new Date(), Boolean.FALSE,Boolean.FALSE, null);
 		
-		cat2Id = gradebookManager.createCategory(gradebookWithCat.getId(), CAT2_NAME, new Double(0), 0, null);
+		cat2Id = gradebookManager.createCategory(gradebookWithCat.getId(), CAT2_NAME, new Double(0), 0, new Integer(0), new Integer(0), new Integer(0), new Double(0), new Integer(0), null);
 		asn2IdWithCat = gradebookManager.createAssignmentForCategory(gradebookWithCat.getId(), cat2Id, ASN_TITLE2, ASN_POINTS2, new Date(), Boolean.FALSE,Boolean.FALSE, null);
 
 	}
@@ -183,8 +183,8 @@ public class GradebookServiceNewTest extends GradebookTestBase {
 		String className = this.getClass().getName();
 		gradebookFrameworkService.addGradebook(className, className);
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
-		Long cate1Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 1", new Double(0.40), 0, null);
-		Long cate2Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 2", new Double(0.60), 0, null);
+		Long cate1Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 1", new Double(0.40), 0, new Integer(0), new Integer(0), new Integer(0), new Double(0), new Integer(0), null);
+		Long cate2Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 2", new Double(0.60), 0, new Integer(0), new Integer(0), new Integer(0), new Double(0), new Integer(0), null);
 
 		List list = (List) gradebookManager.getCategories(persistentGradebook.getId());
 

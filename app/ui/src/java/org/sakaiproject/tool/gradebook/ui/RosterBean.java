@@ -616,6 +616,10 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
                 	contents.setStyleClass("courseGrade center");
                 }
 
+//                if(colpos != 0 && !columnData.getCategoryColumn()) {
+//                    contents.setStyle("foreground-color:gray;text-decoration:line-through");
+//                }
+
 				col.getChildren().add(contents);
 				
 				rosterDataTable.getChildren().add(col);

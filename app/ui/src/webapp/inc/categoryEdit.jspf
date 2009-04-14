@@ -10,7 +10,13 @@
       <f:selectItem itemValue="onlyCategories" itemLabel="#{msgs.opt_categories_only}" />
        <f:selectItem itemValue="categoriesAndWeighting" itemLabel="#{msgs.opt_categories_and_weighting}" />    
 	</h:selectOneRadio>
-	
+	<div class="indnt2 gbSection">
+      <h:selectBooleanCheckbox id="showDrops" value="#{gradebookSetupBean.showDropsDisplayed}" 
+	      valueChangeListener="#{gradebookSetupBean.processShowDropsChange}" onclick="this.form.submit();" 
+	      rendered="#{!gradebookSetupBean.isLetterGrade && (gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
+      <h:outputLabel for="hideDrops" value="#{msgs.opt_show_drops}" />
+	  
+	</div>
 	<h:selectOneRadio value="#{gradebookSetupBean.categorySetting}" id="categorySetting2" layout="pageDirection" 
 			valueChangeListener="#{gradebookSetupBean.processCategorySettingChange}" onclick="this.form.submit();" 
 			rendered="#{gradebookSetupBean.isLetterGrade}">
@@ -66,6 +72,36 @@
 						</h:panelGroup>
 					</f:facet>
 					<h:selectBooleanCheckbox id="adjustment" value="#{category.isExtraCredit}" onchange="javascript:updateRunningTotal(this.form);"/>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_drop_highest}" rendered="#{gradebookSetupBean.showDropsDisplayed}"/>
+					</f:facet>
+					<h:inputText id="dropHighest" value="#{category.dropHighest}" title="#{msgs.cat_drop_highest_tooltip}" rendered="#{gradebookSetupBean.showDropsDisplayed}"/>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_drop_lowest}" rendered="#{gradebookSetupBean.showDropsDisplayed}"/>
+					</f:facet>
+					<h:inputText id="dropLowest" value="#{category.dropLowest}" title="#{msgs.cat_drop_lowest_tooltip}" rendered="#{gradebookSetupBean.showDropsDisplayed}"/>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_keep_highest}" rendered="#{gradebookSetupBean.showDropsDisplayed}"/>
+					</f:facet>
+					<h:inputText id="keepHighest" value="#{category.keepHighest}" title="#{msgs.cat_keep_highest_tooltip}" rendered="#{gradebookSetupBean.showDropsDisplayed}"/>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_point_value}" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPointGrade}"/>
+					</f:facet>
+					<h:inputText id="pointValue" value="#{category.pointValue}" title="#{msgs.cat_point_value_tooltip}" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPointGrade}"/>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_percent_value}" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPercentageGrade}"/>
+					</f:facet>
+					<h:inputText id="relativeWeight" value="#{category.relativeWeight}" title="#{msgs.cat_percent_value_tooltip}" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPercentageGrade}"/>
 				</h:column>
 				<h:column>
 					<f:facet name="header">

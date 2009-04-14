@@ -536,6 +536,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
 
     		// get the student grade records
     		List gradeRecords = getGradebookManager().getStudentGradeRecords(gradebook.getId(), studentUid);
+    		getGradebookManager().applyDropScores(gradeRecords);
 
     		// The display may include categories and assignments, so we need a generic list
     		gradebookItems = new ArrayList();

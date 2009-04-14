@@ -176,6 +176,7 @@ public class CalculationsTest extends TestCase {
         	record.setPointsEarned(new Double(i).toString());
         	record.setGradableObject(go);
         	record.setStudentId("studentId");
+        	record.setDroppedFromGrade(false);
         	records.add(record);
         }
         return records;
@@ -224,10 +225,15 @@ public class CalculationsTest extends TestCase {
 		List<CourseGradeRecord> courseRecords = new ArrayList<CourseGradeRecord>();
 		for (int i = 0; i < numEnrollments; i++) {
 			Double score = (i == 0) ? asn.getPointsPossible() : null;
-			if(score != null)
-				records.add(new AssignmentGradeRecord(asn, "student" + i, score.toString()));
-			else
-				records.add(new AssignmentGradeRecord(asn, "student" + i, null));
+			if(score != null) {
+	            AssignmentGradeRecord assignmentGradeRecord = new AssignmentGradeRecord(asn, "student" + i, score.toString());
+                assignmentGradeRecord.setDroppedFromGrade(false);
+				records.add(assignmentGradeRecord);
+			} else {
+                AssignmentGradeRecord assignmentGradeRecord = new AssignmentGradeRecord(asn, "student" + i, null);
+                assignmentGradeRecord.setDroppedFromGrade(false);
+				records.add(assignmentGradeRecord);
+			}
 			
 			CourseGradeRecord cgr = new CourseGradeRecord();
 			cgr.setGradableObject(courseGrade);
@@ -236,6 +242,7 @@ public class CalculationsTest extends TestCase {
 			cgr.initNonpersistentFields(asn.getPointsPossible(), scoreVal);
 			courseRecords.add(cgr);
 		}
+		
 		asn.calculateStatistics(records);
 		Double mean = asn.getMean();
 		Assert.assertEquals(new Double(100), mean);
@@ -245,7 +252,9 @@ public class CalculationsTest extends TestCase {
 
 		records = new ArrayList<AssignmentGradeRecord>();
 		for (int i = 0; i < numEnrollments; i++) {
-			records.add(new AssignmentGradeRecord(asn, "student" + i, null));
+	        AssignmentGradeRecord assignmentGradeRecord = new AssignmentGradeRecord(asn, "student" + i, null);
+	        assignmentGradeRecord.setDroppedFromGrade(false);
+			records.add(assignmentGradeRecord);
 		}
 		asn.calculateStatistics(records);
 		mean = asn.getMean();

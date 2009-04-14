@@ -25,6 +25,7 @@ package org.sakaiproject.tool.gradebook.business.impl;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -380,7 +381,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 		for (AssignmentGradeRecord gradeRec : gradeRecs)
 		{
 
-			if(gradeRec.getPointsEarned() != null && !gradeRec.getPointsEarned().equals(""))
+			if(gradeRec.getPointsEarned() != null && !gradeRec.getPointsEarned().equals("") && !gradeRec.getDroppedFromGrade())
 			{
 				Double pointsEarned = new Double(gradeRec.getPointsEarned());
 				Assignment go = gradeRec.getAssignment();
@@ -544,7 +545,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
         for (AssignmentGradeRecord gradeRec : studentGradeRecs) {
             Assignment assign = gradeRec.getAssignment();
             if (assign.isCounted() && !assign.getUngraded() && !assign.isRemoved() && 
-                    assign.getPointsPossible() != null && assign.getPointsPossible() > 0) {
+                    assign.getPointsPossible() != null && assign.getPointsPossible() > 0 && !gradeRec.getDroppedFromGrade()) {
                 countedGradeRecs.add(gradeRec);
             }
         }
@@ -622,4 +623,8 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 
 		return totalPointsPossible;
 	}
+	
+    public void applyDropScores(Collection<AssignmentGradeRecord> gradeRecords) {
+        super.applyDropScores(gradeRecords);
+    }
 }

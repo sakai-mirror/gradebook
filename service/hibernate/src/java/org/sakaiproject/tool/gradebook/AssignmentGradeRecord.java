@@ -37,6 +37,9 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
     private String pointsEarned;
     private boolean userAbleToView;
     private Boolean excludedFromGrade;
+    
+    // used for drop highest/lowest score functionality
+    private Boolean droppedFromGrade;
 
     public AssignmentGradeRecord() {
         super();
@@ -56,7 +59,8 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
         this.pointsEarned = grade == null ? null : grade.trim();
 	}
 	
-	public static Comparator<AssignmentGradeRecord> calcComparator;
+    public static Comparator<AssignmentGradeRecord> calcComparator;
+    public static Comparator<AssignmentGradeRecord> numericComparator;
 
     static {
         calcComparator = new Comparator<AssignmentGradeRecord>() {
@@ -74,15 +78,43 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
                 String agr2Points = agr2.getPointsEarned();
                 
                 if (agr1Points == null && agr2Points == null) {
-                	return 0;
+                    return 0;
                 }
                 if (agr1Points == null && agr2Points != null) {
-                	return -1;
+                    return -1;
                 }
                 if (agr1Points != null && agr2Points == null) {
-                	return 1;
+                    return 1;
                 }
                 return agr1Points.compareTo(agr2Points);
+            }
+        };
+        numericComparator = new Comparator<AssignmentGradeRecord>() {
+            public int compare(AssignmentGradeRecord agr1, AssignmentGradeRecord agr2) {
+                if(agr1 == null && agr2 == null) {
+                    return 0;
+                }
+                if(agr1 == null) {
+                    return -1;
+                }
+                if(agr2 == null) {
+                    return 1;
+                }
+                String agr1Points = agr1.getPointsEarned();
+                String agr2Points = agr2.getPointsEarned();
+                
+                if (agr1Points == null && agr2Points == null) {
+                    return 0;
+                }
+                if (agr1Points == null && agr2Points != null) {
+                    return -1;
+                }
+                if (agr1Points != null && agr2Points == null) {
+                    return 1;
+                }
+                Integer agr1PointsInt = Integer.parseInt(agr1Points);
+                Integer agr2PointsInt = Integer.parseInt(agr2Points);
+                return agr1PointsInt.compareTo(agr2PointsInt);
             }
         };
     }
@@ -164,13 +196,21 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
     	return agr;
     }
 
-	public Boolean isExcludedFromGrade() {
-		return excludedFromGrade;
-	}
+    public Boolean isExcludedFromGrade() {
+        return excludedFromGrade;
+    }
 
 	public void setExcludedFromGrade(Boolean isExcludedFromGrade) {
 		this.excludedFromGrade = isExcludedFromGrade;
 	}
+
+    public Boolean getDroppedFromGrade() {
+        return this.droppedFromGrade;
+    }
+
+    public void setDroppedFromGrade(Boolean droppedFromGrade) {
+        this.droppedFromGrade = droppedFromGrade;
+    }
 }
 
 
