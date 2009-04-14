@@ -17,8 +17,14 @@ public class Category implements Serializable
 	private Gradebook gradebook;
 	private String name;
 	private Double weight;
-	private int drop_lowest;
-	private boolean removed;
+    private int drop_lowest;
+    private Integer dropLowest;
+    private Integer dropHighest;
+    private Integer keepHighest;
+    private Double pointValue;
+    private Integer relativeWeight;
+
+    private boolean removed;
 	private Double averageTotalPoints; //average total points possible for this category
 	private Double averageScore; //average scores that students got for this category
 	private Double mean; //mean value of percentage for this category
@@ -107,17 +113,66 @@ public class Category implements Serializable
 		};
 	}
 
-	public int getDrop_lowest()
+	public Integer getDropHighest() {
+		return dropHighest == null ? 0 : dropHighest;
+	}
+
+	public void setDropHighest(Integer dropHighest) {
+		this.dropHighest = dropHighest;
+	}
+
+	public Integer getDropLowest()
 	{
-		return drop_lowest;
+		return dropLowest == null ? 0 : dropLowest;
 	}
 	
-	public void setDrop_lowest(int drop_lowest)
+	public void setDropLowest(Integer dropLowest)
 	{
-		this.drop_lowest = drop_lowest;
+		this.dropLowest = dropLowest;
 	}
-	
-	public Gradebook getGradebook()
+
+    public Integer getKeepHighest() {
+        return keepHighest == null ? 0 : keepHighest;
+    }
+
+    public void setKeepHighest(Integer keepHighest) {
+        this.keepHighest = keepHighest;
+    }
+    
+    /*
+     * returns true if this category drops any scores
+     */
+    public boolean isDropScores() {
+        return getDropLowest() > 0 || getDropHighest() > 0 || getKeepHighest() > 0;
+    }
+
+    public Double getPointValue() {
+        return pointValue;
+    }
+
+    public void setPointValue(Double pointValue) {
+        this.pointValue = pointValue;
+    }
+
+    public Integer getRelativeWeight() {
+        return relativeWeight;
+    }
+
+    public void setRelativeWeight(Integer relativeWeight) {
+        this.relativeWeight = relativeWeight;
+    }
+
+    public int getDrop_lowest()
+    {
+        return drop_lowest;
+    }
+    
+    public void setDrop_lowest(int drop_lowest)
+    {
+        this.drop_lowest = drop_lowest;
+    }
+
+    public Gradebook getGradebook()
 	{
 		return gradebook;
 	}
@@ -308,7 +363,7 @@ public class Category implements Serializable
 					boolean adjustmentItemWithNoPoints = false;
 					if (assignment.getIsExtraCredit()!=null)
 					{
-						if (assignment.getIsExtraCredit())
+						if (assignment.getIsExtraCredit()!=null)
 						{
 							if (assignment.getPointsPossible()==null)
 								adjustmentItemWithNoPoints = true;
@@ -316,7 +371,7 @@ public class Category implements Serializable
 					}
 					if (!adjustmentItemWithNoPoints)
 					{
-						if (assignment.isCounted() && !assignment.getUngraded() && assignment.getPointsPossible().doubleValue() > 0.0) 
+						if (assignment.isCounted() && !assignment.getUngraded() && assignment.getPointsPossible().doubleValue() > 0.0 && !gradeRecord.getDroppedFromGrade()) 
 						{
 							Category assignCategory = assignment.getCategory();
 							if (assignCategory != null && assignCategory.getId().equals(id))

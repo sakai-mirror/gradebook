@@ -51,6 +51,22 @@
 		    <h:panelGrid cellpadding="0" cellspacing="5" columns="2" 
 		    		columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" 
 		  			styleClass="highlightPanel" width="100%">
+	
+				<h:outputLabel for="selectCategory" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{bean.categoriesEnabled}" />
+				<h:panelGroup rendered="#{bean.categoriesEnabled}">
+					<h:selectOneMenu id="selectCategory" value="#{item.category}"
+							valueChangeListener="#{bean.processCategoryChange}" onchange="this.form.submit();">
+						<f:selectItems value="#{bean.categoriesSelectList}" />
+					</h:selectOneMenu>
+					
+					<%-- Javascript should copy the value over to the above dropdown and will be the field used for writing to the DB --%>
+					<h:selectOneMenu id="selectCategory2" rendered="#{bean.weightingEnabled}" onclick="syncAdjustmentDropdowns((this.form.name + ':bulkNewAssignmentsTable:' + #{rowIndex}));" >
+						<f:selectItems value="#{bean.categoriesAdjustmentSelectList}" />
+					</h:selectOneMenu>
+
+					<h:outputText id="nonCalCategoryInstructionText" value="#{msgs.add_assignment_category_info}" styleClass="instruction" rendered="#{bean.weightingEnabled}"/>
+				</h:panelGroup>
+
 		    		<h:outputLabel for="selectGradeEntry" id="gradeEntryLabel" value="#{msgs.add_assignment_type}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}" />
 					<h:panelGroup rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}">
 						<h:selectOneMenu id="selectGradeEntry" value="#{item.selectedGradeEntryValue}"
@@ -96,34 +112,43 @@
 				</h:panelGroup>
 	<%-- Commented out for non-graded rollback && item.ungraded == 'normal' --%>
 				<h:panelGroup>
-				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}"/>
+				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{!item.assignment.externallyMaintained && !bean.selectedCategoryDropsScores && bean.localGradebook.grade_type != 3}"/>
 					<h:outputLabel for="points" id="pointsLabel" value="#{(bean.localGradebook.grade_type == 1) ? msgs.add_assignment_points : msgs.add_assignment_relative_weight}" 
-						rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}"/>
+						rendered="#{!item.assignment.externallyMaintained && !bean.selectedCategoryDropsScores && bean.localGradebook.grade_type != 3}"/>
 				</h:panelGroup>
-				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
+				<h:panelGroup rendered="#{!item.assignment.externallyMaintained && !bean.selectedCategoryDropsScores}">
 					<h:inputText id="points" value="#{item.pointsPossible}" 
 						valueChangeListener="#{addAssignmentBean.processPointsPossibleChange}"
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"
-						rendered="#{bean.localGradebook.grade_type != 3}" />
+						rendered="#{bean.localGradebook.grade_type != 3 && !bean.selectedCategoryDropsScores}" />
 					<%-- valueChangeListener="#{addAssignmentBean.processPointsPossibleChange}" --%>
 					<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
-									rendered="#{item.bulkNoPointsError == 'blank'}" />
+									rendered="#{item.bulkNoPointsError == 'blank' && !bean.selectedCategoryDropsScores}" />
 					<h:outputText id="blankPtsErrMsgH"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline errHide"
-									rendered="#{item.bulkNoPointsError != 'blank'}" />
+									rendered="#{item.bulkNoPointsError != 'blank' && !bean.selectedCategoryDropsScores}" />
 					<h:outputText id="nanPtsErrMsg" value="#{msgs.add_assignment_nan_points}" styleClass="alertMessageInline"
-									rendered="#{item.bulkNoPointsError == 'NaN'}" />
+									rendered="#{item.bulkNoPointsError == 'NaN' && !bean.selectedCategoryDropsScores}" />
 					<h:outputText id="nanPtsErrMsgH" value="#{msgs.add_assignment_nan_points}" styleClass="alertMessageInline errHide"
-									rendered="#{item.bulkNoPointsError != 'NaN'}" />
+									rendered="#{item.bulkNoPointsError != 'NaN' && !bean.selectedCategoryDropsScores}" />
 					<%-- Added per SAK-13459 --%>
 					<h:outputText id="invalidPtsErrMsg" value="#{msgs.add_assignment_invalid_points}" styleClass="alertMessageInline"
-									rendered="#{item.bulkNoPointsError == 'invalid'}" />
+									rendered="#{item.bulkNoPointsError == 'invalid' && !bean.selectedCategoryDropsScores}" />
 					<h:outputText id="invalidPtsErrMsgH" value="#{msgs.add_assignment_invalid_points}" styleClass="alertMessageInline errHide"
-									rendered="#{item.bulkNoPointsError != 'invalid'}" />
+									rendered="#{item.bulkNoPointsError != 'invalid' && !bean.selectedCategoryDropsScores}" />
 					<h:outputText id="precisionPtsErrMsg" value="#{msgs.add_assignment_invalid_precision_points}" styleClass="alertMessageInline"
-									rendered="#{item.bulkNoPointsError == 'precision'}" />
+									rendered="#{item.bulkNoPointsError == 'precision' && !bean.selectedCategoryDropsScores}" />
 					<h:outputText id="precisionPtsErrMsgH" value="#{msgs.add_assignment_invalid_precision_points}" styleClass="alertMessageInline errHide"
-									rendered="#{item.bulkNoPointsError != 'precision'}" />
+									rendered="#{item.bulkNoPointsError != 'precision' && !bean.selectedCategoryDropsScores}" />
 				</h:panelGroup>
+				
+				<%-- If the category drops scores --%>
+				<h:panelGroup>
+					<h:outputLabel for="pointsDropScores" id="pointsLabelDropScores" value="#{(bean.localGradebook.grade_type == 1) ? msgs.add_assignment_points : msgs.add_assignment_relative_weight}" 
+						rendered="#{!item.assignment.externallyMaintained && bean.selectedCategoryDropsScores && bean.localGradebook.grade_type != 3}"/>
+					<h:outputText id="pointsDropScores" value="#{bean.selectedCategory.pointValue}"
+						rendered="#{bean.localGradebook.grade_type != 3 && bean.selectedCategoryDropsScores}" />
+				</h:panelGroup>
+				<%-- end, if the category drops scores --%>
 			  </h:panelGrid>
 
 			  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" 
@@ -135,20 +160,6 @@
   					<t:inputCalendar id="dueDate" value="#{item.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true"
   							popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
 					<h:message for="dueDate" styleClass="alertMessageInline" />
-				</h:panelGroup>
-	
-				<h:outputLabel for="selectCategory" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{bean.categoriesEnabled}" />
-				<h:panelGroup rendered="#{bean.categoriesEnabled}">
-					<h:selectOneMenu id="selectCategory" value="#{item.category}">
-						<f:selectItems value="#{bean.categoriesSelectList}" />
-					</h:selectOneMenu>
-					
-					<%-- Javascript should copy the value over to the above dropdown and will be the field used for writing to the DB --%>
-					<h:selectOneMenu id="selectCategory2" rendered="#{bean.weightingEnabled}" onclick="syncAdjustmentDropdowns((this.form.name + ':bulkNewAssignmentsTable:' + #{rowIndex}));" >
-						<f:selectItems value="#{bean.categoriesAdjustmentSelectList}" />
-					</h:selectOneMenu>
-
-					<h:outputText id="nonCalCategoryInstructionText" value="#{msgs.add_assignment_category_info}" styleClass="instruction" rendered="#{bean.weightingEnabled}"/>
 				</h:panelGroup>
 			  </h:panelGrid>
 

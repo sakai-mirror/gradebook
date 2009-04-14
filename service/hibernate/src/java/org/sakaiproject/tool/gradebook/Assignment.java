@@ -23,9 +23,12 @@
 package org.sakaiproject.tool.gradebook;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
@@ -395,63 +398,58 @@ public class Assignment extends GradableObject {
     }
 
     /**
-     * Calculate the mean score for students with entered grades.
-     */
+    * Calculate the mean score for students with entered grades.
+    */
     public void calculateStatistics(Collection<AssignmentGradeRecord> gradeRecords) {
-    		if(ungraded)
-    		{
-    			mean = null;
-    			averageTotal = null;
-    			if(log.isDebugEnabled())
-    				log.debug("Calling calculateStatistics in Assignmnet for UNGRADED items.");
-    		}
-    		else
-    		{
-    			int numScored = 0;
-    			BigDecimal total = new BigDecimal("0");
-    			BigDecimal pointsTotal = new BigDecimal("0");
-    			for (AssignmentGradeRecord record : gradeRecords) {
-    				// Skip grade records that don't apply to this gradable object
-    				if(!record.getGradableObject().equals(this)) {
-    					continue;
-    				}
-    				Double score = null;
-    				if(!ungraded && pointsPossible!=null)
-    					score = record.getGradeAsPercentage(getGradebook().getGrade_type());
-    				//score = record.getGradeAsPercentage();
-    				String points = record.getPointsEarned();
-    				if (score == null && points == null) {
-    					continue;
-    				}
-    				else if (score == null)
-    				{
-    					pointsTotal = pointsTotal.add(new BigDecimal(points.toString()));
-    					numScored++;
-    				}
-    				else 
-    				{
-    					total = total.add(new BigDecimal(score.toString()));
-    					pointsTotal = pointsTotal.add(new BigDecimal(points.toString()));
-    					numScored++;
-    				}
-    			}
-    			if (numScored == 0) {
-    				mean = null;
-    				averageTotal = null;
-    			} else {
-    				BigDecimal bdNumScored = new BigDecimal(numScored);
-    				if(!ungraded && pointsPossible!=null)
-    				{
-    					mean = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
-    				}
-    				else
-    				{
-    					mean = null;
-    				}
-    				averageTotal = new Double(pointsTotal.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
-    			}
-    		}
-    }
+        if(ungraded) {
+            mean = null;
+            averageTotal = null;
+            log.debug("Calling calculateStatistics in Assignmnet for UNGRADED items.");
+        } else {
+            int numScored = 0;
+            BigDecimal total = new BigDecimal("0");
+            BigDecimal pointsTotal = new BigDecimal("0");
+
+            for (AssignmentGradeRecord record : gradeRecords) {
+                // Skip grade records that don't apply to this gradable object
+                if(!record.getGradableObject().equals(this)) {
+                    continue;
+                }
+
+                if(record.getDroppedFromGrade() == null) {
+                    throw new RuntimeException("record.droppedFromGrade cannot be null");
+                }
+
+                Double score = null;
+                if(!ungraded && pointsPossible!=null)
+                    score = record.getGradeAsPercentage(getGradebook().getGrade_type());
+                    //score = record.getGradeAsPercentage();
+                    String points = record.getPointsEarned();
+                    if ((score == null && points == null) || record.getDroppedFromGrade()) {
+                        continue;
+                    } else if (score == null) {
+                        pointsTotal = pointsTotal.add(new BigDecimal(points.toString()));
+                        numScored++;
+                    } else {
+                        total = total.add(new BigDecimal(score.toString()));
+                        pointsTotal = pointsTotal.add(new BigDecimal(points.toString()));
+                        numScored++;
+                    }
+                }
+                if (numScored == 0) {
+                    mean = null;
+                    averageTotal = null;
+                } else {
+                    BigDecimal bdNumScored = new BigDecimal(numScored);
+                    if(!ungraded && pointsPossible!=null) {
+                        mean = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+                    } else {
+                        mean = null;
+                    }
+                    averageTotal = new Double(pointsTotal.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+                }
+            }
+        }
 
 		public Category getCategory()
 		{
