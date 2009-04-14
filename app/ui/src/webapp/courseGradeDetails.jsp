@@ -58,7 +58,7 @@
 			rowIndexVar="scoreRowIndex"
 			sortColumn="#{courseGradeDetailsBean.sortColumn}"
             sortAscending="#{courseGradeDetailsBean.sortAscending}"
-            columnClasses="left,left,left,left,left"
+            columnClasses="left,left,left,left,left,left"
 			styleClass="listHier">
 			<h:column>
 				<f:facet name="header">
@@ -87,6 +87,26 @@
 				</h:outputText>
 				
 				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{scoreRow.calculatedLetterGrade == null && !overviewBean.isLetterGrade}"/>
+			</h:column>
+			<h:column rendered="#{!overviewBean.isLetterGrade}">
+				<f:facet name="header">
+		            <t:commandSortHeader columnName="adjustmentScore" propertyName="adjustmentScore" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
+						<h:outputText value="#{(courseGradeDetailsBean.gradeEntryByPercent) ? msgs.course_grade_details_adjustment_percentage : msgs.course_grade_details_adjustment_points}" />
+		            </t:commandSortHeader>
+				</f:facet>
+				<h:inputText rendered="#{scoreRow.userCanGrade}"
+					id="AdjustmentScore"
+					value="#{scoreRow.adjustmentScore}"
+					size="4"
+					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+				</h:inputText>
+				<h:outputText rendered="#{!scoreRow.userCanGrade && scoreRow.adjustmentScore != null}" value="#{scoreRow.adjustmentScore}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
+				</h:outputText>
+				<h:outputText rendered="#{!scoreRow.userCanGrade && scoreRow.adjustmentScore == null}" value="#{msgs.score_null_placeholder}" />
+			</h:column>
+			<h:column>
+				<h:message for="AdjustmentScore" styleClass="validationEmbedded" />
 			</h:column>
 			<h:column rendered="#{!overviewBean.isLetterGrade}">
 				<f:facet name="header">

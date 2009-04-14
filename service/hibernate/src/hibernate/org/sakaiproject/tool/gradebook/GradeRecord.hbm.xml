@@ -35,6 +35,7 @@
 
 		<subclass name="org.sakaiproject.tool.gradebook.CourseGradeRecord" discriminator-value="2">
 			<property name="enteredGrade" column="ENTERED_GRADE" type="string" not-null="false" />
+			<property name="adjustmentScore" column="ADJUSTMENT_SCORE" type="double" not-null="false" />
 		</subclass>
 
 	</class>

@@ -63,6 +63,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     private boolean anyNotCounted;
     private boolean anyExternallyMaintained = false;
     private boolean isAllItemsViewOnly = true;
+    private boolean anyAdjustmentItemsGraded = false;
 
     private boolean sortAscending;
     private String sortColumn;
@@ -337,6 +338,14 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     public boolean isAllItemsViewOnly() {
     	return isAllItemsViewOnly;
     }
+    
+    /**
+     * if any item is graded and an adjustment item
+     * @return
+     */
+    public boolean isAnyAdjustmentItemsGraded() {
+		return anyAdjustmentItemsGraded;
+	}
     
     /**
      * 
@@ -627,6 +636,23 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			if(iter.hasNext()) {
     				rowStyles.append(",");
     			}
+    		}
+    		
+    		for(Iterator iter = gradebookItems.iterator(); iter.hasNext();) {
+    			Object gradebookItem = iter.next();
+    			if (gradebookItem instanceof AssignmentGradeRow) {
+    				AssignmentGradeRow gr = (AssignmentGradeRow)gradebookItem;
+    				if(gr.getPointsEarned()!=null) {
+    					if (gr.getAssociatedAssignment().getIsExtraCredit()!=null)
+    					{
+	    					if (gr.getAssociatedAssignment().getIsExtraCredit())
+	    					{
+	    						anyAdjustmentItemsGraded = true;
+	    					}
+    					}
+
+    				}
+    			} 
     		}
     	}
     }

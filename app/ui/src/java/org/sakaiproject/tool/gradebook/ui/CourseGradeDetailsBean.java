@@ -146,6 +146,19 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         public boolean isUserCanGrade() {
         	return userCanGrade;
         }
+        
+        public Double getAdjustmentScore() {
+        	return courseGradeRecord.getAdjustmentScore();
+        }
+        
+        public void setAdjustmentScore(Double adjustmentScore) {
+        	Double originalAdjustmentScore = courseGradeRecord.getAdjustmentScore();
+        	if (adjustmentScore!=originalAdjustmentScore)
+        	{
+        		courseGradeRecord.setAdjustmentScore(adjustmentScore);
+        		updatedGradeRecords.add(courseGradeRecord);
+        	}
+        }
 	}
 
 	protected void init() {

@@ -76,6 +76,7 @@ create table GB_GRADE_RECORD_T (
 	DATE_RECORDED datetime not null,
 	POINTS_EARNED double precision,
 	ENTERED_GRADE varchar(255),
+	ADJUSTMENT_SCORE double precision,
 	primary key (ID),
 	unique (GRADABLE_OBJECT_ID, STUDENT_ID)) TYPE=InnoDB;
 create table GB_GRADE_TO_PERCENT_MAPPING_T (

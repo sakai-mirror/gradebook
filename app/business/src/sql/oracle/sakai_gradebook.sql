@@ -74,6 +74,7 @@ create table GB_GRADE_RECORD_T (
 	DATE_RECORDED timestamp not null,
 	POINTS_EARNED double precision,
 	ENTERED_GRADE varchar2(255 char),
+	ADJUSTMENT_SCORE double precision,
 	primary key (ID),
 	unique (GRADABLE_OBJECT_ID, STUDENT_ID));
 create table GB_GRADE_TO_PERCENT_MAPPING_T (

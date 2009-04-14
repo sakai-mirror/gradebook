@@ -39,8 +39,9 @@ public class CourseGradeRecord extends AbstractGradeRecord {
     private String enteredGrade;
     private Double autoCalculatedGrade;  // Not persisted
     private String calculatedPointsEarned;	// Not persisted
+    private Double adjustmentScore;
 
-    public static Comparator<CourseGradeRecord> calcComparator;
+	public static Comparator<CourseGradeRecord> calcComparator;
     public static Comparator<CourseGradeRecord> calcComparatorIgnoreEnteredGrade;
 
     static {
@@ -194,6 +195,13 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 	 */
 	public boolean isCourseGradeRecord() {
 		return true;
+	}
+	
+    public Double getAdjustmentScore() {
+		return adjustmentScore;
+	}
+	public void setAdjustmentScore(Double adjustmentScore) {
+		this.adjustmentScore = adjustmentScore;
 	}
 
 	/**

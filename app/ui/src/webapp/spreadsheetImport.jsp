@@ -64,6 +64,11 @@
 						<h:selectOneMenu id="selectCategory" value="#{spreadsheetUploadBean.selectedCategory}" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3 }">
 							<f:selectItems value="#{spreadsheetUploadBean.categoriesSelectList}" />
 						</h:selectOneMenu>
+						
+						<%-- Javascript should copy the value over to the above dropdown and will be the field used for writing to the DB --%>
+						<h:selectOneMenu id="selectCategory2" rendered="#{spreadsheetUploadBean.weightingEnabled}" onclick="syncAdjustmentDropdowns((this.form.name));" >
+							<f:selectItems value="#{spreadsheetUploadBean.categoriesAdjustmentSelectList}" />
+						</h:selectOneMenu>
 						<f:verbatim><div class="instruction"></f:verbatim>
 							<h:outputText value="#{msgs.add_assignment_category_info}" rendered="#{spreadsheetUploadBean.weightingEnabled}"/>
 						<f:verbatim></div></f:verbatim>			
@@ -113,6 +118,11 @@
                    value="#{msgs.import_assignment_cancel}"
                    action="spreadsheetPreview" immediate="true" />
        </p>
+       
+       <script type="text/javascript">
+			adjustmentDropdownOnLoad('gbForm');
+			assignmentNonCalc('gbForm');
+	   </script>
      </h:form>
     </div>
 </f:view>

@@ -973,9 +973,20 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 	                	// Check for excessive (AKA extra credit) scoring.
               			if(assignment.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_POINTS)
               			{
-              				if (!assignment.getIsExtraCredit())
+              				if (assignment.getIsExtraCredit()!=null)
               				{
-		  	                	if (gradeRecordFromCall.getPointsEarned() != null &&
+	              				if (!assignment.getIsExtraCredit())
+	              				{
+			  	                	if (gradeRecordFromCall.getPointsEarned() != null &&
+			  	                			!assignment.getUngraded() && 
+			  	                			new Double(gradeRecordFromCall.getPointsEarned()).compareTo(pointsPossible) > 0) {
+			  	                		assignmentsWithExcessiveScores.add(assignment);
+			  	                	}
+	              				}
+              				}
+              				else
+              				{
+              					if (gradeRecordFromCall.getPointsEarned() != null &&
 		  	                			!assignment.getUngraded() && 
 		  	                			new Double(gradeRecordFromCall.getPointsEarned()).compareTo(pointsPossible) > 0) {
 		  	                		assignmentsWithExcessiveScores.add(assignment);
@@ -984,11 +995,22 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
               			}
               			else if(assignment.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
               			{
-              				if (!assignment.getIsExtraCredit())
+              				if (assignment.getIsExtraCredit()!=null)
               				{
-		  	                	if (gradeRecordFromCall.getPointsEarned() != null &&
+	              				if (!assignment.getIsExtraCredit())
+	              				{
+			  	                	if (gradeRecordFromCall.getPointsEarned() != null &&
+			  	                			!assignment.getUngraded() && 
+			  	                			new Double(gradeRecordFromCall.getPointsEarned()).compareTo(new Double("100.0")) > 0) {
+			  	                		assignmentsWithExcessiveScores.add(assignment);
+			  	                	}
+	              				}
+              				}
+              				else
+              				{
+              					if (gradeRecordFromCall.getPointsEarned() != null &&
 		  	                			!assignment.getUngraded() && 
-		  	                			new Double(gradeRecordFromCall.getPointsEarned()).compareTo(new Double("100.0")) > 0) {
+		  	                			new Double(gradeRecordFromCall.getPointsEarned()).compareTo(pointsPossible) > 0) {
 		  	                		assignmentsWithExcessiveScores.add(assignment);
 		  	                	}
               				}

@@ -9,6 +9,19 @@ table.itemSummary td.itemName {
 	padding:.3em 1em .3em .3em
 }
 
+table.itemSummaryGray td.itemNameGray {
+	font-weight:bold;
+	white-space:nowrap;
+	vertical-align:top;
+	text-align:left;
+	color:#999;
+	padding:.3em 1em .3em .3em
+}
+
+table.itemSummaryGray td.Gray {
+	color:#999;
+}
+
 /* Create a container for filter/paging controls to enable bottom-alignment. */
 /* THIS SHOULD BE MOVED INTO SAKAI CSS. */
 table.gbContainerNav {
