@@ -159,8 +159,13 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
     } 
 
     public boolean getShowDropsDisplayed() {   
-        return getAnyCategoriesWithDrops();
+        return showDropsDisplayed;
     }
+
+    public void setShowDropsDisplayed(boolean showDropsDisplayed)
+    {
+        this.showDropsDisplayed = showDropsDisplayed;
+    } 
     
     public boolean getAnyCategoriesWithDrops() {
         boolean anyDrops = false;
@@ -572,8 +577,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
     public String processShowDropsChange(ValueChangeEvent vce)
     {
         Boolean changeAssign = (Boolean)vce.getNewValue(); 
-        if (changeAssign != null && (changeAssign.equals(DROP_OPT_HIDE) || 
-                changeAssign.equals(DROP_OPT_SHOW)))
+        if (changeAssign != null)
         {
             showDropsDisplayed = changeAssign;
         }
