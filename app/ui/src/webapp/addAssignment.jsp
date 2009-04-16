@@ -62,7 +62,7 @@
 				id="continueButton"
 				styleClass="active"
 				value="#{msgs.add_assignment_continue}" rendered="#{addAssignmentBean.isBulkDisplay}"
-				action="addBulkGradebookItem"/>
+				action="#{addAssignmentBean.addConfirm}"/>
 			<h:commandButton
 				value="#{msgs.add_assignment_cancel}"
 				action="overview" immediate="true"/>

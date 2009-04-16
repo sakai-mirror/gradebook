@@ -25,6 +25,7 @@ package org.sakaiproject.tool.gradebook.ui;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -75,7 +76,9 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     public String selectBulkGradebookItem;
     public String itemTitleChange;
     public String pointsPossibleChange;
-    public String dueDateChange;
+    public Date dueDateChange;
+    public String gradeEntryType;
+    public String categoryEntry;
 
     
     public static final String UNASSIGNED_CATEGORY = "unassigned";
@@ -159,7 +162,6 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			addBulkItemSelectList.add(new SelectItem(new Integer(i).toString(), new Integer(i).toString()));
 		}
 		
-
 		Category assignCategory = assignment.getCategory();
 		if (assignCategory != null) {
 			assignmentCategory = assignCategory.getId().toString();
@@ -403,7 +405,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 	
 	public String saveNewBulkAssignment() {
 		String resultString = "overview";
-		/*
+		
 		boolean saveAll = true;
 		
 		// keep list of new assignment names just in case
@@ -416,116 +418,133 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 
 		Iterator assignIter = newBulkGradebookItems.iterator();
 		int i = 0;
+		int numTotalBulkItems = Integer.parseInt(selectBulkGradebookItem);
 		while (i < numTotalBulkItems && assignIter.hasNext()) {
 			BulkAssignmentDecoratedBean bulkAssignDecoBean = (BulkAssignmentDecoratedBean) assignIter.next();
 			
-			if (bulkAssignDecoBean.getBlnSaveThisItem()) {
-				Assignment bulkAssignment = bulkAssignDecoBean.getAssignment();
+			Assignment bulkAssignment = bulkAssignDecoBean.getAssignment();
 			
-				// Check for blank entry else check if duplicate within items to be
-				// added or with item currently in gradebook.
-				if ("".equals(bulkAssignment.getName().toString().trim())) {
-					bulkAssignDecoBean.setBulkNoTitleError("blank");
-					saveAll = false;
-					resultString = "failure";
+			bulkAssignDecoBean.setSelectedGradeEntryValue(gradeEntryType);
+			
+			bulkAssignDecoBean.setCategory(categoryEntry);
+		
+			// Check for blank entry else check if duplicate within items to be
+			// added or with item currently in gradebook.
+			if ("".equals(bulkAssignment.getName().toString().trim())) {
+				bulkAssignDecoBean.setBulkNoTitleError("blank");
+				saveAll = false;
+				resultString = "failure";
+			}
+			else if (newAssignmentNameList.contains(bulkAssignment.getName().trim()) ||
+					 ! getGradebookManager().checkValidName(getGradebookId(), bulkAssignment)){
+				bulkAssignDecoBean.setBulkNoTitleError("dup");
+				saveAll = false;
+				resultString = "failure";
+			}
+			else {
+				bulkAssignDecoBean.setBulkNoTitleError("OK");
+				newAssignmentNameList.add(bulkAssignment.getName().trim());
+			}
+			
+			boolean adjustmentWithNoPoints = false; // used for some logic later
+
+			// if ungraded, we don't care about points possible
+			if (bulkAssignDecoBean.getSelectedGradeEntryValue().equals(GB_NON_CALCULATING_ENTRY)) {
+				bulkAssignment.setUngraded(true);
+			}
+			if (bulkAssignDecoBean.getSelectedGradeEntryValue().equals(GB_ADJUSTMENT_ENTRY)) {
+				bulkAssignment.setIsExtraCredit(true);
+				bulkAssignment.setUngraded(false); // extra insurance
+				if (bulkAssignDecoBean.getPointsPossible() == null || ("".equals(bulkAssignDecoBean.getPointsPossible().trim()))) {
+					adjustmentWithNoPoints = true;
 				}
-				else if (newAssignmentNameList.contains(bulkAssignment.getName().trim()) ||
-						 ! getGradebookManager().checkValidName(getGradebookId(), bulkAssignment)){
-					bulkAssignDecoBean.setBulkNoTitleError("dup");
+			}
+			if (!bulkAssignment.getUngraded() && getGradebook().getGrade_type()!=GradebookService.GRADE_TYPE_LETTER)
+			{
+				// Check if points possible is blank else convert to double. Exception at else point
+				// means non-numeric value entered.
+				if (adjustmentWithNoPoints)
+				{
+					// if this is the case, we want to skip the rest of this stuff as its ok
+					bulkAssignDecoBean.setBulkNoPointsError("OK");
+				}
+				else if (bulkAssignDecoBean.getPointsPossible() == null || ("".equals(bulkAssignDecoBean.getPointsPossible().trim()))) {
+					bulkAssignDecoBean.setBulkNoPointsError("blank");
 					saveAll = false;
 					resultString = "failure";
 				}
 				else {
-					bulkAssignDecoBean.setBulkNoTitleError("OK");
-					newAssignmentNameList.add(bulkAssignment.getName().trim());
-				}
+					try {
+						double dblPointsPossible = new Double(bulkAssignDecoBean.getPointsPossible()).doubleValue();
 
-				// if ungraded, we don't care about points possible
-				if (bulkAssignDecoBean.getSelectedGradeEntryValue().equals(GB_NON_CALCULATING_ENTRY)) {
-					bulkAssignment.setUngraded(true);
-				}
-				if (!bulkAssignment.getUngraded() && getGradebook().getGrade_type()!=GradebookService.GRADE_TYPE_LETTER)
-				{
-					// Check if points possible is blank else convert to double. Exception at else point
-					// means non-numeric value entered.
-					if (bulkAssignDecoBean.getPointsPossible() == null || ("".equals(bulkAssignDecoBean.getPointsPossible().trim()))) {
-						bulkAssignDecoBean.setBulkNoPointsError("blank");
+						// Added per SAK-13459: did not validate if point value was valid (> zero)
+						if (dblPointsPossible > 0) {
+							// No more than 2 decimal places can be entered.
+							BigDecimal bd = new BigDecimal(dblPointsPossible);
+							bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP); // Two decimal places
+							double roundedVal = bd.doubleValue();
+							double diff = dblPointsPossible - roundedVal;
+							if(diff != 0) {
+								saveAll = false;
+								resultString = "failure";
+								bulkAssignDecoBean.setBulkNoPointsError("precision");
+							}
+							else {
+								bulkAssignDecoBean.setBulkNoPointsError("OK");
+								bulkAssignDecoBean.getAssignment().setPointsPossible(new Double(bulkAssignDecoBean.getPointsPossible()));
+							}
+						}
+						else {
+							saveAll = false;
+							resultString = "failure";
+							bulkAssignDecoBean.setBulkNoPointsError("invalid");
+						}
+					}
+					catch (Exception e) {
+						bulkAssignDecoBean.setBulkNoPointsError("NaN");
 						saveAll = false;
 						resultString = "failure";
 					}
-					else {
-						try {
-							double dblPointsPossible = new Double(bulkAssignDecoBean.getPointsPossible()).doubleValue();
-	
-							// Added per SAK-13459: did not validate if point value was valid (> zero)
-							if (dblPointsPossible > 0) {
-								// No more than 2 decimal places can be entered.
-								BigDecimal bd = new BigDecimal(dblPointsPossible);
-								bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP); // Two decimal places
-								double roundedVal = bd.doubleValue();
-								double diff = dblPointsPossible - roundedVal;
-								if(diff != 0) {
-									saveAll = false;
-									resultString = "failure";
-									bulkAssignDecoBean.setBulkNoPointsError("precision");
-								}
-								else {
-									bulkAssignDecoBean.setBulkNoPointsError("OK");
-									bulkAssignDecoBean.getAssignment().setPointsPossible(new Double(bulkAssignDecoBean.getPointsPossible()));
-								}
-							}
-							else {
-								saveAll = false;
-								resultString = "failure";
-								bulkAssignDecoBean.setBulkNoPointsError("invalid");
-							}
-						}
-						catch (Exception e) {
-							bulkAssignDecoBean.setBulkNoPointsError("NaN");
-							saveAll = false;
-							resultString = "failure";
-						}
-					}
 				}
-				else
-				{
-					// extra insurance to make sure these fields are blank
-					bulkAssignDecoBean.getAssignment().setCounted(false);
-					bulkAssignDecoBean.getAssignment().setPointsPossible(null);
-				}
+			}
+			else
+			{
+				// extra insurance to make sure these fields are blank
+				bulkAssignDecoBean.getAssignment().setCounted(false);
+				bulkAssignDecoBean.getAssignment().setPointsPossible(null);
+			}
+		
+			if (saveAll) {
+				bulkAssignDecoBean.getAssignment().setCategory(retrieveSelectedCategory(bulkAssignDecoBean.getCategory()));
+		    	itemsToSave.add(bulkAssignDecoBean.getAssignment());
+			}
+
+			// Even if errors increment since we need to go back to add page
+	    	i++;
+		}
+
+	// Now ready to save, the only problem is due to duplicate names.
+	if (saveAll) {
+		try {
+			getGradebookManager().createAssignments(getGradebookId(), itemsToSave);
 			
-				if (saveAll) {
-					bulkAssignDecoBean.getAssignment().setCategory(retrieveSelectedCategory(bulkAssignDecoBean.getCategory()));
-			    	itemsToSave.add(bulkAssignDecoBean.getAssignment());
-				}
-
-				// Even if errors increment since we need to go back to add page
-		    	i++;
+			for (Iterator gbItemIter = itemsToSave.iterator(); gbItemIter.hasNext();) {
+				FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", 
+								new String[] {((Assignment) gbItemIter.next()).getName()}));
 			}
 		}
-
-		// Now ready to save, the only problem is due to duplicate names.
-		if (saveAll) {
-			try {
-				getGradebookManager().createAssignments(getGradebookId(), itemsToSave);
-				
-				for (Iterator gbItemIter = itemsToSave.iterator(); gbItemIter.hasNext();) {
-					FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", 
-									new String[] {((Assignment) gbItemIter.next()).getName()}));
-				}
-			}
-			catch (MultipleAssignmentSavingException e) {
-				FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("validation_messages_present"));
-				resultString = "failure";
-			}
-		}
-		else {
-			// There are errors so need to put an error message at top
+		catch (MultipleAssignmentSavingException e) {
 			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("validation_messages_present"));
+			resultString = "failure";
 		}
-		*/
-		return resultString;
 	}
+	else {
+		// There are errors so need to put an error message at top
+		FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("validation_messages_present"));
+	}
+	
+	return resultString;
+}
 	
 	public String updateAssignment() {
 		try {
@@ -627,11 +646,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		
 		return navigateBack();
 	}
-
-	public String navigateToAssignmentDetails() {
-		return navigateBack();
-	}
-
+	
 	/**
 	 * Go to assignment details page. InstructorViewBean contains duplicate
 	 * of this method, cannot migrate up to GradebookDependentBean since
@@ -853,22 +868,6 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		return bulkRowClasses.toString();
 	}
 	
-	public String processAddBulkGradebookItem() {
-		try {
-			//TODO
-		} catch (StaleObjectModificationException e) {
-			logger.error(e);
-			FacesUtil.addErrorMessage(getLocalizedString("add_assignment_bulk"));
-		}
-		return "addBulkGradebookItem";
-	}
-	
-	public String processCancel() {
-
-		return "overview";
-
-	}
-	
 	public boolean getIsBulkDisplay() {
 		isBulkDisplay = selectGradebookItem.equals(GB_ITEM_BULK);
 		return isBulkDisplay;
@@ -902,11 +901,28 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		this.countedChange = countedChange;
 	}
 	
+	public String addConfirm() {
+		
+		setNav("overview", "false", "true", "false", "addBulkGradebookItem");
+		
+		return "addBulkGradebookItem";
+	}
 	
 	public String processGradeEntryChange(ValueChangeEvent vce)
 	{ 
-		String changeGradeEntry = (String) vce.getNewValue(); 
-		if(vce.getNewValue().equals(GB_NON_CALCULATING_ENTRY) && !vce.getOldValue().equals(vce.getNewValue()))
+		String changeGradeEntry = (String) vce.getNewValue();
+		if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))	
+		{
+			gradeEntryType = changeGradeEntry;
+		} 
+		
+		/*if(vce.getNewValue().equals(GB_NON_CALCULATING_ENTRY) && !vce.getOldValue().equals(vce.getNewValue()))
+		{
+			setIsNonCalc(true);
+		} else {
+			setIsNonCalc(false);
+		}*/
+		if(vce.getNewValue().equals(GB_NON_CALCULATING_ENTRY))
 		{
 			setIsNonCalc(true);
 		} else {
@@ -920,6 +936,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
         String changeCategory = (String) vce.getNewValue(); 
         if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))  
         {
+        	categoryEntry = changeCategory;
             List<Category> categories = getGradebookManager().getCategories(getGradebookId());
             if (categories != null && categories.size() > 0)
             {
@@ -934,18 +951,6 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
         }
         return GB_ADD_ASSIGNMENT_PAGE;
     }
-    
-    /*
-     * 
-        Category assignCategory = assignment.getCategory();
-        if (assignCategory != null) {
-            assignmentCategory = assignCategory.getId().toString();
-        }
-        else {
-            assignmentCategory = getLocalizedString("cat_unassigned");
-        }
-
-     */
     
     public String processItemTitleChange(ValueChangeEvent vce)
     { 
@@ -969,11 +974,8 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 	
 	public String processDueDateChange(ValueChangeEvent vce)
 	{ 
-		String changeDueDate = (String) vce.getNewValue(); 
-		if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))	
-		{
-			dueDateChange = changeDueDate;
-		}
+		Date changeDueDate = (Date) vce.getNewValue(); 
+		dueDateChange = changeDueDate;
 		return GB_ADD_ASSIGNMENT_PAGE;
 	}
 	
@@ -1036,9 +1038,24 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		
 		int numToAdd = Integer.parseInt(selectBulkGradebookItem);
 		
-		
 		for (int i = newBulkGradebookItems.size(); i < numToAdd; i++) {
-			newBulkGradebookItems.add(getNewAssignment());
+			BulkAssignmentDecoratedBean a = getNewAssignment();
+			if (itemTitleChange != null)
+			{
+				a.getAssignment().setName(itemTitleChange + i);
+			}
+			if (!isNonCalc)
+			{
+				if (pointsPossibleChange != null)
+				{
+				a.setPointsPossible(pointsPossibleChange);
+				a.getAssignment().setPointsPossible(new Double(pointsPossibleChange));
+				}
+			}
+			a.getAssignment().setDueDate(dueDateChange);
+			a.getAssignment().setReleased(releaseChange);
+			a.getAssignment().setCounted(countedChange);
+			newBulkGradebookItems.add(a);
 		}
 		
 		return newBulkGradebookItems;
@@ -1064,22 +1081,14 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		this.pointsPossibleChange = pointsPossibleChange;
 	}
 	
-	public String getDueDateChange() {
+	public Date getDueDateChange() {
 		return dueDateChange;
 	}
 
-	public void setDueDateChange(String dueDateChange) {
+	public void setDueDateChange(Date dueDateChange) {
 		this.dueDateChange = dueDateChange;
 	}
-	/*
-	public int getNumTotalIBulktems() {
-		return numTotalBulkItems;
-	}
-
-	public void setNumTotalBulkItems(int numTotalBulkItems) {
-		this.numTotalBulkItems = numTotalBulkItems;
-	}
-	*/
+	
 	public String getSelectBulkGradebookItem()
 	{
 		return selectBulkGradebookItem;
@@ -1098,6 +1107,21 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 	public void setSelectGradebookItem(String selectGradebookItem)
 	{
 		this.selectGradebookItem = selectGradebookItem;
+	}
+	
+	public String getGradeEntryType() {
+		return gradeEntryType;
+	}
+
+	public void setGradeEntryType(String gradeEntryType) {
+		this.gradeEntryType = gradeEntryType;
+	}
+	public String getCategoryEntry() {
+		return categoryEntry;
+	}
+
+	public void setCategoryEntry(String categoryEntry) {
+		this.categoryEntry = categoryEntry;
 	}
 }
 

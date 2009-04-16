@@ -20,19 +20,18 @@
 		<h:panelGrid cellpadding="0" cellspacing="5" columns="2" 
     		columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" 
   			styleClass="itemSummaryLite">
-			<h:outputLabel value="#{msgs.add_assignment_type}" rendered="#{!bean.assignment.externallyMaintained && addAssignmentBean.localGradebook.grade_type != 3}" />
+			<h:outputLabel for="selectGradeEntry" id="gradeEntryLabel" value="#{msgs.add_assignment_type}" rendered="#{!bean.assignment.externallyMaintained && addAssignmentBean.localGradebook.grade_type != 3}" />
 			<h:panelGroup rendered="#{!bean.assignment.externallyMaintained && addAssignmentBean.localGradebook.grade_type != 3}">
-				<h:selectOneMenu id="selectGradeEntry" value="#{addAssignmentBean.assignment.selectedGradeEntryValue}"
-					valueChangeListener="#{addAssignmentBean.processGradeEntryChange}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+				<h:selectOneMenu id="selectGradeEntry" value="#{addAssignmentBean.gradeEntryType}"
+					valueChangeListener="#{addAssignmentBean.processGradeEntryChange}"
+					onchange="this.form.submit();">
 					<f:selectItems value="#{addAssignmentBean.gradeEntrySelectList}" />
 					</h:selectOneMenu>
 				</h:panelGroup>
 		
 			<h:outputLabel for="selectCategory" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{addAssignmentBean.categoriesEnabled}" />
 			<h:panelGroup rendered="#{addAssignmentBean.categoriesEnabled}">
-				<h:selectOneMenu id="selectCategory" value="#{addAssignmentBean.assignmentCategory}"
-					onclick="assignmentNonCalc((this.form.name));"
-					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+				<h:selectOneMenu id="selectCategory" value="#{addAssignmentBean.categoryEntry}">
 					<f:selectItems value="#{addAssignmentBean.categoriesSelectList}" />
 				</h:selectOneMenu>
 				<f:verbatim><div class="instruction"></f:verbatim>
@@ -57,7 +56,10 @@
 		    		<%--<h:outputText value="#{msgs.add_assignment_footnote_symbol1}" />
 		    		</t:commandSortHeader>--%>
 		    	</f:facet>
-		    	<h:inputText id="title" value="#{addAssignmentBean.itemTitleChange} #{rowIndex}"/>
+		    	<h:inputText id="title" value="#{gbItem.assignment.name}"
+		    		valueChangeListener="#{addAssignmentBean.processItemTitleChange}"
+					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+		    	</h:inputText>
 		    	<%--
 	    		<h:outputText id="noTitleErrMsg"  value="#{msgs.add_assignment_no_title}" 
 					styleClass="alertMessageInline" rendered="#{gbItem.bulkNoTitleError == 'blank'}" />
@@ -66,13 +68,15 @@
 				--%>
 			</h:column>
 			
-			<h:column>
+			<h:column rendered="#{!addAssignmentBean.isNonCalc && addAssignmentBean.localGradebook.grade_type != 3}">
 				<f:facet name="header">
-					<h:outputText id="pointsLabel" value="#{(addAssignmentBean.localGradebook.grade_type == 1) ? msgs.add_assignment_header_points : msgs.add_assignment_header_relative_weight}"
-							rendered="#{!bean.assignment.externallyMaintained && addAssignmentBean.localGradebook.grade_type != 3}"/>
+					<h:outputLabel for="points" id="pointsLabel" value="#{(addAssignmentBean.localGradebook.grade_type == 1) ? msgs.add_assignment_header_points : msgs.add_assignment_header_relative_weight}"/>
 					<%--<h:outputText value="#{msgs.add_assignment_footnote_symbol1}" />--%>
 				</f:facet>
-				<h:inputText id="points" value="#{addAssignmentBean.pointsPossibleChange}" rendered="#{!addAssignmentBean.isNonCalc && addAssignmentBean.localGradebook.grade_type != 3}"/>
+				<h:inputText id="points" value="#{gbItem.assignment.pointsPossible}"
+					valueChangeListener="#{addAssignmentBean.processPointsPossibleChange}"
+					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+				</h:inputText>
 				<%--
 				<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
 					rendered="#{gbItem.bulkNoPointsError == 'blank'}" />
@@ -97,8 +101,9 @@
 				<f:facet name="header">
 					<h:outputText value="#{msgs.add_assignment_header_due_date}"/>
 				</f:facet>
-				<t:inputCalendar id="dueDate" value="#{addAssignmentBean.dueDateChange}" renderAsPopup="true" renderPopupButtonAsImage="true"
-					popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
+				<t:inputCalendar id="dueDate" value="#{gbItem.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true"
+					popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" >
+				</t:inputCalendar>
 				<h:message for="dueDate" styleClass="alertMessageInline" />
 			</h:column>
 			
@@ -106,9 +111,10 @@
 				<f:facet name="header">
 					<h:outputText value="#{msgs.add_assignment_release}" escape="false"/>
 				</f:facet>
-        		<h:selectBooleanCheckbox id="released" value="#{addAssignmentBean.releaseChange}"
+        		<h:selectBooleanCheckbox id="released" value="#{gbItem.assignment.released}"
+        			valueChangeListener="#{addAssignmentBean.processReleaseChange}"
         			onclick="assignmentReleased((this.form.name + ':bulkNewAssignmentsTable:' + #{rowIndex}), true);"
-        				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
+        			onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
 				
 			</h:column>
 			
@@ -116,7 +122,8 @@
 				<f:facet name="header">
 					<h:outputText value="#{msgs.add_assignment_include_in_cum}" escape="false"/>
 				</f:facet>
-				<h:selectBooleanCheckbox id="countAssignment" value="#{addAssignmentBean.countedChange}"
+				<h:selectBooleanCheckbox id="countAssignment" value="#{gbItem.assignment.counted}"
+					valueChangeListener="#{addAssignmentBean.processCountedChange}"
 					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{addAssignmentBean.localGradebook.grade_type != 3}" />
 				
 			</h:column>
@@ -127,12 +134,11 @@
 		<h:commandButton
 			id="saveButton"
 			styleClass="active"
-			action="addAssignmentBean.saveNewBulkAssignment"
-			value="#{msgs.add_assignment_save}"/>
+			value="#{msgs.add_assignment_save}"
+			action="#{addAssignmentBean.saveNewBulkAssignment}"/>
 		<h:commandButton
-			id="clearButton"
 			value="#{msgs.add_assignment_cancel}"
-			action="overview"
+			action="overview" 
 			immediate="true"/>
 		</div>
 		

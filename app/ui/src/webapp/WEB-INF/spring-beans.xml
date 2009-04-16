@@ -33,6 +33,7 @@
 		<property name="userAbleToEditPages">
 			<list>
 				<value>addAssignment</value>
+				<value>addBulkGradebookItem</value>
 				<value>editAssignment</value>
 				<value>removeAssignment</value>
 				<value>gradeOptions</value>
