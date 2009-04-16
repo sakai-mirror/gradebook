@@ -46,6 +46,7 @@ import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGradesToSpreadsheetConverter;
@@ -204,6 +205,19 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 			studentUids.addAll(scoreSortedStudentUids);
 
 			studentUids = finalizeSortingAndPaging(studentUids);
+		}
+		
+		// for calculating totalPoints with droppedScores
+		
+		List assignmentGradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentUids);
+		getGradebookManager().applyDropScores(assignmentGradeRecords);
+		for(Object obj : assignmentGradeRecords) {
+		    if(obj instanceof AssignmentGradeRecord) {
+		        AssignmentGradeRecord agr = (AssignmentGradeRecord)obj;
+		        if(agr.getDroppedFromGrade()) {
+		            totalPoints -= agr.getAssignment().getPointsPossible();
+		        }
+		    }
 		}
 
 		// Get all of the grading events for these enrollments on this assignment

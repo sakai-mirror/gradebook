@@ -160,6 +160,8 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     				//double totalPointsEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session);
     				List<AssignmentGradeRecord> studentGradeRecs = gradeRecMap.get(cgr.getStudentId());
     				
+    				applyDropScores(studentGradeRecs);
+    				
     				List totalEarned = getTotalPointsEarnedInternal(cgr.getStudentId(), gradebook, cates, studentGradeRecs, countedAssigns);
     				double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
     				double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();

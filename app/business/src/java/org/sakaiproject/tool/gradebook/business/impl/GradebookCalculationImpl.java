@@ -97,6 +97,8 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 						CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
 						//double totalPointsEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session);
 						List<AssignmentGradeRecord> studentGradeRecs = gradeRecMap.get(cgr.getStudentId());
+						
+						applyDropScores(studentGradeRecs);
 
 						List totalEarned = getTotalPointsEarnedInternal(cgr.getStudentId(), gradebook, cates, studentGradeRecs, countedAssigns);
 						double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
@@ -175,7 +177,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 						for (Iterator gradeRecordIter = studentGradeRecords.iterator(); gradeRecordIter.hasNext(); ) 
 						{
 							AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecordIter.next();
-							if (!assignmentsNotCounted.contains(agr.getGradableObject().getId())) 
+							if (!assignmentsNotCounted.contains(agr.getGradableObject().getId()) && !agr.getDroppedFromGrade()) 
 							{
 								if(agr.getPointsEarned() != null && !agr.getPointsEarned().equals(""))
 								{

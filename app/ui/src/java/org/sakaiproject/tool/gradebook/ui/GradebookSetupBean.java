@@ -158,15 +158,53 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
         this.categorySetting = categorySetting;
     } 
 
-    public boolean getShowDropsDisplayed()
-    {   
-        return showDropsDisplayed;
+    public boolean getShowDropsDisplayed() {   
+        return getAnyCategoriesWithDrops();
     }
-
-    public void setShowDropsDisplayed(boolean showDropsDisplayed)
-    {
-        this.showDropsDisplayed = showDropsDisplayed;
-    } 
+    
+    public boolean getAnyCategoriesWithDrops() {
+        boolean anyDrops = false;
+        if(categories != null) {
+            for(Object obj : categories) {
+                if(obj instanceof Category) {
+                    Category category = (Category)obj;
+                    anyDrops = category.isDropScores();
+                    if(anyDrops)
+                        break;
+                }
+            }
+        }
+        return anyDrops;
+    }
+    
+    public boolean getAnyCategoriesWithUnequalGradedItems() {
+        boolean unequal = false;
+        Double pointsPossible = null;
+        if(categories != null) {
+            for(Object obj : categories) {
+                if(obj instanceof Category) {
+                    Category category = (Category)obj;
+                    List assignments = category.getAssignmentList();
+                    if(assignments != null) {
+                        for(Object o : assignments) {
+                            if(o instanceof Assignment) {
+                                Assignment assignment = (Assignment)o;
+                                if(pointsPossible == null) {
+                                    pointsPossible = assignment.getPointsPossible();
+                                } else {
+                                    if(!pointsPossible.equals(assignment.getPointsPossible())) {
+                                        unequal = true;
+                                        return unequal;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return unequal;
+    }
 
 	/**
 	 * 

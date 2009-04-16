@@ -14,7 +14,7 @@
       <h:selectBooleanCheckbox id="showDrops" value="#{gradebookSetupBean.showDropsDisplayed}" 
 	      valueChangeListener="#{gradebookSetupBean.processShowDropsChange}" onclick="this.form.submit();" 
 	      rendered="#{!gradebookSetupBean.isLetterGrade && (gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
-      <h:outputLabel for="hideDrops" value="#{msgs.opt_show_drops}" />
+      <h:outputLabel for="showDrops" value="#{msgs.opt_show_drops}" rendered="#{!gradebookSetupBean.isLetterGrade && (gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
 	  
 	</div>
 	<h:selectOneRadio value="#{gradebookSetupBean.categorySetting}" id="categorySetting2" layout="pageDirection" 
