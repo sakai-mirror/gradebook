@@ -256,6 +256,11 @@ public interface GradebookManager {
      * Gets the course grade for a single student.
      */
     public CourseGradeRecord getStudentCourseGradeRecord(Gradebook gradebook, String studentId);
+    
+    /**
+     * Gets the course grade for a single student before adjustments.
+     */
+    public CourseGradeRecord getPreadjustedStudentCourseGradeRecord(Gradebook gradebook, String studentId);
 
     /**
      * Gets the grading events for the enrollments on the given gradable object.

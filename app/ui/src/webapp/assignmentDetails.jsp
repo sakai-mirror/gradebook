@@ -77,7 +77,7 @@
 					<h:outputText id="average" value="#{assignmentDetailsBean.assignment}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_BASIC" />
 					</h:outputText>
-					<h:outputText id="averagePlaceholder" value="#{msgs.score_null_placeholder}" rendered="#{assignmentDetailsBean.assignment.formattedMean == null || assignmentDetailsBean.assignment.averageTotal == null}" />
+					<h:outputText id="averagePlaceholder" value="#{msgs.score_null_placeholder}" rendered="#{(assignmentDetailsBean.assignment.formattedMean == null || assignmentDetailsBean.assignment.averageTotal == null) && !assignmentDetailsBean.assignment.isExtraCredit}" />
 				</h:panelGroup>
 				
 				<h:outputText id="categoryLabel" value="#{msgs.assignment_details_category}" rendered="#{assignmentDetailsBean.categoriesEnabled}" />

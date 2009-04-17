@@ -165,8 +165,13 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     				List totalEarned = getTotalPointsEarnedInternal(cgr.getStudentId(), gradebook, cates, studentGradeRecs, countedAssigns);
     				double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
     				double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
+    				double courseGradePointsAdjustment = 0;
+					if (cgr.getAdjustmentScore()!=null)
+					{
+						courseGradePointsAdjustment += cgr.getAdjustmentScore().doubleValue();
+					}
     				double totalPointsPossible = getTotalPointsInternal(gradebook, cates, cgr.getStudentId(), studentGradeRecs, countedAssigns);
-    				cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned);
+    				cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment);
     				if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
     			}
 
@@ -487,7 +492,12 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     						}
     					}
     	    	}
-    				cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned);
+    				double courseGradePointsAdjustment = 0;
+					if (cgr.getAdjustmentScore()!=null)
+					{
+						courseGradePointsAdjustment += cgr.getAdjustmentScore().doubleValue();
+					}
+    				cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment);
     				if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
     			}
 
@@ -756,9 +766,21 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 		// Check for excessive (AKA extra credit) scoring.
               			if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
               			{
-              				if (!assignment.getIsExtraCredit())
+              				if (assignment.getIsExtraCredit()!=null)
               				{
-	              				if (gradeRecordFromCall.getPointsEarned() != null &&
+	              				if (!assignment.getIsExtraCredit())
+	              				{
+		              				if (gradeRecordFromCall.getPointsEarned() != null &&
+		              						!gradeRecordFromCall.getPointsEarned().equals("") &&
+		              						!assignment.getUngraded() && !assignment.getUngraded() &&
+		              						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(assignment.getPointsPossible()) > 0) {
+		              					studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
+		              				}
+	              				}
+              				}
+              				else
+              				{
+              					if (gradeRecordFromCall.getPointsEarned() != null &&
 	              						!gradeRecordFromCall.getPointsEarned().equals("") &&
 	              						!assignment.getUngraded() && !assignment.getUngraded() &&
 	              						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(assignment.getPointsPossible()) > 0) {
@@ -768,9 +790,21 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
               			}
               			else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
               			{
-              				if (!assignment.getIsExtraCredit())
+              				if (assignment.getIsExtraCredit()!=null)
               				{
-	              				if (gradeRecordFromCall.getPointsEarned() != null &&
+	              				if (!assignment.getIsExtraCredit())
+	              				{
+		              				if (gradeRecordFromCall.getPointsEarned() != null &&
+		              						!gradeRecordFromCall.getPointsEarned().equals("") &&
+		              						!assignment.getUngraded() && !assignment.getUngraded() &&
+		              						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(new Double("100.0")) > 0) {
+		              					studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
+		              				}
+	              				}
+              				}
+              				else
+              				{
+              					if (gradeRecordFromCall.getPointsEarned() != null &&
 	              						!gradeRecordFromCall.getPointsEarned().equals("") &&
 	              						!assignment.getUngraded() && !assignment.getUngraded() &&
 	              						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(new Double("100.0")) > 0) {
@@ -1359,7 +1393,59 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 	List totalEarned = getTotalPointsEarnedInternal(studentId, gradebook, cates, gradeRecs, countedAssigns);
                 	double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
                 	double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
-                	courseGradeRecord.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned);
+                	double courseGradePointsAdjustment = 0;
+					if (courseGradeRecord.getAdjustmentScore()!=null)
+					{
+						courseGradePointsAdjustment += courseGradeRecord.getAdjustmentScore().doubleValue();
+					}
+                	courseGradeRecord.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment);
+                }             
+                return courseGradeRecord;
+            }
+        });
+    }
+    
+    public CourseGradeRecord getPreadjustedStudentCourseGradeRecord(final Gradebook gradebook, final String studentId) {
+    	if (logData.isDebugEnabled()) logData.debug("About to read student course grade for gradebook=" + gradebook.getUid());
+    	return (CourseGradeRecord)getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                CourseGradeRecord courseGradeRecord = getCourseGradeRecord(gradebook, studentId, session);
+                if (courseGradeRecord == null) {
+                	courseGradeRecord = new CourseGradeRecord(getCourseGrade(gradebook.getId()), studentId);
+                }
+                
+                // Only take the hit of autocalculating the course grade if no explicit
+                // grade has been entered.
+                if (courseGradeRecord.getEnteredGrade() == null && !gradebook.getIsLetterGrade()) {
+                    // TODO We could easily get everything we need in a single query by using an outer join if we
+                    // weren't mapping the different classes together into single sparsely populated
+                    // tables. When we finally break up the current mungings of Assignment with CourseGrade
+                    // and AssignmentGradeRecord with CourseGradeRecord, redo this section.
+                	List cates = getCategories(gradebook.getId());
+                	//double totalPointsPossible = getTotalPointsInternal(gradebook.getId(), session);
+                	//double totalPointsEarned = getTotalPointsEarnedInternal(gradebook.getId(), studentId, session);
+                    
+                	// get the grade recs for this student
+                    List<String> studentUids = new ArrayList<String>();
+                    studentUids.add(studentId);
+                    Map<String, List<AssignmentGradeRecord>> gradeRecMap = getGradeRecordMapForStudents(session, gradebook.getId(), studentUids);
+                    List<AssignmentGradeRecord> gradeRecs = gradeRecMap.get(studentId);
+                    
+                    // get the counted assignments for this gradebook
+                    List<Assignment> countedAssigns = getCountedAssignments(session, gradebook.getId());
+                    
+                    applyDropScores(gradeRecs);
+                    
+                	double totalPointsPossible = getTotalPointsInternal(gradebook, cates, studentId, gradeRecs, countedAssigns);
+                	
+                	List totalEarned = getTotalPointsEarnedInternal(studentId, gradebook, cates, gradeRecs, countedAssigns);
+                	double totalPointsEarned = (((Double)totalEarned.get(0)).doubleValue()) - (((Double)totalEarned.get(2)).doubleValue());
+                	double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
+                	double courseGradePointsAdjustment = 0;
+					
+                	// NOTE: we do not include the course adjustment item on this one since it defeats the purpose
+                	
+                	courseGradeRecord.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment);
                 }             
                 return courseGradeRecord;
             }
@@ -1664,7 +1750,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     private double getTotalPointsInternal(Long gradebookId, Session session) {
         double totalPointsPossible = 0;
     	Iterator assignmentPointsIter = session.createQuery(
-        		"select asn.pointsPossible from Assignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false").
+        		"select asn.pointsPossible from Assignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false and asn.isExtraCredit=false").
         		setParameter("gbid", gradebookId).
         		list().iterator();
         while (assignmentPointsIter.hasNext()) {
@@ -1773,7 +1859,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     {
     	double totalPointsPossible = 0;
     	Iterator assignmentIter = session.createQuery(
-    			"select asn from Assignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false").
+    			"select asn from Assignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false and asn.isExtraCredit=false").
     			setParameter("gbid", gradebookId).
     			list().iterator();
     	while (assignmentIter.hasNext()) {
@@ -2958,12 +3044,12 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 	        if (studentUids.size() >= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
 	            allGradeRecs = session.createQuery(
 	                    "from AssignmentGradeRecord agr where agr.gradableObject.gradebook.id=:gbid " +
-	                    "and agr.gradableObject.removed=false and agr.gradableObject.pointsPossible > 0").
+	                    "and agr.gradableObject.removed=false").
 	                    setParameter("gbid", gradebookId).
 	                    list();
 	        } else {
 	            String query = "from AssignmentGradeRecord agr where agr.gradableObject.gradebook.id=:gbid and " +
-	            "agr.gradableObject.removed=false and agr.gradableObject.pointsPossible > 0 and " +
+	            "agr.gradableObject.removed=false and " +
 	            "agr.studentId in (:studentUids)";
 	            
 	            allGradeRecs = session.createQuery(
@@ -3006,7 +3092,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 	    
 	    List results = session.createQuery(
         "from Assignment as asn where asn.gradebook.id=:gbid and asn.removed=false and " +
-        "asn.notCounted=false and asn.ungraded=false and asn.pointsPossible > 0").
+        "asn.notCounted=false and asn.ungraded=false").
         setParameter("gbid", gradebookId).
         list();
 	    

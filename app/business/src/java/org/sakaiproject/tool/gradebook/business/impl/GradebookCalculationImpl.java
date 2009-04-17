@@ -103,8 +103,13 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 						List totalEarned = getTotalPointsEarnedInternal(cgr.getStudentId(), gradebook, cates, studentGradeRecs, countedAssigns);
 						double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
 						double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
+						double courseGradePointsAdjustment = 0;
+						if (cgr.getAdjustmentScore()!=null)
+						{
+							courseGradePointsAdjustment += cgr.getAdjustmentScore().doubleValue();
+						}
 						double totalPointsPossible = getTotalPointsInternal(gradebook, cates, cgr.getStudentId(), studentGradeRecs, countedAssigns);
-						cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned);
+						cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment);
 						if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
 					}
 				}
@@ -146,17 +151,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 				for (Iterator iter = assignments.iterator(); iter.hasNext(); ) 
 				{
 					Assignment assignment = (Assignment)iter.next();
-					boolean isExtraCredit = false;
-					if (assignment.getIsExtraCredit()!=null)
-					{
-						isExtraCredit = assignment.getIsExtraCredit();
-					}
-					// separate check since points possible could be null
-					if (isExtraCredit)
-					{
-						assignmentsNotCounted.add(assignment.getId());
-					}
-					else if (!assignment.isCounted() || assignment.getUngraded() || assignment.getPointsPossible().doubleValue() <= 0.0) 
+					if (!assignment.isCounted() || assignment.getUngraded()) 
 					{
 						assignmentsNotCounted.add(assignment.getId());
 					}
@@ -167,8 +162,15 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 				{
 					CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
 					double totalPointsEarned = 0;
+					double adjustmentPoints = 0;
+					double courseGradePointsAdjustment = 0;
+					if (cgr.getAdjustmentScore()!=null)
+					{	
+						courseGradePointsAdjustment += cgr.getAdjustmentScore().doubleValue();
+					}
 					BigDecimal literalTotalPointsEarned = new BigDecimal(0d);
 					Map cateScoreMap = new HashMap();
+					Map cateAdjustMap = new HashMap();
 					Map studentMap = (Map)gradeRecordMap.get(cgr.getStudentId());
 					Set assignmentsTaken = new HashSet();
 					if (studentMap != null) 
@@ -224,20 +226,56 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 										{
 											if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
 											{
-												if(agr.getAssignment() != null && agr.getAssignment().getPointsPossible() != null)
+												if (agr.getAssignment() != null)
 												{
-													totalPointsEarned += pointsEarned.doubleValue() * agr.getAssignment().getPointsPossible() / 100.0d;
-													literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
-													assignmentsTaken.add(agr.getAssignment().getId());
+													if(agr.getAssignment().getIsExtraCredit()!=null)
+													{
+														if(agr.getAssignment().getIsExtraCredit())
+														{
+															totalPointsEarned += pointsEarned.doubleValue() * 1d / 100.0d;
+															literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
+															assignmentsTaken.add(agr.getAssignment().getId());
+														}
+														else if(agr.getAssignment().getPointsPossible() != null)
+														{
+															totalPointsEarned += pointsEarned.doubleValue() * agr.getAssignment().getPointsPossible() / 100.0d;
+															literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
+															assignmentsTaken.add(agr.getAssignment().getId());
+														}
+													}
+													else if(agr.getAssignment().getPointsPossible() != null)
+													{
+														totalPointsEarned += pointsEarned.doubleValue() * agr.getAssignment().getPointsPossible() / 100.0d;
+														literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
+														assignmentsTaken.add(agr.getAssignment().getId());
+													}
 												}
 											}
 											else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && categories != null)
 											{
-												if(agr.getAssignment() != null && agr.getAssignment().getPointsPossible() != null)
+												if (agr.getAssignment() != null)
 												{
-													totalPointsEarned += pointsEarned.doubleValue() * agr.getAssignment().getPointsPossible() / 100.0d;
-													literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
-													assignmentsTaken.add(agr.getAssignment().getId());
+													if(agr.getAssignment().getIsExtraCredit()!=null)
+													{
+														if(agr.getAssignment().getIsExtraCredit())
+														{
+															totalPointsEarned += pointsEarned.doubleValue() * 1d / 100.0d;
+															literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
+															assignmentsTaken.add(agr.getAssignment().getId());
+														}
+														else if(agr.getAssignment().getPointsPossible() != null)
+														{
+															totalPointsEarned += pointsEarned.doubleValue() * agr.getAssignment().getPointsPossible() / 100.0d;
+															literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
+															assignmentsTaken.add(agr.getAssignment().getId());
+														}
+													}
+													else if(agr.getAssignment().getPointsPossible() != null)
+													{
+														totalPointsEarned += pointsEarned.doubleValue() * agr.getAssignment().getPointsPossible() / 100.0d;
+														literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
+														assignmentsTaken.add(agr.getAssignment().getId());
+													}
 												}
 											}
 											else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && categories != null)
@@ -247,17 +285,46 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 													Category cate = (Category) categories.get(i);
 													if(cate != null && !cate.isRemoved() && agr.getAssignment().getCategory() != null && cate.getId().equals(agr.getAssignment().getCategory().getId()))
 													{
-														assignmentsTaken.add(agr.getAssignment().getId());
 														literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
-														if(agr.getAssignment() != null && agr.getAssignment().getPointsPossible() != null)
+														if(agr.getAssignment() != null)
 														{
-															if(cateScoreMap.get(cate.getId()) != null)
+															if(agr.getAssignment().getIsExtraCredit()!=null)
 															{
-																cateScoreMap.put(cate.getId(), new Double(((Double)cateScoreMap.get(cate.getId())).doubleValue() + (pointsEarned.doubleValue() * agr.getAssignment().getPointsPossible() / 100.0d)));
+																if(agr.getAssignment().getIsExtraCredit())
+																{
+																	if(cateAdjustMap.get(cate.getId()) != null)
+																	{
+																		cateAdjustMap.put(cate.getId(), new Double(((Double)cateAdjustMap.get(cate.getId())).doubleValue() + (pointsEarned.doubleValue() * 1d / 100.0d)));
+																	}
+																	else
+																	{
+																		cateAdjustMap.put(cate.getId(), new Double(pointsEarned.doubleValue() * 1d / 100.0d));
+																	}
+																}
+																else if (agr.getAssignment().getPointsPossible() != null)
+																{
+																	assignmentsTaken.add(agr.getAssignment().getId());
+																	if(cateScoreMap.get(cate.getId()) != null)
+																	{
+																		cateScoreMap.put(cate.getId(), new Double(((Double)cateScoreMap.get(cate.getId())).doubleValue() + (pointsEarned.doubleValue() * agr.getAssignment().getPointsPossible() / 100.0d)));
+																	}
+																	else
+																	{
+																		cateScoreMap.put(cate.getId(), new Double(pointsEarned.doubleValue() * agr.getAssignment().getPointsPossible() / 100.0d));
+																	}
+																}
 															}
-															else
+															else if (agr.getAssignment().getPointsPossible() != null)
 															{
-																cateScoreMap.put(cate.getId(), new Double(pointsEarned.doubleValue() * agr.getAssignment().getPointsPossible() / 100.0d));
+																assignmentsTaken.add(agr.getAssignment().getId());
+																if(cateScoreMap.get(cate.getId()) != null)
+																{
+																	cateScoreMap.put(cate.getId(), new Double(((Double)cateScoreMap.get(cate.getId())).doubleValue() + (pointsEarned.doubleValue() * agr.getAssignment().getPointsPossible() / 100.0d)));
+																}
+																else
+																{
+																	cateScoreMap.put(cate.getId(), new Double(pointsEarned.doubleValue() * agr.getAssignment().getPointsPossible() / 100.0d));
+																}
 															}
 														}
 														break;
@@ -286,11 +353,27 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 										{
 											if(cateTotalScoreMap.get(cate.getId()) == null)
 											{
-												cateTotalScoreMap.put(cate.getId(), asgn.getPointsPossible());
+												if (asgn.getIsExtraCredit()!=null)
+												{
+													if (!asgn.getIsExtraCredit())
+														cateTotalScoreMap.put(cate.getId(), asgn.getPointsPossible());
+												}
+												else
+												{
+													cateTotalScoreMap.put(cate.getId(), asgn.getPointsPossible());
+												}
 											}
 											else
 											{
-												cateTotalScoreMap.put(cate.getId(), new Double(((Double)cateTotalScoreMap.get(cate.getId())).doubleValue() + asgn.getPointsPossible().doubleValue()));
+												if (asgn.getIsExtraCredit()!=null)
+												{
+													if (!asgn.getIsExtraCredit())
+														cateTotalScoreMap.put(cate.getId(), new Double(((Double)cateTotalScoreMap.get(cate.getId())).doubleValue() + asgn.getPointsPossible().doubleValue()));
+												}
+												else
+												{
+													cateTotalScoreMap.put(cate.getId(), new Double(((Double)cateTotalScoreMap.get(cate.getId())).doubleValue() + asgn.getPointsPossible().doubleValue()));
+												}
 											}
 										}
 									}
@@ -306,6 +389,8 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 								if(cate != null && !cate.isRemoved() && cateScoreMap.get(cate.getId()) != null && cateTotalScoreMap.get(cate.getId()) != null)
 								{
 									totalPointsEarned += ((Double)cateScoreMap.get(cate.getId())).doubleValue() * cate.getWeight().doubleValue() / ((Double)cateTotalScoreMap.get(cate.getId())).doubleValue();
+									if(cateAdjustMap.get(cate.getId()) != null)
+										totalPointsEarned += ((Double)cateAdjustMap.get(cate.getId())).doubleValue();
 								}
 							}
 						}
@@ -334,16 +419,36 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 								Double pointsPossible = assignment.getPointsPossible();
 								if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY && assignmentsTaken.contains(assignment.getId()))
 								{
-									totalPointsPossible += pointsPossible.doubleValue();
+									if (assignment.getIsExtraCredit()!=null)
+									{
+										if (!assignment.getIsExtraCredit())
+										{
+											totalPointsPossible += pointsPossible.doubleValue();
+										}
+									}
+									else
+									{
+										totalPointsPossible += pointsPossible.doubleValue();
+									}
 								}
 								else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && assignmentsTaken.contains(assignment.getId()))
 								{
-									totalPointsPossible += pointsPossible.doubleValue();
+									if (assignment.getIsExtraCredit()!=null)
+									{
+										if (!assignment.getIsExtraCredit())
+										{
+											totalPointsPossible += pointsPossible.doubleValue();
+										}
+									}
+									else
+									{
+										totalPointsPossible += pointsPossible.doubleValue();
+									}
 								}
 							}
 						}
 					}
-					cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, (new BigDecimal(literalTotalPointsEarned.doubleValue(), GradebookService.MATH_CONTEXT)).doubleValue());
+					cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, (new BigDecimal(literalTotalPointsEarned.doubleValue(), GradebookService.MATH_CONTEXT)).doubleValue(), courseGradePointsAdjustment);
 					if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
 				}
 
@@ -375,14 +480,15 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 
 		double totalPointsEarned = 0;
 		BigDecimal literalTotalPointsEarned = new BigDecimal(0d);
+		double adjustmentPoints = 0;
 
 		Map cateScoreMap = new HashMap();
 		Map cateTotalScoreMap = new HashMap();
+		Map cateAdjustMap = new HashMap();
 
 		Set assignmentsTaken = new HashSet();
 		for (AssignmentGradeRecord gradeRec : gradeRecs)
 		{
-
 			if(gradeRec.getPointsEarned() != null && !gradeRec.getPointsEarned().equals("") && !gradeRec.getDroppedFromGrade())
 			{
 				Double pointsEarned = new Double(gradeRec.getPointsEarned());
@@ -393,12 +499,18 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 					{
 						if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
 						{
+							if (go.getIsExtraCredit()!=null)
+								if (go.getIsExtraCredit())
+									adjustmentPoints += pointsEarned.doubleValue();
 							totalPointsEarned += pointsEarned.doubleValue();
 							literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
 							assignmentsTaken.add(go.getId());
 						}
 						else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && go != null)
 						{
+							if (go.getIsExtraCredit()!=null)
+								if (go.getIsExtraCredit())
+									adjustmentPoints += pointsEarned.doubleValue();
 							totalPointsEarned += pointsEarned.doubleValue();
 							literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
 							assignmentsTaken.add(go.getId());
@@ -429,7 +541,23 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 					{
 						if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
 						{
-							if(go.getPointsPossible() != null)
+							if (go.getIsExtraCredit()!=null)
+							{
+								if (go.getIsExtraCredit())
+								{
+									adjustmentPoints += pointsEarned.doubleValue() * 1d / 100.0d;
+									totalPointsEarned += pointsEarned.doubleValue() * 1d / 100.0d;
+									literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
+									assignmentsTaken.add(go.getId());
+								}
+								else if(go.getPointsPossible() != null)
+								{
+									totalPointsEarned += pointsEarned.doubleValue() * go.getPointsPossible() / 100.0d;
+									literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
+									assignmentsTaken.add(go.getId());
+								}
+							}
+							else if(go.getPointsPossible() != null)
 							{
 								totalPointsEarned += pointsEarned.doubleValue() * go.getPointsPossible() / 100.0d;
 								literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
@@ -438,7 +566,23 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 						}
 						else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && go != null)
 						{
-							if(go.getPointsPossible() != null)
+							if (go.getIsExtraCredit()!=null)
+							{
+								if (go.getIsExtraCredit())
+								{
+									adjustmentPoints += pointsEarned.doubleValue() * 1d / 100.0d;
+									totalPointsEarned += pointsEarned.doubleValue() * 1d / 100.0d;
+									literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
+									assignmentsTaken.add(go.getId());
+								}
+								else if(go.getPointsPossible() != null)
+								{
+									totalPointsEarned += pointsEarned.doubleValue() * go.getPointsPossible() / 100.0d;
+									literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
+									assignmentsTaken.add(go.getId());
+								}
+							}
+							else if(go.getPointsPossible() != null)
 							{
 								totalPointsEarned += pointsEarned.doubleValue() * go.getPointsPossible() / 100.0d;
 								literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
@@ -454,7 +598,34 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 								{
 									assignmentsTaken.add(go.getId());
 									literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
-									if(go.getPointsPossible() != null)
+									if (go.getIsExtraCredit()!=null)
+									{
+										if (go.getIsExtraCredit())
+										{
+											adjustmentPoints += pointsEarned.doubleValue() * 1d / 100.0d;
+											if(cateAdjustMap.get(cate.getId()) != null)
+											{
+												cateAdjustMap.put(cate.getId(), new Double(((Double)cateAdjustMap.get(cate.getId())).doubleValue() + (pointsEarned.doubleValue() * 1d / 100.0d)));
+											}
+											else
+											{
+												cateAdjustMap.put(cate.getId(), new Double(pointsEarned.doubleValue() * 1d / 100.0d));
+											}
+										}
+										else if(go.getPointsPossible() != null)
+										{
+											if(cateScoreMap.get(cate.getId()) != null)
+											{
+												cateScoreMap.put(cate.getId(), new Double(((Double)cateScoreMap.get(cate.getId())).doubleValue() + (pointsEarned.doubleValue() * go.getPointsPossible() / 100.0d)));
+											}
+											else
+											{
+												cateScoreMap.put(cate.getId(), new Double(pointsEarned * go.getPointsPossible() / 100.0d));
+											}
+											break;
+										}
+									}
+									else if(go.getPointsPossible() != null)
 									{
 										if(cateScoreMap.get(cate.getId()) != null)
 										{
@@ -494,7 +665,15 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 							}
 							else
 							{
-								cateTotalScoreMap.put(cate.getId(), new Double(((Double)cateTotalScoreMap.get(cate.getId())).doubleValue() + asgn.getPointsPossible().doubleValue()));
+								if (asgn.getIsExtraCredit()!=null)
+								{
+									if (!asgn.getIsExtraCredit())
+										cateTotalScoreMap.put(cate.getId(), new Double(((Double)cateTotalScoreMap.get(cate.getId())).doubleValue() + asgn.getPointsPossible().doubleValue()));
+								}
+								else
+								{
+									cateTotalScoreMap.put(cate.getId(), new Double(((Double)cateTotalScoreMap.get(cate.getId())).doubleValue() + asgn.getPointsPossible().doubleValue()));
+								}
 							}
 
 						}
@@ -514,6 +693,8 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 				if(cate != null && !cate.isRemoved() && cateScoreMap.get(cate.getId()) != null && cateTotalScoreMap.get(cate.getId()) != null)
 				{
 					totalPointsEarned += ((Double)cateScoreMap.get(cate.getId())).doubleValue() * cate.getWeight().doubleValue() / ((Double)cateTotalScoreMap.get(cate.getId())).doubleValue();
+					if(cateAdjustMap.get(cate.getId()) != null)
+						totalPointsEarned += ((Double)cateAdjustMap.get(cate.getId())).doubleValue();
 				}
 			}
 		}
@@ -522,6 +703,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 		List returnList = new ArrayList();
 		returnList.add(new Double(totalPointsEarned));
 		returnList.add(new Double((new BigDecimal(literalTotalPointsEarned.doubleValue(), GradebookService.MATH_CONTEXT)).doubleValue()));
+		returnList.add(new Double(adjustmentPoints));
 		return returnList;
 	}
 
@@ -546,8 +728,11 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
         List<AssignmentGradeRecord> countedGradeRecs = new ArrayList<AssignmentGradeRecord>();
         for (AssignmentGradeRecord gradeRec : studentGradeRecs) {
             Assignment assign = gradeRec.getAssignment();
+            boolean extraCredit = false;
+            if (assign.getIsExtraCredit()!=null)
+            	extraCredit = assign.getIsExtraCredit();
             if (assign.isCounted() && !assign.getUngraded() && !assign.isRemoved() && 
-                    assign.getPointsPossible() != null && assign.getPointsPossible() > 0 && !gradeRec.getDroppedFromGrade()) {
+                    assign.getPointsPossible() != null && assign.getPointsPossible() > 0 && !gradeRec.getDroppedFromGrade() && !extraCredit) {
                 countedGradeRecs.add(gradeRec);
             }
         }

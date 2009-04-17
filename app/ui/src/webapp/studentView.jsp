@@ -53,9 +53,9 @@
 			rendered="#{studentViewBean.anyAdjustmentItemsGraded}">	
 			<h:outputText value="#{msgs.course_grade_name}" />
 			<h:panelGroup>
-				<h:outputText id="letterGrade" value="#{studentViewBean.courseGradeLetter} " rendered="#{studentViewBean.courseGradeReleased && studentViewBean.courseGradeLetter != ''}"/>
-				<h:outputText id="letterGradeEmpty" value="-" rendered="#{studentViewBean.courseGradeReleased && (studentViewBean.courseGradeLetter == '' || studentViewBean.courseGradeLetter == null) && overviewBean.isLetterGrade}"/>
-				<h:outputText id="cumScore" value="#{studentViewBean.courseGrade}" rendered="#{studentViewBean.courseGradeReleased && !overviewBean.isLetterGrade}">
+				<h:outputText id="letterGrade" value="#{studentViewBean.preadjustedCourseGradeLetter} " rendered="#{studentViewBean.courseGradeReleased && studentViewBean.preadjustedCourseGradeLetter != ''}"/>
+				<h:outputText id="letterGradeEmpty" value="-" rendered="#{studentViewBean.courseGradeReleased && (studentViewBean.preadjustedCourseGradeLetter == '' || studentViewBean.preadjustedCourseGradeLetter == null) && overviewBean.isLetterGrade}"/>
+				<h:outputText id="cumScore" value="#{studentViewBean.preadjustedCourseGrade}" rendered="#{studentViewBean.courseGradeReleased && !overviewBean.isLetterGrade}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
 				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!studentViewBean.courseGradeReleased}"/>

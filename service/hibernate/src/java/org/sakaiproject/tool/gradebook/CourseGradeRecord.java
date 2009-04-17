@@ -215,11 +215,14 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		return percent;
 	}
 
-	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned) {
+	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned, double courseGradePointsAdjustment) {
 		Double percentageEarned;
 		calculatedPointsEarned = new Double(totalPointsEarned).toString();
 		BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
 		BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
+		BigDecimal bdCourseGradePointsAdjustment = new BigDecimal(courseGradePointsAdjustment);
+		// this adds in the Course Grade Adjustment Score
+		bdTotalPointsEarned = bdTotalPointsEarned.add(bdCourseGradePointsAdjustment);
 		if (totalPointsPossible == 0.0) {
 			percentageEarned = null;
 		} else {
@@ -228,16 +231,27 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		autoCalculatedGrade = percentageEarned;
 	}
 
-	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned, double literalTotalPointsEarned) {
+	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned, double literalTotalPointsEarned, double courseGradePointsAdjustment) {
 		Double percentageEarned;
 		//calculatedPointsEarned = totalPointsEarned;
 		calculatedPointsEarned = new Double(literalTotalPointsEarned).toString();
 		BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
 		BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
+		BigDecimal bdCourseGradePointsAdjustment = new BigDecimal(courseGradePointsAdjustment);
 		if (totalPointsPossible <= 0.0) {
 			percentageEarned = null;
 		} else {
-			percentageEarned = new Double(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
+			if (getCourseGrade().getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
+			{
+				percentageEarned = new Double(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
+				percentageEarned += courseGradePointsAdjustment;
+			}
+			else
+			{
+				// this adds in the Course Grade Adjustment Score
+				bdTotalPointsEarned = bdTotalPointsEarned.add(bdCourseGradePointsAdjustment);
+				percentageEarned = new Double(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
+			}
 		}
 		autoCalculatedGrade = percentageEarned;
 	}

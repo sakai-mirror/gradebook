@@ -64,6 +64,7 @@ public class ClassAvgConverter extends PointsConverter {
 		Object pointsPossible = null;
 		int numDecimalPlaces = 0;
 		Gradebook gradebook;
+		boolean extraCredit = false;
 		
 		GradebookBean gbb = (GradebookBean)FacesUtil.resolveVariable("gradebookBean");
 
@@ -72,6 +73,10 @@ public class ClassAvgConverter extends PointsConverter {
 				Assignment assignment = (Assignment)value;
 				gradebook = assignment.getGradebook();
 				pointsPossible = assignment.getPointsPossible();
+				
+				if (assignment.getIsExtraCredit()!=null)
+					if (assignment.getIsExtraCredit())
+						extraCredit = true;
 
 				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
 					entryMethod = POINTS;
@@ -140,7 +145,10 @@ public class ClassAvgConverter extends PointsConverter {
 		
 		if (avg != null) {
 			if (entryMethod.equals(POINTS)) {			
-				formattedAvg = FacesUtil.getLocalizedString("overview_avg_display_points", new String[] {formattedAvg, formattedPtsPossible} );
+				if (extraCredit)
+					formattedAvg = FacesUtil.getLocalizedString("overview_avg_display_points_adjustment", new String[] {formattedAvg} );
+				else
+					formattedAvg = FacesUtil.getLocalizedString("overview_avg_display_points", new String[] {formattedAvg, formattedPtsPossible} );
 			} else if (entryMethod.equals(PERCENT)) {
 				formattedAvg = FacesUtil.getLocalizedString("overview_avg_display_percent", new String[] {formattedAvg} );
 			} 

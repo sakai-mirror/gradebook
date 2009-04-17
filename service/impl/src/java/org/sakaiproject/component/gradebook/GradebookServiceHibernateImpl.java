@@ -978,8 +978,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					List totalEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session, gradebook, cates);
 					double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
 					double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
+					double courseGradePointsAdjustment = 0;
+					if (cgr.getAdjustmentScore()!=null)
+					{
+						courseGradePointsAdjustment += cgr.getAdjustmentScore().doubleValue();
+					}
 					double totalPointsPossible = getTotalPointsInternal(gradebookId, session, gradebook, cates, cgr.getStudentId());
-					cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned);
+					cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment);
 					if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
 				}
 
@@ -2272,8 +2277,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					List totalEarned = getTotalPointsEarnedInternalFixing(gradebookId, cgr.getStudentId(), session, gradebook, cates);
 					double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
 					double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
+					double courseGradePointsAdjustment = 0;
+					if (cgr.getAdjustmentScore()!=null)
+					{
+						courseGradePointsAdjustment += cgr.getAdjustmentScore().doubleValue();
+					}
 					double totalPointsPossible = getTotalPointsInternal(gradebookId, session, gradebook, cates, cgr.getStudentId());
-					cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned);
+					cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment);
 					if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
 				}
 

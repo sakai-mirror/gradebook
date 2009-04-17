@@ -59,6 +59,8 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     private boolean courseGradeReleased;
     private CourseGradeRecord courseGrade;
     private String courseGradeLetter;
+    private CourseGradeRecord preadjustedCourseGrade;
+    private String preadjustedCourseGradeLetter;
     private boolean assignmentsReleased;
     private boolean anyNotCounted;
     private boolean anyExternallyMaintained = false;
@@ -244,6 +246,14 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     				courseGradeLetter = gradeRecord.getDisplayGrade();
     			}
     		}
+    		// this is used only on the student's view / instructor's view of student
+    		CourseGradeRecord preadjustedGradeRecord = getGradebookManager().getPreadjustedStudentCourseGradeRecord(gradebook, studentUid);
+    		if (preadjustedGradeRecord != null) {
+    			if (courseGradeReleased || isInstructorView) {
+    				preadjustedCourseGrade = preadjustedGradeRecord;
+    				preadjustedCourseGradeLetter = preadjustedGradeRecord.getDisplayGrade();
+    			}
+    		}
   //  	}
     	
     	initializeStudentGradeData();
@@ -269,6 +279,21 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     public String getCourseGradeLetter() {
     	return courseGradeLetter;
     }
+    /**
+     * 
+     * @return letter representation of course grade before adjustments
+     */
+    public String getPreadjustedCourseGradeLetter() {
+		return preadjustedCourseGradeLetter;
+	}
+
+    /**
+     * @return Returns the CourseGradeRecord for this student before adjustments
+     */
+	public CourseGradeRecord getPreadjustedCourseGrade() {
+		return preadjustedCourseGrade;
+	}
+    
     /**
      * @return Returns the courseGradeReleased.
      */
@@ -649,6 +674,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
 	    					if (gr.getAssociatedAssignment().getIsExtraCredit())
 	    					{
 	    						anyAdjustmentItemsGraded = true;
+	    						break;
 	    					}
     					}
 

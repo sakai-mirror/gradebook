@@ -447,6 +447,10 @@ public class Assignment extends GradableObject {
                         mean = null;
                     }
                     averageTotal = new Double(pointsTotal.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+                    if (isExtraCredit && gradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE)
+                    {
+                    	mean = averageTotal;
+                    }
                 }
             }
         }
