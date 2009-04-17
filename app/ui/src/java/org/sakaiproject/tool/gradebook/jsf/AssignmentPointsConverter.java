@@ -150,9 +150,16 @@ public class AssignmentPointsConverter extends PointsConverter{
 					new String[] {formattedScore, FacesUtil.getLocalizedString("score_not_counted_tooltip")});
 			}
 		}
+		
 		if(percentage && workingValue != null && !ungraded){
 			formattedScore += "%";
 		}
+        if(value != null && value instanceof AssignmentGradeRecord){
+            AssignmentGradeRecord agr = (AssignmentGradeRecord)value;
+            if(agr.getDroppedFromGrade()) {
+                formattedScore = "<outputFormat style='text-decoration:line-through'>" + formattedScore + "</outputFormat>";
+            }
+        }
 		return formattedScore;
 	}
 

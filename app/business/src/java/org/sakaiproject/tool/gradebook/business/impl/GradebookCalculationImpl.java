@@ -176,6 +176,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 					if (studentMap != null) 
 					{
 						Collection studentGradeRecords = studentMap.values();
+						applyDropScores(studentGradeRecords);
 						for (Iterator gradeRecordIter = studentGradeRecords.iterator(); gradeRecordIter.hasNext(); ) 
 						{
 							AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecordIter.next();

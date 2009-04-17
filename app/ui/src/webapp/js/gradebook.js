@@ -293,6 +293,60 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
   }
 }
 
+function dropScoresAdjust(myForm) {
+    
+//  'gbForm:categoriesTable:0:dropHighest'
+    for (var i=0; i < myForm.elements.length; ++i) {
+        var dropHighest =  getTheElement(myForm.name + ":categoriesTable:" + i + ":dropHighest");
+        var dropLowest =  getTheElement(myForm.name + ":categoriesTable:" + i + ":dropLowest");
+        var keepHighest =  getTheElement(myForm.name + ":categoriesTable:" + i + ":keepHighest");
+        var pointValue =  getTheElement(myForm.name + ":categoriesTable:" + i + ":pointValue");
+        var relativeWeight =  getTheElement(myForm.name + ":categoriesTable:" + i + ":relativeWeight");
+
+        if(dropHighest == undefined) {
+            break;
+        } else {
+            if(dropHighest.value > 0 || dropLowest.value > 0) {
+                keepHighest.value = 0;
+                keepHighest.disabled = true;
+            } else {
+                keepHighest.disabled = false;
+                if(pointValue != undefined) {
+                    pointValue.disabled = true;
+                }
+                if(relativeWeight != undefined) {
+                    relativeWeight.disabled = true;
+                }
+            }    
+            if(keepHighest.value > 0) {
+                dropLowest.value = 0;
+                dropHighest.value = 0;
+                dropLowest.disabled = true;
+                dropHighest.disabled = true;
+            } else {
+                dropLowest.disabled = false;
+                dropHighest.disabled = false;
+            }
+            
+            if(dropHighest.value > 0 || dropLowest.value > 0 || keepHighest.value > 0) {
+                if(pointValue != undefined) {
+                    pointValue.disabled = false;
+                }
+                if(relativeWeight != undefined) {
+                    relativeWeight.disabled = false;
+                }
+            } else {
+                if(pointValue != undefined) {
+                    pointValue.disabled = true;
+                }
+                if(relativeWeight != undefined) {
+                    relativeWeight.disabled = true;
+                }
+            }
+        }
+    }
+}
+
 // if user unchecks box to release items, we must uncheck
 // and disable the option to include item in cumulative score
 // we will also add check the counted box if ungraded is false or undefined

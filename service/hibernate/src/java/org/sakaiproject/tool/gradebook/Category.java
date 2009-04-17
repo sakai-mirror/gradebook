@@ -519,4 +519,27 @@ public class Category implements Serializable
 	public void setIsExtraCredit(Boolean isExtraCredit) {
 		this.isExtraCredit = isExtraCredit;
 	}
+    
+    public boolean getGradedItemsUnequal() {
+        boolean unequal = false;
+        Double pointsPossible = null;
+        List assignments = getAssignmentList();
+        if(assignments != null) {
+            for(Object o : assignments) {
+                if(o instanceof Assignment) {
+                    Assignment assignment = (Assignment)o;
+                    if(pointsPossible == null) {
+                        pointsPossible = assignment.getPointsPossible();
+                    } else {
+                        if(!pointsPossible.equals(assignment.getPointsPossible())) {
+                            unequal = true;
+                            return unequal;
+                        }
+                    }
+                }
+            }
+        }
+        return unequal;
+    }
+
 }

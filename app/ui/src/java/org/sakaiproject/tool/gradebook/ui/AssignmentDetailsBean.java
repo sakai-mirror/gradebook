@@ -227,7 +227,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 	List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending());
                 	
                 	// if drop scores, must apply the average total as it was calculated for all assignments within the category
-                	if(assignment.getCategory().isDropScores()) {
+                    if(assignment.getCategory() != null && assignment.getCategory().isDropScores()) {
                     	for(Object obj : categoryListWithCG) {
                     	    if(obj instanceof Category) {
                         	    List<Assignment> catAssignments = ((Category)obj).getAssignmentList();

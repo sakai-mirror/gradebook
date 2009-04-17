@@ -2941,6 +2941,9 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
      * @return void
      */
     public void applyDropScores(Collection<AssignmentGradeRecord> gradeRecords) {
+        if(gradeRecords == null || gradeRecords.size() < 1) {
+            return;
+        }
         long start = System.currentTimeMillis();
         
         List<String> studentIds = new ArrayList<String>();
