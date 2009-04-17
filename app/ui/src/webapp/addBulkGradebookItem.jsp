@@ -9,8 +9,6 @@
 
 	  <sakai:flowState bean="#{addAssignmentBean}" />
 	  
-		<%--<h2><h:outputText value="#{msgs.appmenu_overview}"/></h2>--%>
-		
 		<p class="instruction"><h:outputText value="#{msgs.add_assignment_bulk_instruction}" /></p>
 		
 		<%@include file="/inc/globalMessages.jspf"%>
@@ -52,49 +50,17 @@
 			<h:column id="_title">
 				<f:facet name="header">
 					<%--<t:commandSortHeader columnName="name" propertyName="name" immediate="true" arrow="true">--%>
-		    		<h:outputText value="#{msgs.add_assignment_title}" />
-		    		<%--<h:outputText value="#{msgs.add_assignment_footnote_symbol1}" />
-		    		</t:commandSortHeader>--%>
+		    		<h:outputText value="#{msgs.add_assignment_title_asterisk}" />
+		    		<%--</t:commandSortHeader>--%>
 		    	</f:facet>
-		    	<h:inputText id="title" value="#{gbItem.assignment.name}"
-		    		valueChangeListener="#{addAssignmentBean.processItemTitleChange}"
-					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-		    	</h:inputText>
-		    	<%--
-	    		<h:outputText id="noTitleErrMsg"  value="#{msgs.add_assignment_no_title}" 
-					styleClass="alertMessageInline" rendered="#{gbItem.bulkNoTitleError == 'blank'}" />
-				<h:outputText id="noTitleErrMsgH"  value="#{msgs.add_assignment_no_title}" 
-					styleClass="alertMessageInline errHide" rendered="#{gbItem.bulkNoTitleError != 'blank'}" />
-				--%>
+		    	<h:inputText id="title" value="#{gbItem.assignment.name}" />
 			</h:column>
 			
 			<h:column rendered="#{!addAssignmentBean.isNonCalc && addAssignmentBean.localGradebook.grade_type != 3}">
 				<f:facet name="header">
-					<h:outputLabel for="points" id="pointsLabel" value="#{(addAssignmentBean.localGradebook.grade_type == 1) ? msgs.add_assignment_header_points : msgs.add_assignment_header_relative_weight}"/>
-					<%--<h:outputText value="#{msgs.add_assignment_footnote_symbol1}" />--%>
+					<h:outputLabel for="points" id="pointsLabel" value="#{(addAssignmentBean.localGradebook.grade_type == 1) ? msgs.add_assignment_header_points_asterisk : msgs.add_assignment_header_relative_weight_asterisk}"/>
 				</f:facet>
-				<h:inputText id="points" value="#{gbItem.assignment.pointsPossible}"
-					valueChangeListener="#{addAssignmentBean.processPointsPossibleChange}"
-					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-				</h:inputText>
-				<%--
-				<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
-					rendered="#{gbItem.bulkNoPointsError == 'blank'}" />
-				<h:outputText id="blankPtsErrMsgH"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline errHide"
-					rendered="#{gbItem.bulkNoPointsError != 'blank'}" />
-				<h:outputText id="nanPtsErrMsg" value="#{msgs.add_assignment_nan_points}" styleClass="alertMessageInline"
-					rendered="#{gbItem.bulkNoPointsError == 'NaN'}" />
-				<h:outputText id="nanPtsErrMsgH" value="#{msgs.add_assignment_nan_points}" styleClass="alertMessageInline errHide"
-					rendered="#{gbItem.bulkNoPointsError != 'NaN'}" />
-				<h:outputText id="invalidPtsErrMsg" value="#{msgs.add_assignment_invalid_points}" styleClass="alertMessageInline"
-					rendered="#{gbItem.bulkNoPointsError == 'invalid'}" />
-				<h:outputText id="invalidPtsErrMsgH" value="#{msgs.add_assignment_invalid_points}" styleClass="alertMessageInline errHide"
-					rendered="#{gbItem.bulkNoPointsError != 'invalid'}" />
-				<h:outputText id="precisionPtsErrMsg" value="#{msgs.add_assignment_invalid_precision_points}" styleClass="alertMessageInline"
-					rendered="#{gbItem.bulkNoPointsError == 'precision'}" />
-				<h:outputText id="precisionPtsErrMsgH" value="#{msgs.add_assignment_invalid_precision_points}" styleClass="alertMessageInline errHide"
-					rendered="#{gbItem.bulkNoPointsError != 'precision'}" />
-				--%>
+				<h:inputText id="points" value="#{gbItem.assignment.pointsPossible}" />
 			</h:column>
 			
 			<h:column>
@@ -112,10 +78,8 @@
 					<h:outputText value="#{msgs.add_assignment_release}" escape="false"/>
 				</f:facet>
         		<h:selectBooleanCheckbox id="released" value="#{gbItem.assignment.released}"
-        			valueChangeListener="#{addAssignmentBean.processReleaseChange}"
         			onclick="assignmentReleased((this.form.name + ':bulkNewAssignmentsTable:' + #{rowIndex}), true);"
         			onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
-				
 			</h:column>
 			
 			<h:column rendered="#{addAssignmentBean.localGradebook.grade_type != 3}">
@@ -123,9 +87,7 @@
 					<h:outputText value="#{msgs.add_assignment_include_in_cum}" escape="false"/>
 				</f:facet>
 				<h:selectBooleanCheckbox id="countAssignment" value="#{gbItem.assignment.counted}"
-					valueChangeListener="#{addAssignmentBean.processCountedChange}"
-					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{addAssignmentBean.localGradebook.grade_type != 3}" />
-				
+					rendered="#{addAssignmentBean.localGradebook.grade_type != 3}" />			
 			</h:column>
 		
 		</t:dataTable>

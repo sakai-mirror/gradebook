@@ -41,10 +41,22 @@ public class BulkAssignmentDecoratedBean implements Serializable {
 	public void setCategory(String category) {
 		this.category = category;
 	}
-
+	
+	/**
+	 * *NOTE* Do not confuse this with the points possible value
+	 * associated with the individual assignment. Use {@link BulkAssignmentDecoratedBean#assignment#pointsPossible}
+	 * @return the pointsPossible value set for the bulk operation
+	 */
 	public String getPointsPossible() {
 		return pointsPossible;
 	}
+	
+	/**
+	 * the pointsPossible value set for the bulk operation.
+	 * *NOTE* Do not confuse this with the points possible value
+	 * associated with the individual assignment. Use {@link BulkAssignmentDecoratedBean#assignment#pointsPossible}
+	 * @param pointsPossible 
+	 */
 	public void setPointsPossible(String pointsPossible) {
 		this.pointsPossible = pointsPossible;
 	}

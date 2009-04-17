@@ -84,7 +84,6 @@
 			
 						<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
 							<h:inputText id="title" value="#{item.assignment.name}" 
-								valueChangeListener="#{addAssignmentBean.processItemTitleChange}"
 								onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 							</h:inputText>
 							<h:outputText id="noTitleErrMsg"  value="#{msgs.add_assignment_no_title}" 
@@ -119,10 +118,8 @@
 				</h:panelGroup>
 				<h:panelGroup rendered="#{!item.assignment.externallyMaintained && !bean.selectedCategoryDropsScores}">
 					<h:inputText id="points" value="#{item.pointsPossible}" 
-						valueChangeListener="#{addAssignmentBean.processPointsPossibleChange}"
-						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"
+
 						rendered="#{bean.localGradebook.grade_type != 3 && !bean.selectedCategoryDropsScores}" />
-					<%-- valueChangeListener="#{addAssignmentBean.processPointsPossibleChange}" --%>
 					<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
 									rendered="#{item.bulkNoPointsError == 'blank' && !bean.selectedCategoryDropsScores}" />
 					<h:outputText id="blankPtsErrMsgH"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline errHide"
@@ -160,8 +157,7 @@
 				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
   					<t:inputCalendar id="dueDate" value="#{item.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true"
   							popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" 
-  							onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"
-  							valueChangeListener="#{addAssignmentBean.processDueDateChange}"/>
+  							onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 					<h:message for="dueDate" styleClass="alertMessageInline" />
 				</h:panelGroup>
 
@@ -170,7 +166,6 @@
 
 			  <h:panelGrid cellpadding="0" cellspacing="5" columns="2" columnClasses="prefixedCheckbox">
 	   			<h:selectBooleanCheckbox id="released" value="#{item.assignment.released}"
-	   				valueChangeListener="#{addAssignmentBean.processReleaseChange}" 
     				onclick="assignmentReleased((this.form.name + ':bulkNewAssignmentsTable:' + #{rowIndex}), true);"
 					onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
 				<h:outputLabel for="released" value="#{msgs.add_assignment_released}" />
@@ -183,7 +178,6 @@
  				
  				<h:panelGroup>
 					<h:selectBooleanCheckbox id="countAssignment" value="#{item.assignment.counted}"
-						valueChangeListener="#{addAssignmentBean.processCountedChange}" 
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{bean.localGradebook.grade_type != 3}" />
 						<%-- Commented out due to non-graded rollback rendered="#{item.ungraded == 'normal'}"/> --%>
 					<h:outputLabel id="countAssignmentLabel" for="countAssignment" value="#{msgs.add_assignment_counted}" rendered="#{bean.localGradebook.grade_type != 3}" />
@@ -202,7 +196,7 @@
 		<h:outputLabel id="gradeEntryBulkLabel" value="#{msgs.add_assignment_bulk_number}" />
 	</h:panelGroup>
 	<h:panelGroup rendered="#{addAssignmentBean.isBulkDisplay}">
-		<h:selectOneMenu id="selectBulkGradebookItem" value="#{addAssignmentBean.selectBulkGradebookItem}" valueChangeListener="#{addAssignmentBean.processNumBulkItemValue}">
+		<h:selectOneMenu id="selectBulkGradebookItem" value="#{addAssignmentBean.selectBulkGradebookItem}" >
 			<f:selectItems value="#{bean.addBulkItemSelectList}" />
 		</h:selectOneMenu>
 	</h:panelGroup>
