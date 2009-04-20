@@ -76,6 +76,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     
     private Gradebook localGradebook;
     private String selectGradebookItem;
+    private String gbItemName;
     public String selectBulkGradebookItem;
     public String itemTitleChange;
     public String pointsPossibleChange;
@@ -446,6 +447,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			else if (newAssignmentNameList.contains(bulkAssignDecoBean.getAssignment().getName().trim()) ||
 					 ! getGradebookManager().checkValidName(getGradebookId(), bulkAssignDecoBean.getAssignment())){
 				bulkAssignDecoBean.setBulkNoTitleError("dup");
+				gbItemName = bulkAssignDecoBean.getAssignment().getName().trim();
 				saveDupTitle=false;
 				saveAll = false;
 				resultString = "failure";
@@ -454,7 +456,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 				bulkAssignDecoBean.setBulkNoTitleError("OK");
 				newAssignmentNameList.add(bulkAssignDecoBean.getAssignment().getName().trim());
 			}
-			
+						
 			boolean adjustmentWithNoPoints = false; // used for some logic later
 
 			// if ungraded, we don't care about points possible
@@ -556,16 +558,31 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_no_title"));
 		}
 		if (!saveDupTitle) {
-			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_dup_title"));
+			FacesUtil.addErrorMessage(getLocalizedString("add_assignment_bulk_dup_title", new String[] {gbItemName}));
 		}
 		if (!saveNoPoints) {
-			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_no_points"));
+			if (gradeEntryType.equals(GB_POINTS_ENTRY)) {
+				FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_no_points"));
+			}
+			else {
+				FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_no_percentage"));
+			}
 		}
 		if (!saveNanPoints) {
-			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_nan_points"));
+			if (gradeEntryType.equals(GB_POINTS_ENTRY)) {
+				FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_nan_points"));
+			}
+			else {
+				FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_nan_percentage"));
+			}
 		}
 		if (!saveInvalidPoints) {
-			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_invalid_points"));
+			if (gradeEntryType.equals(GB_POINTS_ENTRY)) {
+				FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_invalid_points"));
+			}
+			else {
+				FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_invalid_percentage"));
+			}
 		}
 		if (!savePrecisionPoints) {
 			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_invalid_precision_points"));
@@ -1050,8 +1067,8 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 					}
 					catch (NumberFormatException e) {
 						isInvalidNum = true;
-						//FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_nan_points"));
 						a.getAssignment().setPointsPossible(null);
+						FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_nan_points"));
 					}
 				}
 			}
