@@ -30,8 +30,9 @@
 			<h:outputLabel for="selectCategory" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{addAssignmentBean.categoriesEnabled}" />
 			<h:panelGroup rendered="#{addAssignmentBean.categoriesEnabled}">
 				<h:selectOneMenu id="selectCategory" value="#{addAssignmentBean.categoryEntry}">
-					<f:selectItems value="#{addAssignmentBean.categoriesSelectList}" />
+					<f:selectItems value="#{(addAssignmentBean.isAdjustment) ? addAssignmentBean.categoriesAdjustmentSelectList : addAssignmentBean.categoriesSelectList}" />
 				</h:selectOneMenu>
+				
 				<f:verbatim><div class="instruction"></f:verbatim>
 					<h:outputText id="nonCalCategoryInstructionText" value="#{msgs.add_assignment_category_info}" rendered="#{addAssignmentBean.weightingEnabled}"/>
 				<f:verbatim></div></f:verbatim>			
@@ -56,9 +57,9 @@
 		    	<h:inputText id="title" value="#{gbItem.assignment.name}" />
 			</h:column>
 			
-			<h:column rendered="#{!addAssignmentBean.isNonCalc && addAssignmentBean.localGradebook.grade_type != 3}">
+			<h:column rendered="#{!addAssignmentBean.isNonCalc && addAssignmentBean.localGradebook.grade_type != 3 && !(addAssignmentBean.isAdjustment && addAssignmentBean.localGradebook.grade_type == 2)}">
 				<f:facet name="header">
-					<h:outputLabel for="points" id="pointsLabel" value="#{(addAssignmentBean.localGradebook.grade_type == 1) ? msgs.add_assignment_header_points_asterisk : msgs.add_assignment_header_relative_weight_asterisk}"/>
+					<h:outputLabel for="points" id="pointsLabel" value="#{(addAssignmentBean.localGradebook.grade_type == 1) ? ((addAssignmentBean.isAdjustment) ? msgs.add_assignment_header_adjustment : msgs.add_assignment_header_points_asterisk) : msgs.add_assignment_header_relative_weight_asterisk}"/>
 				</f:facet>
 				<h:inputText id="points" value="#{gbItem.assignment.pointsPossible}" />
 			</h:column>

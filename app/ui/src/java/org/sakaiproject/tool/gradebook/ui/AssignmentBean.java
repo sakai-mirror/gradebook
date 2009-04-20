@@ -61,7 +61,9 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     private boolean releaseChange = true;
     private boolean countedChange = true;
     private boolean isNonCalc;
-    private Category selectedCategory;
+    private boolean isAdjustment;
+
+	private Category selectedCategory;
     private boolean selectedCategoryDropsScores;
     private boolean isInvalidNum = false;
     
@@ -462,7 +464,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			if (bulkAssignDecoBean.getSelectedGradeEntryValue().equals(GB_ADJUSTMENT_ENTRY)) {
 				bulkAssignDecoBean.getAssignment().setIsExtraCredit(true);
 				bulkAssignDecoBean.getAssignment().setUngraded(false); // extra insurance
-				if (bulkAssignDecoBean.getPointsPossible() == null || ("".equals(bulkAssignDecoBean.getPointsPossible().trim()))) {
+				if (bulkAssignDecoBean.getAssignment().getPointsPossible() == null || ("".equals(bulkAssignDecoBean.getAssignment().getPointsPossible()))) {
 					adjustmentWithNoPoints = true;
 				}
 			}
@@ -912,6 +914,14 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		this.isNonCalc = isNonCalc;
 	}
 	
+	public boolean getIsAdjustment() {
+		return isAdjustment;
+	}
+
+	public void setIsAdjustment(boolean isAdjustment) {
+		this.isAdjustment = isAdjustment;
+	}
+	
 	public boolean getReleaseChange() {
 		return releaseChange;
 	}
@@ -958,6 +968,12 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			setIsNonCalc(true);
 		} else {
 			setIsNonCalc(false);
+		}
+		if(vce.getNewValue().equals(GB_ADJUSTMENT_ENTRY))
+		{
+			setIsAdjustment(true);
+		} else {
+			setIsAdjustment(false);
 		}
 		return GB_ADD_ASSIGNMENT_PAGE;
 	}
