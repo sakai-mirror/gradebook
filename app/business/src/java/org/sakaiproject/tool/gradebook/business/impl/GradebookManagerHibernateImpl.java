@@ -3026,7 +3026,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
             }
         }
         
-        log.info("GradebookManager.applyDropScores took " + (System.currentTimeMillis() - start) + " millis to execute");
+        log.debug("GradebookManager.applyDropScores took " + (System.currentTimeMillis() - start) + " millis to execute");
     }
 
 	
