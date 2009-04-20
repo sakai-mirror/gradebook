@@ -950,6 +950,18 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			dueDateChange = newItem.getAssignment().getDueDate();
 			releaseChange = newItem.getAssignment().isReleased();
 			countedChange = newItem.getAssignment().isCounted();
+			if (gradeEntryType.equals(GB_NON_CALCULATING_ENTRY))
+			{
+				setIsNonCalc(true);
+			} else {
+				setIsNonCalc(false);
+			}
+			if(gradeEntryType.equals(GB_ADJUSTMENT_ENTRY))
+			{
+				setIsAdjustment(true);
+			} else {
+				setIsAdjustment(false);
+			}
 		}
 		
 		return "addBulkGradebookItem";

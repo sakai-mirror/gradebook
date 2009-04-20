@@ -83,7 +83,7 @@
         			onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" />
 			</h:column>
 			
-			<h:column rendered="#{addAssignmentBean.localGradebook.grade_type != 3}">
+			<h:column rendered="#{addAssignmentBean.localGradebook.grade_type != 3 && !addAssignmentBean.isNonCalc}">
 				<f:facet name="header">
 					<h:outputText value="#{msgs.add_assignment_include_in_cum}" escape="false"/>
 				</f:facet>
