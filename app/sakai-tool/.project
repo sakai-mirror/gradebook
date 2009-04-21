@@ -5,7 +5,6 @@
     <project>sakai-depend-jsf-widgets-myfaces</project>
     <project>sakai-gradebook-app-business</project>
     <project>sakai-gradebook-app-ui</project>
-    <project>sakai-gradebook-service</project>
     <project>sakai-gradebook-service-api</project>
     <project>sakai-gradebook-service-hibernate</project>
     <project>sakai-gradebook-service-impl</project>

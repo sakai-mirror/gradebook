@@ -1,9 +1,7 @@
 <projectDescription>
   <name>sakai-gradebook-service-api</name>
   <comment/>
-  <projects>
-    <project>sakai-gradebook-service</project>
-  </projects>
+  <projects/>
   <buildSpec>
     <buildCommand>
       <name>org.eclipse.jdt.core.javabuilder</name>
