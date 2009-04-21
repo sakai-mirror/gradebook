@@ -55,6 +55,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private String gradeEntryMethod;
     private String categorySetting;
     private boolean showDropsDisplayed;
+    private boolean anyCategoriesWithDrops;
 	private List categories;
 	private Gradebook localGradebook;
 	private List categoriesToRemove;
@@ -167,6 +168,9 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
         this.showDropsDisplayed = showDropsDisplayed;
     } 
     
+    public void setAnyCategoriesWithDrops(boolean anyCategoriesWithDrops) {
+    }
+    
     public boolean getAnyCategoriesWithDrops() {
         boolean anyDrops = false;
         if(categories != null) {
@@ -174,6 +178,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
                 if(obj instanceof Category) {
                     Category category = (Category)obj;
                     anyDrops = category.isDropScores();
+                    setShowDropsDisplayed(anyDrops);
                     if(anyDrops)
                         break;
                 }

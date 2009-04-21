@@ -343,6 +343,14 @@ function dropScoresAdjust(myForm) {
                     relativeWeight.disabled = true;
                 }
             }
+            if(dropHighest.value < 1 && dropLowest.value < 1 && keepHighest.value < 1) {
+                if(pointValue != undefined) {
+                    pointValue.value = 0.0;
+                }
+                if(relativeWeight != undefined) {
+                    relativeWeight.value = 0.0;
+                }
+            }
         }
     }
 }
