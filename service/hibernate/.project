@@ -2,7 +2,6 @@
   <name>sakai-gradebook-service-hibernate</name>
   <comment/>
   <projects>
-    <project>sakai-gradebook-service</project>
     <project>sakai-gradebook-service-api</project>
     <project>sakai-sections-api</project>
   </projects>
