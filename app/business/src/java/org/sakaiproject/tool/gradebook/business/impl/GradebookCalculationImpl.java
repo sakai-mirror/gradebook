@@ -492,10 +492,10 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 		{
 			if(gradeRec.getPointsEarned() != null && !gradeRec.getPointsEarned().equals("") && !gradeRec.getDroppedFromGrade())
 			{
-				Double pointsEarned = new Double(gradeRec.getPointsEarned());
 				Assignment go = gradeRec.getAssignment();
-				if (go.isCounted() && pointsEarned != null) 
+				if (go.isCounted() && !go.getUngraded()) 
 				{
+					Double pointsEarned = new Double(gradeRec.getPointsEarned());
 					if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
 					{
 						if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
