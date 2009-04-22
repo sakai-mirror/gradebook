@@ -61,14 +61,19 @@
 				<f:facet name="header">
 					<h:outputLabel for="points" id="pointsLabel" value="#{(addAssignmentBean.localGradebook.grade_type == 1) ? ((addAssignmentBean.isAdjustment) ? msgs.add_assignment_header_adjustment : msgs.add_assignment_header_points_asterisk) : msgs.add_assignment_header_relative_weight_asterisk}"/>
 				</f:facet>
-				<h:inputText id="points" value="#{gbItem.assignment.pointsPossible}" />
+				<h:inputText id="points" size="5" value="#{gbItem.assignment.pointsPossible}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+					<f:validateDoubleRange minimum="0.01" />
+					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE_DOUBLE"/>
+				</h:inputText>
+				<h:message for="points" styleClass="alertMessageInline"/>
 			</h:column>
 			
 			<h:column>
 				<f:facet name="header">
 					<h:outputText value="#{msgs.add_assignment_header_due_date}"/>
 				</f:facet>
-				<t:inputCalendar id="dueDate" value="#{gbItem.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true"
+				<t:inputCalendar id="dueDate" size="8" value="#{gbItem.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true"
 					popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" >
 				</t:inputCalendar>
 				<h:message for="dueDate" styleClass="alertMessageInline" />

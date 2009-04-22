@@ -65,7 +65,6 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 
 	private Category selectedCategory;
     private boolean selectedCategoryDropsScores;
-    private boolean isInvalidNum = false;
     
     // added to support bulk gradebook item creation
     public List newBulkItems; 
@@ -514,7 +513,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 							bulkAssignDecoBean.setBulkNoPointsError("invalid");
 						}
 					}
-					catch (Exception e) {
+					catch (NumberFormatException e) {
 						bulkAssignDecoBean.setBulkNoPointsError("NaN");
 						saveNanPoints=false;
 						saveAll = false;
@@ -545,9 +544,6 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			FacesUtil.addRedirectSafeMessage(FacesUtil.getLocalizedString("add_assignment_bulk_save"));
 		}
 		catch (MultipleAssignmentSavingException e) {
-			if (isInvalidNum) {
-				FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_nan_points"));
-			}
 			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("validation_messages_present"));
 			resultString = "failure";
 		}
@@ -693,6 +689,10 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		return navigateBack();
 	}
 	
+	public String navigateToAssignmentDetails() {	 
+        return navigateBack();	 
+	}	 
+
 	/**
 	 * Go to assignment details page. InstructorViewBean contains duplicate
 	 * of this method, cannot migrate up to GradebookDependentBean since
@@ -1066,9 +1066,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 						a.getAssignment().setPointsPossible(new Double(pointsPossibleChange));
 					}
 					catch (NumberFormatException e) {
-						isInvalidNum = true;
 						a.getAssignment().setPointsPossible(null);
-						FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_nan_points"));
 					}
 				}
 			}
