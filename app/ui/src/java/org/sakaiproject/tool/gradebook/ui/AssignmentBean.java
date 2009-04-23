@@ -1050,12 +1050,17 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		}
 		
 		int numToAdd = Integer.parseInt(selectBulkGradebookItem);
-		
+		int j = 0;
 		for (int i = newBulkGradebookItems.size(); i < numToAdd; i++) {
 			BulkAssignmentDecoratedBean a = getNewAssignment();
 			if (itemTitleChange != null)
 			{
-				a.getAssignment().setName(itemTitleChange + i);
+				j = i + 1;
+				if (j < 10) {
+					a.getAssignment().setName(itemTitleChange + "0" + j);
+				} else {
+					a.getAssignment().setName(itemTitleChange + j);
+				}
 			}
 			if (!isNonCalc)
 			{
