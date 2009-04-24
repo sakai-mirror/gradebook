@@ -74,12 +74,6 @@
 						<f:verbatim></div></f:verbatim>			
 					</h:panelGroup>
 					
-					<h:outputLabel for="selectCommentColumn" id="commentsLabel" value="#{msgs.import_assignment_comments}"/>
-          <h:selectOneMenu id="selectCommentColumn" converter="javax.faces.Integer" value="#{spreadsheetUploadBean.selectedCommentsColumnId}">
-             <f:selectItem itemValue="" itemLabel="#{msgs.import_assignment_comments_none}"/>
-             <f:selectItems value="#{spreadsheetUploadBean.assignmentColumnSelectItems}" />
-          </h:selectOneMenu>
-					
 				</h:panelGrid>
 				
 				<%/*
@@ -104,6 +98,14 @@
 				</h:panelGrid>
 				<h:outputText escape="false" value="<script type='text/javascript'>cat = #{spreadsheetUploadBean.categoriesEnabled};</script>" />
 				
+				<h:panelGrid cellpadding="0" cellspacing="0" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite">
+					<h:outputLabel for="selectCommentColumn" id="commentsLabel" value="#{msgs.import_assignment_comments}"/>
+					<h:selectOneMenu id="selectCommentColumn" converter="javax.faces.Integer" value="#{spreadsheetUploadBean.selectedCommentsColumnId}">
+		        		<f:selectItem itemValue="" itemLabel="#{msgs.import_assignment_comments_none}"/>
+		        		<f:selectItems value="#{spreadsheetUploadBean.assignmentColumnSelectItems}" />
+		        	</h:selectOneMenu>
+		        </h:panelGrid>
+		          
 				<script type="text/javascript">
 					assignmentReleased('gbForm', false);
 				</script>
