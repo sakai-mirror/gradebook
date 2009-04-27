@@ -54,7 +54,11 @@
 		    		<h:outputText value="#{msgs.add_assignment_title_asterisk}" />
 		    		<%--</t:commandSortHeader>--%>
 		    	</f:facet>
-		    	<h:inputText id="title" value="#{gbItem.assignment.name}" />
+		    	<h:inputText id="title" value="#{gbItem.assignment.name}" />    	
+		    	<h:outputText id="noTitleErrMsg"  value="#{msgs.add_assignment_bulk_no_title}" 
+					styleClass="alertMessageInline" rendered="#{gbItem.bulkNoTitleError == 'blank'}" />
+				<h:outputText id="dupTitleErrMsg" value="#{msgs.add_assignment_bulk_duplicate_name}"
+					styleClass="alertMessageInline" rendered="#{gbItem.bulkNoTitleError == 'dup'}" />
 			</h:column>
 			
 			<h:column rendered="#{!addAssignmentBean.isNonCalc && addAssignmentBean.localGradebook.grade_type != 3 && !(addAssignmentBean.isAdjustment && addAssignmentBean.localGradebook.grade_type == 2)}">
@@ -66,6 +70,8 @@
 					<f:validateDoubleRange minimum="0.01" />
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE_DOUBLE"/>
 				</h:inputText>
+				<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_bulk_no_points}" styleClass="alertMessageInline"
+					rendered="#{gbItem.bulkNoPointsError == 'blank'" />
 				<h:message for="points" styleClass="alertMessageInline"/>
 			</h:column>
 			
