@@ -1185,6 +1185,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 							gr = new AssignmentGradeRecord(assignment,userid,scoreEarned);
 							gr.setPercentEarned(scoreEarned);  // manager will handle if % vs point grading
 							updatedGradeRecords.add(gr);
+							getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScore","/gradebook/"+getGradebookUid()+"/"+gr.getAssignment().getName()+"/"+gr.getStudentId()+"/"+gr.getPointsEarned()+"/"+getAuthzLevel());
 						} else {
 							updatingExternalGrade = true;
 						}
@@ -1211,8 +1212,10 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 					
 						gr.setPointsEarned(scoreEarned); //manager will use correct field depending on grade entry method
 						gr.setPercentEarned(scoreEarned);
-						if (!assignment.isExternallyMaintained())
+						if (!assignment.isExternallyMaintained()) {
 							updatedGradeRecords.add(gr);
+							getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScore","/gradebook/"+getGradebookUid()+"/"+gr.getAssignment().getName()+"/"+gr.getStudentId()+"/"+gr.getPointsEarned()+"/"+getAuthzLevel());
+						}
 						else
 							updatingExternalGrade = true;
 					}			
