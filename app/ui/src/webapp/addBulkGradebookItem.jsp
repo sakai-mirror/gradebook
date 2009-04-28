@@ -13,6 +13,10 @@
 		
 		<%@include file="/inc/globalMessages.jspf"%>
 		
+		<p class="instruction">
+			<h:outputText value="* " styleClass="reqStarInline"/>
+			<h:outputText value="#{msgs.flag_required}"/>
+		</p>
 		<h4><h:outputText value="#{msgs.add_assignment_bulk_title}"/></h4>
 		
 		<h:panelGrid cellpadding="0" cellspacing="5" columns="2" 
@@ -43,7 +47,7 @@
 			id="bulkNewAssignmentsTable"
 			value="#{addAssignmentBean.newBulkGradebookItems}"
 			var="gbItem"
-			columnClasses="left,left,left,center,center"
+			columnClasses="left_nowrap,left_nowrap,left_nowrap,center,center"
 			styleClass="listHier lines nolines"
 			rowClasses="#{addAssignmentBean.bulkRowClasses}"
 			rowIndexVar="rowIndex">
@@ -51,9 +55,10 @@
 			<h:column id="_title">
 				<f:facet name="header">
 					<%--<t:commandSortHeader columnName="name" propertyName="name" immediate="true" arrow="true">--%>
-		    		<h:outputText value="#{msgs.add_assignment_title_asterisk}" />
+		    		<h:outputText value="#{msgs.add_assignment_bulk_header_title}" />
 		    		<%--</t:commandSortHeader>--%>
 		    	</f:facet>
+		    	<h:outputText value="* " styleClass="reqStarInline"/>
 		    	<h:inputText id="title" value="#{gbItem.assignment.name}" />    	
 		    	<h:outputText id="noTitleErrMsg"  value="#{msgs.add_assignment_bulk_no_title}" 
 					styleClass="alertMessageInline" rendered="#{gbItem.bulkNoTitleError == 'blank'}" />
@@ -63,8 +68,9 @@
 			
 			<h:column rendered="#{!addAssignmentBean.isNonCalc && addAssignmentBean.localGradebook.grade_type != 3 && !(addAssignmentBean.isAdjustment && addAssignmentBean.localGradebook.grade_type == 2)}">
 				<f:facet name="header">
-					<h:outputLabel for="points" id="pointsLabel" value="#{(addAssignmentBean.localGradebook.grade_type == 1) ? ((addAssignmentBean.isAdjustment) ? msgs.add_assignment_header_adjustment : msgs.add_assignment_header_points_asterisk) : msgs.add_assignment_header_relative_weight_asterisk}"/>
+					<h:outputLabel for="points" id="pointsLabel" value="#{(addAssignmentBean.localGradebook.grade_type == 1) ? ((addAssignmentBean.isAdjustment) ? msgs.add_assignment_header_adjustment : msgs.add_assignment_bulk_header_points) : msgs.add_assignment_bulk_header_relative_weight}"/>
 				</f:facet>
+				<h:outputText value="* " styleClass="reqStarInline"/>
 				<h:inputText id="points" size="5" value="#{gbItem.assignment.pointsPossible}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 					<f:validateDoubleRange minimum="0.01" />

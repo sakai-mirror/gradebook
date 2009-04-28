@@ -551,24 +551,24 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 	else {
 		// There are errors so need to put an error message at top
 		FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("validation_messages_present"));
-		if (!saveBlankTitle) {
-			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_no_title"));
-		}
-		if (!saveDupTitle) {
-			FacesUtil.addErrorMessage(getLocalizedString("add_assignment_bulk_dup_title", new String[] {gbItemName}));
-		}
-		if (!saveNoPoints) {
-			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_no_points"));	
-		}
-		if (!saveNanPoints) {
-			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_nan_points"));
-		}
-		if (!saveInvalidPoints) {
-			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_invalid_points"));
-		}
-		if (!savePrecisionPoints) {
-			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_invalid_precision_points"));
-		}
+//		if (!saveBlankTitle) {
+//			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_no_title"));
+//		}
+//		if (!saveDupTitle) {
+//			FacesUtil.addErrorMessage(getLocalizedString("add_assignment_bulk_dup_title", new String[] {gbItemName}));
+//		}
+//		if (!saveNoPoints) {
+//			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_no_points"));	
+//		}
+//		if (!saveNanPoints) {
+//			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_nan_points"));
+//		}
+//		if (!saveInvalidPoints) {
+//			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_invalid_points"));
+//		}
+//		if (!savePrecisionPoints) {
+//			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("add_assignment_bulk_invalid_precision_points"));
+//		}
 	}
 	
 	return resultString;

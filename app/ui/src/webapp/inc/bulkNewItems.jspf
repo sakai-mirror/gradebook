@@ -10,7 +10,10 @@
   .errHide { display:none; }
  </style>
 
-<h:outputText value="* " styleClass="reqStarInline"/><h:outputText value="#{msgs.flag_required}" rendered="#{!bean.assignment.externallyMaintained}"/>
+<p class="instruction">
+	<h:outputText value="* " styleClass="reqStarInline"/>
+	<h:outputText value="#{msgs.flag_required}" rendered="#{!bean.assignment.externallyMaintained}"/>
+</p>
 
 <div class="checkbox indnt1">
 <h:selectOneRadio layout="pageDirection" value="#{addAssignmentBean.selectGradebookItem}" id="selectGradebookItem1" onclick="this.form.submit();">
