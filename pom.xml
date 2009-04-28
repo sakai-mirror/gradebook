@@ -2,15 +2,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>M2</version>
-    <relativePath>../master/pom.xml</relativePath>
+    <version>2.7.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Gradebook Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>gradebook-base</artifactId>
   <packaging>pom</packaging>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/gradebook/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/gradebook/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/gradebook/trunk</url>
+  </scm>
   <modules>
     <module>help</module>
     <module>testservice-tool</module>
@@ -18,4 +23,74 @@
     <module>service</module>
     <module>sample-course-grade-converter</module>
   </modules>
+  <dependencyManagement>
+    <dependencies>
+<!--internal dependencies -->
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-gradebook-app-ui</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-gradebook-app-business</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-gradebook-service-api</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-gradebook-service-hibernate</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-gradebook-service-impl</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-gradebook-service</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+        <type>pom</type>
+      </dependency>
+<!-- other sakai dependencies-->
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-sections-impl-standalone</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+<!-- Used only for test data. -->
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-sections-integrationsupport</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-jsf-tool</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-jsf-app</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-depend-jsf-widgets-myfaces</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-jsf-spreadsheet</artifactId>
+        <version>2.7.0-SNAPSHOT</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>

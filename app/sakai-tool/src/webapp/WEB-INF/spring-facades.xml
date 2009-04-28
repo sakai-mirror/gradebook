@@ -35,6 +35,7 @@
 		init-method="init">
 		<property name="sectionAwareness"><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
 		<property name="authn"><ref bean="org_sakaiproject_tool_gradebook_facades_Authn"/></property>
+		<property name="gradebookPermissionService"><ref bean="org_sakaiproject_service_gradebook_GradebookPermissionService"/></property>
 	</bean>
 
 	<!-- External Context Management Service -->

@@ -1,17 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 The Regents of the University of California
+ * Copyright (c) 2006, 2007, 2008 The Sakai Foundation
  *
- *  Licensed under the Educational Community License, Version 1.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ecl1.php
+ *       http://www.osedu.org/licenses/ECL-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  ******************************************************************************/
 
 package org.sakaiproject.tool.gradebook.ui;
@@ -30,12 +30,14 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
+import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -60,13 +62,14 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     private boolean assignmentsReleased;
     private boolean anyNotCounted;
     private boolean anyExternallyMaintained = false;
+    private boolean isAllItemsViewOnly = true;
 
     private boolean sortAscending;
     private String sortColumn;
     
     private boolean isInstructorView = false;
 
-    private StringBuffer rowStyles;
+    private StringBuilder rowStyles;
     private Map commentMap;
 
     private List gradebookItems;
@@ -183,6 +186,8 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     public void init() {
     	// Get the active gradebook
     	gradebook = getGradebook();
+    	
+    	isAllItemsViewOnly = true;
 
     	// Set the display name
     	try {
@@ -196,7 +201,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	assignmentsReleased = gradebook.isAssignmentsDisplayed();
 
     	// Reset the row styles
-    	rowStyles = new StringBuffer();
+    	rowStyles = new StringBuilder();
 
     	// Display course grade if we've been instructed to.
     	CourseGradeRecord gradeRecord = getGradebookManager().getStudentCourseGradeRecord(gradebook, studentUid);
@@ -293,6 +298,14 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     }
     
     /**
+     * if all items are "view-only", we need to disable the action buttons
+     * @return
+     */
+    public boolean isAllItemsViewOnly() {
+    	return isAllItemsViewOnly;
+    }
+    
+    /**
      * 
      * @return true if the gradebook contains any externally maintained assignments
      */
@@ -337,20 +350,44 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		logger.debug(assignments.size() + " total assignments");
     		logger.debug(gradeRecords.size()  +"  grade records");
     	}
+    	
+		boolean userHasGraderPerms;
+		if (isUserAbleToGradeAll())
+			userHasGraderPerms = false;
+		else if (isUserHasGraderPermissions())
+			userHasGraderPerms = true;
+		else
+			userHasGraderPerms = false;
+		
+		Map viewableAssignmentsMap = new HashMap();
+		if (userHasGraderPerms) {
+			viewableAssignmentsMap = getGradebookPermissionService().getAvailableItemsForStudent(gradebook.getId(), getUserUid(), studentUid, getAllSections());
+		}
 
     	// Create a map of assignments to assignment grade rows
     	Map asnMap = new HashMap();
     	for(Iterator iter = assignments.iterator(); iter.hasNext();) {
 
     		Assignment asn = (Assignment)iter.next();
-    		asnMap.put(asn, new AssignmentGradeRow(asn, gradebook));
+
+    		if (userHasGraderPerms) {
+    			String function = (String)viewableAssignmentsMap.get(asn.getId());
+    			if (function != null) {
+    				boolean userCanGrade = function.equalsIgnoreCase(GradebookService.gradePermission);
+    				if (userCanGrade)
+    					isAllItemsViewOnly = false;
+    				asnMap.put(asn, new AssignmentGradeRow(asn, gradebook, userCanGrade));
+    			}
+    		} else {
+    			asnMap.put(asn, new AssignmentGradeRow(asn, gradebook, true));
+    			isAllItemsViewOnly = false;
+    		}
     	}
+    	
+    	assignments = new ArrayList(asnMap.keySet());
 
     	for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
     		AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
-    		if(logger.isDebugEnabled()) 
-    			logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
-
 
     		// Update the AssignmentGradeRow in the map
     		AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
@@ -370,14 +407,19 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			
     			if (asnGr != null) {
     				if (getGradeEntryByPercent())
-    					asnGradeRow.setScore(asnGr.getGradeAsPercentage());
-    				else if (getGradeEntryByPoints()) 
-    					asnGradeRow.setScore(asnGr.getPointsEarned());
+    					asnGradeRow.setScore(truncateScore(asnGr.getPercentEarned()));
+    				else if(getGradeEntryByPoints())
+    					asnGradeRow.setScore(truncateScore(asnGr.getPointsEarned())); 
+    				else if (getGradeEntryByLetter())
+    					asnGradeRow.setLetterScore(asnGr.getLetterEarned());
     			}
     		}
     		
     	}
 
+    	Map goEventListMap = getGradebookManager().getGradingEventsForStudent(studentUid, assignments);
+		 // NOTE: we are no longer converting the events b/c we are
+         // storing what the user entered, not just points
 
     	//iterate through the assignments and update the comments and grading events
     	Iterator assignmentIterator = assignments.iterator();
@@ -388,14 +430,14 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		
     		// Grading events
     		if (isInstructorView) {
-	    		List studentList = new ArrayList();
-	    		studentList.add(studentUid);
-	    		GradingEvents events = getGradebookManager().getGradingEvents(assignment, studentList);
-	    		getGradebookManager().convertGradingEventsConverted(assignment, events, studentList, getGradebook().getGrade_type());
-	    		List eventList = events.getEvents(studentUid);
-	    		if (eventList != null && !eventList.isEmpty()) {
+        		List assignEventList = new ArrayList();
+        		if (goEventListMap != null) {
+        			assignEventList = (List) goEventListMap.get(assignment);
+        		}
+	    		
+	    		if (assignEventList != null && !assignEventList.isEmpty()) {
 	    			List eventRows = new ArrayList();
-	    			for (Iterator iter = eventList.iterator(); iter.hasNext();) {
+	    			for (Iterator iter = assignEventList.iterator(); iter.hasNext();) {
 	    				GradingEvent gradingEvent = (GradingEvent)iter.next();
 	    				eventRows.add(new GradingEventRow(gradingEvent));
 	    			}
@@ -444,7 +486,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	
     	// do not retrieve assignments if not displayed for students
     	if (assignmentsReleased || isInstructorView) {
-
+    		
     		//get grade comments and load them into a map assignmentId->comment
     		commentMap = new HashMap();
     		List assignmentComments = getGradebookManager().getStudentAssignmentComments(studentUid, gradebook.getId());
@@ -456,7 +498,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		}
 
     		// get the student grade records
-    		List gradeRecords = getGradebookManager().getStudentGradeRecords(gradebook.getId(), studentUid);
+    		List gradeRecords = getGradebookManager().getStudentGradeRecordsConverted(gradebook.getId(), studentUid);
 
     		// The display may include categories and assignments, so we need a generic list
     		gradebookItems = new ArrayList();
@@ -464,11 +506,25 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		if (getCategoriesEnabled()) {
     			// we will also have to determine the student's category avg - the category stats
     			// are for class avg
-    			List categoryList = new ArrayList();
+    			List categoryListWithCG = new ArrayList();
     			if (sortColumn.equals(Category.SORT_BY_WEIGHT))
-    				categoryList = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, sortColumn, sortAscending);
+    				categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, sortColumn, sortAscending);
     			else
-    				categoryList = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+    				categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+  
+    			List categoryList = new ArrayList();
+    			
+    			// first, remove the CourseGrade from the Category list
+    			for (Iterator catIter = categoryListWithCG.iterator(); catIter.hasNext();) {
+    				Object catOrCourseGrade = catIter.next();
+    				if (catOrCourseGrade instanceof Category) {
+    					categoryList.add((Category)catOrCourseGrade);
+    				} 
+    			}
+    			
+    			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
+    				categoryList = getGradebookPermissionService().getCategoriesForUserForStudentView(getGradebookId(), getUserUid(), studentUid, categoryList, getGradebook().getCategory_type(), getViewableSectionIds());
+    			}
     			
     			// first, we deal with the categories and their associated assignments
     			if (categoryList != null && !categoryList.isEmpty()) {
@@ -490,25 +546,30 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     					}
     				}
     			}
+    			
     			// now we need to grab all of the assignments w/o a category
-    			List assignNoCat = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId(), Assignment.DEFAULT_SORT, true);
-    			if (assignNoCat != null && !assignNoCat.isEmpty()) {
-    				Category unassignedCat = new Category();
-    				unassignedCat.setGradebook(gradebook);
-    				unassignedCat.setName(getLocalizedString("cat_unassigned"));
-    				unassignedCat.setAssignmentList(assignNoCat);
+    			if (!isUserAbleToGradeAll() && (isUserHasGraderPermissions() && !getGradebookPermissionService().getPermissionForUserForAllAssignmentForStudent(getGradebookId(), getUserUid(), studentUid, getViewableSectionIds()))) {
+    				// user is not authorized to view/grade the unassigned category for the current student
+    			} else {
+    				List assignNoCat = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId(), Assignment.DEFAULT_SORT, true);
+    				if (assignNoCat != null && !assignNoCat.isEmpty()) {
+    					Category unassignedCat = new Category();
+    					unassignedCat.setGradebook(gradebook);
+    					unassignedCat.setName(getLocalizedString("cat_unassigned"));
+    					unassignedCat.setAssignmentList(assignNoCat);
 
-    				//add this category to our list
-    				gradebookItems.add(unassignedCat);
+    					//add this category to our list
+    					gradebookItems.add(unassignedCat);
 
-    				// now create grade rows for the unassigned assignments
-    				List gradeRows = retrieveGradeRows(assignNoCat, gradeRecords);
-    				/*  we display N/A for the category avg for unassigned category,
-    				 * so don't need to calc this anymore
+    					// now create grade rows for the unassigned assignments
+    					List gradeRows = retrieveGradeRows(assignNoCat, gradeRecords);
+    					/*  we display N/A for the category avg for unassigned category,
+    					 * so don't need to calc this anymore
     				 if (!getWeightingEnabled())
     					unassignedCat.calculateStatisticsPerStudent(gradeRecords, studentUid);*/
-    				if (gradeRows != null && !gradeRows.isEmpty()) {
-    					gradebookItems.addAll(gradeRows);
+    					if (gradeRows != null && !gradeRows.isEmpty()) {
+    						gradebookItems.addAll(gradeRows);
+    					}
     				}
     			}
 

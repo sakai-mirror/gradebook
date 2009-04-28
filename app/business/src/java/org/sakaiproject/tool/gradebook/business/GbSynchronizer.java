@@ -29,6 +29,10 @@ public interface GbSynchronizer
   public void addLegacyAssignment(String name);
   
   public Map getPersistentRecords(final Long gradableObjId);
+  
+  public Map getPersistentRecordsForStudent(final String studentId);
 
   public void synchrornizeAssignments(List assignments);
+  
+  public void updateAssignment(String title, String newTitle);
 }

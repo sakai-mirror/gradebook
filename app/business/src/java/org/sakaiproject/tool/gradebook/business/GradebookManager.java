@@ -4,19 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
-*
-* Licensed under the Educational Community License, Version 1.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.opensource.org/licenses/ecl1.php
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 The Sakai Foundation, The MIT Corporation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 *
 **********************************************************************************/
 
@@ -30,6 +30,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.MultipleAssignmentSavingException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.*;
 
@@ -90,6 +91,28 @@ public interface GradebookManager {
     public void removeAssignment(Long assignmentId) throws StaleObjectModificationException;
     
     /**
+     * Get an assignment grade record by id
+     * @param assignmentGradeRecordId
+     * @return AssignmentGradeRecord
+     */
+    public AssignmentGradeRecord getAssignmentGradeRecordById(Long id);
+    
+    /**
+     * Get a comment by id
+     * @param commentId
+     * @return Comment
+     */
+    public Comment getCommentById(Long id);
+    
+    /**
+     * Get an assignment grade record by assignment and student
+     * @param = assignment
+     * @param = studentUid
+     * @return AssignmentGradeRecord
+     */
+    public AssignmentGradeRecord getAssignmentGradeRecordForAssignmentForStudent(Assignment assignment, String studentUid);
+    
+    /**
      * Get all assignment score records for the given set of student UIDs.
      * 
      * @param assignment
@@ -121,6 +144,18 @@ public interface GradebookManager {
     
     public List<CourseGradeRecord> getPointsEarnedCourseGradeRecords(CourseGrade courseGrade, Collection studentUids, Collection assignments, Map scoreMap);
     public void addToGradeRecordMap(Map gradeRecordMap, List gradeRecords);
+    
+    /**
+     * Adds student grade records to map but takes into account grader permissions
+     * passed as studentIdItemIdFunctionMap. If not allowed to view/grade item, grade record is
+     * set to null
+     * @param gradeRecordMap
+     * @param gradeRecords
+     * @param studentIdItemIdFunctionMap
+     * 			Map of studentId to Map of Item to function (grade/view)
+     */
+    public void addToGradeRecordMap(Map gradeRecordMap, List gradeRecords, Map studentIdItemIdFunctionMap);
+    
     public void addToCategoryResultMap(Map categoryResultMap, List categories, Map gradeRecordMap, Map enrollmentMap);
    
     /**
@@ -220,6 +255,14 @@ public interface GradebookManager {
      * @return
      */
     public GradingEvents getGradingEvents(GradableObject gradableObject, Collection studentUids);
+    
+    /**
+     * Gets the grading events for the given student for the given gradableObjects
+     * @param studentId
+     * @param gradableObjects
+     * @return Map of GradableObject to associated GradingEvent objects
+     */
+    public Map getGradingEventsForStudent(final String studentId, final Collection gradableObjects);
 
     /**
      * Fetches a List of Assignments, but does not populate non-persistent
@@ -465,10 +508,11 @@ public interface GradebookManager {
      * @param assignment
      * @param Collection gradeRecords
      * @param grade_type
+     * @param studentId
      * @return The set of student UIDs who were given scores higher than the
      * assignment's value.
      */
-    public Set updateStudentGradeRecords(Collection gradeRecords, int grade_type);
+    public Set updateStudentGradeRecords(Collection gradeRecords, int grade_type, String studentId);
 
     
     /**
@@ -494,6 +538,25 @@ public interface GradebookManager {
      */
     public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending);
     
+    /**
+     * 
+     * @param gradebookId
+     * @param assignmentSort
+     * @param assignAscending
+     * @param categorySort
+     * @param categoryAscending
+     * @return a list consisting of Assignments, Categories, and Course Grade for
+     * the given gradebookId with stats populated. List consists of Assignments, then Categories, then CG
+     */
+    public List getAssignmentsCategoriesAndCourseGradeWithStats(Long gradebookId, 
+            String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending);
+    
+    /**
+     * 
+     * @param gradebookId
+     * @return list of categories with populated assignmentList
+     */ 
+    public List getCategoriesWithAssignments(Long gradebookId) ;
     
     /**
      * Get all assignments with no categories
@@ -516,7 +579,7 @@ public interface GradebookManager {
     public List getAssignmentsWithNoCategoryWithStats(Long gradebookId, String assignmentSort, boolean assignAscending);
     
     /**
-     * Convert grading events to percentage value if grade_type is set to percentage inputs. 
+     * Convert grading events to percentage or letter value depending upon grade_type
      *  
      * @param assign Assignment
      * @param events GradingEvents
@@ -524,6 +587,14 @@ public interface GradebookManager {
      * @param grade_type gradebook's grade_type
      */
     public void convertGradingEventsConverted(Assignment assign, GradingEvents events, List studentUids, int grade_type);
+    
+    /**
+     * Convert grading events to percentage or letter value depending upon grade_type
+     * @param gradebook
+     * @param gradableObjectEventListMap map of student's gradableObjects to their associated grading events
+     * @param grade_type gradebook's grade_type
+     */
+    public void convertGradingEventsConvertedForStudent(Gradebook gradebook, Map gradableObjectEventListMap, int grade_type);
     
     /**
      * Check if there's any students that haven't submit their assignment(s) - null value for points or 
@@ -551,4 +622,229 @@ public interface GradebookManager {
      * @param studentUids List of student uid.
      */
     public void convertGradePointsForUpdatedTotalPoints(Gradebook gradebook, Assignment assignment, Double newTotal, List studentUids);
+    
+    /**
+     * Get the default letter grading percentage mappings. 
+     * This method will return defult mapping if no mapping for the certain gradebook exists.
+     *  
+     *  @return LetterGradePercentMapping
+     */
+    public LetterGradePercentMapping getDefaultLetterGradePercentMapping();
+    
+    /**
+     * Create or update the default letter grading percentage mappings.
+     *  
+     *  @param gradeMap
+     */
+    public void createOrUpdateDefaultLetterGradePercentMapping(final Map gradeMap);
+    
+    /**
+     * Create the default letter grading percentage mappings.
+     *  
+     *  @param gradeMap
+     */
+    public void createDefaultLetterGradePercentMapping(Map gradeMap);
+
+    /**
+     * Get letter grading percentage mappings for a gradebook.
+     *  
+     *  @param gradebook
+     *  @return LetterGradePercentMapping
+     */
+    public LetterGradePercentMapping getLetterGradePercentMapping(final Gradebook gradebook);
+
+    /**
+     * Create letter grading percentage mappings for a gradebook.
+     * 
+     *  @param gradeMap letter grade percentage map
+     *  @param gradebook
+     */
+    public void saveOrUpdateLetterGradePercentMapping(final Map gradeMap, final Gradebook gradebook);
+    
+    /**
+     * Add a new ungraded assignment to a gradebook
+     *
+     * @param gradebookId The gradebook ID to which this new assignment belongs
+     * @param name The assignment's name (must be unique in the gradebook and not be null)
+     * @param dueDate The due date for the assignment (optional)
+     * @param isNotCounted True if the assignment should not count towards the final course grade (optional)
+     * @param isReleased  True if the assignment should be release/ or visble to students
+     * @return The ID of the new assignment
+     */
+    public Long createUngradedAssignment(Long gradebookId, String name, Date dueDate, Boolean isNotCounted, Boolean isReleased)
+    	throws ConflictingAssignmentNameException, StaleObjectModificationException;
+
+    /**
+     * Add a new ungraded assignment to a category
+     *
+     * @param gradebookId The gradebook ID to which this new assignment belongs
+     * @param categoryId The category ID to which this new assignment belongs
+     * @param name The assignment's name (must be unique in the gradebook and not be null)
+     * @param dueDate The due date for the assignment (optional)
+     * @param isNotCounted True if the assignment should not count towards the final course grade (optional)
+     * @param isReleased  True if the assignment should be release/ or visble to students
+     * @return The ID of the new assignment
+     * @throws ConflictingAssignmentNameException StaleObjectModificationException IllegalArgumentException
+     */
+    public Long createUngradedAssignmentForCategory(Long gradebookId, Long categoryId, String name, Date dueDate, Boolean isNotCounted, Boolean isReleased)
+    	throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException;
+    
+    /**
+     * Add a permission combination for a user.
+     *
+     * @param gradebookId The gradebook ID
+     * @param userId grader's user_id
+     * @param function function that the grader have - grade / view
+     * @param categoryId The category ID
+     * @param groupId group/section ID
+     * @return ID of permission
+     * @throws IllegalArgumentException
+     *    
+     */
+    public Long addPermission(Long gradebookId, String userId, String function, Long categoryId, String groupId)
+    throws IllegalArgumentException;
+
+    /**
+     * Get all permissions for gradebook.
+     *
+     * @param gradebookId The gradebook ID
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     *    
+     */
+    public List getPermissionsForGB(Long gradebookId)
+    throws IllegalArgumentException;
+    
+    /**
+     * Get all permissions for a given list of category Ids
+     * @param gradebookId
+     * @param cateIds
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForGBForCategoryIds(final Long gradebookId, final List cateIds) throws IllegalArgumentException;
+
+    /**
+     * Update permissions.
+     *
+     * @param perms Collection of persistent permission objects.
+     */
+    public void updatePermission(Collection perms);
+    
+    /**
+     * Update permission.
+     * 
+     * @param perm persistent object of Permission
+     * @throws IllegalArgumentException
+     */
+    public void updatePermission(final Permission perm) throws IllegalArgumentException;
+    
+    /**
+     * Delete permission.
+     * 
+     * @param perm persistent object of Permission
+     * @throws IllegalArgumentException
+     */
+    public void deletePermission(final Permission perm) throws IllegalArgumentException;
+    
+    /**
+     * Get permissions for a user.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForUser(final Long gradebookId, final String userId) throws IllegalArgumentException;
+
+    /**
+     * Get permissions for a user for certain categories.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @param cateIds category ID list
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForUserForCategory(final Long gradebookId, final String userId, final List cateIds) throws IllegalArgumentException;
+
+    /**
+     * Get permission for user when the user can grade/view "any" category.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForUserAnyCategory(final Long gradebookId, final String userId) throws IllegalArgumentException;
+
+    /**
+     * Get permission for user when the user can grade/view "any" group.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForUserAnyGroup(final Long gradebookId, final String userId) throws IllegalArgumentException;
+    
+    /**
+     * Get permission for user when the user can grade/view "any" group for certain catetories.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @param cateIds categorie IDs
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForUserAnyGroupForCategory(final Long gradebookId, final String userId, final List cateIds) throws IllegalArgumentException;
+
+    /**
+     * Get permission for user when the user can grade/view "any" group for any catetory.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForUserAnyGroupAnyCategory(final Long gradebookId, final String userId) throws IllegalArgumentException;
+    
+    /**
+     * Get permission for user when the user can grade/view "any" category for certain groups.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @param groupsIds group IDs
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForUserForGoupsAnyCategory(final Long gradebookId, final String userId, final List groupIds) throws IllegalArgumentException;
+    
+    /**
+     * Get permission for user when the user can grade/view for certain groups.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @param groupsIds group IDs
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */    
+    public List getPermissionsForUserForGroup(final Long gradebookId, final String userId, final List groupIds) throws IllegalArgumentException;
+    
+    /**
+     * Add a list of assignments. If errors occur while saving, it will back off all saved ones.
+     *
+     * @param gradebookId The gradebook ID to which this new assignment belongs
+     * @param assignList List of assignments
+     */
+    public void createAssignments(Long gradebookId, List assignList) throws MultipleAssignmentSavingException;
+    
+    /**
+     * Check if the assignment's name is valid to add or not.
+     *
+     *@param gradebookId Long of the gradebook's ID
+     * @param assignment Assignment to be added
+     * @return boolean
+     */
+    public boolean checkValidName(final Long gradebookId, final Assignment assignment);
 }

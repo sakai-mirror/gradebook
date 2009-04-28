@@ -4,28 +4,31 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
-*
-* Licensed under the Educational Community License, Version 1.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.opensource.org/licenses/ecl1.php
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 *
 **********************************************************************************/
 
 package org.sakaiproject.tool.gradebook;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
  * A CourseGradeRecord is a grade record that can be associated with a CourseGrade.
@@ -42,16 +45,20 @@ public class CourseGradeRecord extends AbstractGradeRecord {
     static {
         calcComparator = new Comparator<CourseGradeRecord>() {
             public int compare(CourseGradeRecord cgr1, CourseGradeRecord cgr2) {
-                if(cgr1 == null && cgr2 == null) {
+                if((cgr1 == null || cgr2 == null) || (cgr1.getGradeAsPercentage() == null && cgr2.getGradeAsPercentage() == null)) {
                     return 0;
                 }
-                if(cgr1 == null) {
+                if(cgr1 == null || cgr1.getGradeAsPercentage() == null) {
                     return -1;
                 }
-                if(cgr2 == null) {
+                if(cgr2 == null || cgr2.getGradeAsPercentage() == null) {
                     return 1;
                 }
-                return cgr1.getPointsEarned().compareTo(cgr2.getPointsEarned());
+                //SAK-12017 - Commented out as getPointsEarned is no longer an accurate comparator
+                // due to nulls no longer being calculated in to the Course Grade
+                //return cgr1.getPointsEarned().compareTo(cgr2.getPointsEarned());
+                //   Better to use getGradeAsPercentage
+                return cgr1.getGradeAsPercentage().compareTo(cgr2.getGradeAsPercentage());
             }
         };
     }
@@ -184,10 +191,12 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned) {
 		Double percentageEarned;
 		calculatedPointsEarned = totalPointsEarned;
+		BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
+		BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
 		if (totalPointsPossible == 0.0) {
 			percentageEarned = null;
 		} else {
-			percentageEarned = new Double(totalPointsEarned / totalPointsPossible * 100);
+			percentageEarned = new Double(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
 		}
 		autoCalculatedGrade = percentageEarned;
 	}
@@ -196,10 +205,13 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		Double percentageEarned;
 		//calculatedPointsEarned = totalPointsEarned;
 		calculatedPointsEarned = literalTotalPointsEarned;
+		BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
+		BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
+
 		if (totalPointsPossible <= 0.0) {
 			percentageEarned = null;
 		} else {
-			percentageEarned = new Double(totalPointsEarned / totalPointsPossible * 100);
+			percentageEarned = new Double(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
 		}
 		autoCalculatedGrade = percentageEarned;
 	}

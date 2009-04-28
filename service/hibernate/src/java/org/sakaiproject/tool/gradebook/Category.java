@@ -21,6 +21,7 @@ public class Category implements Serializable
 	private Double mean; //mean value of percentage for this category
 	private List assignmentList;
 	private int assignmentCount;
+	private Boolean extraCredit;
 	
 	public static Comparator nameComparator;
 	public static Comparator averageScoreComparator;
@@ -195,25 +196,25 @@ public class Category implements Serializable
 	{
     int numScored = 0;
     int numOfAssignments = 0;
-    double total = 0;
-    double totalPossible = 0;
+    BigDecimal total = new BigDecimal("0");
+    BigDecimal totalPossible = new BigDecimal("0");
 
     for (Assignment assign : assignmentsWithStats) 
     {
     	Double score = assign.getAverageTotal();
 //    	if(assign.isReleased())
 //    	{
-    	if(assign.isCounted())
+    	if(assign.isCounted() && !assign.getUngraded() && assign.getPointsPossible().doubleValue() > 0.0)
     	{
     		if (score == null) 
     		{
     		} 
     		else 
     		{
-    			total += score.doubleValue();
+    			total = total.add(new BigDecimal(score.toString()));
     			if(assign.getPointsPossible() != null)
     			{
-    				totalPossible += assign.getPointsPossible().doubleValue();
+    				totalPossible = totalPossible.add(new BigDecimal(assign.getPointsPossible().toString()));
     				numOfAssignments ++;
     			}
     			numScored++;
@@ -230,10 +231,12 @@ public class Category implements Serializable
     } 
     else 
     {
-    	averageScore = new Double(total / numScored);
-    	averageTotalPoints = new Double(totalPossible / numOfAssignments);
-    	double value = total / numScored / averageTotalPoints.doubleValue() * 100;
-    	mean = new Double(value) ;
+    	BigDecimal bdNumScored = new BigDecimal(numScored);
+    	BigDecimal bdNumAssign = new BigDecimal(numOfAssignments);
+    	averageScore = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+    	averageTotalPoints = new Double(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
+    	BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide(new BigDecimal(averageTotalPoints.doubleValue()), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
+    	mean = new Double(value.doubleValue()) ;
     }
 	}
 
@@ -241,8 +244,8 @@ public class Category implements Serializable
 	{
     int numScored = 0;
     int numOfAssignments = 0;
-    double total = 0;
-    double totalPossible = 0;
+    BigDecimal total = new BigDecimal("0");
+    BigDecimal totalPossible = new BigDecimal("0");
 
     if (gradeRecords == null) 
     {
@@ -258,7 +261,7 @@ public class Category implements Serializable
     	{
     		Assignment assignment = gradeRecord.getAssignment();
 
-    		if (assignment.isCounted() && assignment.getPointsPossible().doubleValue() > 0.0) 
+    		if (assignment.isCounted() && !assignment.getUngraded() && assignment.getPointsPossible().doubleValue() > 0.0) 
     		{
     			Category assignCategory = assignment.getCategory();
     			if (assignCategory != null && assignCategory.getId().equals(id))
@@ -266,10 +269,12 @@ public class Category implements Serializable
     				Double score = gradeRecord.getPointsEarned();
     				if (score != null) 
     				{
-    					total += score.doubleValue();
+    					BigDecimal bdScore = new BigDecimal(score.toString());
+    					total = total.add(bdScore);
     					if(assignment.getPointsPossible() != null)
     					{
-    						totalPossible += assignment.getPointsPossible().doubleValue();
+    						BigDecimal bdPointsPossible = new BigDecimal(assignment.getPointsPossible().toString());
+    						totalPossible = totalPossible.add(bdPointsPossible);
     						numOfAssignments ++;
     					}
     					numScored++;
@@ -287,10 +292,13 @@ public class Category implements Serializable
     } 
     else 
     {
-    	averageScore = new Double(total / numScored);
-    	averageTotalPoints = new Double(totalPossible / numOfAssignments);
-    	double value = total / numScored / (totalPossible / numOfAssignments) * 100;
-    	mean = new Double(value) ;
+    	BigDecimal bdNumScored = new BigDecimal(numScored);
+    	BigDecimal bdNumAssign = new BigDecimal(numOfAssignments);
+    	averageScore = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+    	averageTotalPoints = new Double(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
+    	BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide((totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT)), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
+ 
+    	mean = new Double(value.doubleValue()) ;
     }
 	}
 
@@ -308,7 +316,7 @@ public class Category implements Serializable
 	 * The methods below are used with the GradableObjects because all three
 	 * are displayed in a dataTable together
 	 */
-	public boolean isCategory() {
+	public boolean getIsCategory() {
 		return true;
 	}
 	public boolean isCourseGrade() {
@@ -334,5 +342,13 @@ public class Category implements Serializable
 	
 	public void setAssignmentCount(int assignmentCount){
 		this.assignmentCount = assignmentCount;
+	}
+
+	public Boolean isExtraCredit() {
+		return extraCredit;
+	}
+
+	public void setExtraCredit(Boolean isExtraCredit) {
+		this.extraCredit = isExtraCredit;
 	}
 }

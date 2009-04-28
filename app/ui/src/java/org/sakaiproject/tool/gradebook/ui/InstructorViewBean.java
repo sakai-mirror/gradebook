@@ -1,17 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 The Regents of the University of California
+ * Copyright (c) 2006, 2007, 2008, 2009 The Sakai Foundation
  *
- *  Licensed under the Educational Community License, Version 1.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ecl1.php
+ *       http://www.osedu.org/licenses/ECL-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  ******************************************************************************/
 
 package org.sakaiproject.tool.gradebook.ui;
@@ -36,6 +36,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
@@ -143,7 +144,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	 */
 	public String getReturnToPageButtonName() {
 		String pageTitle;
-		if (returnToPage.equals(ASSIGN_DETAILS_PAGE))
+		if (ASSIGN_DETAILS_PAGE.equals(returnToPage))
 			pageTitle = getLocalizedString("assignment_details_page_title");
 		else
 			pageTitle = getLocalizedString("roster_page_title");
@@ -218,45 +219,68 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 					AssignmentGradeRow gradeRow = (AssignmentGradeRow) item;
 					AssignmentGradeRecord gradeRecord = gradeRow.getGradeRecord();
 
-					if (gradeRecord == null && gradeRow.getScore() != null) {
+					if (gradeRecord == null && (gradeRow.getScore() != null || gradeRow.getLetterScore() != null)) {
 						// this is a new grade
 						gradeRecord = new AssignmentGradeRecord(gradeRow.getAssociatedAssignment(), getStudentUid(), null);
 					}
 					if (gradeRecord != null) {
-						Double originalScore = null;
-						if (getGradeEntryByPoints()) {
+						if (getGradeEntryByPoints()) { 
+							Double originalScore = null;
 							originalScore = gradeRecord.getPointsEarned();
-						} else if (getGradeEntryByPercent()) {
-							originalScore = gradeRecord.getGradeAsPercentage();
-						}
-						if (originalScore != null) {
-							// truncate to two decimals for more accurate comparison
-							originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
-						}
-						Double newScore = gradeRow.getScore();
-						if ( (originalScore != null && !originalScore.equals(newScore)) ||
-								(originalScore == null && newScore != null) ) {
-							gradeRecord.setPointsEarned(newScore);
-							updatedGradeRecords.add(gradeRecord);
-							getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScore","/gradebook/"+getGradebookUid()+"/"+gradeRecord.getAssignment().getName()+"/"+gradeRecord.getStudentId()+"/"+gradeRecord.getPointsEarned()+"/"+getAuthzLevel());
+
+							if (originalScore != null) {
+								// truncate to two decimals for more accurate comparison
+								originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
+							}
+							Double newScore = gradeRow.getScore();
+							if ( (originalScore != null && !originalScore.equals(newScore)) ||
+									(originalScore == null && newScore != null) ) {
+								gradeRecord.setPointsEarned(newScore);
+								updatedGradeRecords.add(gradeRecord);
+							}
+						} else if(getGradeEntryByPercent()) {
+							Double originalScore = null;
+							originalScore = gradeRecord.getPercentEarned();
+
+							if (originalScore != null) {
+								// truncate to two decimals for more accurate comparison
+								originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
+							}
+							Double newScore = gradeRow.getScore();
+							if ( (originalScore != null && !originalScore.equals(newScore)) ||
+									(originalScore == null && newScore != null) ) {
+								gradeRecord.setPercentEarned(newScore);
+								updatedGradeRecords.add(gradeRecord);
+							}
+
+						}	else if (getGradeEntryByLetter()) {
+
+							String originalScore = gradeRecord.getLetterEarned();
+							String newScore = gradeRow.getLetterScore();
+							if ( (originalScore != null && !originalScore.equals(newScore)) ||
+									(originalScore == null && newScore != null) ) {
+								gradeRecord.setLetterEarned(newScore);
+								updatedGradeRecords.add(gradeRecord);
+							}
 						}
 					} 
 				}
 			}
 		}
 
-		Set excessiveScores = getGradebookManager().updateStudentGradeRecords(updatedGradeRecords, getGradebook().getGrade_type());
+		Set excessiveScores = getGradebookManager().updateStudentGradeRecords(updatedGradeRecords, getGradebook().getGrade_type(), getStudentUid());
 
 		if(updatedGradeRecords.size() > 0){
 			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
+			String messageKey = (excessiveScores.size() > 0) ?
+					"inst_view_scores_saved_excessive" :
+						"inst_view_scores_saved";
+			
+			// Let the user know.
+			FacesUtil.addMessage(getLocalizedString(messageKey));
 		}
 
-		String messageKey = (excessiveScores.size() > 0) ?
-				"inst_view_scores_saved_excessive" :
-					"inst_view_scores_saved";
 
-		// Let the user know.
-		FacesUtil.addMessage(getLocalizedString(messageKey));
 	}
 
 	private String getColumnHeader(GradableObject gradableObject) {
@@ -279,17 +303,47 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		setSortColumn(getPreferencesBean().getRosterTableSortColumn());
 		setSortAscending(getPreferencesBean().isRosterTableSortAscending());
 
-		Map enrollmentMap = getOrderedEnrollmentMap();
+		Map enrollmentMap = getOrderedEnrollmentMapForAllItems();
 
-		List workingEnrollments = new ArrayList(enrollmentMap.values());
+		List workingEnrollments = new ArrayList(enrollmentMap.keySet());
 
 		if (isEnrollmentSort()) {
 			return workingEnrollments;
 		}
+		
+		Map studentIdItemIdFunctionMap = new HashMap();
+		Map studentIdEnrRecMap = new HashMap();
+		for (Iterator enrIter = workingEnrollments.iterator(); enrIter.hasNext();) {
+        	EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
+        	if (enr != null) {
+        		String studentId = enr.getUser().getUserUid();      		
+        		Map itemFunctionMap = (Map)enrollmentMap.get(enr);
+        		
+				studentIdItemIdFunctionMap.put(studentId, itemFunctionMap);
+				studentIdEnrRecMap.put(studentId, enr);
+        	}
+        }
 
-		List rosterGradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), enrollmentMap.keySet());
+		List rosterGradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentIdItemIdFunctionMap.keySet());
 		Map gradeRecordMap = new HashMap();
-		getGradebookManager().addToGradeRecordMap(gradeRecordMap, rosterGradeRecords);
+		
+		if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
+			getGradebookManager().addToGradeRecordMap(gradeRecordMap, rosterGradeRecords, studentIdItemIdFunctionMap);
+			// we need to re-sort these records b/c some may actually be null based upon permissions.
+			// retrieve updated grade recs from gradeRecordMap
+			List updatedGradeRecs = new ArrayList();
+			for (Iterator iter = gradeRecordMap.keySet().iterator(); iter.hasNext();) {
+				String studentId = (String)iter.next();
+				Map itemIdGradeRecMap = (Map)gradeRecordMap.get(studentId);
+				if (!itemIdGradeRecMap.isEmpty()) {
+					updatedGradeRecs.addAll(itemIdGradeRecMap.values());
+				}
+			}
+			Collections.sort(updatedGradeRecs, AssignmentGradeRecord.calcComparator);
+			rosterGradeRecords = updatedGradeRecs;
+		} else {
+			getGradebookManager().addToGradeRecordMap(gradeRecordMap, rosterGradeRecords);
+		}
 		if (logger.isDebugEnabled()) logger.debug("init - gradeRecordMap.keySet().size() = " + gradeRecordMap.keySet().size());
 
 		List assignments = null;
@@ -301,7 +355,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 			assignments = getGradebookManager().getAssignmentsForCategory(new Long(getSelectedSectionFilterValue().longValue()));
 		}
 
-		List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, enrollmentMap.keySet(), assignments, gradeRecordMap);
+		List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentIdItemIdFunctionMap.keySet(), assignments, gradeRecordMap);
 		Collections.sort(courseGradeRecords, CourseGradeRecord.calcComparator);
 		getGradebookManager().addToGradeRecordMap(gradeRecordMap, courseGradeRecords);
 		rosterGradeRecords.addAll(courseGradeRecords);
@@ -309,7 +363,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		//do category results
 		Map categoryResultMap = new HashMap();
 		List categories = getGradebookManager().getCategories(getGradebookId());
-		getGradebookManager().addToCategoryResultMap(categoryResultMap, categories, gradeRecordMap, enrollmentMap);
+		getGradebookManager().addToCategoryResultMap(categoryResultMap, categories, gradeRecordMap, studentIdEnrRecMap);
 		if (logger.isDebugEnabled()) logger.debug("init - categoryResultMap.keySet().size() = " + categoryResultMap.keySet().size());
 
 
@@ -319,7 +373,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		for(Iterator iter = rosterGradeRecords.iterator(); iter.hasNext();) {
 			AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
 			if(getColumnHeader(agr.getGradableObject()).equals(sortColumn)) {
-				scoreSortedEnrollments.add(enrollmentMap.get(agr.getStudentId()));
+				scoreSortedEnrollments.add(studentIdEnrRecMap.get(agr.getStudentId()));
 			}
 		}
 
@@ -344,22 +398,27 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		setSortColumn(getPreferencesBean().getAssignmentDetailsTableSortColumn());
 		setSortAscending(getPreferencesBean().isAssignmentDetailsTableSortAscending());
 
-		Map enrollmentMap = getOrderedEnrollmentMap();
-
-		if (isEnrollmentSort()) {
-			return new ArrayList(enrollmentMap.values());
-		}
-
 		List assignGradeRecords = new ArrayList();
 		List enrollments = new ArrayList();
-		List studentUids = new ArrayList(enrollmentMap.keySet());
 
 		Long assignmentIdAsLong = getAssignmentIdAsLong();
 		if (assignmentIdAsLong != null) {
 			Assignment prevAssignment = getGradebookManager().getAssignment(assignmentIdAsLong);
+			Category category = prevAssignment.getCategory();
+			Long catId = null;
+			if (category != null)
+				catId = category.getId();
+			
+			Map enrollmentMap = getOrderedStudentIdEnrollmentMapForItem(catId);
+			if (isEnrollmentSort()) {
+				return new ArrayList(enrollmentMap.values());
+			}
+			
+			List studentUids = new ArrayList(enrollmentMap.keySet());
+			
 			if (getGradeEntryByPoints())
 				assignGradeRecords = getGradebookManager().getAssignmentGradeRecords(prevAssignment, studentUids);
-			else if (getGradeEntryByPercent())
+			else if (getGradeEntryByPercent() || getGradeEntryByLetter())
 				assignGradeRecords = getGradebookManager().getAssignmentGradeRecordsConverted(prevAssignment, studentUids);
 
 			// Need to sort and page based on a scores column.
@@ -396,7 +455,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	 * @return String representation of the student's sections/groups
 	 */
 	private String getStudentSectionsForDisplay() {
-		StringBuffer sectionList = new StringBuffer();
+		StringBuilder sectionList = new StringBuilder();
 		List studentMemberships = getGradebookBean().getAuthzService().getStudentSectionMembershipNames(getGradebookUid(), getStudentUid());
 		if (studentMemberships != null && !studentMemberships.isEmpty()) {
 			Collections.sort(studentMemberships);

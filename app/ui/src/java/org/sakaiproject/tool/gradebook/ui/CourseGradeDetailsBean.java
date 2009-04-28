@@ -4,24 +4,25 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
-*
-* Licensed under the Educational Community License, Version 1.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.opensource.org/licenses/ecl1.php
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 *
 **********************************************************************************/
 
 package org.sakaiproject.tool.gradebook.ui;
 
+import java.math.BigDecimal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +43,7 @@ import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterCsv;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -62,17 +64,20 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
     private GradeMapping gradeMapping;
     private double totalPoints;
     private String courseGradesConverterPlugin;
+    private boolean allStudentsViewOnly = true;
 
 	public class ScoreRow implements Serializable {
         private EnrollmentRecord enrollment;
         private CourseGradeRecord courseGradeRecord;
         private List eventRows;
+        private boolean userCanGrade;
 
 		public ScoreRow() {
 		}
-		public ScoreRow(EnrollmentRecord enrollment, CourseGradeRecord courseGradeRecord, List gradingEvents) {
+		public ScoreRow(EnrollmentRecord enrollment, CourseGradeRecord courseGradeRecord, List gradingEvents, boolean userCanGrade) {
             this.enrollment = enrollment;
 			this.courseGradeRecord = courseGradeRecord;
+			this.userCanGrade = userCanGrade;
 
             eventRows = new ArrayList();
             for (Iterator iter = gradingEvents.iterator(); iter.hasNext();) {
@@ -94,13 +99,18 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         }
         
         /**
-         * 
+         * Because the PrecisePercentageConverter is actually rounding at 2 decimals instead of
+         * truncating, do the formatting here. 
          * @return percent representation of grade or null if no grade yet
          */
         public Double getCalculatedPercentGrade() {
         	Double grade = courseGradeRecord.getAutoCalculatedGrade();
-        	if (grade != null)
-        		grade = new Double(grade.doubleValue() / 100.);
+        	if (grade != null) {
+        		// to emulate the converter, truncate to 4 decimal places, then return 2
+        		grade = new Double(FacesUtil.getRoundDown(grade.doubleValue(), 4));
+        		BigDecimal bdGrade = (new BigDecimal(grade.toString())).setScale(2, BigDecimal.ROUND_DOWN);
+        		grade = new Double(bdGrade.doubleValue());
+        	}
         	
         	return grade;
         }
@@ -133,6 +143,9 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         public String getEventsLogTitle() {
         	return FacesUtil.getLocalizedString("course_grade_details_log_title", new String[] {enrollment.getUser().getDisplayName()});
         }
+        public boolean isUserCanGrade() {
+        	return userCanGrade;
+        }
 	}
 
 	protected void init() {
@@ -147,7 +160,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         totalPoints = getGradebookManager().getTotalPoints(getGradebookId());
 
 		// Set up score rows.
-		Map enrollmentMap = getOrderedEnrollmentMap();
+        Map enrollmentMap = getOrderedEnrollmentMapForCourseGrades();  
 		List studentUids = new ArrayList(enrollmentMap.keySet());
 		List gradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecordsWithStats(courseGrade, studentUids);
 		
@@ -201,14 +214,24 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 			
 		for (Iterator iter = studentUids.iterator(); iter.hasNext(); ) {
 			String studentUid = (String)iter.next();
-			EnrollmentRecord enrollment = (EnrollmentRecord)enrollmentMap.get(studentUid);
+			Map enrFunctionMap = (Map) enrollmentMap.get(studentUid);
+			List enrRecList = new ArrayList(enrFunctionMap.keySet());
+			EnrollmentRecord enrollment = (EnrollmentRecord)enrRecList.get(0); // there is only one rec in this map
+			
 			CourseGradeRecord gradeRecord = (CourseGradeRecord)gradeRecordMap.get(studentUid);
             if(gradeRecord == null) {
                 gradeRecord = new CourseGradeRecord(courseGrade, studentUid);
                 gradeRecords.add(gradeRecord);
             }
+            
+            boolean userCanGrade = false;
+            String itemFunction = (String)enrFunctionMap.get(enrollment);
+            if (itemFunction != null && itemFunction.equalsIgnoreCase(GradebookService.gradePermission)) {
+            	userCanGrade = true;
+            	allStudentsViewOnly = false;
+            }
 			
-			scoreRows.add(new ScoreRow(enrollment, gradeRecord, allEvents.getEvents(studentUid)));
+			scoreRows.add(new ScoreRow(enrollment, gradeRecord, allEvents.getEvents(studentUid), userCanGrade));
 		}
 	}
 
@@ -220,6 +243,10 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
     }
     public double getTotalPoints() {
         return totalPoints;
+    }
+    
+    public boolean isAllStudentsViewOnly() {
+    	return allStudentsViewOnly;
     }
 
 	/**
@@ -239,15 +266,11 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 	 * Action to calculate course grades
 	 */
 	public String processCalculateCourseGrades() {
-		if (isUserAbleToGradeAll()) {		
-			try {
-				calculateCourseGrades();
-			} catch (StaleObjectModificationException e) {
-				logger.error(e);
-				FacesUtil.addErrorMessage(getLocalizedString("course_grade_details_locking_failure"));
-			}	
-		} else {
-			FacesUtil.addErrorMessage(getLocalizedString("course_grade_details_calc_cg_perm_error"));
+		try {
+			calculateCourseGrades();
+		} catch (StaleObjectModificationException e) {
+			logger.error(e);
+			FacesUtil.addErrorMessage(getLocalizedString("course_grade_details_locking_failure"));
 		}
 		return "courseGradeDetails";
 	}
@@ -285,7 +308,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
     
     private List<List<Object>> getSpreadsheetData() {
     	// Get the full list of filtered enrollments and scores (not just the current page's worth).
-    	List<EnrollmentRecord> filteredEnrollments = getWorkingEnrollments();
+    	List<EnrollmentRecord> filteredEnrollments = new ArrayList(getWorkingEnrollmentsForCourseGrade().keySet());
     	Collections.sort(filteredEnrollments, ENROLLMENT_NAME_COMPARATOR);
     	Set<String> studentUids = new HashSet<String>();
     	for (EnrollmentRecord enrollment : filteredEnrollments) {

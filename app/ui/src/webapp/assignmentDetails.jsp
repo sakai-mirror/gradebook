@@ -2,9 +2,11 @@
 <script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
 <script src="js/dynamicSizeCheck.js" type="text/javascript"></script>
 
+
 <f:view>
   <div class="portletBody">
 	<h:form id="gbForm">
+	
 
 		<sakai:flowState bean="#{assignmentDetailsBean}" />
 
@@ -137,7 +139,7 @@
 				styleClass="active"
 				value="#{msgs.assignment_details_submit}"
 				actionListener="#{assignmentDetailsBean.processUpdateScores}"
-				disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
+				disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				accesskey="s"
 				tabindex="9998"
@@ -146,7 +148,7 @@
 				id="cancelButton1"
 				value="#{msgs.assignment_details_cancel}"
 				action="assignmentDetails"
-				disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
+				disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				accesskey="c"
 				immediate="true"
@@ -208,21 +210,37 @@
 		      <t:commandSortHeader columnName="studentScore" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
 					  <h:outputText value="#{msgs.assignment_details_points}" rendered="#{assignmentDetailsBean.gradeEntryByPoints}"/>
 					  <h:outputText value="#{msgs.assignment_details_percent}" rendered="#{assignmentDetailsBean.gradeEntryByPercent}"/>
+					  <h:outputText value="#{msgs.assignment_details_letters}" rendered="#{assignmentDetailsBean.gradeEntryByLetter}" />
 		      </t:commandSortHeader>
 				</f:facet>
 
 				<t:div>
-					<h:inputText id="Score" value="#{scoreRow.score}" size="4" 
-						 rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}"
-						 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
-						<f:validateDoubleRange minimum="0"/>
-						<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
-					</h:inputText>
-
-					<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.assignment.externallyMaintained}">
-						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
-					</h:outputText>
+					<h:panelGroup rendered="#{!assignmentDetailsBean.assignment.externallyMaintained && scoreRow.userCanGrade}">
+						<h:inputText id="Score" value="#{scoreRow.score}" size="6" 
+							 rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}"
+							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+							<f:validateDoubleRange minimum="0"/>
+							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
+						</h:inputText>
+						<h:inputText id="LetterScore" value="#{scoreRow.letterScore}" size="6" 
+							 rendered="#{assignmentDetailsBean.gradeEntryByLetter}"
+							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.LETTER_GRADE_CONVERTER" />
+						</h:inputText>
+						
+					</h:panelGroup>
+					<h:panelGroup rendered="#{assignmentDetailsBean.assignment.externallyMaintained || !scoreRow.userCanGrade}">
+						<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}">
+							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
+						</h:outputText>
+						<h:outputText value="#{scoreRow.letterScore}" 
+							 rendered="#{assignmentDetailsBean.gradeEntryByLetter && scoreRow.letterScore != null}">
+							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.LETTER_GRADE_CONVERTER" />
+						</h:outputText>
+						<h:outputText value="#{msgs.score_null_placeholder}" 
+							 rendered="#{assignmentDetailsBean.gradeEntryByLetter && scoreRow.letterScore == null}" />
+					</h:panelGroup>
 				</t:div>
 			</h:column>
 			<h:column>
@@ -231,7 +249,7 @@
 						<h:commandButton
 							value="#{assignmentDetailsBean.commentsToggle}"
 							actionListener="#{assignmentDetailsBean.toggleEditableComments}"
-							disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
+							disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 							rendered="#{!assignmentDetailsBean.allCommentsEditable}"/>
 						<h:outputText
 							value="#{assignmentDetailsBean.commentsToggle}"
@@ -240,6 +258,7 @@
 					</h:panelGroup>
 				</f:facet>
 				<h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>
+				<h:message for="LetterScore" styleClass="validationEmbedded gbMessageAdjustForContent"/>
 				<t:div styleClass="gbTextOnRow" rendered="#{!scoreRow.commentEditable}">
 					<h:outputText value="#{scoreRow.commentText}"/>
 				</t:div>
@@ -265,7 +284,7 @@
 				styleClass="active"
 				value="#{msgs.assignment_details_submit}"
 				actionListener="#{assignmentDetailsBean.processUpdateScores}"
-				disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
+				disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				tabindex="9998"
 				title="#{msgs.assignment_details_submit}"/>
@@ -274,7 +293,7 @@
 				value="#{msgs.assignment_details_cancel}"
 				action="assignmentDetails"
 				immediate="true"
-				disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
+				disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				tabindex="9999"
 				title="#{msgs.assignment_details_cancel}">
@@ -284,6 +303,25 @@
 
 		</div> <!-- END OF INDNT1 -->
 
+
+<script src="/library/js/jquery.js" type="text/javascript"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	org_vals = new Array($("table#gbForm\\:gradingTable :text").length);
+	$("table#gbForm\\:gradingTable :text").each(function(i){
+		org_vals[i] = this.value;
+	});
+	$(".shorttext .listNav input,select").click(check_change);
+});
+check_change = function(){
+	changed = false;
+	$("table#gbForm\\:gradingTable :text").each(function(i){
+		if(org_vals[i] != this.value){changed=true;}
+	});
+	if(changed){return confirm("<h:outputText value="#{msgs.assignment_details_page_confirm_unsaved}"/>");}
+	return true;
+}
+</script>
 		
 	</h:form>
   </div>

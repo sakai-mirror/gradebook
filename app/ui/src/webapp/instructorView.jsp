@@ -22,7 +22,8 @@
 					<h:outputText value="#{msgs.inst_view_student_summary}" />
 				<f:verbatim></h3></f:verbatim>
 			</h:panelGroup>
-			<h:commandLink action="studentView" style="text-align: right;">
+			<h:commandLink action="studentView" style="text-align: right;"
+					rendered="#{instructorViewBean.userAbleToGradeAll}">
 				<h:outputFormat value="#{msgs.inst_view_students_grades}">
 					<f:param value="#{instructorViewBean.userDisplayName}" />
 				</h:outputFormat>
@@ -30,6 +31,7 @@
 				<f:param name="instViewReturnToPage" value="#{instructorViewBean.returnToPage}" />
 				<f:param name="instViewAssignmentId" value="#{instructorViewBean.assignmentId}" />
 			</h:commandLink>
+			<h:outputText value="" rendered="#{!instructorViewBean.userAbleToGradeAll}" />
 		</h:panelGrid>
 		
 		
@@ -82,7 +84,8 @@
 		
 		<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
-			styleClass="itemSummary gbSection">
+			styleClass="itemSummary gbSection"
+			rendered="#{rosterBean.userAbleToGradeAll}">
 			<h:outputText value="#{msgs.course_grade_name}" />
 			<h:panelGroup>
 				<h:outputText id="letterGrade" value="#{instructorViewBean.courseGradeLetter} " />
@@ -108,7 +111,8 @@
 						action="#{instructorViewBean.processUpdateScores}"
 						accesskey="s"
 						tabindex="9998"
-						title="#{msgs.inst_view_save}"/>
+						title="#{msgs.inst_view_save}"
+						disabled="#{instructorViewBean.allItemsViewOnly}"/>
 					<h:commandButton
 						id="clearButton2"
 						value="#{msgs.inst_view_clear}"
@@ -116,7 +120,8 @@
 						immediate="true"
 						accesskey="c"
 						tabindex="9999"
-						title="#{msgs.inst_view_clear}"/>
+						title="#{msgs.inst_view_clear}"
+						disabled="#{instructorViewBean.allItemsViewOnly}"/>
 				</div>
 			</div>
 
@@ -160,7 +165,7 @@
 						</h:panelGroup>
 					</h:panelGroup>
 					
-					<h:outputText value="#{row.name}" styleClass="categoryHeading" rendered="#{row.category}"/>
+					<h:outputText value="#{row.name}" styleClass="categoryHeading" rendered="#{row.isCategory}"/>
 				</h:column>
 				
 				<h:column>
@@ -183,7 +188,7 @@
 			      </t:commandSortHeader>
 			    </f:facet>
 	
-					<h:outputText value="#{row.weight}" rendered="#{row.category}">
+					<h:outputText value="#{row.weight}" rendered="#{row.isCategory}">
 						<f:convertNumber type="percent" maxFractionDigits="2" />
 					</h:outputText>
 				</h:column>
@@ -202,8 +207,9 @@
 				<h:column>
 					<f:facet name="header">
 						<t:commandSortHeader columnName="pointsEarned" propertyName="pointsEarned" immediate="true" arrow="true">
-							<h:outputText value="#{msgs.inst_view_grade}" rendered="#{!instructorViewBean.gradeEntryByPercent}" />
+							<h:outputText value="#{msgs.inst_view_grade}" rendered="#{instructorViewBean.gradeEntryByPoints}" />
 							<h:outputText value="#{msgs.inst_view_grade_percent}" rendered="#{instructorViewBean.gradeEntryByPercent}" />
+							<h:outputText value="#{msgs.inst_view_grade_letter}" rendered="#{instructorViewBean.gradeEntryByLetter}" />
 							<h:outputText value="#{msgs.inst_view_footnote_symbol2}" />
 						</t:commandSortHeader>
 					</f:facet>
@@ -211,22 +217,30 @@
 						<h:panelGroup rendered="#{row.assignment}" style="white-space:nowrap;">
 							<h:outputText value="#{msgs.inst_view_not_counted_open}" rendered="#{!row.associatedAssignment.counted}" />
 							
-							<h:inputText id="Score" value="#{row.score}" size="4" 
-								 rendered="#{!row.associatedAssignment.externallyMaintained}"
-								 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-								<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
-								<f:validateDoubleRange minimum="0"/>
-								<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
-							</h:inputText>
+							<h:panelGroup rendered="#{!row.associatedAssignment.externallyMaintained && row.userCanGrade}">
+								<h:inputText id="Score" value="#{row.score}" size="4" 
+									 rendered="#{instructorViewBean.gradeEntryByPoints || instructorViewBean.gradeEntryByPercent}"
+									 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+									<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+									<f:validateDoubleRange minimum="0"/>
+									<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
+								</h:inputText>
+								
+								<h:inputText id="LetterScore" value="#{row.letterScore}" size="4" 
+									 rendered="#{instructorViewBean.gradeEntryByLetter}"
+									 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+									<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.LETTER_GRADE_CONVERTER" />
+								</h:inputText>
+							</h:panelGroup>
 							
-							<h:outputText value="#{row.score}" rendered="#{row.associatedAssignment.externallyMaintained}">
+							<h:outputText value="#{row.score}" rendered="#{row.associatedAssignment.externallyMaintained || !row.userCanGrade}">
 								<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 							</h:outputText>
 							
 							<h:outputText value="#{msgs.inst_view_not_counted_close}" rendered="#{!row.associatedAssignment.counted}" />
 						</h:panelGroup>
 						
-						<h:outputText value="#{row}" escape="false" rendered="#{row.category}">
+						<h:outputText value="#{row}" escape="false" rendered="#{row.isCategory}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER"/>
 						</h:outputText>
         </h:column>
@@ -248,6 +262,7 @@
 	        	<h:outputText value="#{msgs.inst_view_comments}"/>
 	        </f:facet>
 	        <h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>
+	        <h:message for="LetterScore" styleClass="validationEmbedded gbMessageAdjustForContent"/>
 	        <h:outputText value="#{row.commentText}" rendered="#{row.assignment && row.commentText != null}" />
 		    </h:column>
 		    
@@ -275,7 +290,8 @@
 					action="#{instructorViewBean.processUpdateScores}"
 					accesskey="s"
 					tabindex="9998"
-					title="#{msgs.inst_view_save}"/>
+					title="#{msgs.inst_view_save}"
+					disabled="#{instructorViewBean.allItemsViewOnly}"/>
 				<h:commandButton
 					id="clearButton1"
 					value="#{msgs.inst_view_clear}"
@@ -283,7 +299,8 @@
 					immediate="true"
 					accesskey="c"
 					tabindex="9999"
-					title="#{msgs.inst_view_clear}"/>
+					title="#{msgs.inst_view_clear}"
+					disabled="#{instructorViewBean.allItemsViewOnly}"/>
 			</div>
 				
 			<h:panelGrid styleClass="instruction gbSection" cellpadding="0" cellspacing="0" columns="1">

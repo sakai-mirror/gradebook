@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>sakai-gradebook-service</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
+    <version>2.7.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-gradebook-service-api</artifactId>
@@ -16,35 +16,19 @@
   </properties>
   <dependencies>
     <dependency>
-
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>${sakai.commons.lang.version}</version>
-      <scope>provided</scope>
-     
     </dependency>
-
-    <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
-      <version>${sakai.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-gradebook-service</artifactId>
-      <version>${sakai.version}</version>
-      <type>pom</type>
-      <scope>provided</scope>
-    </dependency>
+<!--org.sakaiprojectsakai-component${sakai.version}-->
   </dependencies>
 </project>

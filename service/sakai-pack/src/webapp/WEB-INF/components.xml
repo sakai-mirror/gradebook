@@ -17,6 +17,8 @@
           <value>org/sakaiproject/tool/gradebook/Spreadsheet.hbm.xml</value>
           <value>org/sakaiproject/tool/gradebook/Comment.hbm.xml</value>
           <value>org/sakaiproject/tool/gradebook/Category.hbm.xml</value>
+          <value>org/sakaiproject/tool/gradebook/LetterGradePercenteMapping.hbm.xml</value>
+          <value>org/sakaiproject/tool/gradebook/Permission.hbm.xml</value>
         </list>
 		</property>
    </bean>
@@ -33,14 +35,13 @@
           init-method="init">
         <property name="sectionAwareness"><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
         <property name="authn"><ref bean="org_sakaiproject_tool_gradebook_facades_Authn"/></property>
+        <property name="gradebookPermissionService"><ref bean="org_sakaiproject_service_gradebook_GradebookPermissionService"/></property>
     </bean>
 
     <bean id="org_sakaiproject_tool_gradebook_facades_EventTrackingService"
           class="org.sakaiproject.tool.gradebook.facades.sakai2impl.EventTrackingServiceSakai2Impl">
         <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
     </bean>
-
-
 
     <!-- Service implementation hook-up with Sakai DB -->
 
@@ -78,6 +79,9 @@
         <property name="eventTrackingService">
             <ref bean="org_sakaiproject_tool_gradebook_facades_EventTrackingService"/>
         </property>
+        <property name="gradebookPermissionService">
+        	<ref bean="org_sakaiproject_service_gradebook_GradebookPermissionService"/>
+        </property>
 
         <!-- Temporary support for deprecated methods. -->
         <property name="frameworkService">
@@ -87,6 +91,13 @@
             <ref bean="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService" />
         </property>
 	</bean>
+	<bean id="org_sakaiproject_service_gradebook_GradebookPermissionServiceTarget"
+          class="org.sakaiproject.component.gradebook.GradebookPermissionServiceImpl"
+          name="org.sakaiproject.service.gradebook.GradebookPermissionServiceTarget">
+        <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+        <property name="sectionAwareness"><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
+	</bean>
+	
 
 	<bean id="gradebookServiceTemplate"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
@@ -142,6 +153,16 @@
 		    <list>
 				<value>sakai.gradebook.tool</value>
 			</list>
+		</property>
+	</bean>
+	
+	<!-- Gradebook Permission Service -->
+	<bean id="org_sakaiproject_service_gradebook_GradebookPermissionService"
+		name="org.sakaiproject.service.gradebook.GradebookPermissionService"
+		parent="gradebookServiceTemplate"
+		singleton="true">
+		<property name="target">
+			<ref bean="org_sakaiproject_service_gradebook_GradebookPermissionServiceTarget"/>
 		</property>
 	</bean>
 

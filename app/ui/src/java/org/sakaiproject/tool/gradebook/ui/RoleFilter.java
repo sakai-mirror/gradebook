@@ -4,19 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005, 2006, 2007 The Regents of the University of California, The MIT Corporation
-*
-* Licensed under the Educational Community License, Version 1.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.opensource.org/licenses/ecl1.php
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 *
 **********************************************************************************/
 
@@ -40,6 +40,8 @@ import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.facades.ContextManagement;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * A role-based authorization filter which takes four parameters:
@@ -135,7 +137,11 @@ public class RoleFilter implements Filter {
 				isAuthorized = false;
 			}
 
-			if (isAuthorized) {
+			// SAK-13408 - This fix addresses the problem of the filter receiving a blank field on WebSphere.
+			// Without this, users would be denied access to the tool.
+			if("websphere".equals(ServerConfigurationService.getString("servlet.container")) && (isAuthorized || pageName.equals("")) ) {
+				chain.doFilter(request, response);
+			} else if ( !"websphere".equals(ServerConfigurationService.getString("servlet.container")) && isAuthorized) {
 				chain.doFilter(request, response);
 			} else {
 				logger.error("AUTHORIZATION FAILURE: User " + userUid + " in gradebook " + gradebookUid + " attempted to reach URL " + request.getRequestURL());

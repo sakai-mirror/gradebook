@@ -4,19 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
-*
-* Licensed under the Educational Community License, Version 1.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.opensource.org/licenses/ecl1.php
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 *
 **********************************************************************************/
 
@@ -24,16 +24,24 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.section.api.SectionAwareness;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
@@ -48,6 +56,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
     private Boolean editing;
     private Boolean adding;
     private Boolean middle;
+    private boolean isExistingConflictScale = false;
     
     protected final String BREADCRUMBPAGE = "breadcrumbPage";
 
@@ -87,8 +96,13 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	/**
 	 * Convenience method to load the current gradebook object.
 	 */
+	private transient Gradebook gradebook;
 	Gradebook getGradebook() {
-		return getGradebookManager().getGradebook(getGradebookId());
+		if (gradebook == null) {
+			gradebook = getGradebookManager().getGradebook(getGradebookId());
+		}
+		
+		return gradebook;
 	}
 
     /**
@@ -134,6 +148,10 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	public Authn getAuthnService() {
 		return getGradebookBean().getAuthnService();
 	}
+	
+	public GradebookPermissionService getGradebookPermissionService() {
+		return getGradebookBean().getGradebookPermissionService();
+	}
 
 	// Because these methods are referred to inside "rendered" tag attributes,
 	// JSF will call them multiple times in every request. To cut back on
@@ -154,37 +172,127 @@ public abstract class GradebookDependentBean extends InitializableBean {
 		}
 		return userAbleToGradeAll.booleanValue();
 	}
-	private transient Map userAbleToGradeSectionMap;
-	public boolean isUserAbleToGradeSection(String sectionUid) {
-		if (userAbleToGradeSectionMap == null) {
-			userAbleToGradeSectionMap = new HashMap();
-		}
-		Boolean isAble = (Boolean)userAbleToGradeSectionMap.get(sectionUid);
-		if (isAble == null) {
-			isAble = new Boolean(getGradebookBean().getAuthzService().isUserAbleToGradeSection(sectionUid));
-			userAbleToGradeSectionMap.put(sectionUid, isAble);
-		}
-		return isAble.booleanValue();
-	}
 
-	public List getAvailableEnrollments() {
-		return getGradebookBean().getAuthzService().getAvailableEnrollments(getGradebookUid());
-	}
-
-	public List getAvailableSections() {
-		return getGradebookBean().getAuthzService().getAvailableSections(getGradebookUid());
+	private transient List viewableSections;
+	public List getViewableSections() {
+		if (viewableSections == null) {
+			viewableSections = getGradebookBean().getAuthzService().getViewableSections(getGradebookUid());	
+		}
+		
+		return viewableSections;
 	}
 	
-	public List getAvailableCategories() {
-		return getGradebookManager().getCategories(getGradebookId());
+	private transient List viewableSectionIds;
+	public List getViewableSectionIds() {
+		if (viewableSectionIds == null) {
+			viewableSectionIds = new ArrayList();
+			
+			List sectionList = getViewableSections();
+			if (sectionList == null || sectionList.isEmpty()) {
+				return viewableCategoryIds;
+			}
+			
+			if (!sectionList.isEmpty()) {
+				for (Iterator sectionIter = sectionList.iterator(); sectionIter.hasNext();) {
+					CourseSection section = (CourseSection) sectionIter.next();
+					if (section != null) {
+						viewableSectionIds.add(section.getUuid());
+					}
+				}
+			}
+		}
+		return viewableSectionIds;
 	}
-
-	public List getSectionEnrollments(String sectionUid) {
-		return getGradebookBean().getAuthzService().getSectionEnrollments(getGradebookUid(), sectionUid);
+	
+	private transient Boolean userHasGraderPermissions;
+	public boolean isUserHasGraderPermissions() {
+		if (userHasGraderPermissions == null) {
+			userHasGraderPermissions = new Boolean(getGradebookBean().getAuthzService().isUserHasGraderPermissions(getGradebookId(), getUserUid()));
+		}
+		
+		return userHasGraderPermissions.booleanValue();
 	}
-
-	public List findMatchingEnrollments(String searchString, String optionalSectionUid) {
-		return getGradebookBean().getAuthzService().findMatchingEnrollments(getGradebookUid(), searchString, optionalSectionUid);
+	
+	private transient Boolean userWithTaFlagExistsInSite;
+	public boolean isUserWithTaFlagExistsInSite() {
+		if (userWithTaFlagExistsInSite == null) {
+			List tas = getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.TA);
+			userWithTaFlagExistsInSite =  new Boolean(tas != null && tas.size() > 0);
+		}
+		
+		return userWithTaFlagExistsInSite.booleanValue();
+	}
+	
+	private transient Boolean userHasPermissionsForAllItems;
+	public boolean isUserHasPermissionsForAllItems() {
+		if (userHasPermissionsForAllItems == null) {
+			userHasPermissionsForAllItems = new Boolean(getGradebookBean().getGradebookPermissionService().getPermissionForUserForAllAssignment(getGradebookId(), getUserUid()));
+		}
+		
+		return userHasPermissionsForAllItems.booleanValue();
+	}
+	
+	private transient List viewableCategories;
+	public List getViewableCategories() {
+		if (viewableCategories == null) {
+			viewableCategories = new ArrayList();
+			
+			List categoryList = getGradebookManager().getCategories(getGradebookId());
+			if (categoryList == null || categoryList.isEmpty()) {
+				return viewableCategories;
+			}
+			
+			if (isUserAbleToGradeAll()) {
+				viewableCategories = categoryList;
+			} else {
+				if (getGradebookBean().getAuthzService().isUserHasGraderPermissions(getGradebookId(), getUserUid())) {
+					viewableCategories = getGradebookBean().getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categoryList, getGradebook().getCategory_type());
+				} else {
+					viewableCategories = categoryList;
+				}
+			}
+		}
+		return viewableCategories;
+	}
+	
+	private transient List viewableCategoryIds;
+	public List getViewableCategoryIds() {
+		if (viewableCategoryIds == null) {
+			viewableCategoryIds = new ArrayList();
+			
+			List categoryList = getViewableCategories();
+			if (categoryList == null || categoryList.isEmpty()) {
+				return viewableCategoryIds;
+			}
+			
+			if (!categoryList.isEmpty()) {
+				for (Iterator catIter = categoryList.iterator(); catIter.hasNext();) {
+					Category category = (Category) catIter.next();
+					if (category != null) {
+						viewableCategoryIds.add(category.getId());
+					}
+				}
+			}
+		}
+		return viewableCategories;
+	}
+	
+	
+	public Map findMatchingEnrollmentsForItem(Long categoryId, String optionalSearchString, String optionalSectionUid) {
+		return getGradebookBean().getAuthzService().findMatchingEnrollmentsForItem(getGradebookUid(), categoryId, getGradebook().getCategory_type(), optionalSearchString, optionalSectionUid);
+	}
+	
+	public Map findMatchingEnrollmentsForAllItems(String optionalSearchString, String optionalSectionUid) {
+		return getGradebookBean().getAuthzService().findMatchingEnrollmentsForViewableItems(getGradebookUid(), 
+				getGradebookManager().getAssignments(getGradebookId()), optionalSearchString, optionalSectionUid);
+	}
+	
+	public Map findMatchingEnrollmentsForViewableCourseGrade(String optionalSearchString, String optionalSectionUid) {
+		return getGradebookBean().getAuthzService().findMatchingEnrollmentsForViewableCourseGrade(getGradebookUid(), getGradebook().getCategory_type(), optionalSearchString, optionalSectionUid);
+	}
+	
+	public List getAllSections() {
+		return getGradebookBean().getAuthzService().getAllSections(getGradebookUid());
 	}
 
 	/**
@@ -348,7 +456,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
     public String getDownloadFileName(String prefix) {
 		Date now = new Date();
 		DateFormat df = new SimpleDateFormat(getLocalizedString("export_filename_date_format"));
-		StringBuffer fileName = new StringBuffer(prefix);
+		StringBuilder fileName = new StringBuilder(prefix);
         String gbName = getGradebook().getName();
         if(StringUtils.trimToNull(gbName) != null) {
             gbName = gbName.replaceAll("\\s", "_"); // replace whitespace with '_'
@@ -491,6 +599,16 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	}
 	
 	/**
+	 * Go to permissions page. State is kept in
+	 * tool session, hence attribute setting.
+	 */
+	public String navigateToPermissionSettings() {
+		setNav("other","false","false","false","");
+		
+		return "graderRules";
+	}
+	
+	/**
 	 * Go to gradebook course grade setup. State is kept in
 	 * tool session, hence attribute setting.
 	 */
@@ -539,5 +657,63 @@ public abstract class GradebookDependentBean extends InitializableBean {
 
 			return where;
 		}
+	}
+	
+	/**
+	 * We can't rely on the converters to properly display 2 decimals for us,
+	 * b/c setMaxFractionDigits rounds 
+	 * @param score
+	 * @return
+	 */
+	public Double truncateScore(Double score) {
+		if (score == null)
+			return null;
+		
+		return new Double(FacesUtil.getRoundDown(score.doubleValue(), 2));	
+	}
+
+	public boolean getIsExistingConflictScale()
+	{
+		isExistingConflictScale = true;
+		Gradebook gb = getGradebookManager().getGradebookWithGradeMappings(getGradebookId());
+		if(gb != null && gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
+		{
+			if((gb.getSelectedGradeMapping().getGradingScale() != null && gb.getSelectedGradeMapping().getGradingScale().getUid().equals("LetterGradeMapping"))
+					|| (gb.getSelectedGradeMapping().getGradingScale() == null && gb.getSelectedGradeMapping().getName().equals("Letter Grades")))
+			{
+				isExistingConflictScale = false;
+				return isExistingConflictScale;
+			}
+			Set mappings = gb.getGradeMappings();
+			for(Iterator iter = mappings.iterator(); iter.hasNext();)
+			{
+				GradeMapping gm = (GradeMapping) iter.next();
+				if(gm != null)
+				{
+					if((gm.getGradingScale() != null && gm.getGradingScale().getUid().equals("LetterGradePlusMinusMapping"))
+							|| (gm.getGradingScale() == null && gm.getName().equals("Letter Grades with +/-")))
+					{
+						Map defaultMapping = gm.getDefaultBottomPercents();
+						for (Iterator gradeIter = gm.getGrades().iterator(); gradeIter.hasNext(); ) 
+						{
+							String grade = (String)gradeIter.next();
+							Double percentage = (Double)gm.getValue(grade);
+							Double defautPercentage = (Double)defaultMapping.get(grade);
+							if (percentage != null && !percentage.equals(defautPercentage)) 
+							{
+								isExistingConflictScale = false;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		return isExistingConflictScale;
+	}
+
+	public void setIsExistingConflictScale(boolean isExistingConflictScale)
+	{
+		this.isExistingConflictScale = isExistingConflictScale;
 	}
 }

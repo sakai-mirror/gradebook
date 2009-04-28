@@ -4,19 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
-*
-* Licensed under the Educational Community License, Version 1.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.opensource.org/licenses/ecl1.php
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 *
 **********************************************************************************/
 
@@ -32,6 +32,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -99,48 +100,64 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 			/* if categories are enabled, we need to display a table that includes
 			 * categories, assignments, and the course grade.
 			 */
-			List categoryList = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending());
+			List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending());
+			List categoryList = new ArrayList();
+			
+			// first, remove the CourseGrade from the Category list
+			for (Iterator catIter = categoryListWithCG.iterator(); catIter.hasNext();) {
+				Object catOrCourseGrade = catIter.next();
+				if (catOrCourseGrade instanceof Category) {
+					categoryList.add((Category)catOrCourseGrade);
+				} else if (catOrCourseGrade instanceof CourseGrade) {
+					courseGrade = (CourseGrade) catOrCourseGrade;
+				}
+			}
+			
+			// then, we need to check for special grader permissions that may limit which categories may be viewed
+			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
+				categoryList = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categoryList, getGradebook().getCategory_type());
+			}
+
 			if (categoryList != null && !categoryList.isEmpty()) {
 				Iterator catIter = categoryList.iterator();
 				while (catIter.hasNext()) {
-					Object catOrCourseGrade = catIter.next();
-					if (catOrCourseGrade instanceof Category) {
-						Category myCat = (Category) catOrCourseGrade;
-						gradebookItemList.add(myCat);
-						List assignmentList = myCat.getAssignmentList();
-						if (assignmentList != null && !assignmentList.isEmpty()) {
-							Iterator assignIter = assignmentList.iterator();
-							while (assignIter.hasNext()) {
-								Assignment assign = (Assignment) assignIter.next();
-								if (assign.isExternallyMaintained())
-									displayGradeEditorCol = true;
-								gradebookItemList.add(assign);
-							}
+					Category myCat = (Category)catIter.next();
+
+					gradebookItemList.add(myCat);
+					List assignmentList = myCat.getAssignmentList();
+					if (assignmentList != null && !assignmentList.isEmpty()) {
+						Iterator assignIter = assignmentList.iterator();
+						while (assignIter.hasNext()) {
+							Assignment assign = (Assignment) assignIter.next();
+							if (assign.isExternallyMaintained())
+								displayGradeEditorCol = true;
+							gradebookItemList.add(assign);
 						}
 					}
-					else if (catOrCourseGrade instanceof CourseGrade) {
-						courseGrade = (CourseGrade) catOrCourseGrade;
-					}
 				}
-
 			}
-			List unassignedList = getGradebookManager().getAssignmentsWithNoCategoryWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending());
-			if (unassignedList != null && !unassignedList.isEmpty()) {
-				Category unassignedCat = new Category();
-				unassignedCat.setGradebook(getGradebook());
-				unassignedCat.setAverageScore(new Double(0));
-				unassignedCat.setName(getLocalizedString("cat_unassigned"));
-				unassignedCat.setAssignmentList(unassignedList);
-				if (!getWeightingEnabled())
-					unassignedCat.calculateStatistics(unassignedList);
-				gradebookItemList.add(unassignedCat);
-
-				Iterator unassignedIter = unassignedList.iterator();
-				while (unassignedIter.hasNext()) {
-					Assignment assignWithNoCat = (Assignment) unassignedIter.next();
-					if (assignWithNoCat.isExternallyMaintained())
-						displayGradeEditorCol = true;
-					gradebookItemList.add(assignWithNoCat);
+			
+			if (!isUserAbleToGradeAll() && (isUserHasGraderPermissions() && !getGradebookPermissionService().getPermissionForUserForAllAssignment(getGradebookId(), getUserUid()))) {
+				// is not authorized to view the "Unassigned" Category
+			} else {
+				List unassignedList = getGradebookManager().getAssignmentsWithNoCategoryWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending());
+				if (unassignedList != null && !unassignedList.isEmpty()) {
+					Category unassignedCat = new Category();
+					unassignedCat.setGradebook(getGradebook());
+					unassignedCat.setAverageScore(new Double(0));
+					unassignedCat.setName(getLocalizedString("cat_unassigned"));
+					unassignedCat.setAssignmentList(unassignedList);
+					if (!getWeightingEnabled())
+						unassignedCat.calculateStatistics(unassignedList);
+					gradebookItemList.add(unassignedCat);
+	
+					Iterator unassignedIter = unassignedList.iterator();
+					while (unassignedIter.hasNext()) {
+						Assignment assignWithNoCat = (Assignment) unassignedIter.next();
+						if (assignWithNoCat.isExternallyMaintained())
+							displayGradeEditorCol = true;
+						gradebookItemList.add(assignWithNoCat);
+					}
 				}
 			}
 	        
@@ -202,7 +219,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
      * @return The comma-separated list of css styles to use in displaying the rows
      */
     public String getRowStyles() {
-    	StringBuffer sb = new StringBuffer();
+    	StringBuilder sb = new StringBuilder();
     	for(Iterator iter = gradebookItemList.iterator(); iter.hasNext();) {
     		Object gradebookItem = iter.next();
     		if (gradebookItem instanceof GradableObject) {
@@ -298,5 +315,19 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 				setBreadcrumbPage("overview");
 			}
 		}
+	}
+	
+	public boolean getIsLetterGrade()
+	{
+		if(isUserAbleToEditAssessments())
+		{
+			Gradebook gb = getGradebookManager().getGradebookWithGradeMappings(getGradebookId());
+			if(gb != null && gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
+			{
+				return true;
+			}
+			return false;
+		}
+		return false;
 	}
 }

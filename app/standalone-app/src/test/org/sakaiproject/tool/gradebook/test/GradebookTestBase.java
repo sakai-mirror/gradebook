@@ -4,19 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
-*
-* Licensed under the Educational Community License, Version 1.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.opensource.org/licenses/ecl1.php
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 *
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.test;
@@ -33,6 +33,7 @@ import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
+import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -67,6 +68,7 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
 	protected IntegrationSupport integrationSupport;
 	protected UserManager userManager;
     protected EventTrackingService eventTrackingService;
+    protected GradebookPermissionService gradebookPermissionService;
 
     protected void onSetUpInTransaction() throws Exception {
         authn = (Authn)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_Authn");
@@ -80,6 +82,7 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
         integrationSupport = (IntegrationSupport)applicationContext.getBean("org.sakaiproject.component.section.support.IntegrationSupport");
         userManager = (UserManager)applicationContext.getBean("org.sakaiproject.component.section.support.UserManager");
         eventTrackingService = (EventTrackingService) applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_EventTrackingService");
+        gradebookPermissionService = (GradebookPermissionService) applicationContext.getBean("org_sakaiproject_service_gradebook_GradebookPermissionService");
     }
 
     /**
@@ -110,7 +113,11 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
 		List enrollments = new ArrayList();
 		for (Iterator iter = studentUids.iterator(); iter.hasNext(); ) {
 			String studentUid = (String)iter.next();
-			userManager.createUser(studentUid, null, null, null);
+			
+			// Some recently GradebookService methods assume unique user display IDs,
+			// so make sure to set that as well.
+			userManager.createUser(studentUid, null, null, studentUid);
+			
 			EnrollmentRecord sectionEnrollment = (EnrollmentRecord)integrationSupport.addSiteMembership(studentUid, gradebook.getUid(), Role.STUDENT);
 			enrollments.add(sectionEnrollment);
 		}
@@ -152,5 +159,16 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
     	}
     	return null;
     }
+
+		public GradebookPermissionService getGradebookPermissionService()
+		{
+			return gradebookPermissionService;
+		}
+
+		public void setGradebookPermissionService(
+				GradebookPermissionService gradebookPermissionService)
+		{
+			this.gradebookPermissionService = gradebookPermissionService;
+		}
 
 }

@@ -4,27 +4,30 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
-*
-* Licensed under the Educational Community License, Version 1.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.opensource.org/licenses/ecl1.php
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 *
 **********************************************************************************/
 
 package org.sakaiproject.tool.gradebook;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
  * An Assignment is the basic unit that composes a gradebook.  It represents a
@@ -63,8 +66,12 @@ public class Assignment extends GradableObject {
     private boolean released;
     private Category category;
     private Double averageTotal;
+    private boolean ungraded;
+    private Boolean extraCredit;
+	private Double assignmentWeighting;
 
-    static {
+
+	static {
         dateComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
                 if(log.isDebugEnabled()) log.debug("Comparing assignment + " + o1 + " to " + o2 + " by date");
@@ -227,7 +234,7 @@ public class Assignment extends GradableObject {
     /**
      * @see org.sakaiproject.tool.gradebook.GradableObject#isCategory()
      */
-    public boolean isCategory() {
+    public boolean getIsCategory() {
         return false;
     }
 
@@ -366,20 +373,29 @@ public class Assignment extends GradableObject {
      */
     public void calculateStatistics(Collection<AssignmentGradeRecord> gradeRecords) {
         int numScored = 0;
-        double total = 0;
-        double pointsTotal = 0;
+        BigDecimal total = new BigDecimal("0");
+        BigDecimal pointsTotal = new BigDecimal("0");
         for (AssignmentGradeRecord record : gradeRecords) {
             // Skip grade records that don't apply to this gradable object
             if(!record.getGradableObject().equals(this)) {
                 continue;
             }
-            Double score = record.getGradeAsPercentage();
+            Double score = null;
+            if(!ungraded && pointsPossible > 0)
+            	score = record.getGradeAsPercentage();
             Double points = record.getPointsEarned();
-            if (score == null || points == null) {
+            if (score == null && points == null) {
             	continue;
-            } else {
-            	total += score.doubleValue();
-            	pointsTotal += points.doubleValue();
+            }
+            else if (score == null)
+            {
+            	pointsTotal = pointsTotal.add(new BigDecimal(points.toString()));
+            	numScored++;
+            }
+            else 
+            {
+            	total = total.add(new BigDecimal(score.toString()));
+            	pointsTotal = pointsTotal.add(new BigDecimal(points.toString()));
             	numScored++;
             }
         }
@@ -387,8 +403,16 @@ public class Assignment extends GradableObject {
         	mean = null;
         	averageTotal = null;
         } else {
-        	mean = new Double(total / numScored);
-        	averageTotal = new Double(pointsTotal / numScored);
+        	BigDecimal bdNumScored = new BigDecimal(numScored);
+        	if(!ungraded && pointsPossible > 0)
+        	{
+        		mean = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+        	}
+        	else
+        	{
+        		mean = null;
+        	}
+        	averageTotal = new Double(pointsTotal.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
         }
     }
 
@@ -412,7 +436,32 @@ public class Assignment extends GradableObject {
 		{
 			this.averageTotal = averageTotal;
 		}
+
+
+		public boolean getUngraded()
+		{
+			return ungraded;
+		}
+
+		public void setUngraded(boolean ungraded)
+		{
+			this.ungraded = ungraded;
+		}
+		
+		public Boolean isExtraCredit() {
+			return extraCredit;
+		}
+		
+		public void setExtraCredit(Boolean isExtraCredit) {
+			this.extraCredit = isExtraCredit;
+		}
+		
+		public Double getAssignmentWeighting() {
+			return assignmentWeighting;
+		}
+
+
+		public void setAssignmentWeighting(Double assignmentWeighting) {
+			this.assignmentWeighting = assignmentWeighting;
+		}
 }
-
-
-

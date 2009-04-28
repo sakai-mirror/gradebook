@@ -4,19 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005, 2006, 2007 The Regents of the University of California, The MIT Corporation
-*
-* Licensed under the Educational Community License, Version 1.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.opensource.org/licenses/ecl1.php
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 *
 **********************************************************************************/
 
@@ -35,13 +35,21 @@ public class AssignmentGradeRow implements Serializable {
     private String commentText;
     private Gradebook gradebook;
     private Double score;
+    private String letterScore;
     private List eventRows;
     private String eventsLogTitle;
+    private boolean userCanGrade;
 
     public AssignmentGradeRow(Assignment assignment, Gradebook gradebook) {
     	this.assignment = assignment;
     	this.gradebook = gradebook;
     	commentText = "";
+    }
+    public AssignmentGradeRow(Assignment assignment, Gradebook gradebook, boolean userCanGrade) {
+    	this.assignment = assignment;
+    	this.gradebook = gradebook;
+    	commentText = "";
+    	this.userCanGrade = userCanGrade;
     }
     public void setGradeRecord(AssignmentGradeRecord gradeRecord) {
     	this.gradeRecord = gradeRecord;
@@ -87,6 +95,13 @@ public class AssignmentGradeRow implements Serializable {
 		this.score = score;
 	}
 	
+	public String getLetterScore() {
+		return letterScore;
+	}
+	public void setLetterScore(String letterScore) {
+		this.letterScore = letterScore;
+	}
+	
 	public List getEventRows() {
 		return eventRows;
 	}
@@ -105,7 +120,7 @@ public class AssignmentGradeRow implements Serializable {
      * Used by GradebookItemTable
      * @return false
      */
-    public boolean isCategory() {
+    public boolean getIsCategory() {
     	return false;
     }
     
@@ -115,6 +130,13 @@ public class AssignmentGradeRow implements Serializable {
      */
     public boolean isAssignment() {
     	return true;
+    }
+    
+    public boolean isUserCanGrade() {
+    	return userCanGrade;
+    }
+    public void setUserCanGrader(boolean userCanGrade) {
+    	this.userCanGrade = userCanGrade;
     }
 
 }

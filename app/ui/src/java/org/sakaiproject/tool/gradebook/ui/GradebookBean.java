@@ -4,19 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
-*
-* Licensed under the Educational Community License, Version 1.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.opensource.org/licenses/ecl1.php
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * Copyright (c) 2005, 2006, 2007, 2008, 2009 The Sakai Foundation, The MIT Corporation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 *
 **********************************************************************************/
 
@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.SectionAwareness;
 
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.*;
@@ -62,6 +63,7 @@ public class GradebookBean extends InitializableBean {
     private ContextManagement contextManagementService;
     private EventTrackingService eventTrackingService;
     private ConfigurationBean configurationBean;
+    private GradebookPermissionService gradebookPermissionService;
 
     /**
      * @return Returns the gradebookId.
@@ -92,8 +94,10 @@ public class GradebookBean extends InitializableBean {
                 logger.error("Request made for inaccessible gradebookUid=" + newGradebookUid);
                 newGradebookUid = null;
             }
+            if(gradebook == null)
+            	throw new IllegalStateException("Gradebook gradebook == null!");
             newGradebookId = gradebook.getId();
-            if (logger.isInfoEnabled()) logger.info("setGradebookUid gradebookUid=" + newGradebookUid + ", gradebookId=" + newGradebookId);
+            if (logger.isDebugEnabled()) logger.debug("setGradebookUid gradebookUid=" + newGradebookUid + ", gradebookId=" + newGradebookId);
         }
         this.gradebookUid = newGradebookUid;
         setGradebookId(newGradebookId);
@@ -102,7 +106,7 @@ public class GradebookBean extends InitializableBean {
     private final void refreshFromRequest() {
         String requestUid = contextManagementService.getGradebookUid(FacesContext.getCurrentInstance().getExternalContext().getRequest());
         if ((requestUid != null) && (!requestUid.equals(gradebookUid))) {
-            if (logger.isInfoEnabled()) logger.info("resetting gradebookUid from " + gradebookUid);
+            if (logger.isDebugEnabled()) logger.debug("resetting gradebookUid from " + gradebookUid);
             setGradebookUid(requestUid);
         }
     }
@@ -205,6 +209,13 @@ public class GradebookBean extends InitializableBean {
 	}
 	public void setConfigurationBean(ConfigurationBean configurationBean) {
 		this.configurationBean = configurationBean;
+	}
+	
+	public GradebookPermissionService getGradebookPermissionService() {
+		return gradebookPermissionService;
+	}
+	public void setGradebookPermissionService(GradebookPermissionService gradebookPermissionService) {
+		this.gradebookPermissionService = gradebookPermissionService;
 	}
 }
 

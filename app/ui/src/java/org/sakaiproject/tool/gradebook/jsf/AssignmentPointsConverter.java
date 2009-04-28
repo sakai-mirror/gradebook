@@ -4,13 +4,13 @@
  *
  ***********************************************************************************
  *
- * Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+ * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
  *
- * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.opensource.org/licenses/ecl1.php
+ *       http://www.osedu.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,7 +31,9 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * This formatting-only converver consolidates the rather complex formatting
@@ -61,29 +63,37 @@ public class AssignmentPointsConverter extends PointsConverter {
 				if (!notCounted && assignment.getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
 					notCounted = assignment.getCategory() == null;
 				}
-			} else if (value instanceof AbstractGradeRecord) {
-				 if(value instanceof AssignmentGradeRecord
-						&&
-			       ((GradableObject)((AbstractGradeRecord)value).getGradableObject()).getGradebook().getGrade_type() 
-						== GradebookService.GRADE_TYPE_POINTS ){
-					//if grade by points and no category weighting
-					workingValue = ((AbstractGradeRecord)value).getPointsEarned();
-					notCounted = ((Assignment)((AssignmentGradeRecord)value).getAssignment()).isNotCounted();
-				} else {
-					//display percentage
-					percentage = true;
-					workingValue = ((AbstractGradeRecord)value).getGradeAsPercentage();
-
-					if (value instanceof AssignmentGradeRecord) {
-						Assignment assignment = ((AssignmentGradeRecord)value).getAssignment();
-						notCounted = assignment.isNotCounted();
-						// if weighting enabled, item is only counted if assigned
-						// a category
-						if (!notCounted && assignment.getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
-							notCounted = assignment.getCategory() == null;
-						}
+			} else if (value instanceof AssignmentGradeRecord) {
+				Gradebook gradebook = ((GradableObject)((AbstractGradeRecord)value).getGradableObject()).getGradebook();
+				int gradeType = gradebook.getGrade_type();
+				AssignmentGradeRecord agr = (AssignmentGradeRecord)value;
+				if (agr.isUserAbleToView()) {
+					if(gradeType == GradebookService.GRADE_TYPE_POINTS ){
+						//if grade by points and no category weighting
+						workingValue = ((AbstractGradeRecord)value).getPointsEarned();	
+					} else if (gradeType == GradebookService.GRADE_TYPE_LETTER) {
+						workingValue = agr.getLetterEarned();
+					} else {
+						//display percentage
+						percentage = true;
+						workingValue = agr.getPercentEarned();
 					}
+				} else {
+					workingValue = " ";
 				}
+
+				Assignment assignment = agr.getAssignment();
+				notCounted = assignment.isNotCounted();
+				// if weighting enabled, item is only counted if assigned
+				// a category
+				if (!notCounted && assignment.getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
+					notCounted = assignment.getCategory() == null;
+				}
+
+			} else if (value instanceof CourseGradeRecord) {
+				// display percentage
+				percentage = true;
+				workingValue = ((AbstractGradeRecord)value).getGradeAsPercentage();
 			}
 		}
 		formattedScore = super.getAsString(context, component, workingValue);

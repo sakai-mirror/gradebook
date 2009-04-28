@@ -4,25 +4,28 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
-*
-* Licensed under the Educational Community License, Version 1.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.opensource.org/licenses/ecl1.php
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 *
 **********************************************************************************/
 
 package org.sakaiproject.tool.gradebook;
 
+import java.math.BigDecimal;
 import java.util.Collection;
+
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
  * A CourseGrade is a GradableObject that represents the overall course grade
@@ -61,7 +64,7 @@ public class CourseGrade extends GradableObject {
     /**
      * @see org.sakaiproject.tool.gradebook.GradableObject#isCategory()
      */
-    public boolean isCategory() {
+    public boolean getIsCategory() {
         return false;
     }
 
@@ -69,15 +72,15 @@ public class CourseGrade extends GradableObject {
 
     /**
 	 * Calculate the mean course grade (whether entered or calulated) as a
-	 * percentage for all enrollments, counting null grades as zero, but leaving
+	 * percentage for all enrollments, leaving
 	 * students who've explicitly been given non-percentage-valued manual-only
-	 * course grades (such as "I" for incomplete) out of the calculation.
+	 * course grades (such as "I" for incomplete) or null scores out of the calculation.
 	 */
     public void calculateStatistics(Collection<CourseGradeRecord> gradeRecords, int numEnrollments) {
         // Ungraded but enrolled students count as if they have 0% in the course.
         int numScored = numEnrollments - gradeRecords.size();
-        double total = 0;
-        double average = 0;
+        BigDecimal total = new BigDecimal("0");
+        BigDecimal average = new BigDecimal("0");
 
         for (CourseGradeRecord record : gradeRecords) {
             Double score = record.getGradeAsPercentage();
@@ -88,8 +91,8 @@ public class CourseGrade extends GradableObject {
         	}
         	
         	if (score != null && record.getPointsEarned() != null) {
-        		average += record.getPointsEarned().doubleValue();
-        		total += score.doubleValue();
+        		average = average.add(new BigDecimal(record.getPointsEarned().toString()));
+        		total = total.add(new BigDecimal(score.toString()));
           	numScored++;
         	}
 //        	numScored++;
@@ -98,8 +101,8 @@ public class CourseGrade extends GradableObject {
         	mean = null;
         	averageScore = null;
         } else {
-        	mean = new Double(total / numScored);
-        	averageScore = new Double(average / numScored);
+        	mean = new Double(total.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).doubleValue());
+        	averageScore = new Double(average.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).doubleValue());
         }
     }
 

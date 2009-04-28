@@ -4,23 +4,24 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2007 The Regents of the University of California
-*
-* Licensed under the Educational Community License, Version 1.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.opensource.org/licenses/ecl1.php
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * Copyright (c) 2007, 2008, 2009 The Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 *
 **********************************************************************************/
 package org.sakaiproject.component.gradebook;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingScale;
 import org.sakaiproject.tool.gradebook.LetterGradeMapping;
+import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.LetterGradePlusMinusMapping;
 import org.sakaiproject.tool.gradebook.PassNotPassMapping;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -60,8 +62,10 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
             log.warn("You can not add a gradebook with uid=" + uid + ".  That gradebook already exists.");
             throw new GradebookExistsException("You can not add a gradebook with uid=" + uid + ".  That gradebook already exists.");
         }
-        if (log.isInfoEnabled()) log.info("Adding gradebook uid=" + uid + " by userUid=" + getUserUid());
+        if (log.isDebugEnabled()) log.debug("Adding gradebook uid=" + uid + " by userUid=" + getUserUid());
 
+        createDefaultLetterGradeMapping(getHardDefaultLetterMapping());
+        
         getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				// Get available grade mapping templates.
@@ -243,7 +247,7 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 
 	public void deleteGradebook(final String uid)
 		throws GradebookNotFoundException {
-        if (log.isInfoEnabled()) log.info("Deleting gradebook uid=" + uid + " by userUid=" + getUserUid());
+        if (log.isDebugEnabled()) log.debug("Deleting gradebook uid=" + uid + " by userUid=" + getUserUid());
         final Long gradebookId = getGradebook(uid).getId();
 
         // Worse of both worlds code ahead. We've been quick-marched
@@ -286,5 +290,59 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
         hibTempl.flush();
         hibTempl.clear();
 	}
+	
+	private void createDefaultLetterGradeMapping(final Map gradeMap)
+	{
+		if(getDefaultLetterGradePercentMapping() == null)
+		{	
+			Set keySet = gradeMap.keySet();
 
+			if(keySet.size() != GradebookService.validLetterGrade.length) //we only consider letter grade with -/+ now.
+				throw new IllegalArgumentException("gradeMap doesn't have right size in BaseHibernateManager.createDefaultLetterGradePercentMapping");
+
+			if(validateLetterGradeMapping(gradeMap) == false)
+				throw new IllegalArgumentException("gradeMap contains invalid letter in BaseHibernateManager.createDefaultLetterGradePercentMapping");
+
+			HibernateCallback hc = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException {
+					LetterGradePercentMapping lgpm = new LetterGradePercentMapping();
+					session.save(lgpm);
+					Map saveMap = new HashMap();
+					for(Iterator iter = gradeMap.keySet().iterator(); iter.hasNext();)
+					{
+						String key = (String) iter.next();
+						saveMap.put(key, gradeMap.get(key));
+					}
+					if (lgpm != null)
+					{                    
+						lgpm.setGradeMap(saveMap);
+						lgpm.setMappingType(1);
+						session.update(lgpm);
+					}
+					return null;
+				}
+			};
+			getHibernateTemplate().execute(hc);
+		}
+	}
+	
+  private Map getHardDefaultLetterMapping()
+  {
+  	Map gradeMap = new HashMap();
+		gradeMap.put("A+", new Double(100));
+		gradeMap.put("A", new Double(95));
+		gradeMap.put("A-", new Double(90));
+		gradeMap.put("B+", new Double(87));
+		gradeMap.put("B", new Double(83));
+		gradeMap.put("B-", new Double(80));
+		gradeMap.put("C+", new Double(77));
+		gradeMap.put("C", new Double(73));
+		gradeMap.put("C-", new Double(70));
+		gradeMap.put("D+", new Double(67));
+		gradeMap.put("D", new Double(63));
+		gradeMap.put("D-", new Double(60));
+		gradeMap.put("F", new Double(0.0));
+		
+		return gradeMap;
+  }
 }

@@ -4,20 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005, 2006 The Regents of the University of California, The MIT Corporation
-*
-* Licensed under the Educational Community License Version 1.0 (the "License");
-* By obtaining, using and/or copying this Original Work, you agree that you have read,
-* understand, and will comply with the terms and conditions of the Educational Community License.
-* You may obtain a copy of the License at:
-*
-*      http://www.opensource.org/licenses/ecl1.php
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-* INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
-* AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 *
 **********************************************************************************/
 package org.sakaiproject.tool.gradebook.test;
@@ -116,7 +115,8 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
         asnId = gradebookManager.createAssignment(gradebook.getId(), ASN_TITLE, ASN_POINTS, new Date(), Boolean.FALSE,Boolean.FALSE);
 
         // Add an external assessment.
-        gradebookExternalAssessmentService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, null, "Samigo");
+        //gradebookExternalAssessmentService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, 10, null, "Samigo");
+        gradebookExternalAssessmentService.addExternalAssessment(GRADEBOOK_UID, EXT_ID_1, null, EXT_TITLE_1, new Double(10), null, "Samigo", new Boolean(false));
     }
     
     public void testGradebookMigration() throws Exception {    	
@@ -265,7 +265,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
     	setAuthnId(INSTRUCTOR_UID);
     	
     	// Score the unreleased assignment.
-    	gradebookService.setAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new Double(39), "Service Test");
+    	gradebookService.setAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new String("39"), "Service Test");
  		
 		// Try to get a list of assignments as the student.
 		setAuthnId(STUDENT_IN_SECTION_UID);
@@ -279,7 +279,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 		// And then try to get the score.
 		Double score;
 		try {
-			score = gradebookService.getAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID);
+			score = new Double(gradebookService.getAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID));
 			fail();
 		} catch (SecurityException e) {
 		}
@@ -292,7 +292,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 		
 		// Now see if the student gets lucky.
 		setAuthnId(STUDENT_IN_SECTION_UID);
-		score = gradebookService.getAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID);
+		score = new Double(gradebookService.getAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID));
 		Assert.assertTrue(score.doubleValue() == 39.0);
    }
 
@@ -311,7 +311,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 				boolean gotSecurityException = false;
 				try {
 					if (log.isInfoEnabled()) log.info("Ignore the upcoming authorization error...");
-					gradebookService.setAssignmentScore(GRADEBOOK_UID, EXT_TITLE_1, STUDENT_IN_SECTION_UID, new Double(9), "Service Test");
+					gradebookService.setAssignmentScoreString(GRADEBOOK_UID, EXT_TITLE_1, STUDENT_IN_SECTION_UID, new String("9"), "Service Test");
 				} catch (SecurityException e) {
 					gotSecurityException = true;
 				}
@@ -320,28 +320,28 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 				Assert.assertTrue(ASN_TITLE.equals(assignment.getName()));
 				Assert.assertTrue(assignment.getPoints().equals(ASN_POINTS));
 
-				Assert.assertFalse(gradebookService.isUserAbleToGradeStudent(GRADEBOOK_UID, STUDENT_NOT_IN_SECTION_UID));
+				Assert.assertFalse(gradebookService.isUserAbleToGradeItemForStudent(GRADEBOOK_UID, assignment.getId(), STUDENT_NOT_IN_SECTION_UID));
 				boolean gotSecurityException = false;
 				try {
 					if (log.isInfoEnabled()) log.info("Ignore the upcoming authorization error...");
-					gradebookService.getAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_NOT_IN_SECTION_UID);
+					gradebookService.getAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_NOT_IN_SECTION_UID);
 				} catch (SecurityException e) {
 					gotSecurityException = true;
 				}
 				gotSecurityException = false;
 				try {
 					if (log.isInfoEnabled()) log.info("Ignore the upcoming authorization error...");
-					gradebookService.setAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_NOT_IN_SECTION_UID, new Double(39), "Service Test");
+					gradebookService.setAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_NOT_IN_SECTION_UID, new String("39"), "Service Test");
 				} catch (SecurityException e) {
 					gotSecurityException = true;
 				}
 				Assert.assertTrue(gotSecurityException);
 
-				Assert.assertTrue(gradebookService.isUserAbleToGradeStudent(GRADEBOOK_UID, STUDENT_IN_SECTION_UID));
-				Double score = gradebookService.getAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID);
+				Assert.assertTrue(gradebookService.isUserAbleToGradeItemForStudent(GRADEBOOK_UID, assignment.getId(), STUDENT_IN_SECTION_UID));
+				Double score = new Double(gradebookService.getAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID));
 				Assert.assertTrue(score == null);
-				gradebookService.setAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new Double(39), "Service Test");
-				score = gradebookService.getAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID);
+				gradebookService.setAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new String("39"), "Service Test");
+				score = new Double(gradebookService.getAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID));
 				Assert.assertTrue(score.doubleValue() == 39.0);
 				
 				// Make sure a record was made in the history log.
@@ -353,8 +353,8 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 				Assert.assertTrue(events.size() == 1);
 				
 				// Also test the case where there's a score already there.
-				gradebookService.setAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new Double(37), "Different Service Test");
-				score = gradebookService.getAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID);
+				gradebookService.setAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new String("37"), "Different Service Test");
+				score = new Double(gradebookService.getAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID));
 				Assert.assertTrue(score.doubleValue() == 37.0);
 			}
 		}
@@ -371,8 +371,8 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
  		gradebookService.addAssignment(GRADEBOOK_UID, assignmentDefinition);
  		
  		// Make sure it's there and we can grade it.
-		gradebookService.setAssignmentScore(GRADEBOOK_UID, assignmentName, STUDENT_IN_SECTION_UID, new Double(49), "Service Test");
-		Double score = gradebookService.getAssignmentScore(GRADEBOOK_UID, assignmentName, STUDENT_IN_SECTION_UID);
+		gradebookService.setAssignmentScoreString(GRADEBOOK_UID, assignmentName, STUDENT_IN_SECTION_UID, new String("49"), "Service Test");
+		Double score = new Double(gradebookService.getAssignmentScoreString(GRADEBOOK_UID, assignmentName, STUDENT_IN_SECTION_UID));
 		Assert.assertTrue(score.doubleValue() == 49.0);		
  		
  		// Make sure we can't add duplicate names.
@@ -397,17 +397,17 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
     
     public void testMoveExternalToInternal() throws Exception {
         // Add an external assessment score.
-        gradebookExternalAssessmentService.updateExternalAssessmentScore(GRADEBOOK_UID, EXT_ID_1, STUDENT_IN_SECTION_UID, new Double(5));
+        gradebookExternalAssessmentService.updateExternalAssessmentScore(GRADEBOOK_UID, EXT_ID_1, STUDENT_IN_SECTION_UID, new String("5"));
         
         // Break the relationship off.
         gradebookExternalAssessmentService.setExternalAssessmentToGradebookAssignment(GRADEBOOK_UID, EXT_ID_1);
         
         // Make sure that the internal-access APIs work now.
     	setAuthnId(INSTRUCTOR_UID);
-        Double score = gradebookService.getAssignmentScore(GRADEBOOK_UID, EXT_TITLE_1, STUDENT_IN_SECTION_UID);
+        Double score = new Double(gradebookService.getAssignmentScoreString(GRADEBOOK_UID, EXT_TITLE_1, STUDENT_IN_SECTION_UID));
         Assert.assertTrue(score.doubleValue() == 5.0);
-        gradebookService.setAssignmentScore(GRADEBOOK_UID, EXT_TITLE_1, STUDENT_IN_SECTION_UID, new Double(10), "A Friend");
-        score = gradebookService.getAssignmentScore(GRADEBOOK_UID, EXT_TITLE_1, STUDENT_IN_SECTION_UID);
+        gradebookService.setAssignmentScoreString(GRADEBOOK_UID, EXT_TITLE_1, STUDENT_IN_SECTION_UID, new String("10"), "A Friend");
+        score = new Double(gradebookService.getAssignmentScoreString(GRADEBOOK_UID, EXT_TITLE_1, STUDENT_IN_SECTION_UID));
         Assert.assertTrue(score.doubleValue() == 10.0);
         
         // Make sure that the external-management fields are nulled out.
@@ -417,7 +417,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
         
         // Make sure that the external-management APIs don't work any more.
         try {
-        	gradebookExternalAssessmentService.updateExternalAssessmentScore(GRADEBOOK_UID, EXT_ID_1, STUDENT_IN_SECTION_UID, new Double(5));
+        	gradebookExternalAssessmentService.updateExternalAssessmentScore(GRADEBOOK_UID, EXT_ID_1, STUDENT_IN_SECTION_UID, new String("5"));
         	fail();
         } catch (AssessmentNotFoundException e) {
         }
@@ -429,7 +429,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
     	
     	// Make sure we can change the points even if a student's been scored.
     	double oldPoints = assignmentDefinition.getPoints();
-    	gradebookService.setAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new Double(39), "Service Test");
+    	gradebookService.setAssignmentScoreString(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new String("39"), "Service Test");
     	assignmentDefinition.setPoints(oldPoints * 2);
     	gradebookService.updateAssignment(GRADEBOOK_UID, ASN_TITLE, assignmentDefinition);
     	assignmentDefinition = gradebookService.getAssignment(GRADEBOOK_UID, ASN_TITLE);

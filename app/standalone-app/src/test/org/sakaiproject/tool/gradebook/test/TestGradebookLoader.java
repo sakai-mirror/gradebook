@@ -4,19 +4,19 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
-*
-* Licensed under the Educational Community License, Version 1.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.opensource.org/licenses/ecl1.php
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
+ * Copyright (c) 2005, 2006, 2007, 2008 The Sakai Foundation, The MIT Corporation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
 *
 **********************************************************************************/
 
@@ -127,8 +127,8 @@ public class TestGradebookLoader extends GradebookLoaderBase {
         gradebookManager.createAssignment(gb.getId(), ASN_NO_DUE_DATE_NAME, new Double(50), null, Boolean.FALSE,Boolean.FALSE);
 
         // Add external assessments
-        gradebookExternalAssessmentService.addExternalAssessment(gb.getUid(), EXTERNAL_ASN_NAME1, "samigo://external1", EXTERNAL_ASN_NAME1, 10, new Date(), "Test and Quiz");
-        gradebookExternalAssessmentService.addExternalAssessment(gb.getUid(), EXTERNAL_ASN_NAME2, null, EXTERNAL_ASN_NAME2, 10, new Date(), "Test and Quiz");
+        gradebookExternalAssessmentService.addExternalAssessment(gb.getUid(), EXTERNAL_ASN_NAME1, "samigo://external1", EXTERNAL_ASN_NAME1, new Double(10), new Date(), "Test and Quiz", new Boolean(false));
+        gradebookExternalAssessmentService.addExternalAssessment(gb.getUid(), EXTERNAL_ASN_NAME2, null, EXTERNAL_ASN_NAME2, new Double(10), new Date(), "Test and Quiz", new Boolean(false));
 
         // Add an assignment which won't count towards the final grade.
         gradebookManager.createAssignment(gb.getId(), ASN_NOT_COUNTED_NAME, new Double(100), new Date(), Boolean.TRUE,Boolean.FALSE);
