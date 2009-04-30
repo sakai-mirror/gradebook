@@ -475,6 +475,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
             List returnList = new ArrayList();
             returnList.add(new Double(0));
             returnList.add(new Double(0));
+            returnList.add(new Double(0)); // 3rd one is for the pre-adjusted course grade
             return returnList;
         }
 
