@@ -59,8 +59,10 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private List categories;
 	private Gradebook localGradebook;
 	private List categoriesToRemove;
-	private double runningTotal;
+	private double regularTotal;
 	private double neededTotal;
+	private double adjustmentTotal;
+	private double grandTotal;
 	private String pageName;
 	private List letterGradeRows;
 	private List letterGradesList;
@@ -658,12 +660,12 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	}
 
 	/**
-	 * Returns sum of all category weights
+	 * Returns sum of all category weights minus the adjustment categories.  This one must be 100% to process correctly.
 	 * @return
 	 */
-	public double getRunningTotal()
+	public double getRegularTotal()
 	{	
-		return runningTotal;
+		return regularTotal;
 	}
 
 	/**
@@ -674,15 +676,33 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	{
 		return neededTotal;
 	}
+	
+	/**
+	 * Returns sum of the adjustment category weights
+	 * @return
+	 */
+	public double getAdjustmentTotal()
+	{
+		return adjustmentTotal;
+	}
+	
+	/**
+	 * Returns sum of all category weights
+	 * @return
+	 */
+	public double getGrandTotal() 
+	{
+		return grandTotal;
+	}
 
 	/**
 	 * Simplifies some javascript/rendering relationships. The highlight
 	 * class is only applied if the running total not equal to 100% 
 	 * @return
 	 */
-	public String getRunningTotalStyle() 
+	public String getRegularTotalStyle() 
 	{
-		if (runningTotal != 100)
+		if (regularTotal != 100)
 			return "highlight";
 
 		return "";
@@ -774,7 +794,9 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			}
 		}
 
-		runningTotal = total + extraCredit; // this will probably change later, but make it function to spec for now
+		regularTotal = total; // this will probably change later, but make it function to spec for now
+		grandTotal = total + extraCredit;
+		adjustmentTotal = extraCredit;
 		neededTotal = 100 - total;
 	}
 	

@@ -128,19 +128,43 @@
 				<h:outputText value="#{msgs.cat_list_more}" />
 			</h:outputLink>
 			
-			<h:panelGrid columns="2" styleClass="indnt10" rendered="#{gradebookSetupBean.displayWeighting}">
-				<h:outputText value="#{msgs.running_total}" styleClass="courseGrade"/>
-				<h:panelGroup id="runningTotal" styleClass="courseGrade #{gradebookSetupBean.runningTotalStyle}">
-					<h:outputText id="runningTotalVal" value="#{gradebookSetupBean.runningTotal}" />
+			<t:panelGrid columns="3" columnClasses="categoryRight, categoryRight" styleClass="indnt10" rendered="#{gradebookSetupBean.displayWeighting}">
+				<t:panelGroup>
+					<h:outputText value="#{msgs.all_categories}"/>
+				</t:panelGroup>
+				<t:panelGroup>
+					<h:outputText id="grandTotalVal" value="#{gradebookSetupBean.grandTotal}" />
 					<h:outputText value="#{msgs.cat_percent}" />
-				</h:panelGroup>
+				</t:panelGroup>
+				<t:outputText value="#{msgs.all_categories_description}"/>
 
-				<h:outputText value="#{msgs.needed_total}"/>
-				<h:panelGroup>
+				<t:outputText value="#{msgs.adjustment_categories}" style="categoryRight"/>
+				<t:panelGroup style="categoryRight">
+					<h:outputText id="adjustmentTotalVal" value="#{gradebookSetupBean.adjustmentTotal}" />
+					<h:outputText value="#{msgs.cat_percent}"/>
+				</t:panelGroup>
+				<f:verbatim> </f:verbatim>
+				
+				<t:panelGroup colspan="2">
+					<h:outputText value="#{msgs.cat_dashed_line}"/>
+				</t:panelGroup>
+				<f:verbatim> </f:verbatim>
+
+				<t:panelGroup>
+					<h:outputText value="#{msgs.regular_categories}" styleClass="courseGrade categoryRight"/>
+				</t:panelGroup>
+				<t:panelGroup id="regularTotal" styleClass="courseGrade categoryRight #{gradebookSetupBean.regularTotalStyle}">
+					<h:outputText id="regularTotalVal" value="#{gradebookSetupBean.regularTotal}" />
+					<h:outputText value="#{msgs.cat_percent}" />
+				</t:panelGroup>
+				<t:panelGroup>
+					<h:outputText value="#{msgs.needed_total_open}"/>
 					<h:outputText id="neededTotalVal" value="#{gradebookSetupBean.neededTotal}" />
 					<h:outputText value="#{msgs.cat_percent}"/>
-				</h:panelGroup>
-			</h:panelGrid>
+					<h:outputText value=" #{msgs.needed_total_needed}"/>
+					<h:outputText value="#{msgs.needed_total_close}"/>
+				</t:panelGroup>
+			</t:panelGrid>
 		
 		<f:verbatim></div></f:verbatim>
 	</h:panelGroup>

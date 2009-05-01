@@ -58,6 +58,10 @@ td.external {
 	font-weight:bold;
 }
 
+.categoryRight {
+	text-align:right;
+}
+
 /* Number fields are right-aligned with a bit of padding. */
 
 td.left,td.left_nowrap {text-align:left; vertical-align:bottom; padding-right: 2.0em !important;}

@@ -154,7 +154,7 @@ function getTheElement(thisid)
 
 // Update the running total
 function updateRunningTotal(thisForm) {
-	var runningTotal = 0.0;
+	var grandTotal = 0.0;
 	var adjustmentTotal = 0.0;
 	
   for (var i=0; i < thisForm.elements.length; ++i) {
@@ -176,22 +176,27 @@ function updateRunningTotal(thisForm) {
            			adjustmentTotal += weight;
            		}
            	}
-            runningTotal += weight;
+            grandTotal += weight;
         }
     }
   }
   
-  var neededTotal = 100.0 - runningTotal + adjustmentTotal;
+  var neededTotal = 100.0 - grandTotal + adjustmentTotal;
+  var regularTotal = grandTotal - adjustmentTotal;
 
-  var runningTotalValEl = getTheElement(thisForm.name + ":runningTotalVal");
-  var runningTotalEl = getTheElement(thisForm.name + ":runningTotal");
+  var regularTotalValEl = getTheElement(thisForm.name + ":regularTotalVal");
+  var regularTotalEl = getTheElement(thisForm.name + ":regularTotal");
   var neededTotalEl = getTheElement(thisForm.name + ":neededTotalVal");
-  runningTotalValEl.innerHTML = runningTotal;
+  var adjustmentTotalValEl = getTheElement(thisForm.name + ":adjustmentTotalVal");
+  var grandTotalValEl = getTheElement(thisForm.name + ":grandTotalVal");
+  regularTotalValEl.innerHTML = regularTotal;
   neededTotalEl.innerHTML = neededTotal;
+  adjustmentTotalValEl.innerHTML = adjustmentTotal;
+  grandTotalValEl.innerHTML = grandTotal;
   if (neededTotal == 0)
-  	runningTotalEl.className="courseGrade";
+	  regularTotalEl.className="courseGrade";
   else
-  	runningTotalEl.className = "highlight courseGrade";
+	  regularTotalEl.className = "highlight courseGrade";
 }
 
 // for toggling display of gradebook items associated with a category
