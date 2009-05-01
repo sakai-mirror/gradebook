@@ -326,7 +326,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 	
 	public boolean getIsLetterGrade()
 	{
-		Gradebook gb = getGradebookManager().getGradebookWithGradeMappings(getGradebookId());
+		Gradebook gb = getGradebook();
 		if(gb != null && gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
 		{
 			return true;
