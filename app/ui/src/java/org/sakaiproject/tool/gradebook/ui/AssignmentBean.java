@@ -542,6 +542,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		try {
 			getGradebookManager().createAssignments(getGradebookId(), itemsToSave);
 			FacesUtil.addRedirectSafeMessage(FacesUtil.getLocalizedString("add_assignment_bulk_save"));
+			setNav("overview", "false", "false", "false", "");
 		}
 		catch (MultipleAssignmentSavingException e) {
 			FacesUtil.addErrorMessage(FacesUtil.getLocalizedString("validation_messages_present"));
