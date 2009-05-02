@@ -73,45 +73,50 @@
 					</f:facet>
 					<h:selectBooleanCheckbox id="adjustment" value="#{category.isExtraCredit}" onchange="javascript:updateRunningTotal(this.form);"/>
 				</h:column>
-				<h:column>
+				<h:column rendered="#{gradebookSetupBean.showDropsDisplayed}">
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_drop_highest}" rendered="#{gradebookSetupBean.showDropsDisplayed}"/>
 					</f:facet>
-					<h:inputText id="dropHighest" value="#{category.dropHighest}" title="#{msgs.cat_drop_highest_tooltip}" 
+					<h:inputText id="dropHighest" value="#{category.dropHighest}" size="3" title="#{msgs.cat_drop_highest_tooltip}" 
 					    rendered="#{gradebookSetupBean.showDropsDisplayed}" onfocus="javascript:dropScoresAdjust(this.form);"
-					    onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}"/>
+					    onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}">
+					</h:inputText>
 				</h:column>
-				<h:column>
+				<h:column rendered="#{gradebookSetupBean.showDropsDisplayed}">
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_drop_lowest}" rendered="#{gradebookSetupBean.showDropsDisplayed}"/>
 					</f:facet>
-					<h:inputText id="dropLowest" value="#{category.dropLowest}" title="#{msgs.cat_drop_lowest_tooltip}"
+					<h:inputText id="dropLowest" value="#{category.dropLowest}" size="3" title="#{msgs.cat_drop_lowest_tooltip}"
                         rendered="#{gradebookSetupBean.showDropsDisplayed}" onfocus="javascript:dropScoresAdjust(this.form);" 
-                        onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}"/>
+                        onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}">
+					</h:inputText>
 				</h:column>
-				<h:column>
+				<h:column rendered="#{gradebookSetupBean.showDropsDisplayed}">
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_keep_highest}" rendered="#{gradebookSetupBean.showDropsDisplayed}"/>
 					</f:facet>
-					<h:inputText id="keepHighest" value="#{category.keepHighest}" title="#{msgs.cat_keep_highest_tooltip}"
+					<h:inputText id="keepHighest" value="#{category.keepHighest}" size="3" title="#{msgs.cat_keep_highest_tooltip}"
 					rendered="#{gradebookSetupBean.showDropsDisplayed}" onfocus="javascript:dropScoresAdjust(this.form);"
-					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}"/>
+					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}">
+					</h:inputText>
 				</h:column>
-				<h:column>
+				<h:column rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPointGrade}">
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_point_value}" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPointGrade}"/>
 					</f:facet>
-					<h:inputText id="pointValue" value="#{category.pointValue}" title="#{msgs.cat_point_value_tooltip}"
+					<h:inputText id="pointValue" value="#{category.pointValue}" size="3" title="#{msgs.cat_point_value_tooltip}"
 					rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPointGrade}" onfocus="javascript:dropScoresAdjust(this.form);"
-					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}"/>
+					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}">
+					</h:inputText>
 				</h:column>
-				<h:column>
+				<h:column rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPercentageGrade}">
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_percent_value}" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPercentageGrade}"/>
 					</f:facet>
-					<h:inputText id="relativeWeight" value="#{category.relativeWeight}" title="#{msgs.cat_percent_value_tooltip}"
+					<h:inputText id="relativeWeight" value="#{category.relativeWeight}" size="3" title="#{msgs.cat_percent_value_tooltip}"
 					rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPercentageGrade}" onfocus="javascript:dropScoresAdjust(this.form);"
-					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}"/>
+					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}">
+					</h:inputText>
 				</h:column>
 				<h:column>
 					<f:facet name="header">

@@ -65,7 +65,8 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 
 	private Category selectedCategory;
     private boolean selectedCategoryDropsScores;
-    
+    private List<Category> categories;
+
     // added to support bulk gradebook item creation
     public List newBulkItems; 
     public int numTotalItems = 1;
@@ -90,6 +91,8 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     public static final String GB_NON_CALCULATING_ENTRY = "Non-calculating";
     public static final String GB_ADJUSTMENT_ENTRY = "Adjustment";
     private static final String GB_ADD_ASSIGNMENT_PAGE = "addAssignment";
+    private static final String GB_EDIT_ASSIGNMENT_PAGE = "editAssignment";
+    private static final String GB_ADD_BULK_GRADEBOOK_ITEM_PAGE = "addBulkGradebookItem";
     
     
     /** 
@@ -102,124 +105,190 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     private static final String GB_ADD_BULK_DEFAULT = "5";
     private static final int NUM_EXTRA_GRADEBOOK_ENTRIES = 50;
     
-	protected void init() {
-		if (logger.isDebugEnabled()) logger.debug("init assignment=" + assignment);
+    protected void init() {
+        if (logger.isDebugEnabled()) logger.debug("init assignment=" + assignment);
 
-		if (assignment == null) {
-			if (assignmentId != null) {
-				assignment = getGradebookManager().getAssignment(assignmentId);
-			}
-			if (assignment == null) {
-				// it is a new assignment
-				assignment = new Assignment();
-				assignment.setReleased(true);
-			}
-		}
-		
-		if (localGradebook == null)
-		{
-			localGradebook = getGradebook();
-			selectGradebookItem = GB_ITEM_INDIVIDUAL;
-			selectBulkGradebookItem = GB_ADD_BULK_DEFAULT;
-		}
-		
-		gradeEntrySelectList = new ArrayList();
-		
-		if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_POINTS) 
-		{
-			gradeEntrySelectList.add(new SelectItem(GB_POINTS_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_points")));
-			gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
-			gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
-			if (assignment.getUngraded()) {
-				assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
-			}
-			if (assignment.getIsExtraCredit()!=null) {
-				if (assignment.getIsExtraCredit())
-				{
-					assignment.selectedGradeEntryValue = GB_ADJUSTMENT_ENTRY;
-				}
-			}
-		}
-		else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE)
-		{
-			gradeEntrySelectList.add(new SelectItem(GB_PERCENTAGE_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_percentage")));
-			gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
-			gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
-			if (assignment.getUngraded()) {
-				assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
-			}
-			if (assignment.getIsExtraCredit()!=null) {
-				if (assignment.getIsExtraCredit())
-				{
-					assignment.selectedGradeEntryValue = GB_ADJUSTMENT_ENTRY;
-				}
-			}
-		}
-		else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER)
-		{
-			assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
-		}
-		
-		addBulkItemSelectList = new ArrayList();
-		for (int i = 1; i < NUM_EXTRA_GRADEBOOK_ENTRIES + 1; i++) {
-			addBulkItemSelectList.add(new SelectItem(new Integer(i).toString(), new Integer(i).toString()));
-		}
-		
-		Category assignCategory = assignment.getCategory();
-		if (assignCategory != null) {
-			assignmentCategory = assignCategory.getId().toString();
-		}
-		else {
-			assignmentCategory = getLocalizedString("cat_unassigned");
-		}
-		
-		categoriesSelectList = new ArrayList();
-		categoriesAdjustmentSelectList = new ArrayList();
+        if (assignment == null) {
+            if (assignmentId != null) {
+                assignment = getGradebookManager().getAssignment(assignmentId);
+            }
+            if (assignment == null) {
+                // it is a new assignment
+                assignment = new Assignment();
+                assignment.setReleased(true);
+            }
+        }
+        
+        if (localGradebook == null)
+        {
+            localGradebook = getGradebook();
+            selectGradebookItem = GB_ITEM_INDIVIDUAL;
+            selectBulkGradebookItem = GB_ADD_BULK_DEFAULT;
+        }
+        
+        gradeEntrySelectList = new ArrayList();
+        
+        if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_POINTS) 
+        {
+            gradeEntrySelectList.add(new SelectItem(GB_POINTS_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_points")));
+            gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
+            gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
+            if (assignment.getUngraded()) {
+                assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
+            }
+            if (assignment.getIsExtraCredit()!=null) {
+                if (assignment.getIsExtraCredit())
+                {
+                    assignment.selectedGradeEntryValue = GB_ADJUSTMENT_ENTRY;
+                }
+            }
+        }
+        else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE)
+        {
+            gradeEntrySelectList.add(new SelectItem(GB_PERCENTAGE_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_percentage")));
+            gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
+            gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
+            if (assignment.getUngraded()) {
+                assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
+            }
+            if (assignment.getIsExtraCredit()!=null) {
+                if (assignment.getIsExtraCredit())
+                {
+                    assignment.selectedGradeEntryValue = GB_ADJUSTMENT_ENTRY;
+                }
+            }
+        }
+        else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER)
+        {
+            assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
+        }
+        
+        addBulkItemSelectList = new ArrayList();
+        for (int i = 1; i < NUM_EXTRA_GRADEBOOK_ENTRIES + 1; i++) {
+            addBulkItemSelectList.add(new SelectItem(new Integer(i).toString(), new Integer(i).toString()));
+        }
+        
+        // initialization; shouldn't enter here after category drop down changes
+        if(selectedCategory == null && !getLocalizedString("cat_unassigned").equalsIgnoreCase(assignmentCategory)) {
+            Category assignCategory = assignment.getCategory();
+            if (assignCategory != null) {
+                assignmentCategory = assignCategory.getId().toString();
+                selectedCategoryDropsScores = assignCategory.isDropScores();
+                selectedCategory = assignCategory;
+            }
+            else {
+                assignmentCategory = getLocalizedString("cat_unassigned");
+            }
+        }
+        
+        categoriesSelectList = new ArrayList();
+        categoriesAdjustmentSelectList = new ArrayList();
 
-		// The first choice is always "Unassigned"
-		categoriesSelectList.add(new SelectItem(UNASSIGNED_CATEGORY, FacesUtil.getLocalizedString("cat_unassigned")));
-		categoriesAdjustmentSelectList.add(new SelectItem(UNASSIGNED_CATEGORY, FacesUtil.getLocalizedString("cat_unassigned")));
-		List gbCategories = getGradebookManager().getCategories(getGradebookId());
-		if (gbCategories != null && gbCategories.size() > 0)
-		{
-			Iterator catIter = gbCategories.iterator();
-			while (catIter.hasNext()) {
-				Category cat = (Category) catIter.next();
-				categoriesSelectList.add(new SelectItem(cat.getId().toString(), cat.getName()));
-				if (cat.getIsExtraCredit()!=null)
-				{
-					if (!cat.getIsExtraCredit())
-					{
-						categoriesAdjustmentSelectList.add(new SelectItem(cat.getId().toString(), cat.getName()));
-					}
-				}
-			}
-		}
+        // The first choice is always "Unassigned"
+        categoriesSelectList.add(new SelectItem(UNASSIGNED_CATEGORY, FacesUtil.getLocalizedString("cat_unassigned")));
+        categoriesAdjustmentSelectList.add(new SelectItem(UNASSIGNED_CATEGORY, FacesUtil.getLocalizedString("cat_unassigned")));
+        List gbCategories = getGradebookManager().getCategories(getGradebookId());
+        if (gbCategories != null && gbCategories.size() > 0)
+        {
+            Iterator catIter = gbCategories.iterator();
+            while (catIter.hasNext()) {
+                Category cat = (Category) catIter.next();
+                categoriesSelectList.add(new SelectItem(cat.getId().toString(), cat.getName()));
+                if (cat.getIsExtraCredit()!=null)
+                {
+                    if (!cat.getIsExtraCredit())
+                    {
+                        categoriesAdjustmentSelectList.add(new SelectItem(cat.getId().toString(), cat.getName()));
+                    }
+                }
+            }
+        }
 
-		// To support bulk creation of assignments
-		if (newBulkItems == null) {
-			newBulkItems = new ArrayList();
-		}
+        // To support bulk creation of assignments
+        if (newBulkItems == null) {
+            newBulkItems = new ArrayList();
+        }
 
-		// initialize the number of items to add dropdown
-		addItemSelectList = new ArrayList();
-		addItemSelectList.add(new SelectItem("0", ""));
-		for (int i = 1; i < NUM_EXTRA_ASSIGNMENT_ENTRIES; i++) {
-			addItemSelectList.add(new SelectItem(new Integer(i).toString(), new Integer(i).toString()));
-		}
+        // initialize the number of items to add dropdown
+        addItemSelectList = new ArrayList();
+        addItemSelectList.add(new SelectItem("0", ""));
+        for (int i = 1; i < NUM_EXTRA_ASSIGNMENT_ENTRIES; i++) {
+            addItemSelectList.add(new SelectItem(new Integer(i).toString(), new Integer(i).toString()));
+        }
 
-		for (int i = newBulkItems.size(); i < NUM_EXTRA_ASSIGNMENT_ENTRIES; i++) {			
-			BulkAssignmentDecoratedBean item = getNewAssignment();
-			
-			if (i == 0) {
-				item.setSaveThisItem("true");
-			}
-			
-			newBulkItems.add(item);
-		}
-		
-	}
+        
+        if(newBulkItems.size() == NUM_EXTRA_ASSIGNMENT_ENTRIES) {
+            applyPointsPossibleForDropScoreCategories(newBulkItems);
+        } else {
+            for (int i = newBulkItems.size(); i < NUM_EXTRA_ASSIGNMENT_ENTRIES; i++) {          
+                BulkAssignmentDecoratedBean item = getNewAssignment();
+                
+                if (i == 0) {
+                    item.setSaveThisItem("true");
+                }
+                
+                newBulkItems.add(item);
+            }
+        }        
+    }
 
+    /* 
+     * sets pointsPossible for items in categories that drop scores
+     * and sets the assignment's category, so that the ui can read item.assignment.category.dropScores
+     */
+    private void applyPointsPossibleForDropScoreCategories(List items) {
+        categories = getCategories();
+        
+        for(int i=0; i<items.size(); i++) {
+            BulkAssignmentDecoratedBean bulkAssignment = (BulkAssignmentDecoratedBean)items.get(i);
+            
+            String assignmentCategory = bulkAssignment.getCategory();
+            if(getLocalizedString("cat_unassigned").equalsIgnoreCase(assignmentCategory)) {
+                Category unassigned = new Category();
+                bulkAssignment.getAssignment().setCategory(unassigned); // set this unassigned category, so that in the ui, item.assignment.category.dropScores will return false
+                bulkAssignment.setPointsPossible(null);
+                bulkAssignment.getAssignment().setPointsPossible(0.0);
+            } else {
+                for(int j=0; j<categories.size(); j++) {
+                    Category category = (Category)categories.get(j);
+                    
+                    if(assignmentCategory.equals(category.getId().toString())) {
+                        bulkAssignment.getAssignment().setCategory(category); // set here, because need to read item.assignment.category.dropScores in the ui
+                        if(category.isDropScores()) {
+                            if(localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_POINTS) {
+                                bulkAssignment.setPointsPossible(category.getPointValue().toString());
+                                bulkAssignment.getAssignment().setPointsPossible(category.getPointValue());
+                            } else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE) {
+                                bulkAssignment.setPointsPossible(category.getRelativeWeight().toString());
+                                bulkAssignment.getAssignment().setPointsPossible(category.getRelativeWeight());
+                            }
+                        } else {
+                                bulkAssignment.setPointsPossible(null);
+                                bulkAssignment.getAssignment().setPointsPossible(0.0);
+                        }
+                        continue;
+                    }
+                }
+            }
+        }            
+    }
+    
+    private Category getCategoryById(String categoryId) {
+        if(categoryId == null) {
+            return null;
+        }
+        Category category = null;
+        for(int i=0; i<categories.size(); i++) {
+            category = (Category)categories.get(i);
+            String id = category.getId().toString();
+            
+            if(id != null && categoryId.trim().equals(id)) {
+                break;
+            }
+        }
+        return category;
+    }
+    
 	private BulkAssignmentDecoratedBean getNewAssignment() {
 		Assignment assignment = new Assignment();
 		assignment.setReleased(true);
@@ -318,6 +387,16 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 						adjustmentWithNoPoints = true;
 					}
 				}
+				Category selectedCategory = retrieveSelectedCategory(bulkAssignDecoBean.getCategory());
+				boolean categoryDropsScores = false;
+				if(selectedCategory != null && selectedCategory.isDropScores()) {
+				    categoryDropsScores = true;
+				    if(getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
+                        bulkAssignDecoBean.setPointsPossible(selectedCategory.getPointValue().toString()); // if category drops scores, point value will come from the category level
+				    } else if (getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
+				        bulkAssignDecoBean.setPointsPossible(selectedCategory.getRelativeWeight().toString()); // if category drops scores, relative weight will come from the category level
+				    }
+				}
 				if (!bulkAssignment.getUngraded() && getGradebook().getGrade_type()!=GradebookService.GRADE_TYPE_LETTER)
 				{
 					// Check if points possible is blank else convert to double. Exception at else point
@@ -327,15 +406,18 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 						// if this is the case, we want to skip the rest of this stuff as its ok
 						bulkAssignDecoBean.setBulkNoPointsError("OK");
 					}
-					else if (bulkAssignDecoBean.getPointsPossible() == null || ("".equals(bulkAssignDecoBean.getPointsPossible().trim()))) {
+					else if(categoryDropsScores && selectedCategory != null && (selectedCategory.getPointValue() == null && selectedCategory.getRelativeWeight() == null)) {
+                            bulkAssignDecoBean.setBulkNoPointsError("blank");
+                            saveAll = false;
+                            resultString = "failure";
+					} else if (bulkAssignDecoBean.getPointsPossible() == null || ("".equals(bulkAssignDecoBean.getPointsPossible().trim()))) {
 						bulkAssignDecoBean.setBulkNoPointsError("blank");
 						saveAll = false;
 						resultString = "failure";
 					}
 					else {
 						try {
-							double dblPointsPossible = new Double(bulkAssignDecoBean.getPointsPossible()).doubleValue();
-	
+						    double dblPointsPossible = new Double(bulkAssignDecoBean.getPointsPossible()).doubleValue();
 							// Added per SAK-13459: did not validate if point value was valid (> zero)
 							if (dblPointsPossible > 0) {
 								// No more than 2 decimal places can be entered.
@@ -775,6 +857,14 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 	public void setNewBulkItems(List newBulkItems) {
 		this.newBulkItems = newBulkItems;
 	}
+    
+    public List getCategories() {
+        if(categories == null) {
+            categories = getGradebookManager().getCategories(getGradebookId());
+        }
+
+        return categories;
+    }
 
 	public int getNumTotalItems() {
 		return numTotalItems;
@@ -954,7 +1044,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			}
 			categoryEntry = newItem.getCategory();
 			itemTitleChange = newItem.getAssignment().getName();
-			pointsPossibleChange = newItem.getPointsPossible();
+            pointsPossibleChange = newItem.getPointsPossible();
 			dueDateChange = newItem.getAssignment().getDueDate();
 			releaseChange = newItem.getAssignment().isReleased();
 			countedChange = newItem.getAssignment().isCounted();
@@ -997,26 +1087,50 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		}
 		return GB_ADD_ASSIGNMENT_PAGE;
 	}
-    
-    public String processCategoryChange(ValueChangeEvent vce)
+	
+    public String processCategoryChangeInAddBulkGradebookItem(ValueChangeEvent vce)
     { 
-        String changeCategory = (String) vce.getNewValue(); 
+        String changeCategory = (String) vce.getNewValue();
         if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))  
         {
-        	categoryEntry = changeCategory;
-            List<Category> categories = getGradebookManager().getCategories(getGradebookId());
-            if (categories != null && categories.size() > 0)
-            {
-                for (Category category : categories) {
-                    if(changeCategory.equals(category.getId().toString())) {
-                        selectedCategoryDropsScores = category.isDropScores();
-                        selectedCategory = category;
-                        break;
+            categoryEntry = changeCategory;
+            if(newBulkGradebookItems != null) {
+                for(int i=0; i<this.newBulkGradebookItems.size(); i++) {
+                    BulkAssignmentDecoratedBean bean = (BulkAssignmentDecoratedBean)newBulkGradebookItems.get(i);
+                    bean.setCategory(changeCategory);
+                }
+            }
+            
+        }
+        return GB_ADD_BULK_GRADEBOOK_ITEM_PAGE;
+    }
+        
+    public String processCategoryChangeInEditAssignment(ValueChangeEvent vce)
+    { 
+        String changeCategory = (String) vce.getNewValue();
+        assignmentCategory = changeCategory;
+        if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))  
+        {
+            if(changeCategory.equals(UNASSIGNED_CATEGORY)) {
+                selectedCategoryDropsScores = false;
+                selectedCategory = null;
+                assignmentCategory = getLocalizedString("cat_unassigned");
+            } else {
+                List<Category> categories = getGradebookManager().getCategories(getGradebookId());
+                if (categories != null && categories.size() > 0)
+                {
+                    for (Category category : categories) {
+                        if(changeCategory.equals(category.getId().toString())) {
+                            selectedCategoryDropsScores = category.isDropScores();
+                            selectedCategory = category;
+                            assignmentCategory = category.getId().toString();
+                            break;
+                        }
                     }
                 }
             }
         }
-        return GB_ADD_ASSIGNMENT_PAGE;
+        return GB_EDIT_ASSIGNMENT_PAGE;
     }
     	
 	public List getGradeEntrySelectList() 
@@ -1043,34 +1157,37 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		int numToAdd = Integer.parseInt(selectBulkGradebookItem);
 		int j = 0;
 		for (int i = newBulkGradebookItems.size(); i < numToAdd; i++) {
-			BulkAssignmentDecoratedBean a = getNewAssignment();
-			if (itemTitleChange != null)
-			{
-				j = i + 1;
-				if (j < 10) {
-					a.getAssignment().setName(itemTitleChange + "0" + j);
-				} else {
-					a.getAssignment().setName(itemTitleChange + j);
-				}
-			}
-			if (!isNonCalc)
-			{
-				if (pointsPossibleChange != null)
-				{
-					try {
-						a.setPointsPossible(pointsPossibleChange);
-						a.getAssignment().setPointsPossible(new Double(pointsPossibleChange));
-					}
-					catch (NumberFormatException e) {
-						a.getAssignment().setPointsPossible(null);
-					}
-				}
-			}
-			a.getAssignment().setDueDate(dueDateChange);
-			a.getAssignment().setReleased(releaseChange);
-			a.getAssignment().setCounted(countedChange);
-			newBulkGradebookItems.add(a);
-		}
+		    BulkAssignmentDecoratedBean a = getNewAssignment();
+		    if (itemTitleChange != null)
+		    {
+		        j = i + 1;
+		        if (j < 10) {
+		            a.getAssignment().setName(itemTitleChange + "0" + j);
+		        } else {
+		            a.getAssignment().setName(itemTitleChange + j);
+		        }
+		    }
+		    if (!isNonCalc)
+		    {
+		        if (pointsPossibleChange != null)
+		        {
+		            try {
+		                a.setPointsPossible(pointsPossibleChange);
+		                a.getAssignment().setPointsPossible(new Double(pointsPossibleChange));
+		                a.getAssignment().setCategory(getCategoryById(categoryEntry));
+		                a.setCategory(categoryEntry);
+		            }
+		            catch (NumberFormatException e) {
+		                a.getAssignment().setPointsPossible(null);
+		            }
+		        }
+		    }
+		    a.getAssignment().setDueDate(dueDateChange);
+		    a.getAssignment().setReleased(releaseChange);
+		    a.getAssignment().setCounted(countedChange);
+		    newBulkGradebookItems.add(a);
+        }
+        applyPointsPossibleForDropScoreCategories(newBulkGradebookItems);
 		
 		return newBulkGradebookItems;
 	}

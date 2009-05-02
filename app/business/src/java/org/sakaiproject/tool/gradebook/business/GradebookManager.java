@@ -436,7 +436,7 @@ public interface GradebookManager {
     * @return id of the new category
     * @throws ConflictingAssignmentNameException StaleObjectModificationException
     */
-    public Long createCategory(final Long gradebookId, final String name, final Double weight, final int drop_lowest, final Integer dropLowest, final Integer dropHighest, final Integer keepHighest, final Double pointValue, final Integer relativeWeight, final Boolean is_extra_credit) 
+    public Long createCategory(final Long gradebookId, final String name, final Double weight, final int drop_lowest, final Integer dropLowest, final Integer dropHighest, final Integer keepHighest, final Double pointValue, final Double relativeWeight, final Boolean is_extra_credit) 
     throws ConflictingCategoryNameException, StaleObjectModificationException;
     
     /**method to get all categories for a gradebook

@@ -22,6 +22,16 @@
 		<h:panelGrid cellpadding="0" cellspacing="5" columns="2" 
     		columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" 
   			styleClass="itemSummaryLite">
+			<h:outputLabel for="selectCategory" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{addAssignmentBean.categoriesEnabled}" />
+			<h:panelGroup rendered="#{addAssignmentBean.categoriesEnabled}">
+				<h:selectOneMenu id="selectCategory" value="#{addAssignmentBean.categoryEntry}" valueChangeListener="#{addAssignmentBean.processCategoryChangeInAddBulkGradebookItem}" onchange="this.form.submit();">
+					<f:selectItems value="#{(addAssignmentBean.isAdjustment) ? addAssignmentBean.categoriesAdjustmentSelectList : addAssignmentBean.categoriesSelectList}" />
+				</h:selectOneMenu>
+				
+				<f:verbatim><div class="instruction"></f:verbatim>
+					<h:outputText id="nonCalCategoryInstructionText" value="#{msgs.add_assignment_category_info}" rendered="#{addAssignmentBean.weightingEnabled}"/>
+				<f:verbatim></div></f:verbatim>			
+			</h:panelGroup>
 			<h:outputLabel for="selectGradeEntry" id="gradeEntryLabel" value="#{msgs.add_assignment_type}" rendered="#{!bean.assignment.externallyMaintained && addAssignmentBean.localGradebook.grade_type != 3}" />
 			<h:panelGroup rendered="#{!bean.assignment.externallyMaintained && addAssignmentBean.localGradebook.grade_type != 3}">
 				<h:selectOneMenu id="selectGradeEntry" value="#{addAssignmentBean.gradeEntryType}"
@@ -31,16 +41,6 @@
 					</h:selectOneMenu>
 				</h:panelGroup>
 		
-			<h:outputLabel for="selectCategory" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{addAssignmentBean.categoriesEnabled}" />
-			<h:panelGroup rendered="#{addAssignmentBean.categoriesEnabled}">
-				<h:selectOneMenu id="selectCategory" value="#{addAssignmentBean.categoryEntry}">
-					<f:selectItems value="#{(addAssignmentBean.isAdjustment) ? addAssignmentBean.categoriesAdjustmentSelectList : addAssignmentBean.categoriesSelectList}" />
-				</h:selectOneMenu>
-				
-				<f:verbatim><div class="instruction"></f:verbatim>
-					<h:outputText id="nonCalCategoryInstructionText" value="#{msgs.add_assignment_category_info}" rendered="#{addAssignmentBean.weightingEnabled}"/>
-				<f:verbatim></div></f:verbatim>			
-			</h:panelGroup>
 		</h:panelGrid>
 		
 		<t:dataTable cellpadding="0" cellspacing="0"
@@ -70,12 +70,14 @@
 				<f:facet name="header">
 					<h:outputLabel for="points" id="pointsLabel" value="#{(addAssignmentBean.localGradebook.grade_type == 1) ? ((addAssignmentBean.isAdjustment) ? msgs.add_assignment_header_adjustment : msgs.add_assignment_bulk_header_points) : msgs.add_assignment_bulk_header_relative_weight}"/>
 				</f:facet>
-				<h:outputText value="* " styleClass="reqStarInline"/>
-				<h:inputText id="points" size="5" value="#{gbItem.assignment.pointsPossible}">
+				<h:outputText value="* " styleClass="reqStarInline"  rendered="#{!gbItem.assignment.category.dropScores}"/>
+				<h:inputText id="points" size="5" value="#{gbItem.assignment.pointsPossible}" rendered="#{!gbItem.assignment.category.dropScores}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 					<f:validateDoubleRange minimum="0.01" />
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE_DOUBLE"/>
 				</h:inputText>
+				<h:outputText id="pointsDropScores" value="#{gbItem.assignment.pointsPossible}"
+						rendered="#{gbItem.assignment.category.dropScores}" />
 				<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_bulk_no_points}" styleClass="alertMessageInline"
 					rendered="#{gbItem.bulkNoPointsError == 'blank'" />
 				<h:message for="points" styleClass="alertMessageInline"/>

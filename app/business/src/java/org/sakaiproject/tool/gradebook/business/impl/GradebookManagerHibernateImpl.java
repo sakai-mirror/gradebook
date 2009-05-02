@@ -2969,14 +2969,10 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
             }
         }
         
-        log.debug("categories size is: " + categories.size());
-        
         if(categories == null || categories.size() < 1) {
-            log.warn("There were no categories present in gradeRecords");
             return;
         }
         for(Category cat : categories) {
-            log.debug("cat is: " + cat);
             Integer dropHighest = cat.getDropHighest();
             Integer dropLowest = cat.getDropLowest();
             Integer keepHighest = cat.getKeepHighest();
@@ -2987,13 +2983,11 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                     // get the student's gradeRecords for this category
                     List<AssignmentGradeRecord> gradesByCategory = new ArrayList<AssignmentGradeRecord>();
                     for(AssignmentGradeRecord gradeRecord : gradeRecords) {
-                        if(gradeRecord == null) {
+                        if(gradeRecord == null 
+                                || gradeRecord.getStudentId() == null 
+                                || gradeRecord.getStudentId().length() < 1 
+                                || gradeRecord.getAssignment().getCategory() == null) {
                             continue;
-                        }
-                        if(gradeRecord.getStudentId() == null || gradeRecord.getStudentId().length() < 1) {
-                            log.warn("AssignmentGradeRecord.studentId cannot be null; gradeRecord" + gradeRecord.getId() + " will not be considered for calculation of dropped grade");
-                        } else if(gradeRecord.getAssignment().getCategory() == null) {
-                            log.warn("AssignmentGradeRecord.assignment.category cannot be null; gradeRecord" + gradeRecord.getId() + " will not be considered for calculation of dropped grade");
                         } else if(gradeRecord.getStudentId().equals(studentId) && gradeRecord.getAssignment().getCategory().equals(cat)) {
                             gradesByCategory.add(gradeRecord);
                         }

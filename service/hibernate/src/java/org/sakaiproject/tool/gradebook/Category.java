@@ -22,7 +22,7 @@ public class Category implements Serializable
     private Integer dropHighest;
     private Integer keepHighest;
     private Double pointValue;
-    private Integer relativeWeight;
+    private Double relativeWeight;
 
     private boolean removed;
 	private Double averageTotalPoints; //average total points possible for this category
@@ -154,11 +154,11 @@ public class Category implements Serializable
         this.pointValue = pointValue;
     }
 
-    public Integer getRelativeWeight() {
+    public Double getRelativeWeight() {
         return relativeWeight;
     }
 
-    public void setRelativeWeight(Integer relativeWeight) {
+    public void setRelativeWeight(Double relativeWeight) {
         this.relativeWeight = relativeWeight;
     }
 
@@ -531,7 +531,7 @@ public class Category implements Serializable
                     if(pointsPossible == null) {
                         pointsPossible = assignment.getPointsPossible();
                     } else {
-                        if(!pointsPossible.equals(assignment.getPointsPossible())) {
+                        if(assignment.getPointsPossible() != null && !pointsPossible.equals(assignment.getPointsPossible())) {
                             unequal = true;
                             return unequal;
                         }

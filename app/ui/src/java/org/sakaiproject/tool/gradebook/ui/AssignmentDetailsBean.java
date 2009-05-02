@@ -231,11 +231,13 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                     	for(Object obj : categoryListWithCG) {
                     	    if(obj instanceof Category) {
                         	    List<Assignment> catAssignments = ((Category)obj).getAssignmentList();
-                        	    for(Assignment catAssignment : catAssignments) {
-                        	        if(catAssignment.equals(assignment)) {
-                        	            assignment.setAverageTotal(catAssignment.getAverageTotal());
-                        	        }
-                        	        
+                        	    if(catAssignments != null) {
+                            	    for(Assignment catAssignment : catAssignments) {
+                            	        if(catAssignment.equals(assignment)) {
+                            	            assignment.setAverageTotal(catAssignment.getAverageTotal());
+                            	        }
+                            	        
+                            	    }
                         	    }
                     	    }
                     	}

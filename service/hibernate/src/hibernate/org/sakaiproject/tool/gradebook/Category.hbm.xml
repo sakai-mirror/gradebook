@@ -35,7 +35,7 @@
 
 		<property name="pointValue" column="POINT_VALUE" type="double" not-null="false" />
 
-		<property name="relativeWeight" column="RELATIVE_WEIGHT" type="integer" not-null="false" />
+		<property name="relativeWeight" column="RELATIVE_WEIGHT" type="double" not-null="false" />
   </class>
   
  	<database-object>

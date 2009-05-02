@@ -299,8 +299,11 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
 }
 
 function dropScoresAdjust(myForm) {
-    
+/*    
 //  'gbForm:categoriesTable:0:dropHighest'
+    if(myForm == undefined) {
+        return;
+    }
     for (var i=0; i < myForm.elements.length; ++i) {
         var dropHighest =  getTheElement(myForm.name + ":categoriesTable:" + i + ":dropHighest");
         var dropLowest =  getTheElement(myForm.name + ":categoriesTable:" + i + ":dropLowest");
@@ -358,6 +361,7 @@ function dropScoresAdjust(myForm) {
             }
         }
     }
+    */
 }
 
 // if user unchecks box to release items, we must uncheck

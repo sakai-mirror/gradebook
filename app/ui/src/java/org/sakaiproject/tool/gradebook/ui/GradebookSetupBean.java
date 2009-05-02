@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +31,10 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
+import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 
@@ -224,7 +229,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	{
 		return categorySetting.equals(CATEGORY_OPT_CAT_AND_WEIGHT);
 	}
-	
 
 	/**
 	 * Save gradebook settings (including categories and weighting)
@@ -406,6 +410,56 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				Long categoryId = uiCategory.getId();
 				String categoryName = uiCategory.getName();
 
+                if(uiCategory.getDropLowest() < 0) {
+                    FacesUtil.addErrorMessage(getLocalizedString("cat_require_positive_drop_lowest"));
+                    return "failure";
+                }
+                if(uiCategory.getDropHighest() < 0) {
+                    FacesUtil.addErrorMessage(getLocalizedString("cat_require_positive_drop_highest"));
+                    return "failure";
+                }
+                if(uiCategory.getKeepHighest() < 0) {
+                    FacesUtil.addErrorMessage(getLocalizedString("cat_require_positive_keep_highest"));
+                    return "failure";
+                }
+                
+                if(uiCategory.isDropScores()) {
+                    if (gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_POINTS) 
+                            && (uiCategory.getPointValue() == null || uiCategory.getPointValue() <= 0)) {
+                        FacesUtil.addErrorMessage(getLocalizedString("cat_pointvalue_not_valid"));
+                        return "failure";
+                    }
+                    if (gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_POINTS)) {
+                        Double pointValue = uiCategory.getPointValue();
+                        if(pointValue != null) {
+                            BigDecimal bd = new BigDecimal(pointValue.toString());
+                            if(bd.scale() > 2) {
+                                FacesUtil.addErrorMessage(getLocalizedString("cat_pointvalue_too_precise"));
+                                return "failure";
+                            }
+                        }
+                    }
+                    
+                    if (gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_PERCENT) 
+                            && (uiCategory.getRelativeWeight() == null || uiCategory.getRelativeWeight() <= 0)) {
+                        FacesUtil.addErrorMessage(getLocalizedString("cat_relativeweight_not_valid"));
+                        return "failure";
+                    }
+                    if (gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_PERCENT)) {
+                        Double relativeWeight = uiCategory.getRelativeWeight();
+                        if(relativeWeight != null) {
+                            BigDecimal bd = new BigDecimal(relativeWeight.toString());
+                            if(bd.scale() > 2) {
+                                FacesUtil.addErrorMessage(getLocalizedString("cat_relativeweight_too_precise"));
+                                return "failure";
+                            }
+                        }
+                    }
+                } else {
+                    uiCategory.setPointValue(0.0);
+                    uiCategory.setRelativeWeight(0.0);
+                }
+                    
 				if ((categoryName == null || categoryName.trim().length() < 1) && categoryId != null)
 				{
 					categoriesToRemove.add(categoryId);
@@ -449,8 +503,16 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 						updatedCategory.setDropLowest(uiCategory.getDropLowest());
                         updatedCategory.setDropHighest(uiCategory.getDropHighest());
                         updatedCategory.setKeepHighest(uiCategory.getKeepHighest());
-                        updatedCategory.setPointValue(uiCategory.getPointValue());
-                        updatedCategory.setRelativeWeight(uiCategory.getRelativeWeight());
+                        if(uiCategory.getPointValue() != null && uiCategory.getPointValue().doubleValue() > 0) {
+                            updatedCategory.setPointValue(uiCategory.getPointValue());
+                            updatedCategory.setRelativeWeight(null);
+                        } else if(uiCategory.getRelativeWeight() != null && uiCategory.getRelativeWeight().intValue() > 0) {
+                            updatedCategory.setRelativeWeight(uiCategory.getRelativeWeight());
+                            updatedCategory.setPointValue(null);
+                        } else {
+                            updatedCategory.setRelativeWeight(null);
+                            updatedCategory.setPointValue(null);
+                        }
 						
 						getGradebookManager().updateCategory(updatedCategory);
 					}
@@ -466,7 +528,26 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				return "failure";
 			}
 		}
-
+        
+        StringBuilder catsInError = new StringBuilder();
+        for(Object obj : categories) {
+            if(obj instanceof Category) {
+                Category category = (Category)obj;
+                if (category.isDropScores() && category.getGradedItemsUnequal()) {
+                    catsInError.append(category.getName()).append(' ');
+                }
+            }
+        }
+        if(catsInError.length() > 0) {
+            if (gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_POINTS)) {
+                catsInError.insert(0, getLocalizedString("cat_point_values_unequal"));
+            }
+            if (gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_PERCENT)) {
+                catsInError.insert(0, getLocalizedString("cat_rel_weights_unequal"));
+            }
+            FacesUtil.addErrorMessage(catsInError.toString());
+            return "failure";
+        }
 		// remove any categories marked to remove
 		if (categoriesToRemove != null && categoriesToRemove.size() > 0) {
 			Iterator removeIter = categoriesToRemove.iterator();
@@ -572,6 +653,18 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 					newValue.equals(ENTRY_OPT_LETTER)))
 			{
 				gradeEntryMethod = newValue;
+				if(categories != null) {
+				    for(Object obj : categories) {
+				        if(obj instanceof Category) {
+				            Category category = (Category)obj;
+				            if(gradeEntryMethod.equals(ENTRY_OPT_POINTS)) {
+				                category.setRelativeWeight(null);
+				            } else if(gradeEntryMethod.equals(ENTRY_OPT_PERCENT)) {
+                                category.setPointValue(null);
+				            }
+				        }
+				    }
+				}
 			}
 		}
 		return GB_SETUP_PAGE;
