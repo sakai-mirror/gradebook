@@ -75,7 +75,7 @@
 			<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE_DOUBLE"/>
 		</h:inputText>
 		<h:message for="points" styleClass="alertMessageInline" rendered="#{!bean.selectedCategoryDropsScores}" />
-		<h:outputText id="pointsDropScores" value="#{bean.selectedCategory.pointValue}" rendered="#{bean.selectedCategoryDropsScores && !bean.assignment.externallyMaintained && bean.noncalcWithGrades}" />
+		<h:outputText id="pointsDropScores" value="#{bean.selectedCategory.itemValue}" rendered="#{bean.selectedCategoryDropsScores && !bean.assignment.externallyMaintained && bean.noncalcWithGrades}" />
 	</h:panelGroup>
 
 	<h:panelGroup>

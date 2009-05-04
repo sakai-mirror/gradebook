@@ -21,8 +21,7 @@ public class Category implements Serializable
     private Integer dropLowest;
     private Integer dropHighest;
     private Integer keepHighest;
-    private Double pointValue;
-    private Double relativeWeight;
+    private Double itemValue;
 
     private boolean removed;
 	private Double averageTotalPoints; //average total points possible for this category
@@ -146,20 +145,12 @@ public class Category implements Serializable
         return getDropLowest() > 0 || getDropHighest() > 0 || getKeepHighest() > 0;
     }
 
-    public Double getPointValue() {
-        return pointValue;
+    public Double getItemValue() {
+        return itemValue;
     }
 
-    public void setPointValue(Double pointValue) {
-        this.pointValue = pointValue;
-    }
-
-    public Double getRelativeWeight() {
-        return relativeWeight;
-    }
-
-    public void setRelativeWeight(Double relativeWeight) {
-        this.relativeWeight = relativeWeight;
+    public void setItemValue(Double itemValue) {
+        this.itemValue = itemValue;
     }
 
     public int getDrop_lowest()

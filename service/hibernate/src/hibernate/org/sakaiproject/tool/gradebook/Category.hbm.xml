@@ -33,9 +33,7 @@
 		
 		<property name="keepHighest" column="KEEP_HIGHEST" type="integer" not-null="false" />
 
-		<property name="pointValue" column="POINT_VALUE" type="double" not-null="false" />
-
-		<property name="relativeWeight" column="RELATIVE_WEIGHT" type="double" not-null="false" />
+		<property name="itemValue" column="ITEM_VALUE" type="double" not-null="false" />
   </class>
   
  	<database-object>

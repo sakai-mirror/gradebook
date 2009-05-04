@@ -255,13 +255,8 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
                     if(assignmentCategory.equals(category.getId().toString())) {
                         bulkAssignment.getAssignment().setCategory(category); // set here, because need to read item.assignment.category.dropScores in the ui
                         if(category.isDropScores()) {
-                            if(localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_POINTS) {
-                                bulkAssignment.setPointsPossible(category.getPointValue().toString());
-                                bulkAssignment.getAssignment().setPointsPossible(category.getPointValue());
-                            } else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE) {
-                                bulkAssignment.setPointsPossible(category.getRelativeWeight().toString());
-                                bulkAssignment.getAssignment().setPointsPossible(category.getRelativeWeight());
-                            }
+                            bulkAssignment.setPointsPossible(category.getItemValue().toString());
+                            bulkAssignment.getAssignment().setPointsPossible(category.getItemValue());
                         } else {
                                 bulkAssignment.setPointsPossible(null);
                                 bulkAssignment.getAssignment().setPointsPossible(0.0);
@@ -293,7 +288,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		Assignment assignment = new Assignment();
 		assignment.setReleased(true);
 		if(selectedCategory != null && selectedCategory.isDropScores()) {
-		    assignment.setPointsPossible(selectedCategory.getPointValue());
+		    assignment.setPointsPossible(selectedCategory.getItemValue());
 		}
 		BulkAssignmentDecoratedBean bulkAssignmentDecoBean = new BulkAssignmentDecoratedBean(assignment, getItemCategoryString(assignment));
 
@@ -391,11 +386,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 				boolean categoryDropsScores = false;
 				if(selectedCategory != null && selectedCategory.isDropScores()) {
 				    categoryDropsScores = true;
-				    if(getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
-                        bulkAssignDecoBean.setPointsPossible(selectedCategory.getPointValue().toString()); // if category drops scores, point value will come from the category level
-				    } else if (getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
-				        bulkAssignDecoBean.setPointsPossible(selectedCategory.getRelativeWeight().toString()); // if category drops scores, relative weight will come from the category level
-				    }
+                    bulkAssignDecoBean.setPointsPossible(selectedCategory.getItemValue().toString()); // if category drops scores, point value will come from the category level
 				}
 				if (!bulkAssignment.getUngraded() && getGradebook().getGrade_type()!=GradebookService.GRADE_TYPE_LETTER)
 				{
@@ -406,7 +397,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 						// if this is the case, we want to skip the rest of this stuff as its ok
 						bulkAssignDecoBean.setBulkNoPointsError("OK");
 					}
-					else if(categoryDropsScores && selectedCategory != null && (selectedCategory.getPointValue() == null && selectedCategory.getRelativeWeight() == null)) {
+					else if(categoryDropsScores && selectedCategory != null && selectedCategory.getItemValue() == null) {
                             bulkAssignDecoBean.setBulkNoPointsError("blank");
                             saveAll = false;
                             resultString = "failure";
