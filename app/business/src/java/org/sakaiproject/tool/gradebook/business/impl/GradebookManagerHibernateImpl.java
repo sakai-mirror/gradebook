@@ -2974,7 +2974,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
         }
         for(Category cat : categories) {
             Integer dropHighest = cat.getDropHighest();
-            Integer dropLowest = cat.getDropLowest();
+            Integer dropLowest = cat.getDrop_lowest();
             Integer keepHighest = cat.getKeepHighest();
             
             if((dropHighest != null && dropHighest > 0) || (dropLowest != null && dropLowest > 0) || (keepHighest != null && keepHighest > 0)) {

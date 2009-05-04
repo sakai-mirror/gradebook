@@ -17,8 +17,7 @@ public class Category implements Serializable
 	private Gradebook gradebook;
 	private String name;
 	private Double weight;
-    private int drop_lowest;
-    private Integer dropLowest;
+    private Integer drop_lowest;
     private Integer dropHighest;
     private Integer keepHighest;
     private Double itemValue;
@@ -120,16 +119,6 @@ public class Category implements Serializable
 		this.dropHighest = dropHighest;
 	}
 
-	public Integer getDropLowest()
-	{
-		return dropLowest == null ? 0 : dropLowest;
-	}
-	
-	public void setDropLowest(Integer dropLowest)
-	{
-		this.dropLowest = dropLowest;
-	}
-
     public Integer getKeepHighest() {
         return keepHighest == null ? 0 : keepHighest;
     }
@@ -142,7 +131,7 @@ public class Category implements Serializable
      * returns true if this category drops any scores
      */
     public boolean isDropScores() {
-        return getDropLowest() > 0 || getDropHighest() > 0 || getKeepHighest() > 0;
+        return getDrop_lowest() > 0 || getDropHighest() > 0 || getKeepHighest() > 0;
     }
 
     public Double getItemValue() {
@@ -153,12 +142,12 @@ public class Category implements Serializable
         this.itemValue = itemValue;
     }
 
-    public int getDrop_lowest()
+    public Integer getDrop_lowest()
     {
-        return drop_lowest;
+        return drop_lowest != null ? drop_lowest : 0;
     }
     
-    public void setDrop_lowest(int drop_lowest)
+    public void setDrop_lowest(Integer drop_lowest)
     {
         this.drop_lowest = drop_lowest;
     }

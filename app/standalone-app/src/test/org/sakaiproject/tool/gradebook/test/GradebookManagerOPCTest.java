@@ -50,8 +50,8 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
 //	    public Long createCategory(final Long gradebookId, final String name, final Double weight, final int drop_lowest, final Integer dropLowest, final Integer dropHighest, final Integer keepHighest, final Double pointValue, final Integer relativeWeight, final Boolean is_extra_credit) 
 
-		cate1Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 1", new Double(0.40), 0, new Integer(0), new Integer(0), new Integer(0), new Double(0), null);
-		cate2Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 2", new Double(0.60), 0, new Integer(0), new Integer(0), new Integer(0), new Double(0), null);
+		cate1Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 1", new Double(0.40), new Integer(0), new Integer(0), new Integer(0), new Double(0), null);
+		cate2Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 2", new Double(0.60), new Integer(0), new Integer(0), new Integer(0), new Double(0), null);
 
 		List list = (List) gradebookManager.getCategories(persistentGradebook.getId());
 
@@ -236,7 +236,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
-		gradebookManager.createCategory(persistentGradebook.getId(), "cate 3", new Double(0), 0, new Integer(0), new Integer(0), new Integer(0), new Double(0), null);
+		gradebookManager.createCategory(persistentGradebook.getId(), "cate 3", new Double(0), new Integer(0), new Integer(0), new Integer(0), new Double(0), null);
 		List list = (List) gradebookManager.getCategories(persistentGradebook.getId());
 		for(int i=0; i<list.size(); i++)
 		{
@@ -695,7 +695,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
         List categories = gradebookManager.getCategories(persistentGradebook.getId());
         Category cat = gradebookManager.getCategory(assign.getCategory().getId());
         
-        cat.setDropLowest(2);
+        cat.setDrop_lowest(2);
         
         List assignments = gradebookManager.getAssignmentsWithStats(persistentGradebook.getId(),  Assignment.DEFAULT_SORT, true);
 

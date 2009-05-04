@@ -88,7 +88,7 @@
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_drop_lowest}" rendered="#{gradebookSetupBean.showDropsDisplayed}"/>
 					</f:facet>
-					<h:inputText id="dropLowest" value="#{category.dropLowest}" size="3" title="#{msgs.cat_drop_lowest_tooltip}"
+					<h:inputText id="dropLowest" value="#{category.drop_lowest}" size="3" title="#{msgs.cat_drop_lowest_tooltip}"
                         rendered="#{gradebookSetupBean.showDropsDisplayed}" onfocus="javascript:dropScoresAdjust(this.form);" 
                         onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}">
 					</h:inputText>

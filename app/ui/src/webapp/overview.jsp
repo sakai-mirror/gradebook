@@ -88,19 +88,19 @@
 				</h:panelGroup>
 				
             <h:outputText value="#{gradebookItem.name}" styleClass="categoryHeading" rendered="#{gradebookItem.isCategory}" />
-            <h:outputText value=" (" styleClass="categoryHeading" rendered="#{gradebookItem.isCategory && (gradebookItem.dropHighest != 0 || gradebookItem.dropLowest != 0 || gradebookItem.keepHighest != 0)}" />
+            <h:outputText value=" (" styleClass="categoryHeading" rendered="#{gradebookItem.isCategory && (gradebookItem.dropHighest != 0 || gradebookItem.drop_lowest != 0 || gradebookItem.keepHighest != 0)}" />
             <h:outputFormat value="#{msgs.cat_drop_highest_display}" styleClass="categoryHeading" rendered="#{gradebookItem.isCategory && gradebookItem.dropHighest != 0}" >
                 <f:param value="#{gradebookItem.dropHighest}"/>
             </h:outputFormat>
-            <h:outputText value="; " styleClass="categoryHeading" rendered="#{gradebookItem.isCategory && (gradebookItem.dropHighest != 0 && gradebookItem.dropLowest != 0)}" />
-            <h:outputFormat value="#{msgs.cat_drop_lowest_display}" styleClass="categoryHeading" rendered="#{gradebookItem.isCategory && gradebookItem.dropLowest != 0}" >
-                <f:param value="#{gradebookItem.dropLowest}"/>
+            <h:outputText value="; " styleClass="categoryHeading" rendered="#{gradebookItem.isCategory && (gradebookItem.dropHighest != 0 && gradebookItem.drop_lowest != 0)}" />
+            <h:outputFormat value="#{msgs.cat_drop_lowest_display}" styleClass="categoryHeading" rendered="#{gradebookItem.isCategory && gradebookItem.drop_lowest != 0}" >
+                <f:param value="#{gradebookItem.drop_lowest}"/>
             </h:outputFormat>
             
             <h:outputFormat value="#{msgs.cat_keep_highest_display}" styleClass="categoryHeading" rendered="#{gradebookItem.isCategory && gradebookItem.keepHighest != 0}" >
                 <f:param value="#{gradebookItem.keepHighest}"/>
             </h:outputFormat>
-            <h:outputText value=")" styleClass="categoryHeading" rendered="#{gradebookItem.isCategory && (gradebookItem.dropHighest != 0 || gradebookItem.dropLowest != 0 || gradebookItem.keepHighest != 0)}" />
+            <h:outputText value=")" styleClass="categoryHeading" rendered="#{gradebookItem.isCategory && (gradebookItem.dropHighest != 0 || gradebookItem.drop_lowest != 0 || gradebookItem.keepHighest != 0)}" />
 
 
 			</h:column>

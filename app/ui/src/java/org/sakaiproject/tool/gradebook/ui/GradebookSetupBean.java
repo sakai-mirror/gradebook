@@ -410,7 +410,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				Long categoryId = uiCategory.getId();
 				String categoryName = uiCategory.getName();
 
-                if(uiCategory.getDropLowest() < 0) {
+                if(uiCategory.getDrop_lowest() < 0) {
                     FacesUtil.addErrorMessage(getLocalizedString("cat_require_positive_drop_lowest"));
                     return "failure";
                 }
@@ -469,9 +469,9 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 					if (categoryId == null) {
 						// must be a new or blank category
 						if (uiCategory.getWeight() != null && uiCategory.getWeight().doubleValue() > 0) {
-							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), new Double(uiCategory.getWeight().doubleValue()/100), 0, uiCategory.getDropLowest(), uiCategory.getDropHighest(), uiCategory.getKeepHighest(), uiCategory.getItemValue(), uiCategory.getIsExtraCredit());
+							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), new Double(uiCategory.getWeight().doubleValue()/100), uiCategory.getDrop_lowest(), uiCategory.getDropHighest(), uiCategory.getKeepHighest(), uiCategory.getItemValue(), uiCategory.getIsExtraCredit());
 						} else {
-							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), uiCategory.getWeight(), 0, uiCategory.getDropLowest(), uiCategory.getDropHighest(), uiCategory.getKeepHighest(), uiCategory.getItemValue(), uiCategory.getIsExtraCredit());
+							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), uiCategory.getWeight(), uiCategory.getDrop_lowest(), uiCategory.getDropHighest(), uiCategory.getKeepHighest(), uiCategory.getItemValue(), uiCategory.getIsExtraCredit());
 						}
 					}
 					else {
@@ -488,7 +488,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 							updatedCategory.setIsExtraCredit(uiCategory.getIsExtraCredit());
 						}
 						
-						updatedCategory.setDropLowest(uiCategory.getDropLowest());
+						updatedCategory.setDrop_lowest(uiCategory.getDrop_lowest());
                         updatedCategory.setDropHighest(uiCategory.getDropHighest());
                         updatedCategory.setKeepHighest(uiCategory.getKeepHighest());
                         if(uiCategory.getItemValue() != null && uiCategory.getItemValue().doubleValue() > 0) {

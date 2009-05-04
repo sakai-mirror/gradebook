@@ -388,8 +388,8 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                         if(assignment.getCategory().getDropHighest() != 0) {
                             items.add(getLocalizedString("cat_drop_highest_display", new String[] {assignment.getCategory().getDropHighest().toString()}));
                         }
-                        if(assignment.getCategory().getDropLowest() != 0) {
-                            items.add(getLocalizedString("cat_drop_lowest_display", new String[] {assignment.getCategory().getDropLowest().toString()}));
+                        if(assignment.getCategory().getDrop_lowest() != 0) {
+                            items.add(getLocalizedString("cat_drop_lowest_display", new String[] {assignment.getCategory().getDrop_lowest().toString()}));
                         }
                         String categoryGradeDrops = null;
                         if(items.size() > 0) {
