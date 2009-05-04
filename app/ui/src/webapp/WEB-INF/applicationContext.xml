@@ -13,6 +13,12 @@
       <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
     </bean>
     
+    <!--  causes every variable to post, even if it hasn't changed since page render -->
+	<bean id="ignoreFossilizedValues"
+		class="uk.org.ponder.springutil.BooleanFactory">
+		<property name="value" value="true" />
+	</bean>
+	
     <!-- handles configuration of internationalization messages -->
 		<bean id="messageSource" parent="messageSourceParent">
       <property name="basename" value="WEB-INF/bundle/messages" />

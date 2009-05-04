@@ -1,5 +1,6 @@
 package org.sakaiproject.tool.gradebook.ui.helpers.producers;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -102,7 +103,6 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	//Gradebook Info
     	Gradebook gradebook = gradebookManager.getGradebook(params.contextId);
     	Long gradebookId = gradebook.getId();
-    	List<Category> categories = gradebookManager.getCategories(gradebookId);
     	
     	String newItemName = params.name;
     	
@@ -117,6 +117,14 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
     	assignmentOTP += OTPKey;
     	
     	Boolean add = (params.assignmentId == null);
+    	
+        
+        Assignment assignment = (Assignment) assignmentBeanLocator.locateBean(OTPKey);
+        
+        // double check that this assignment is affiliated with this gradebook
+        if (!add && !assignment.getGradebook().getUid().equals(params.contextId)) {
+            throw new IllegalArgumentException("The given assignment with id " + assignment.getId() + " does not belong to the given contextId:" + params.contextId);
+        }
     	
         //set dateEvolver
         dateEvolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);
@@ -149,13 +157,39 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         UIVerbatim.make(form, "title_label", messageLocator.getMessage("gradebook.add-gradebook-item.title_label",
         		new Object[]{ reqStar }));
         
-        Assignment assignment = (Assignment) assignmentBeanLocator.locateBean(OTPKey);
-        
-        // checkbox to indicate if calculating item
-        // only display if not a letter-grade gradebook
+        // only display grade entry option if not a letter-grade gradebook
         if (gradebook.getGrade_type() != GradebookService.GRADE_TYPE_LETTER) {
-        	UIOutput.make(tofill, "non-calc-container");
-        	UIBoundBoolean.make(form, "non-calc", assignmentOTP + ".ungraded", assignment.getUngraded());
+        	UIOutput.make(tofill, "grade_entry_li");
+        	
+        	String[] entry_labels = new String[3];
+            String[] entry_values = new String[3];
+            
+            // Points or Percent
+            if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
+                entry_labels[0] = messageLocator.getMessage("gradebook.add-gradebook-item.grade_entry.percent");
+                
+            } else {
+                entry_labels[0] = messageLocator.getMessage("gradebook.add-gradebook-item.grade_entry.points");
+            }
+            entry_values[0] = GradebookItemBean.GB_ITEM_TYPE_NORMAL;
+
+            entry_labels[1] = messageLocator.getMessage("gradebook.add-gradebook-item.grade_entry.non-cal");
+            entry_values[1] = GradebookItemBean.GB_ITEM_TYPE_NON_CAL;
+            
+            entry_labels[2] = messageLocator.getMessage("gradebook.add-gradebook-item.grade_entry.adj");
+            entry_values[2] = GradebookItemBean.GB_ITEM_TYPE_ADJ;
+            
+            String entryValue;
+            if (assignment.getUngraded()) {
+                entryValue = GradebookItemBean.GB_ITEM_TYPE_NON_CAL;
+            } else if (assignment.getIsExtraCredit() != null && assignment.getIsExtraCredit()) {
+                entryValue = GradebookItemBean.GB_ITEM_TYPE_ADJ;
+            } else {
+                entryValue = GradebookItemBean.GB_ITEM_TYPE_NORMAL;
+            }
+            
+            UISelect.make(form, "grade_entry", entry_values, entry_labels, "#{GradebookItemBean.gbItemType}", entryValue);
+            form.parameters.add( new UIELBinding("#{GradebookItemBean.gbItemType}", entryValue));
         }
         
         // if this is a new gradebook item, use the name parameter passed via the url
@@ -170,17 +204,36 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
         
         // only display points possible info if not a letter grade gradebook
         if (gradebook.getGrade_type() != GradebookService.GRADE_TYPE_LETTER) {
-        	UIOutput.make(form, "points-possible");
-            UIInput.make(form, "point", assignmentOTP + ".pointsPossible");
+            String pointsPossibleDisplay = "";
+            if (assignment.getPointsPossible() != null) {
+                pointsPossibleDisplay = assignment.getPointsPossible().toString();
+            }
+            // javascript will take care of which of these options is actually displayed
+            
+            // if this is a regular gb item, display normal points possible
+            UIOutput.make(form, "points-possible");
+            UIInput.make(form, "point", "#{GradebookItemBean.normalPointsPossible}", pointsPossibleDisplay);
+            // otherwise, this is an adjustment item, so display different option
+            // but we don't display at all unless it is a points gb
+            if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
+                UIOutput.make(form, "adjustment-points-possible");
+                UIInput.make(form, "adj_point", "#{GradebookItemBean.adjPointsPossible}", pointsPossibleDisplay);
+            }
+            
+            if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
+                UIVerbatim.make(form, "point_label", messageLocator.getMessage("gradebook.add-gradebook-item.point_label",
+                        new Object[]{ reqStar }));
+            } else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE){
+                UIVerbatim.make(form, "point_label", messageLocator.getMessage("gradebook.add-gradebook-item.percentage_label",
+                        new Object[]{ reqStar }));
+            }
+            
+            if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
+                UIOutput.make(form, "points_instruction", messageLocator.getMessage("gradebook.add-gradebook-item.adj_cat.instructions"));
+                UIOutput.make(form, "adj_points_instruction", messageLocator.getMessage("gradebook.add-gradebook-item.adj_cat.instructions"));
+            }
         }
         
-        if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
-        	UIVerbatim.make(form, "point_label", messageLocator.getMessage("gradebook.add-gradebook-item.point_label",
-        			new Object[]{ reqStar }));
-        } else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE){
-        	UIVerbatim.make(form, "point_label", messageLocator.getMessage("gradebook.add-gradebook-item.percentage_label",
-        			new Object[]{ reqStar }));
-        }
         
         Boolean require_due_date = (assignment.getDueDate() != null);
 		UIBoundBoolean.make(form, "require_due_date", "#{GradebookItemBean.requireDueDate}", require_due_date);
@@ -194,32 +247,94 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
 			require_due_container.decorators = display_none_list;
 		}
         
-        if (categories.size() > 0){
-        	
-        	UIOutput.make(form, "category_li");
-        
-	        String[] category_labels = new String[categories.size() + 1];
-	        String[] category_values = new String[categories.size() + 1];
-	        category_labels[0] = messageLocator.getMessage("gradebook.add-gradebook-item.category_unassigned");
-	        category_values[0] = GradebookItemBean.CATEGORY_UNASSIGNED.toString();
-	        int i=1;
-	        for (Category cat : categories){
-				category_labels[i] = cat.getName();
-				category_values[i] = cat.getId().toString();
-				i++;
-	        }
-	        
-	        String categoryId = GradebookItemBean.CATEGORY_UNASSIGNED.toString(); // unassigned by default
-	        if (assignment.getCategory() != null) {
-	            categoryId = assignment.getCategory().getId().toString();
-	        }
-	        
-	        UISelect.make(form, "category", category_values, category_labels, "#{GradebookItemBean.categoryId}", categoryId);
-	        
-	        if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
-	            UIOutput.make(form, "category_instruction", messageLocator.getMessage("gradebook.add-gradebook-item.cateogry_instruction"));
-	        }
-        }
+		if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY ||
+		        gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
+		    
+		    List<Category> categories = gradebookManager.getCategories(gradebookId);
+		    
+		    if (categories.size() > 0){
+
+		        UIOutput.make(form, "category_li");
+
+		        String[] category_labels = new String[categories.size() + 1];
+		        String[] category_values = new String[categories.size() + 1];
+		        category_labels[0] = messageLocator.getMessage("gradebook.add-gradebook-item.category_unassigned");
+		        category_values[0] = GradebookItemBean.CATEGORY_UNASSIGNED.toString();
+		        int i=1;
+		        for (Category cat : categories){
+		            category_labels[i] = cat.getName();
+		            category_values[i] = cat.getId().toString();
+		            i++;
+		        }
+
+		        String categoryId = GradebookItemBean.CATEGORY_UNASSIGNED.toString(); // unassigned by default
+		        if (assignment.getCategory() != null) {
+		            categoryId = assignment.getCategory().getId().toString();
+		        }
+
+		        UISelect.make(form, "category", category_values, category_labels, "#{GradebookItemBean.categoryId}", categoryId);
+		        
+                // adjustment categories can't be included if the grade entry is set to "adjustment item", so
+                // we need to render another drop down for categories that excludes adjustment items
+                List<Category> nonAdjCategories = new ArrayList<Category>();
+                for (Category cat : categories) {
+                    if (cat.getIsExtraCredit() == null || !cat.getIsExtraCredit()) {
+                        nonAdjCategories.add(cat);
+                    }
+                }
+                
+                if (!nonAdjCategories.isEmpty()) {
+                    String[] non_adj_category_labels = new String[nonAdjCategories.size() + 1];
+                    String[] non_adj_category_values = new String[nonAdjCategories.size() + 1];
+                    non_adj_category_labels[0] = messageLocator.getMessage("gradebook.add-gradebook-item.category_unassigned");
+                    non_adj_category_values[0] = GradebookItemBean.CATEGORY_UNASSIGNED.toString();
+                    int non_adj_i=1;
+                    for (Category cat : nonAdjCategories){
+                        non_adj_category_labels[non_adj_i] = cat.getName();
+                        non_adj_category_values[non_adj_i] = cat.getId().toString();
+                        non_adj_i++;
+                    }
+
+                    UISelect.make(form, "nonAdjCategory", non_adj_category_values, non_adj_category_labels, "#{GradebookItemBean.nonAdjCategoryId}", categoryId);
+                }
+
+		        if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
+ 
+		            // if we have categories with weighting, we need to be conscious of categories that
+		            // have drop high/low settings.  this means that the point value is uneditable. let's
+		            // put affected categories in a hidden select so we can use javascript for this display
+		            List<Category> catWithPointRestrictions = new ArrayList<Category>();
+		            for (Category cat : categories) {
+		                if (cat.isDropScores()) {
+		                    catWithPointRestrictions.add(cat);
+		                }
+		            }
+		            
+		            // create the hidden select menu
+		            if (!catWithPointRestrictions.isEmpty()) {
+                        String[] weighted_category_labels = new String[catWithPointRestrictions.size()];
+                        String[] weighted_category_values = new String[catWithPointRestrictions.size()];
+                        int index = 0;
+                        // the label will be the category id and the value will be the category item value
+                        for (Category resCat : catWithPointRestrictions) {
+                            weighted_category_labels[index] = resCat.getId().toString();
+                            if (resCat.getItemValue() != null) {
+                                weighted_category_values[index] = resCat.getItemValue().toString();
+                            } else {
+                                weighted_category_values[index] = "";
+                            }
+                            index++;
+                        }
+
+		                UISelect.make(tofill, "categories_with_uneditable_points", weighted_category_values, weighted_category_labels, null);
+		            }
+
+		            // display informational message related to counting items in a weighted gb
+		            UIOutput.make(form, "category_instruction", messageLocator.getMessage("gradebook.add-gradebook-item.category_instruction"));
+
+		        }
+		    }
+		}
         
         UIBoundBoolean.make(form, "release", assignmentOTP + ".released", assignment.isReleased());
         
@@ -251,6 +366,7 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
 			GradebookItemViewParams params = (GradebookItemViewParams) incoming;
 			if (params.finishURL != null && actionReturn.equals("cancel")) {
 				result.resultingView = new RawViewParameters(params.finishURL);
+				result.propagateBeans = ARIResult.FLOW_END;
 			}
 			else if (params.finishURL != null && actionReturn.equals("submit")) {
 				//tack on name and due date of newly created item

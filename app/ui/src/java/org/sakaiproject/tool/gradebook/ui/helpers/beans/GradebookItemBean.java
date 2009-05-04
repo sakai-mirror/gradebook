@@ -22,6 +22,22 @@ public class GradebookItemBean {
 	
 	public static final Long CATEGORY_UNASSIGNED = -1L;
 	
+    
+   
+	/**
+	 * this gradebook item will be graded normally
+	 * (ie points or %)
+	 */
+	public static String GB_ITEM_TYPE_NORMAL = "normal";
+    /**
+     * this item will be graded as non-calculating
+     */
+	public static String GB_ITEM_TYPE_NON_CAL = "non-cal";
+    /**
+     * this item will be graded as an adjustment item
+     */
+	public static String GB_ITEM_TYPE_ADJ = "adj";
+	
 	public Boolean requireDueDate = false;
 	
 	private TargettedMessageList messages;
@@ -48,12 +64,62 @@ public class GradebookItemBean {
     }
 	
 	private Long categoryId;
+	/**
+	 * we have to render two category select menus because, if the user sets
+     * the gradebook item to be an adjustment item, it cannot be associated with
+     * an adjustment category. this variable represents the selected category id
+     * in the category menu that includes adjustment categories
+	 * @param categoryId
+	 */
 	public void setCategoryId(Long categoryId){
 		this.categoryId = categoryId;
 	}
+	
+	private Long nonAdjCategoryId;
+	/**
+	 * we have to render two category select menus because, if the user sets
+	 * the gradebook item to be an adjustment item, it cannot be associated with
+	 * an adjustment category. this variable represents the selected category id
+	 * in the category menu that excludes adjustment categories
+	 * 
+	 * @param nonAdjCategoryId
+	 */
+	public void setNonAdjCategoryId(Long nonAdjCategoryId) {
+	    this.nonAdjCategoryId = nonAdjCategoryId;
+	}
+	
 	private Long gradebookId;
 	public void setGradebookId(Long gradebookId){
 		this.gradebookId = gradebookId;
+	}
+	private String gbItemType;
+	public void setGbItemType(String gbItemType) {
+	    this.gbItemType = gbItemType;
+	}
+	
+	// I had to set these as Strings instead of Doubles because the UI
+	// kept trying to validate them and threw NumberFormatExceptions
+	// when they were empty when the user hit "cancel" - not sure why
+
+	/**
+	 * This value will represent the points possible value in a "normal"
+	 * grade entry scenario: ie the gradebook item will be graded
+	 * by points or % and is not an adjustment item or a non-calc item
+	 */
+	private String normalPointsPossible;
+	public void setNormalPointsPossible(String normalPointsPossible) {
+	    this.normalPointsPossible = normalPointsPossible;
+	}
+	
+	/**
+	 * This value will represent the points possible value for an
+	 * adjustment gb item. We can't bind to the single points possible
+	 * value since there will be two input fields. depending on the
+	 * grade entry type selected, only one is displayed to the user
+	 */
+	private String adjPointsPossible;
+	public void setAdjPointsPossible(String adjPointsPossible) {
+	    this.adjPointsPossible = adjPointsPossible;
 	}
 	
 	public String processActionAddItem(){
@@ -67,6 +133,18 @@ public class GradebookItemBean {
 		
 		for (String key : OTPMap.keySet()) {
 			Assignment assignment = OTPMap.get(key);
+			
+			// set the grade entry selection
+			if (gbItemType.equals(GB_ITEM_TYPE_NON_CAL)) {
+			    assignment.setUngraded(true);
+			    assignment.setIsExtraCredit(false);
+			} else if (gbItemType.equals(GB_ITEM_TYPE_ADJ)) {
+			    assignment.setUngraded(false);
+			    assignment.setIsExtraCredit(true);
+			} else {
+			    assignment.setUngraded(false);
+			    assignment.setIsExtraCredit(false);
+			}
 			
 			//check for null name
 			if (assignment.getName() == null || assignment.getName().equals("")) {
@@ -83,6 +161,29 @@ public class GradebookItemBean {
 				assignment.setPointsPossible(null);
 				assignment.setCounted(false);
 			} else {
+			   
+			    String pointsAsString;
+			    Double pointsPossible;
+
+			    // let's see which points possible we should point to
+			    if (assignment.getIsExtraCredit()) {
+			        pointsAsString = adjPointsPossible;
+			    } else  {
+			        pointsAsString = normalPointsPossible;
+			    }
+
+			    if (pointsAsString == null) {
+			        pointsPossible = null;
+			    } else {
+			        try {
+			            pointsPossible = Double.parseDouble(pointsAsString);
+			        } catch (NumberFormatException nfe) {
+			            pointsPossible = null; // this will get caught later on b/c invalid
+			        }
+			    }
+
+			    assignment.setPointsPossible(pointsPossible);
+
 				//check for null points
 				if (assignment.getPointsPossible() == null ||
 						assignment.getPointsPossible().doubleValue() <= 0) {
@@ -96,7 +197,7 @@ public class GradebookItemBean {
 
 				// check for more than 2 decimal places
 				if (assignment.getPointsPossible() != null) {
-					String pointsAsString = assignment.getPointsPossible().toString();
+					String pointsToSplit = assignment.getPointsPossible().toString();
 					String[] decimalSplit = pointsAsString.split("\\.");
 					if (decimalSplit.length == 2) {
 						String decimal = decimalSplit[1];
@@ -121,16 +222,40 @@ public class GradebookItemBean {
 				return FAILURE;
 			}
 			
+			Long selectedCategoryId = null;
+			if (gradebook.getCategory_type() != GradebookService.CATEGORY_TYPE_NO_CATEGORY) {         
+	            // if the item is "adjustment" we need to use the category id
+	            // sent back as nonAdjCategoryId. otherwise, we use the categoryId          	            
+	            if (gbItemType.equals(GB_ITEM_TYPE_ADJ)) {
+	                selectedCategoryId = this.nonAdjCategoryId;
+	            } else {
+	                selectedCategoryId = this.categoryId;
+	            }
+	            
+	            // set to null if category is unassigned
+	            if (selectedCategoryId.equals(CATEGORY_UNASSIGNED)) {
+	                selectedCategoryId = null;
+	            }
+	            
+	            // double check that the points possible is set to the category setting if category has drop high/low
+	            if (selectedCategoryId != null) {
+	                Category category = gradebookManager.getCategory(selectedCategoryId);
+	                if (category != null && category.isDropScores()) {
+	                    assignment.setPointsPossible(category.getItemValue());
+	                }
+	            }
+			}
+			
 			if (key.equals(EntityBeanLocator.NEW_PREFIX + "1")){
 				//We have a new assignment object
 				Long id = null;
 				try {
-					if (this.categoryId != null && this.categoryId != CATEGORY_UNASSIGNED){
+					if (selectedCategoryId != null){
 						if (assignment.getUngraded()) {
-							id = gradebookManager.createUngradedAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
+							id = gradebookManager.createUngradedAssignmentForCategory(this.gradebookId, selectedCategoryId, assignment.getName(), 
 									assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased());
 						} else {
-							id = gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
+							id = gradebookManager.createAssignmentForCategory(this.gradebookId, selectedCategoryId, assignment.getName(), 
 									assignment.getPointsPossible(), assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased(), null);
 						}
 					} else {
@@ -154,10 +279,10 @@ public class GradebookItemBean {
 			} else {
 				//we are editing an existing object
 				try {
-				    if (this.categoryId != null && !this.categoryId.equals(CATEGORY_UNASSIGNED)) {
+				    if (selectedCategoryId != null) {
 				        // we need to retrieve the category and add it to the
 				        // assignment
-				        Category cat = gradebookManager.getCategory(categoryId);
+				        Category cat = gradebookManager.getCategory(selectedCategoryId);
 				        if (cat != null) {
 				            assignment.setCategory(cat);
 				        }

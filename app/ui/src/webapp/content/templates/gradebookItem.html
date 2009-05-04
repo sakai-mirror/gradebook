@@ -36,18 +36,48 @@
 	<fieldset>
 		<legend rsf:id="msg=gradebook.add-gradebook-item.gradebook_item_legend">Gradebook Item Details</legend>
 		
-		<div rsf:id="non-calc-container">
-			<input rsf:id="non-calc" type="checkbox" id="" />
-			<label rsf:id="msg=gradebook.add-gradebook-item.non_calculating" for="non_calc">Non-calculating item</label>
-		</div>
-		
 		<ol>
+			<li rsf:id="category_li">
+				<div id="all_categories">
+					<label rsf:id="msg=gradebook.add-gradebook-item.category_label" for="category">Category!</label>
+					<select rsf:id="category" size="1" id="" onchange="gbItemHelper.updateCategorySelection(this.value);gbItemHelper.categoryDisplay();">
+						<option value="unassigned">Unassigned</option>
+						<option value="">Homework</option>
+						<option value="">Quizzes</option>
+						<option value="">Exams</option>
+					</select>
+				</div>
+				<div id="non_adj_categories">
+					<label rsf:id="msg=gradebook.add-gradebook-item.category_label" for="nonAdjCategory">Category!</label>
+					<select rsf:id="nonAdjCategory" size="1" id="" onchange="gbItemHelper.updateCategorySelection(this.value);gbItemHelper.categoryDisplay();">
+						<option value="unassigned">Unassigned</option>
+						<option value="">Homework</option>
+						<option value="">Quizzes</option>
+						<option value="">Exams</option>
+					</select>
+				</div>
+				<div rsf:id="category_instruction" class="instruction">Items not assigned to a category will not be counted toward the course grade calculation!!</div>
+			</li>
+			<li rsf:id="grade_entry_li">
+				<label rsf:id="msg=gradebook.add-gradebook-item.grade_entry_label" for="grade_entry">Category</label>
+				<select rsf:id="grade_entry" size="1" id="" onchange="gbItemHelper.gradeEntryDisplay();">
+					<option value="unassigned">Points!</option>
+					<option value="">Non-cal!</option>
+					<option value="">Adjustment!</option>
+				</select>	
+			</li>
 			<li>
 				<label rsf:id="title_label" for="title"><span class="reqStar">*</span> Title</label> <input rsf:id="title" id="title" type="text" size="30" maxlength="100"/>
 			</li>
 			<li rsf:id="points-possible" id="">
 				<label rsf:id="point_label" for="point"><span class="reqStar">*</span> Gradebook Item Point Value</label> 
-				<input id="point" rsf:id="point" type="text" size="30" maxlength="100"/>
+				<input id="point" rsf:id="point" type="text" size="30" maxlength="100" onchange="gbItemHelper.updatePointValue(this.value);"/>
+				<div rsf:id="points_instruction" id="" class="instruction">You can't change this here! Go to gradebook setup!</div>
+			</li>
+			<li rsf:id="adjustment-points-possible" id="">
+				<label rsf:id="msg=gradebook.add-gradebook-item.point_label.adjustment" for="adj_point">ADJ Item Point Value</label> 
+				<input id="adj_point" rsf:id="adj_point" type="text" size="30" maxlength="100" onchange="gbItemHelper.updatePointValue(this.value);"/>
+				<div rsf:id="adj_points_instruction" id="" class="instruction">You can't change this here! Go to gradebook setup!</div>
 			</li>
 			<li>
     			<fieldset>
@@ -58,16 +88,7 @@
         			<span rsf:id="require_due_date_container" id="require_due_date_container"><input rsf:id="due_date:" value="12/31/2007"/></span>
     			</fieldset>
     		</li>
-			<li rsf:id="category_li">
-				<label rsf:id="msg=gradebook.add-gradebook-item.category_label" for="categorySelect">Category</label>
-				<select rsf:id="category" size="1" id="categorySelect">
-					<option value="unassigned">Unassigned</option>
-					<option value="">Homework</option>
-					<option value="">Quizzes</option>
-					<option value="">Exams</option>
-				</select>
-				<div rsf:id="category_instruction" class="instruction">Items not assigned to a category will not be counted toward the course grade calculation.</div>
-			</li>
+			
 			<li>
 				<fieldset>
 					<ol>
@@ -89,11 +110,20 @@
 		<input rsf:id="cancel" accesskey="x" type="submit" name="cancel" value="Cancel"/>
 	</fieldset>													
 	</form>
+	
+	<select rsf:id="categories_with_uneditable_points" size="1" id="" style="display:none;">
+		<option value="unassigned">0</option>
+		<option value="1">0</option>
+	</select>
 </div>
+
 <script type="text/javascript">
 //<![CDATA[
 
 jQuery(document).ready(function(){
+	// show/hide options based upon the selected grade entry
+	gbItemHelper.gradeEntryDisplay();
+	
 	//Init require due date checkboxes
 	jQuery("input[@name='require_due_date']").each(function(){
 		this.onclick = gbItemHelper.show_due_date;
@@ -105,8 +135,8 @@ jQuery(document).ready(function(){
 	$("input:checkbox[@name='release'], input:checkbox[@name='course_grade']").click(gbItemHelper.handleReleaseVsCounted);
 
 	// Init the "Non-calculating" checkbox
-	gbItemHelper.hideOrDisplayNonCalcInfo();
-	$("input:checkbox[@name='non-calc']").click(gbItemHelper.hideOrDisplayNonCalcInfo);
+	//gbItemHelper.hideOrDisplayNonCalcInfo();
+	//$("input:checkbox[@name='non-calc']").click(gbItemHelper.hideOrDisplayNonCalcInfo);
 });
 //]]>
 </script>

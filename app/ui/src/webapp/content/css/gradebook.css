@@ -265,3 +265,7 @@ A:hover.breadCrumb {
 div.instruction {
     margin-left: 16em;
 }
+
+.hideElement {
+	display: none;
+}
