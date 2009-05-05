@@ -185,7 +185,6 @@
         </f:facet>
 				<h:outputText value="#{msgs.overview_included_in_cum_true}" rendered="#{gradebookItem.assignment && gradebookItem.counted == true }"/>
 				<h:outputText value="#{msgs.overview_included_in_cum_false}" rendered="#{gradebookItem.assignment && gradebookItem.counted == false}"/>
-				<h:outputText value=" (#{msgs.overview_non_calc})" rendered ="#{gradebookItem.assignment && gradebookItem.ungraded == true}"/>
 			</h:column>
 			
 			<h:column rendered="#{overviewBean.displayGradeEditorCol}">
