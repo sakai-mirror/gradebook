@@ -81,6 +81,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	private List gradableObjectColumns;	// Needed to build table columns
     private List workingEnrollments;
     private Map enrollmentMap;
+    private List legendRows; // list for the Legend portion of the jsp page
     
     private CourseGrade avgCourseGrade;
     
@@ -428,6 +429,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
             studentRows.add(new StudentRow(enrollment));
         }
 
+        legendRows = new ArrayList();
+        legendRows.add(FacesUtil.getLocalizedString("roster_footnote_legend1"));
+        legendRows.add(FacesUtil.getLocalizedString("roster_footnote_legend2"));
+        legendRows.add(FacesUtil.getLocalizedString("roster_footnote_legend3"));
+        
         // set breadcrumb page for navigation
 //		SessionManager.getCurrentToolSession().setAttribute("breadcrumbPage", "roster");
 		
@@ -632,6 +638,14 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	}
 	public void setGradableObjectColumns(List gradableObjectColumns) {
 		this.gradableObjectColumns = gradableObjectColumns;
+	}
+	
+    public List getLegendRows() {
+		return legendRows;
+	}
+
+	public void setLegendRows(List legendRows) {
+		this.legendRows = legendRows;
 	}
 
 	public List getStudentRows() {
