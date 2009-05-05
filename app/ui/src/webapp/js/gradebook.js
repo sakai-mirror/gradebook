@@ -668,7 +668,12 @@ function syncAdjustmentDropdowns(myForm) {
 	
 	if (undefined != categoryDropDown2)
 	{
-		categoryDropDown1.selectedIndex=categoryDropDown2.options[categoryDropDown2.selectedIndex].value;
+		for (i=0;i<categoryDropDown1.options.length;i++){
+			if (categoryDropDown1.options[i].value==categoryDropDown2.options[categoryDropDown2.selectedIndex].value){
+				categoryDropDown1.selectedIndex=i;
+				return true;
+			}
+		}
 	}
 }
 
