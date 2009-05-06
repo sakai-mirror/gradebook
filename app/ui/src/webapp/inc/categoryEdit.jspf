@@ -40,7 +40,6 @@
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_list_category}"/>
 					</f:facet>
-				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline"/>
 					<h:inputText id="categoryName" value="#{category.name}"/>
 				</h:column>
 				<h:column rendered="#{gradebookSetupBean.displayWeighting}">
