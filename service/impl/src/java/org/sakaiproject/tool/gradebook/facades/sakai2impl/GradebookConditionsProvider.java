@@ -11,6 +11,8 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 public class GradebookConditionsProvider implements ConditionProvider {
 	
+	private Map<String, String> eventLookup = new HashMap<String, String>();
+	
 	private ConditionService conditionService;
 	public void setConditionService(ConditionService conditionService) {
 		this.conditionService = conditionService;
@@ -22,6 +24,8 @@ public class GradebookConditionsProvider implements ConditionProvider {
 	}
 	
 	public void init() {
+		eventLookup.put("gradebook.updateItemScore", "org.sakaiproject.conditions.impl.AssignmentGrading");
+		eventLookup.put("gradebook.updateAssignment", "org.sakaiproject.conditions.impl.AssignmentUpdate");
 		conditionService.registerConditionProvider(this);
 	}
 
@@ -38,6 +42,10 @@ public class GradebookConditionsProvider implements ConditionProvider {
 
 	public String getId() {
 		return "gradebook";
+	}
+
+	public Map<String, String> getEventToDomainClassMapping() {
+		return eventLookup;
 	}
 
 }
