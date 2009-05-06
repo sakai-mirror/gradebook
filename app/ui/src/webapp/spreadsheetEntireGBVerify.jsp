@@ -63,6 +63,20 @@
             </t:dataTable>
 
             <f:verbatim><br></f:verbatim>
+            
+            <h:panelGrid styleClass="instruction" cellpadding="0" cellspacing="0" columns="1">
+				<h:outputText value="#{msgs.import_verify_legend_title}" />
+				<h:panelGroup>
+					<h:outputText value="#{msgs.ADJUSTMENT_ITEM} = " />
+					<h:outputText value="#{msgs.import_verify_legend_ai}" />
+				</h:panelGroup>
+				<h:panelGroup>
+					<h:outputText value="#{msgs.NON_CALCULATING_ITEM} = " />
+					<h:outputText value="#{msgs.import_verify_legend_nc}" />
+				</h:panelGroup>
+			</h:panelGrid>
+			
+			<f:verbatim><br></f:verbatim>
             <p>
                 <h:commandButton
                         id="importButton"
