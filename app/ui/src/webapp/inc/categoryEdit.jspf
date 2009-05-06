@@ -82,7 +82,10 @@
 					<h:inputText id="dropHighest" value="#{category.dropHighest}" size="3" title="#{msgs.cat_drop_highest_tooltip}" 
 					    rendered="#{gradebookSetupBean.showDropsDisplayed}" onfocus="javascript:dropScoresAdjust(this.form);"
 					    onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}">
+					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
 					</h:inputText>
+					<h:message for="dropHighest" styleClass="alertMessageInline"/>
 				</h:column>
 				<h:column rendered="#{gradebookSetupBean.showDropsDisplayed}">
 					<f:facet name="header">
@@ -90,8 +93,11 @@
 					</f:facet>
 					<h:inputText id="dropLowest" value="#{category.drop_lowest}" size="3" title="#{msgs.cat_drop_lowest_tooltip}"
                         rendered="#{gradebookSetupBean.showDropsDisplayed}" onfocus="javascript:dropScoresAdjust(this.form);" 
-                        onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}">
-					</h:inputText>
+                        onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}" >
+					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
+                    </h:inputText>
+					<h:message for="dropLowest" styleClass="alertMessageInline"/>
 				</h:column>
 				<h:column rendered="#{gradebookSetupBean.showDropsDisplayed}">
 					<f:facet name="header">
@@ -100,7 +106,10 @@
 					<h:inputText id="keepHighest" value="#{category.keepHighest}" size="3" title="#{msgs.cat_keep_highest_tooltip}"
 					rendered="#{gradebookSetupBean.showDropsDisplayed}" onfocus="javascript:dropScoresAdjust(this.form);"
 					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}">
+					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
 					</h:inputText>
+					<h:message for="keepHighest" styleClass="alertMessageInline"/>
 				</h:column>
 				<h:column rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPointGrade}">
 					<f:facet name="header">
@@ -110,7 +119,10 @@
 					<h:inputText id="pointValue" value="#{category.itemValue}" size="3" title="#{msgs.cat_point_value_tooltip}"
 					rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPointGrade}" onfocus="javascript:dropScoresAdjust(this.form);"
 					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />					
+					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.CATEGORY_ITEM"/>
 					</h:inputText>
+					<h:message for="pointValue" styleClass="alertMessageInline"/>
 				</h:column>
 				<h:column rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPercentageGrade}">
 					<f:facet name="header">
@@ -120,7 +132,10 @@
 					<h:inputText id="relativeWeight" value="#{category.itemValue}" size="3" title="#{msgs.cat_percent_value_tooltip}"
 					rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPercentageGrade}" onfocus="javascript:dropScoresAdjust(this.form);"
 					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.CATEGORY_ITEM"/>
 					</h:inputText>
+					<h:message for="relativeWeight" styleClass="alertMessageInline"/>
 				</h:column>
 				<h:column>
 					<f:facet name="header">
@@ -136,6 +151,12 @@
 			<h:outputLink value="#" styleClass="more_categories">
 				<h:outputText value="#{msgs.cat_list_more}" />
 			</h:outputLink>
+			
+			<t:panelGrid columns="1">
+				<t:panelGroup>
+					<h:outputText value="#{msgs.cat_itemvalues_must_be_equal}" rendered="#{gradebookSetupBean.showDropsDisplayed}" />
+				</t:panelGroup>
+			</t:panelGrid>	
 			
 			<t:panelGrid columns="3" columnClasses="categoryRight, categoryRight" styleClass="indnt10" rendered="#{gradebookSetupBean.displayWeighting}">
 				<t:panelGroup>

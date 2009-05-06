@@ -111,14 +111,14 @@ public class Category implements Serializable
 		};
 	}
 
-	public Integer getDropHighest() {
-		return dropHighest == null ? 0 : dropHighest;
-	}
+    public Integer getDropHighest() {
+        return dropHighest == null ? 0 : dropHighest;
+    }
 
-	public void setDropHighest(Integer dropHighest) {
-		this.dropHighest = dropHighest;
-	}
-
+    public void setDropHighest(Integer dropHighest) {
+        this.dropHighest = dropHighest;
+    }
+	
     public Integer getKeepHighest() {
         return keepHighest == null ? 0 : keepHighest;
     }

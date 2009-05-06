@@ -31,6 +31,14 @@
 
 	<converter>
 		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.DROP_SCORES
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.DropScoresConverter
+		</converter-class>
+	</converter>
+	<converter>
+		<converter-id>
 			org.sakaiproject.gradebook.jsf.converter.COURSE_GRADE
 		</converter-id>
 		<converter-class>
@@ -118,6 +126,23 @@
 		</converter-class>
 	</converter>
 
+	<validator>
+		<validator-id>
+			org.sakaiproject.gradebook.jsf.validator.DROP_SCORES
+		</validator-id>
+		<validator-class>
+			org.sakaiproject.tool.gradebook.jsf.DropScoresValidator
+		</validator-class>
+	</validator>
+
+	<validator>
+		<validator-id>
+			org.sakaiproject.gradebook.jsf.validator.CATEGORY_ITEM
+		</validator-id>
+		<validator-class>
+			org.sakaiproject.tool.gradebook.jsf.CategoryItemValidator
+		</validator-class>
+	</validator>
 	<validator>
 		<validator-id>
 			org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE
