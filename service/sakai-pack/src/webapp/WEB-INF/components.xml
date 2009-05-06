@@ -159,6 +159,17 @@
 		</property>
 	</bean>
 	
+	<bean id="org_sakaiproject_service_gradebook_ConditionsProvider"
+		class="org.sakaiproject.tool.gradebook.facades.sakai2impl.GradebookConditionsProvider"
+		init-method="init">
+		<property name="conditionService">
+			<ref bean="org.sakaiproject.conditions.api.ConditionService" />
+		</property>
+		<property name="gradebookService">
+			<ref bean="org_sakaiproject_service_gradebook_GradebookService" />
+		</property>
+	</bean>
+	
 	<!-- Gradebook Permission Service -->
 	<bean id="org_sakaiproject_service_gradebook_GradebookPermissionService"
 		name="org.sakaiproject.service.gradebook.GradebookPermissionService"
