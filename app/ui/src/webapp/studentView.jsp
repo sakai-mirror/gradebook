@@ -148,7 +148,12 @@
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER"/>
 					</h:outputText>
 
-			        <h:outputText value="#{row}" escape="false" rendered="#{row.assignment && !overviewBean.isLetterGrade && !row.associatedAssignment.ungraded}">
+			        <h:outputText value="#{row}" escape="false" rendered="#{row.assignment && !overviewBean.isLetterGrade && !row.associatedAssignment.ungraded && !row.gradeRecord.droppedFromGrade}">
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.SCORE_CONVERTER"/>
+					</h:outputText>
+					
+			        <h:outputText value="#{row}" escape="false" rendered="#{row.assignment && !overviewBean.isLetterGrade && !row.associatedAssignment.ungraded && row.gradeRecord.droppedFromGrade}"
+			        style="text-decoration:line-through" >
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.SCORE_CONVERTER"/>
 					</h:outputText>
 					
