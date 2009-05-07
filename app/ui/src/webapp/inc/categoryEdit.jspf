@@ -32,7 +32,7 @@
 				id="categoriesTable"
 				value="#{gradebookSetupBean.categories}"
 				var="category"
-	      columnClasses="bogus,bogus,bogus,specialLink"
+	      columnClasses="left_nowrap,left_nowrap,left_nowrap,specialLink"
 	      		rowClasses="#{gradebookSetupBean.rowClasses}"
 				styleClass="listHier narrowTable"
 				rowIndexVar="rowIndex">

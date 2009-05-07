@@ -22,25 +22,22 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.GradeMapping;
@@ -48,10 +45,6 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.Permission;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
-import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 
 public class GradebookSetupBean extends GradebookDependentBean implements Serializable
 {
@@ -432,6 +425,16 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				Category uiCategory = (Category) obj;
 				Long categoryId = uiCategory.getId();
 				String categoryName = uiCategory.getName();
+
+				 // do cross validation 
+                if((uiCategory.getDrop_lowest() > 0 || uiCategory.getDropHighest() > 0) && uiCategory.getKeepHighest() > 0) {
+                    FacesUtil.addErrorMessage(getLocalizedString("cat_keep_and_drop_mutually_exclusive"));
+                    return "failure";
+                }
+                if(uiCategory.getItemValue() < 0 && (uiCategory.getDrop_lowest() > 0 || uiCategory.getDropHighest() > 0 || uiCategory.getKeepHighest() > 0)) {
+                    FacesUtil.addErrorMessage(getLocalizedString("cat_pointvalue_not_valid"));
+                    return "failure";
+                }
 
                 if(uiCategory.isDropScores()) {
                     if (uiCategory.getItemValue() == null || uiCategory.getItemValue() <= 0) {

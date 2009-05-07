@@ -135,7 +135,7 @@ public class Category implements Serializable
     }
 
     public Double getItemValue() {
-        return itemValue;
+        return itemValue != null ? itemValue : 0.0;
     }
 
     public void setItemValue(Double itemValue) {

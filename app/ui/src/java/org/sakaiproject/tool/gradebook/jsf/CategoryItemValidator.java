@@ -34,16 +34,6 @@ public class CategoryItemValidator implements Validator, Serializable {
         }
         
         HttpServletRequest req = ((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest());
-        
-        Category category = (Category) req.getAttribute("category");
-        
-        if(category != null) {
-            if(category.isDropScores()) {
-                if(toValidate == null || toValidate <= 0) { // if category drops scores, toValidate (itemValue) cannot be null or <=0
-                    throw new ValidatorException(new FacesMessage(FacesUtil.getLocalizedString(context, "cat_itemvalue_require_positive")));
-                }
-            }
-        }
 
         try {
             if(toValidate != null && toValidate < 0) {

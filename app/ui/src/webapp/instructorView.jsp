@@ -168,6 +168,19 @@
 					</h:panelGroup>
 					
 					<h:outputText value="#{row.name}" styleClass="categoryHeading" rendered="#{row.isCategory}"/>
+		            <h:outputText value=" (" styleClass="categoryHeading" rendered="#{row.isCategory && (row.dropHighest != 0 || row.drop_lowest != 0 || row.keepHighest != 0)}" />
+		            <h:outputFormat value="#{msgs.cat_drop_highest_display}" styleClass="categoryHeading" rendered="#{row.isCategory && row.dropHighest != 0}" >
+		                <f:param value="#{row.dropHighest}"/>
+		            </h:outputFormat>
+		            <h:outputText value="; " styleClass="categoryHeading" rendered="#{row.isCategory && (row.dropHighest != 0 && row.drop_lowest != 0)}" />
+		            <h:outputFormat value="#{msgs.cat_drop_lowest_display}" styleClass="categoryHeading" rendered="#{row.isCategory && row.drop_lowest != 0}" >
+		                <f:param value="#{row.drop_lowest}"/>
+		            </h:outputFormat>
+		            
+		            <h:outputFormat value="#{msgs.cat_keep_highest_display}" styleClass="categoryHeading" rendered="#{row.isCategory && row.keepHighest != 0}" >
+		                <f:param value="#{row.keepHighest}"/>
+		            </h:outputFormat>
+		            <h:outputText value=")" styleClass="categoryHeading" rendered="#{row.isCategory && (row.dropHighest != 0 || row.drop_lowest != 0 || row.keepHighest != 0)}" />
 				</h:column>
 				
 				<h:column>
