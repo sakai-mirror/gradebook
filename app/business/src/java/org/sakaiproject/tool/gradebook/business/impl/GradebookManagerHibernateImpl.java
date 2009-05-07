@@ -2993,9 +2993,10 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                         }
                     }
                     
+                    int numGrades = gradesByCategory.size();
                     log.debug("gradesByCategory size is " + gradesByCategory.size());
                     
-                    if(dropHighest != null && gradesByCategory.size() > dropHighest + dropLowest) {
+                    if(dropHighest > 0 && numGrades > dropHighest + dropLowest) {
                         for(int i=0; i<dropHighest; i++) {
                             AssignmentGradeRecord highest = Collections.max(gradesByCategory, AssignmentGradeRecord.numericComparator);
                             highest.setDroppedFromGrade(true);
@@ -3004,11 +3005,11 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                         }
                     }
                     
-                    if(keepHighest != null && gradesByCategory.size() > (gradesByCategory.size() - keepHighest)) {
+                    if(keepHighest > 0 && numGrades > (gradesByCategory.size() - keepHighest)) {
                         dropLowest = gradesByCategory.size() - keepHighest;
                     }
                     
-                    if(dropLowest != null &&  gradesByCategory.size() > dropLowest + dropHighest) {
+                    if(dropLowest > 0 &&  numGrades > dropLowest + dropHighest) {
                         for(int i=0; i<dropLowest; i++) {
                             AssignmentGradeRecord lowest = Collections.min(gradesByCategory, AssignmentGradeRecord.numericComparator);
                             lowest.setDroppedFromGrade(true);
