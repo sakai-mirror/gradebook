@@ -500,11 +500,13 @@ public class Category implements Serializable
 		this.isExtraCredit = isExtraCredit;
 	}
     
-    public boolean getGradedItemsUnequal() {
-        boolean unequal = false;
+    public boolean isAssignmentsEqual() {
+        boolean isEqual = true;
         Double pointsPossible = null;
         List assignments = getAssignmentList();
-        if(assignments != null) {
+        if(assignments == null) {
+            return isEqual;
+        } else {
             for(Object o : assignments) {
                 if(o instanceof Assignment) {
                     Assignment assignment = (Assignment)o;
@@ -512,14 +514,14 @@ public class Category implements Serializable
                         pointsPossible = assignment.getPointsPossible();
                     } else {
                         if(assignment.getPointsPossible() != null && !pointsPossible.equals(assignment.getPointsPossible())) {
-                            unequal = true;
-                            return unequal;
+                            isEqual = false;
+                            return isEqual;
                         }
                     }
                 }
             }
         }
-        return unequal;
+        return isEqual;
     }
 
 }

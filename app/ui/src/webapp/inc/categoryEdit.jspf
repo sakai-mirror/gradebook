@@ -80,7 +80,7 @@
 					</f:facet>
 					<h:inputText id="dropHighest" value="#{category.dropHighest}" size="3" title="#{msgs.cat_drop_highest_tooltip}" 
 					    rendered="#{gradebookSetupBean.showDropsDisplayed}" onfocus="javascript:dropScoresAdjust(this.form);"
-					    onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}">
+					    onchange="javascript:dropScoresAdjust(this.form);" disabled="#{!category.assignmentsEqual}">
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
 					</h:inputText>
@@ -92,7 +92,7 @@
 					</f:facet>
 					<h:inputText id="dropLowest" value="#{category.drop_lowest}" size="3" title="#{msgs.cat_drop_lowest_tooltip}"
                         rendered="#{gradebookSetupBean.showDropsDisplayed}" onfocus="javascript:dropScoresAdjust(this.form);" 
-                        onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}" >
+                        onchange="javascript:dropScoresAdjust(this.form);" disabled="#{!category.assignmentsEqual}" >
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
                     </h:inputText>
@@ -104,7 +104,7 @@
 					</f:facet>
 					<h:inputText id="keepHighest" value="#{category.keepHighest}" size="3" title="#{msgs.cat_keep_highest_tooltip}"
 					rendered="#{gradebookSetupBean.showDropsDisplayed}" onfocus="javascript:dropScoresAdjust(this.form);"
-					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}">
+					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{!category.assignmentsEqual}">
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
 					</h:inputText>
@@ -114,10 +114,10 @@
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_point_value}" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPointGrade}"/>
 					</f:facet>
-				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPointGrade && !category.gradedItemsUnequal}"/>
+				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPointGrade && !!category.assignmentsEqual}"/>
 					<h:inputText id="pointValue" value="#{category.itemValue}" size="3" title="#{msgs.cat_point_value_tooltip}"
 					rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPointGrade}" onfocus="javascript:dropScoresAdjust(this.form);"
-					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}">
+					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{!category.assignmentsEqual}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />					
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.CATEGORY_ITEM"/>
 					</h:inputText>
@@ -127,10 +127,10 @@
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_percent_value}" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPercentageGrade}"/>
 					</f:facet>
-				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPercentageGrade && !category.gradedItemsUnequal}"/>
+				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPercentageGrade && !!category.assignmentsEqual}"/>
 					<h:inputText id="relativeWeight" value="#{category.itemValue}" size="3" title="#{msgs.cat_percent_value_tooltip}"
 					rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPercentageGrade}" onfocus="javascript:dropScoresAdjust(this.form);"
-					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{category.gradedItemsUnequal}">
+					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{!category.assignmentsEqual}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.CATEGORY_ITEM"/>
 					</h:inputText>
