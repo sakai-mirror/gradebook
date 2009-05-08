@@ -82,6 +82,8 @@
 
 	  </h:form>
 	  	<h:panelGrid styleClass="instruction" cellpadding="0" cellspacing="0" columns="1">
+	  		<h:outputText value="#{msgs.roster_adjustment_legend}" />
+	  		<f:verbatim><br/></f:verbatim>
 			<h:outputText value="#{msgs.overview_legend_title}" />
 			<t:dataList var="legend" value="#{rosterBean.legendRows}" layout="unorderedList">
 				<h:outputText value="#{legend}" />

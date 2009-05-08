@@ -5,7 +5,7 @@ div#headers {
    background-color: #ddd;
    border: 1px solid #afafaf;
    border-bottom: 4px solid #afafaf;
-   height: 65px;
+   height: 45px;
    margin-right: 15px;
    overflow: hidden;
    padding: 0;
@@ -38,7 +38,7 @@ z-index: 5;
       bottom: 0;
       display: block;
       float: left;
-      height: 60px;
+      height: 40px;
       *height: 45px;
       list-style: none;
       padding: 5px 5px 0 5px;
@@ -62,7 +62,7 @@ div#q2 {
 
       div#q2 div ul{
          float: left;
-         height: 65px;
+         height: 45px;
          margin: 0;
          padding: 0;
          position: relative;
@@ -73,7 +73,7 @@ div#q2 {
          div#q2 div ul li {
             border: 1px solid #a3a3a3;
             float: left;
-            height: 60px;
+            height: 40px;
             *height: 43px;
             list-style: none;
             padding: 5px 5px 0 5px;

@@ -568,25 +568,17 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		                br.setValue("<br />");
 		                br.setEscape(false);
 		                
-		                Boolean extraCredit = getGradebookManager().getAssignment(columnData.getAssignmentId()).getIsExtraCredit();
-		                
 		                //make a panel group to add link 
 		                HtmlPanelGroup pg = new HtmlPanelGroup();
 		                pg.getChildren().add(sortHeader);
-		                pg.getChildren().add(br);
-		                if (extraCredit!=null)
+		                Boolean extraCredit = getGradebookManager().getAssignment(columnData.getAssignmentId()).getIsExtraCredit();
+		                if (extraCredit!=null && extraCredit)
 		                {
-		                	if (extraCredit)
-		                	{
-		                		HtmlOutputText ai = new HtmlOutputText();
-		                		ai.setValue("Adjustment");
-		                		pg.getChildren().add(ai);
-		                		HtmlOutputText br2 = new HtmlOutputText();
-				                br2.setValue("<br />");
-				                br2.setEscape(false);
-		                		pg.getChildren().add(br2);
-		                	}
+		                	HtmlOutputText asterisk = new HtmlOutputText();
+		                	asterisk.setValue(" *");
+			                pg.getChildren().add(asterisk);
 		                }
+		                pg.getChildren().add(br);
 		                pg.getChildren().add(detailsLink);
 		                
 		                col.setHeader(pg);
