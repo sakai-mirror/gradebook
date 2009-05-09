@@ -39,8 +39,8 @@
   <classpathentry kind="src" path="/sakai-gradebook-service-api"/>
   <classpathentry kind="src" path="/sakai-gradebook-service-hibernate"/>
   <classpathentry kind="src" path="/sakai-import-api"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-api/1.0.6/sakai-kernel-api-1.0.6.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.0.6/sakai-kernel-util-1.0.6.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-api/1.0.7/sakai-kernel-api-1.0.7.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.0.7/sakai-kernel-util-1.0.7.jar"/>
   <classpathentry kind="src" path="/sakai-sections-api"/>
   <classpathentry kind="src" path="/sakai-sections-integrationsupport"/>
   <classpathentry kind="var" path="M2_REPO/saxpath/saxpath/1.0-FCS/saxpath-1.0-FCS.jar"/>
