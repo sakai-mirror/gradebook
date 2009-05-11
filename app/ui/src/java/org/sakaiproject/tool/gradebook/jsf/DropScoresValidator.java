@@ -9,12 +9,19 @@ import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
 
 /**
- * Validates drop scores value entered on the Gradebook setup page.
+ * Validates that drop scores values entered on the Gradebook setup page (dropLowest, dropHighest, keepHighest) are positive.
+ * Cannot perform cross validation here, because JSF does not update the GradebookSetupBean.categories with values
+ * entered on the screen before the validation phase
  *
  */
 public class DropScoresValidator implements Validator, Serializable {
 
 	/**
+     * default
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
 	 * @see javax.faces.validator.Validator#validate(javax.faces.context.FacesContext,
 	 *      javax.faces.component.UIComponent, java.lang.Object)
 	 */

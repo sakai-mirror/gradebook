@@ -39,9 +39,13 @@ public class CategoryItemValidator implements Validator, Serializable {
             if(toValidate != null && toValidate < 0) {
                 throw new ValidatorException(new FacesMessage(FacesUtil.getLocalizedString(context, "cat_itemvalue_require_positive")));
             }
-            BigDecimal bd = new BigDecimal(toValidate);
-            if(bd.scale() > 2) {
-                throw new ValidatorException(new FacesMessage(FacesUtil.getLocalizedString(context, "cat_itemvalue_too_precise")));            
+            String itemValue = toValidate.toString();
+            int decPos = itemValue.indexOf('.');
+            if(decPos != -1) {
+                String right = itemValue.substring(decPos+1);
+                if(right.length() > 2) {
+                    throw new ValidatorException(new FacesMessage(FacesUtil.getLocalizedString(context, "cat_itemvalue_too_precise")));            
+                }
             }
         } catch(NumberFormatException e) {
             throw new ValidatorException(new FacesMessage(FacesUtil.getLocalizedString(context, "cat_itemvalue_invalid")));

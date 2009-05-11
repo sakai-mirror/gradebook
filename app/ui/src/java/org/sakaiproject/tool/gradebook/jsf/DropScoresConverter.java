@@ -6,6 +6,10 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.ConverterException;
 import javax.faces.convert.NumberConverter;
 
+/*
+ * converts drop scores values to Integer (from the default Long) to avoid a ClassCastException
+ * as JSF tries to assign the Long values to Category Integer attributes (dropLowest, dropHighest, keepHighest).
+ */
 public class DropScoresConverter extends NumberConverter {
 
     public DropScoresConverter() {

@@ -298,8 +298,47 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
   }
 }
 
+function toggleVisibilityDropScoresFields(myForm) {
+    var showDrops =  getTheElement(myForm.name + ":showDrops");
+
+    var visibility = ""; // an unspecified display makes the column and column header visible
+
+    var tbl  = document.getElementById(myForm.name + ":categoriesTable");
+    var thead = tbl.getElementsByTagName('thead');
+    var header = thead.item(0);
+    var headerRows = header.getElementsByTagName('th');
+
+
+    if(headerRows.length == 7) {
+        var dropHighestIdx = 2;  // the index of 1st drop column, if Categories is selected
+    } else {
+        var dropHighestIdx = 4;  // the index of 1st drop column, if Categories & Weighting is selected
+    }
+
+//    if(headerRows[dropHighestIdx].style.display == "") {
+    if(showDrops.checked == false) {
+        visibility = "none";      // make the column and column header not visible
+    }
+
+    headerRows[dropHighestIdx].style.display=visibility;
+    headerRows[dropHighestIdx+1].style.display=visibility;
+    headerRows[dropHighestIdx+2].style.display=visibility;
+    headerRows[dropHighestIdx+3].style.display=visibility;
+    var rows = tbl.getElementsByTagName('tr');
+    for (var row=0; row<rows.length;row++) {
+        var cels = rows[row].getElementsByTagName('td')
+        if(cels.length > 0) {
+            cels[dropHighestIdx].style.display=visibility;
+            cels[dropHighestIdx+1].style.display=visibility;
+            cels[dropHighestIdx+2].style.display=visibility;
+            cels[dropHighestIdx+3].style.display=visibility;
+        }
+    }
+    dropScoresAdjust(myForm);
+}
+
+
 function dropScoresAdjust(myForm) {
-/*    
 //  'gbForm:categoriesTable:0:dropHighest'
     if(myForm == undefined) {
         return;
@@ -314,54 +353,69 @@ function dropScoresAdjust(myForm) {
         if(dropHighest == undefined) {
             break;
         } else {
-            if(dropHighest.value > 0 || dropLowest.value > 0) {
-                keepHighest.value = 0;
-                keepHighest.disabled = true;
+            var pointsPossibleUnequal = false;
+            // if all are disabled, this means that the category was disabled for entering drop scores (because items pointsPossible are unequal)
+            if(dropHighest.disabled == true && dropLowest.disabled == true && keepHighest.disabled == true) {
+                pointsPossibleUnequal = true;
             } else {
-                keepHighest.disabled = false;
-                if(pointValue != undefined) {
-                    pointValue.disabled = true;
-                }
-                if(relativeWeight != undefined) {
-                    relativeWeight.disabled = true;
-                }
-            }    
-            if(keepHighest.value > 0) {
-                dropLowest.value = 0;
-                dropHighest.value = 0;
-                dropLowest.disabled = true;
-                dropHighest.disabled = true;
-            } else {
-                dropLowest.disabled = false;
-                dropHighest.disabled = false;
+                pointsPossibleUnequal = false;
             }
-            
-            if(dropHighest.value > 0 || dropLowest.value > 0 || keepHighest.value > 0) {
-                if(pointValue != undefined) {
-                    pointValue.disabled = false;
+            if(!pointsPossibleUnequal) {
+                if(dropHighest.value > 0 || dropLowest.value > 0) {
+                    keepHighest.value = 0;
+                    keepHighest.disabled = true;
+                } else {
+                    keepHighest.disabled = false;
+/*                    
+                    if(pointValue != undefined) {
+                        pointValue.disabled = true;
+                    }
+                    if(relativeWeight != undefined) {
+                        relativeWeight.disabled = true;
+                    }
+*/                    
+                }    
+                if(keepHighest.value > 0) {
+                    dropLowest.value = 0;
+                    dropHighest.value = 0;
+                    dropLowest.disabled = true;
+                    dropHighest.disabled = true;
+                } else {
+                    dropLowest.disabled = false;
+                    dropHighest.disabled = false;
                 }
-                if(relativeWeight != undefined) {
-                    relativeWeight.disabled = false;
+                
+                if(dropHighest.value > 0 || dropLowest.value > 0 || keepHighest.value > 0) {
+                    if(pointValue != undefined) {
+                        pointValue.disabled = false;
+                    }
+                    if(relativeWeight != undefined) {
+                        relativeWeight.disabled = false;
+                    }
                 }
-            } else {
-                if(pointValue != undefined) {
-                    pointValue.disabled = true;
+                /*
+                else {
+                    if(pointValue != undefined) {
+                        pointValue.disabled = true;
+                    }
+                    if(relativeWeight != undefined) {
+                        relativeWeight.disabled = true;
+                    }
                 }
-                if(relativeWeight != undefined) {
-                    relativeWeight.disabled = true;
+
+                if(dropHighest.value < 1 && dropLowest.value < 1 && keepHighest.value < 1) {
+                    if(pointValue != undefined) {
+                        pointValue.value = 0.0;
+                    }
+                    if(relativeWeight != undefined) {
+                        relativeWeight.value = 0.0;
+                    }
                 }
-            }
-            if(dropHighest.value < 1 && dropLowest.value < 1 && keepHighest.value < 1) {
-                if(pointValue != undefined) {
-                    pointValue.value = 0.0;
-                }
-                if(relativeWeight != undefined) {
-                    relativeWeight.value = 0.0;
-                }
+*/                
             }
         }
     }
-    */
+
 }
 
 // if user unchecks box to release items, we must uncheck

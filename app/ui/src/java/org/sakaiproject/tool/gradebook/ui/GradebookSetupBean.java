@@ -52,7 +52,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 	private String gradeEntryMethod;
     private String categorySetting;
-    private boolean showDropsDisplayed;
+    private boolean showDropsDisplayed = true;
     private boolean anyCategoriesWithDrops;
 	private List categories;
 	private Gradebook localGradebook;
@@ -110,14 +110,21 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		if (lgpm != null && lgpm.getGradeMap().size() > 0) {	
 			initLetterGradeRows();
 		}
+/*		
+		if(getAnyCategoriesWithDrops()) {
+		    showDropsDisplayed = true;
+		} else {
+            showDropsDisplayed = false;
+		}
+*/		
 	}
-	
-	/*
-	 * For category requests to drop scores, need their assignments populated
-	 * so that system can determine eligibility of category to drop scores
-	 * if assignments have unequal pointsPossible, then they cannot drop scores
-	 */
-	private void populateCategoryAssignments(List categories) {
+    
+    /*
+     * For category requests to drop scores, need their assignments populated
+     * so that system can determine eligibility of category to drop scores
+     * if assignments have unequal pointsPossible, then they cannot drop scores
+     */
+    private void populateCategoryAssignments(List categories) {
         if(categories != null) {
             for(Object obj : categories) {
                 if(obj instanceof Category) {
@@ -132,7 +139,21 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
                 }
             }
         }
-	}
+    }
+    
+    private void removeDropsFromCategories() {
+        if(categories != null) {
+            for(Object obj : categories) {
+                if(obj instanceof Category) {
+                    Category category = (Category)obj;
+                    category.setItemValue(0.0);
+                    category.setDrop_lowest(0);
+                    category.setDropHighest(0);
+                    category.setKeepHighest(0);
+                }
+            }
+        }
+    }
 	
 	private void initLetterGradeRows() {
 		letterGradeRows = new ArrayList();
@@ -152,7 +173,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		localGradebook = null;
 		categories = null;
 		categorySetting = null;
-		showDropsDisplayed = false;
+//		showDropsDisplayed = false;
 		gradeEntryMethod = null;
 		isValidWithCourseGrade = true;
 	}
@@ -407,6 +428,10 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				return "failure";
 			}
 		}
+        
+        if(getShowDropsDisplayed() == false) {
+            removeDropsFromCategories();
+        }
 		
 		/* now we need to iterate through the categories and
 		 	1) remove categories

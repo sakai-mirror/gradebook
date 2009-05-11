@@ -11,8 +11,8 @@
        <f:selectItem itemValue="categoriesAndWeighting" itemLabel="#{msgs.opt_categories_and_weighting}" />    
 	</h:selectOneRadio>
 	<div class="indnt2 gbSection">
-      <h:selectBooleanCheckbox id="showDrops" value="#{gradebookSetupBean.showDropsDisplayed}" 
-	      valueChangeListener="#{gradebookSetupBean.processShowDropsChange}" onclick="this.form.submit();"
+      <h:selectBooleanCheckbox id="showDrops" value="#{gradebookSetupBean.showDropsDisplayed}"
+          onclick="toggleVisibilityDropScoresFields(this.form);"
 	      rendered="#{!gradebookSetupBean.isLetterGrade && (gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
       <h:outputLabel for="showDrops" value="#{msgs.opt_show_drops}" rendered="#{!gradebookSetupBean.isLetterGrade && (gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
 	  
@@ -32,7 +32,7 @@
 				id="categoriesTable"
 				value="#{gradebookSetupBean.categories}"
 				var="category"
-	      columnClasses="left_nowrap,left_nowrap,left_nowrap,specialLink"
+	      columnClasses="left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,specialLink"
 	      		rowClasses="#{gradebookSetupBean.rowClasses}"
 				styleClass="listHier narrowTable"
 				rowIndexVar="rowIndex">
@@ -74,62 +74,62 @@
 					</f:facet>
 					<h:selectBooleanCheckbox id="adjustment" value="#{category.isExtraCredit}" onchange="javascript:updateRunningTotal(this.form);"/>
 				</h:column>
-				<h:column rendered="#{gradebookSetupBean.showDropsDisplayed}">
+				<h:column>
 					<f:facet name="header">
-						<h:outputText value="#{msgs.cat_drop_highest}" rendered="#{gradebookSetupBean.showDropsDisplayed}"/>
+						<h:outputText value="#{msgs.cat_drop_highest}"/>
 					</f:facet>
 					<h:inputText id="dropHighest" value="#{category.dropHighest}" size="3" title="#{msgs.cat_drop_highest_tooltip}" 
-					    rendered="#{gradebookSetupBean.showDropsDisplayed}" onfocus="javascript:dropScoresAdjust(this.form);"
-					    onchange="javascript:dropScoresAdjust(this.form);" disabled="#{!category.assignmentsEqual}">
+					    onfocus="javascript:dropScoresAdjust(this.form);"
+					    onchange="javascript:dropScoresAdjust(this.form);" disabled="#{!category.assignmentsEqual || category.keepHighest > 0}">
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
 					</h:inputText>
 					<h:message for="dropHighest" styleClass="alertMessageInline"/>
 				</h:column>
-				<h:column rendered="#{gradebookSetupBean.showDropsDisplayed}">
+				<h:column>
 					<f:facet name="header">
-						<h:outputText value="#{msgs.cat_drop_lowest}" rendered="#{gradebookSetupBean.showDropsDisplayed}"/>
+						<h:outputText value="#{msgs.cat_drop_lowest}"/>
 					</f:facet>
 					<h:inputText id="dropLowest" value="#{category.drop_lowest}" size="3" title="#{msgs.cat_drop_lowest_tooltip}"
-                        rendered="#{gradebookSetupBean.showDropsDisplayed}" onfocus="javascript:dropScoresAdjust(this.form);" 
-                        onchange="javascript:dropScoresAdjust(this.form);" disabled="#{!category.assignmentsEqual}" >
+                        onfocus="javascript:dropScoresAdjust(this.form);" 
+                        onchange="javascript:dropScoresAdjust(this.form);" disabled="#{!category.assignmentsEqual || category.keepHighest > 0}" >
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
                     </h:inputText>
 					<h:message for="dropLowest" styleClass="alertMessageInline"/>
 				</h:column>
-				<h:column rendered="#{gradebookSetupBean.showDropsDisplayed}">
+				<h:column>
 					<f:facet name="header">
-						<h:outputText value="#{msgs.cat_keep_highest}" rendered="#{gradebookSetupBean.showDropsDisplayed}"/>
+						<h:outputText value="#{msgs.cat_keep_highest}"/>
 					</f:facet>
 					<h:inputText id="keepHighest" value="#{category.keepHighest}" size="3" title="#{msgs.cat_keep_highest_tooltip}"
-					rendered="#{gradebookSetupBean.showDropsDisplayed}" onfocus="javascript:dropScoresAdjust(this.form);"
-					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{!category.assignmentsEqual}">
+					onfocus="javascript:dropScoresAdjust(this.form);"
+					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{!category.assignmentsEqual || (category.drop_lowest > 0 || category.dropHighest > 0)}">
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
 					</h:inputText>
 					<h:message for="keepHighest" styleClass="alertMessageInline"/>
 				</h:column>
-				<h:column rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPointGrade}">
+				<h:column rendered="#{gradebookSetupBean.isPointGrade}">
 					<f:facet name="header">
-						<h:outputText value="#{msgs.cat_point_value}" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPointGrade}"/>
+						<h:outputText value="#{msgs.cat_point_value}" rendered="#{gradebookSetupBean.isPointGrade}"/>
 					</f:facet>
-				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPointGrade && !!category.assignmentsEqual}"/>
+				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{gradebookSetupBean.isPointGrade && !!category.assignmentsEqual}"/>
 					<h:inputText id="pointValue" value="#{category.itemValue}" size="3" title="#{msgs.cat_point_value_tooltip}"
-					rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPointGrade}" onfocus="javascript:dropScoresAdjust(this.form);"
+					rendered="#{gradebookSetupBean.isPointGrade}" onfocus="javascript:dropScoresAdjust(this.form);"
 					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{!category.assignmentsEqual}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />					
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.CATEGORY_ITEM"/>
 					</h:inputText>
 					<h:message for="pointValue" styleClass="alertMessageInline"/>
 				</h:column>
-				<h:column rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPercentageGrade}">
+				<h:column rendered="#{gradebookSetupBean.isPercentageGrade}">
 					<f:facet name="header">
-						<h:outputText value="#{msgs.cat_percent_value}" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPercentageGrade}"/>
+						<h:outputText value="#{msgs.cat_percent_value}" rendered="#{gradebookSetupBean.isPercentageGrade}"/>
 					</f:facet>
-				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPercentageGrade && !!category.assignmentsEqual}"/>
+				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{gradebookSetupBean.isPercentageGrade && !!category.assignmentsEqual}"/>
 					<h:inputText id="relativeWeight" value="#{category.itemValue}" size="3" title="#{msgs.cat_percent_value_tooltip}"
-					rendered="#{gradebookSetupBean.showDropsDisplayed && gradebookSetupBean.isPercentageGrade}" onfocus="javascript:dropScoresAdjust(this.form);"
+					rendered="#{gradebookSetupBean.isPercentageGrade}" onfocus="javascript:dropScoresAdjust(this.form);"
 					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{!category.assignmentsEqual}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.CATEGORY_ITEM"/>
@@ -153,7 +153,7 @@
 			
 			<t:panelGrid columns="1">
 				<t:panelGroup>
-					<h:outputText value="#{msgs.cat_itemvalues_must_be_equal}" rendered="#{gradebookSetupBean.showDropsDisplayed}" />
+					<h:outputText value="#{msgs.cat_itemvalues_must_be_equal}" />
 				</t:panelGroup>
 			</t:panelGrid>	
 			
