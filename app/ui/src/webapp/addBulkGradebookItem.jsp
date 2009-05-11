@@ -116,7 +116,7 @@
 		<h:commandButton
 			id="saveButton"
 			styleClass="active"
-			value="#{msgs.add_assignment_save}"
+			value="#{msgs.add_assignment_save_button}"
 			action="#{addAssignmentBean.saveNewBulkAssignment}"/>
 		<h:commandButton
 			value="#{msgs.add_assignment_cancel}"
