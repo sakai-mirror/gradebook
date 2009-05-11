@@ -26,8 +26,9 @@
 
 		<sakai:flowState bean="#{addAssignmentBean}" />
 
-		<p class="instruction"><h:outputText value="#{msgs.add_assignment_instruction}" /></p>
-
+		<p class="instruction"><h:outputText value="#{msgs.add_assignment_instruction}" rendered="#{!addAssignmentBean.isBulkDisplay}" /></p>
+		<p class="instruction"><h:outputText value="#{msgs.add_assignment_in_bulk_instruction}" rendered="#{addAssignmentBean.isBulkDisplay}" /></p>
+		
 <%-- Commented out per SAK-12285
 		<p>
 		<h:outputText value="#{msgs.add_assignment_selector1}" />
