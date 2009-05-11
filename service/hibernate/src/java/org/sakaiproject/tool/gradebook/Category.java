@@ -270,7 +270,7 @@ public class Category implements Serializable
 						{
 							if (assign.getIsExtraCredit()!=null)
 							{
-								if (assign.getPointsPossible()==null)
+								if (assign.getPointsPossible()==null || assign.getPointsPossible()==0)
 									adjustmentItemWithNoPoints = true;
 							}
 						}
@@ -378,7 +378,7 @@ public class Category implements Serializable
 							{
 								if (assignment.getIsExtraCredit()!=null)
 								{
-									if (assignment.getPointsPossible()==null)
+									if (assignment.getPointsPossible()==null || assignment.getPointsPossible()==0)
 										adjustmentItemWithNoPoints = true;
 								}
 							}

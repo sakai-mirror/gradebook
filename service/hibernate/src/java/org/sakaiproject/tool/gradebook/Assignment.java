@@ -421,7 +421,7 @@ public class Assignment extends GradableObject {
                 }
 
                 Double score = null;
-                if(!ungraded && pointsPossible!=null)
+                if(!ungraded && pointsPossible!=null && pointsPossible!=0)
                     score = record.getGradeAsPercentage(getGradebook().getGrade_type());
                     //score = record.getGradeAsPercentage();
                     String points = record.getPointsEarned();
@@ -441,7 +441,7 @@ public class Assignment extends GradableObject {
                     averageTotal = null;
                 } else {
                     BigDecimal bdNumScored = new BigDecimal(numScored);
-                    if(!ungraded && pointsPossible!=null) {
+                    if(!ungraded && pointsPossible!=null && pointsPossible!=0) {
                         mean = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
                     } else {
                         mean = null;

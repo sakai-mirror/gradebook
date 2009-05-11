@@ -448,6 +448,9 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			
 				if (saveAll) {
 					bulkAssignDecoBean.getAssignment().setCategory(retrieveSelectedCategory(bulkAssignDecoBean.getCategory()));
+					// if points possible is still 0 at this point, set it to null to avoid Division By Zero exceptions.  These should never be allowed in the database.
+					if (bulkAssignDecoBean.getAssignment().getPointsPossible()==0)
+						bulkAssignDecoBean.getAssignment().setPointsPossible(null);
 			    	itemsToSave.add(bulkAssignDecoBean.getAssignment());
 				}
 
