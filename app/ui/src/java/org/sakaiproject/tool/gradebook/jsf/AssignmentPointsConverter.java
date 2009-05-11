@@ -157,7 +157,7 @@ public class AssignmentPointsConverter extends PointsConverter{
         if(value != null && value instanceof AssignmentGradeRecord){
             AssignmentGradeRecord agr = (AssignmentGradeRecord)value;
             if(agr.getDroppedFromGrade()) {
-                formattedScore = "<outputFormat style='text-decoration:line-through'>" + formattedScore + "</outputFormat>";
+                formattedScore = "<strike>" + formattedScore + "</strike>";
             }
         }
 		return formattedScore;
