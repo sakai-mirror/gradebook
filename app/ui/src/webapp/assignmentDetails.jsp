@@ -331,6 +331,18 @@
 					<f:param name="breadcrumbPage" value="#{assignmentDetailsBean.breadcrumbPage}" />
 			</h:commandButton>
 		</div>
+				
+			<h:panelGrid styleClass="assignment gbSection" cellpadding="0" cellspacing="0" columns="1">
+				<h:outputText value="#{msgs.assignment_details_legend_title}" />
+				<h:panelGroup>
+					<h:outputText value="#{msgs.assignment_details_footnote_symbol1}" />
+					<h:outputText value="#{msgs.assignment_details_footnote_legend1}" />
+				</h:panelGroup>
+				<h:panelGroup rendered="#{!assignmentDetailsBean.gradeEntryByLetter}">
+					<h:outputText value="#{msgs.assignment_details_footnote_symbol2}" />
+					<h:outputText value="#{msgs.assignment_details_footnote_legend2}" />
+				</h:panelGroup>
+			</h:panelGrid>
 
 		</div> <!-- END OF INDNT1 -->
 

@@ -151,12 +151,6 @@
 				<h:outputText value="#{msgs.cat_list_more}" />
 			</h:outputLink>
 			
-			<t:panelGrid columns="1">
-				<t:panelGroup>
-					<h:outputText value="#{msgs.cat_itemvalues_must_be_equal}" />
-				</t:panelGroup>
-			</t:panelGrid>	
-			
 			<t:panelGrid columns="3" columnClasses="categoryRight, categoryRight" styleClass="indnt10" rendered="#{gradebookSetupBean.displayWeighting}">
 				<t:panelGroup>
 					<h:outputText value="#{msgs.all_categories}"/>

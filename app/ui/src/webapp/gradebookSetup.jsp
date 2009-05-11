@@ -13,6 +13,11 @@
 			<h2><h:outputText value="#{msgs.gb_setup_title}"/></h2>
 			
 			<%@include file="/inc/globalMessages.jspf"%>
+
+			<p class="instruction">
+				<h:outputText value="* " styleClass="reqStarInline"/>
+				<h:outputText value="#{msgs.flag_required}"/>
+			</p>
 			
 		<%-- /*Per SAK-15061, Error message doesn't need to show up. */
 		 	<h:panelGroup rendered="#{!gradebookSetupBean.isExistingConflictScale}" styleClass="validation">
