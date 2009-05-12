@@ -34,7 +34,7 @@
 				var="category"
 	      columnClasses="left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,specialLink"
 	      		rowClasses="#{gradebookSetupBean.rowClasses}"
-				styleClass="listHier narrowTable"
+				styleClass="listHier"
 				rowIndexVar="rowIndex">
 				<h:column>
 					<f:facet name="header">
@@ -233,3 +233,15 @@
 	   }
 	});
 </script>
+
+<script type="text/javascript">
+//<![CDATA[
+
+$(window).load(function(){
+	// show/hide options based upon the selected grade entry
+	toggleVisibilityDropScoresFields(this.form);
+});
+//]]>
+</script>
+
+

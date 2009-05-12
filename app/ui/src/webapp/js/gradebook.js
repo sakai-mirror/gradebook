@@ -298,12 +298,13 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
   }
 }
 
-function toggleVisibilityDropScoresFields(myForm) {
-    var showDrops =  getTheElement(myForm.name + ":showDrops");
+function toggleVisibilityDropScoresFields() {
+    var formName = "gbForm";
+    var showDrops =  getTheElement(formName + ":showDrops");
 
     var visibility = ""; // an unspecified display makes the column and column header visible
 
-    var tbl  = document.getElementById(myForm.name + ":categoriesTable");
+    var tbl  = document.getElementById(formName + ":categoriesTable");
     var thead = tbl.getElementsByTagName('thead');
     var header = thead.item(0);
     var headerRows = header.getElementsByTagName('th');
@@ -334,21 +335,21 @@ function toggleVisibilityDropScoresFields(myForm) {
             cels[dropHighestIdx+3].style.display=visibility;
         }
     }
-    dropScoresAdjust(myForm);
+    dropScoresAdjust();
 }
 
 
-function dropScoresAdjust(myForm) {
+function dropScoresAdjust() {
 //  'gbForm:categoriesTable:0:dropHighest'
-    if(myForm == undefined) {
-        return;
-    }
-    for (var i=0; i < myForm.elements.length; ++i) {
-        var dropHighest =  getTheElement(myForm.name + ":categoriesTable:" + i + ":dropHighest");
-        var dropLowest =  getTheElement(myForm.name + ":categoriesTable:" + i + ":dropLowest");
-        var keepHighest =  getTheElement(myForm.name + ":categoriesTable:" + i + ":keepHighest");
-        var pointValue =  getTheElement(myForm.name + ":categoriesTable:" + i + ":pointValue");
-        var relativeWeight =  getTheElement(myForm.name + ":categoriesTable:" + i + ":relativeWeight");
+
+    var formName = "gbForm";
+    
+    for (var i=0; i < document.gbForm.elements.length; ++i) {
+        var dropHighest =  getTheElement(formName + ":categoriesTable:" + i + ":dropHighest");
+        var dropLowest =  getTheElement(formName + ":categoriesTable:" + i + ":dropLowest");
+        var keepHighest =  getTheElement(formName + ":categoriesTable:" + i + ":keepHighest");
+        var pointValue =  getTheElement(formName + ":categoriesTable:" + i + ":pointValue");
+        var relativeWeight =  getTheElement(formName + ":categoriesTable:" + i + ":relativeWeight");
 
         if(dropHighest == undefined) {
             break;
@@ -366,14 +367,14 @@ function dropScoresAdjust(myForm) {
                     keepHighest.disabled = true;
                 } else {
                     keepHighest.disabled = false;
-/*                    
+                    
                     if(pointValue != undefined) {
                         pointValue.disabled = true;
                     }
                     if(relativeWeight != undefined) {
                         relativeWeight.disabled = true;
                     }
-*/                    
+                    
                 }    
                 if(keepHighest.value > 0) {
                     dropLowest.value = 0;

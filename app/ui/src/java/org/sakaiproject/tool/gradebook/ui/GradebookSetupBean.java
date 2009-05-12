@@ -52,7 +52,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 	private String gradeEntryMethod;
     private String categorySetting;
-    private boolean showDropsDisplayed = true;
+    private boolean showDropsDisplayed;
     private boolean anyCategoriesWithDrops;
 	private List categories;
 	private Gradebook localGradebook;
@@ -110,13 +110,12 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		if (lgpm != null && lgpm.getGradeMap().size() > 0) {	
 			initLetterGradeRows();
 		}
-/*		
+
 		if(getAnyCategoriesWithDrops()) {
 		    showDropsDisplayed = true;
 		} else {
             showDropsDisplayed = false;
 		}
-*/		
 	}
     
     /*
