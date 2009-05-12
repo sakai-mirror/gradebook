@@ -239,7 +239,7 @@
 
 $(window).load(function(){
 	// show/hide options based upon the selected grade entry
-	toggleVisibilityDropScoresFields(this.form);
+	toggleVisibilityDropScoresFields();
 });
 //]]>
 </script>

@@ -301,14 +301,11 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
 function toggleVisibilityDropScoresFields() {
     var formName = "gbForm";
     var showDrops =  getTheElement(formName + ":showDrops");
-
     var visibility = ""; // an unspecified display makes the column and column header visible
-
     var tbl  = document.getElementById(formName + ":categoriesTable");
     var thead = tbl.getElementsByTagName('thead');
     var header = thead.item(0);
     var headerRows = header.getElementsByTagName('th');
-
 
     if(headerRows.length == 7) {
         var dropHighestIdx = 2;  // the index of 1st drop column, if Categories is selected
@@ -316,7 +313,6 @@ function toggleVisibilityDropScoresFields() {
         var dropHighestIdx = 4;  // the index of 1st drop column, if Categories & Weighting is selected
     }
 
-//    if(headerRows[dropHighestIdx].style.display == "") {
     if(showDrops.checked == false) {
         visibility = "none";      // make the column and column header not visible
     }
@@ -340,10 +336,7 @@ function toggleVisibilityDropScoresFields() {
 
 
 function dropScoresAdjust() {
-//  'gbForm:categoriesTable:0:dropHighest'
-
     var formName = "gbForm";
-    
     for (var i=0; i < document.gbForm.elements.length; ++i) {
         var dropHighest =  getTheElement(formName + ":categoriesTable:" + i + ":dropHighest");
         var dropLowest =  getTheElement(formName + ":categoriesTable:" + i + ":dropLowest");
@@ -393,9 +386,7 @@ function dropScoresAdjust() {
                     if(relativeWeight != undefined) {
                         relativeWeight.disabled = false;
                     }
-                }
-                /*
-                else {
+                } else {
                     if(pointValue != undefined) {
                         pointValue.disabled = true;
                     }
@@ -412,11 +403,9 @@ function dropScoresAdjust() {
                         relativeWeight.value = 0.0;
                     }
                 }
-*/                
             }
         }
     }
-
 }
 
 // if user unchecks box to release items, we must uncheck
