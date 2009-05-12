@@ -62,6 +62,9 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     private boolean countedChange = true;
     private boolean isNonCalc;
     private boolean isAdjustment;
+    
+    //used to determine whether to zero-out the point value in applyPointsPossibleForDropScoreCategories
+    private boolean categoryChanged;
 
 	private Category selectedCategory;
     private boolean selectedCategoryDropsScores;
@@ -246,8 +249,10 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
             if(getLocalizedString("cat_unassigned").equalsIgnoreCase(assignmentCategory)) {
                 Category unassigned = new Category();
                 bulkAssignment.getAssignment().setCategory(unassigned); // set this unassigned category, so that in the ui, item.assignment.category.dropScores will return false
-                bulkAssignment.setPointsPossible(null);
-                bulkAssignment.getAssignment().setPointsPossible(0.0);
+                if(categoryChanged) {
+                    bulkAssignment.setPointsPossible(null);
+                    bulkAssignment.getAssignment().setPointsPossible(null);
+                }
             } else {
                 for(int j=0; j<categories.size(); j++) {
                     Category category = (Category)categories.get(j);
@@ -257,9 +262,9 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
                         if(category.isDropScores()) {
                             bulkAssignment.setPointsPossible(category.getItemValue().toString());
                             bulkAssignment.getAssignment().setPointsPossible(category.getItemValue());
-                        } else {
-                                bulkAssignment.setPointsPossible(null);
-                                bulkAssignment.getAssignment().setPointsPossible(0.0);
+                        } else if(categoryChanged) {
+                            bulkAssignment.setPointsPossible(null);
+                            bulkAssignment.getAssignment().setPointsPossible(null);
                         }
                         continue;
                     }
@@ -1087,6 +1092,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
         String changeCategory = (String) vce.getNewValue();
         if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))  
         {
+            categoryChanged = true;
             categoryEntry = changeCategory;
             if(newBulkGradebookItems != null) {
                 for(int i=0; i<this.newBulkGradebookItems.size(); i++) {
@@ -1100,7 +1106,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     }
         
     public String processCategoryChangeInEditAssignment(ValueChangeEvent vce)
-    { 
+    {
         String changeCategory = (String) vce.getNewValue();
         assignmentCategory = changeCategory;
         if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))  
