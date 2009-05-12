@@ -713,20 +713,50 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 		{
                 			if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
                 			{
-                				if (gradeRecordFromCall.getPointsEarned() != null && 
-                						!gradeRecordFromCall.getPointsEarned().equals("") &&
-                						!assignment.getUngraded() && 
-                						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(assignment.getPointsPossible()) > 0) {
-                					studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
+                				if (assignment.getIsExtraCredit()!=null)
+                  				{
+    	              				if (!assignment.getIsExtraCredit())
+    	              				{
+		                				if (gradeRecordFromCall.getPointsEarned() != null && 
+		                						!gradeRecordFromCall.getPointsEarned().equals("") &&
+		                						!assignment.getUngraded() && 
+		                						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(assignment.getPointsPossible()) > 0) {
+		                					studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
+		                				}
+    	              				}
+                  				}
+                				else
+                				{
+                					if (gradeRecordFromCall.getPointsEarned() != null && 
+	                						!gradeRecordFromCall.getPointsEarned().equals("") &&
+	                						!assignment.getUngraded() && 
+	                						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(assignment.getPointsPossible()) > 0) {
+	                					studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
+	                				}
                 				}
                 			}
                 			else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
                 			{
-                				if (gradeRecordFromCall.getPointsEarned() != null && 
-                						!gradeRecordFromCall.getPointsEarned().equals("") &&
-                						!assignment.getUngraded() && 
-                						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(new Double("100.0")) > 0) {
-                					studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());                				
+                				if (assignment.getIsExtraCredit()!=null)
+                  				{
+    	              				if (!assignment.getIsExtraCredit())
+    	              				{
+		                				if (gradeRecordFromCall.getPointsEarned() != null && 
+		                						!gradeRecordFromCall.getPointsEarned().equals("") &&
+		                						!assignment.getUngraded() && 
+		                						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(new Double("100.0")) > 0) {
+		                					studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());                				
+		                				}
+    	              				}
+                  				}
+                				else
+                				{
+                					if (gradeRecordFromCall.getPointsEarned() != null && 
+	                						!gradeRecordFromCall.getPointsEarned().equals("") &&
+	                						!assignment.getUngraded() && 
+	                						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(new Double("100.0")) > 0) {
+	                					studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());                				
+	                				}
                 				}
                 			}
 
