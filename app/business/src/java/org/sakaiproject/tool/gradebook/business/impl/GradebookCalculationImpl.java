@@ -162,7 +162,6 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 				{
 					CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
 					double totalPointsEarned = 0;
-					double adjustmentPoints = 0;
 					double courseGradePointsAdjustment = 0;
 					if (cgr.getAdjustmentScore()!=null)
 					{	
@@ -170,7 +169,6 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 					}
 					BigDecimal literalTotalPointsEarned = new BigDecimal(0d);
 					Map cateScoreMap = new HashMap();
-					Map cateAdjustMap = new HashMap();
 					Map studentMap = (Map)gradeRecordMap.get(cgr.getStudentId());
 					Set assignmentsTaken = new HashSet();
 					if (studentMap != null) 
@@ -293,13 +291,13 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 															{
 																if(agr.getAssignment().getIsExtraCredit())
 																{
-																	if(cateAdjustMap.get(cate.getId()) != null)
+																	if(cateScoreMap.get(cate.getId()) != null)
 																	{
-																		cateAdjustMap.put(cate.getId(), new Double(((Double)cateAdjustMap.get(cate.getId())).doubleValue() + (pointsEarned.doubleValue() * 1d / 100.0d)));
+																		cateScoreMap.put(cate.getId(), new Double(((Double)cateScoreMap.get(cate.getId())).doubleValue() + (pointsEarned.doubleValue() * 1d / 100.0d)));
 																	}
 																	else
 																	{
-																		cateAdjustMap.put(cate.getId(), new Double(pointsEarned.doubleValue() * 1d / 100.0d));
+																		cateScoreMap.put(cate.getId(), new Double(pointsEarned.doubleValue() * 1d / 100.0d));
 																	}
 																}
 																else if (agr.getAssignment().getPointsPossible() != null)
@@ -390,8 +388,6 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 								if(cate != null && !cate.isRemoved() && cateScoreMap.get(cate.getId()) != null && cateTotalScoreMap.get(cate.getId()) != null)
 								{
 									totalPointsEarned += ((Double)cateScoreMap.get(cate.getId())).doubleValue() * cate.getWeight().doubleValue() / ((Double)cateTotalScoreMap.get(cate.getId())).doubleValue();
-									if(cateAdjustMap.get(cate.getId()) != null)
-										totalPointsEarned += ((Double)cateAdjustMap.get(cate.getId())).doubleValue();
 								}
 							}
 						}
@@ -486,7 +482,6 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 
 		Map cateScoreMap = new HashMap();
 		Map cateTotalScoreMap = new HashMap();
-		Map cateAdjustMap = new HashMap();
 
 		Set assignmentsTaken = new HashSet();
 		for (AssignmentGradeRecord gradeRec : gradeRecs)
@@ -605,13 +600,13 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 										if (go.getIsExtraCredit())
 										{
 											adjustmentPoints += pointsEarned.doubleValue() * 1d / 100.0d;
-											if(cateAdjustMap.get(cate.getId()) != null)
+											if(cateScoreMap.get(cate.getId()) != null)
 											{
-												cateAdjustMap.put(cate.getId(), new Double(((Double)cateAdjustMap.get(cate.getId())).doubleValue() + (pointsEarned.doubleValue() * 1d / 100.0d)));
+												cateScoreMap.put(cate.getId(), new Double(((Double)cateScoreMap.get(cate.getId())).doubleValue() + (pointsEarned.doubleValue() * 1d / 100.0d)));
 											}
 											else
 											{
-												cateAdjustMap.put(cate.getId(), new Double(pointsEarned.doubleValue() * 1d / 100.0d));
+												cateScoreMap.put(cate.getId(), new Double(pointsEarned.doubleValue() * 1d / 100.0d));
 											}
 										}
 										else if(go.getPointsPossible() != null)
@@ -695,8 +690,6 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 				if(cate != null && !cate.isRemoved() && cateScoreMap.get(cate.getId()) != null && cateTotalScoreMap.get(cate.getId()) != null)
 				{
 					totalPointsEarned += ((Double)cateScoreMap.get(cate.getId())).doubleValue() * cate.getWeight().doubleValue() / ((Double)cateTotalScoreMap.get(cate.getId())).doubleValue();
-					if(cateAdjustMap.get(cate.getId()) != null)
-						totalPointsEarned += ((Double)cateAdjustMap.get(cate.getId())).doubleValue();
 				}
 			}
 		}

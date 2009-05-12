@@ -249,8 +249,6 @@ public class Category implements Serializable
 			int numOfAssignments = 0;
 			BigDecimal total = new BigDecimal("0");
 			BigDecimal totalPossible = new BigDecimal("0");
-			BigDecimal adjustmentPercentage = new BigDecimal("0");
-			double adjustmentWeight = 0;
 
 			for (Assignment assign : assignmentsWithStats) 
 			{
@@ -295,10 +293,7 @@ public class Category implements Serializable
 								total = total.add(bdScore);
 							else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
 							{
-								adjustmentPercentage = adjustmentPercentage.add(bdScore.multiply(new BigDecimal(1)).divide(new BigDecimal("100")));
-								
-								if (assign.getCategory()!=null && assign.getCategory().getWeight()!=null)
-								adjustmentWeight = assign.getCategory().getWeight();
+								total = total.add(bdScore.multiply(new BigDecimal(1)).divide(new BigDecimal("100")));
 							}
 						}
 					}
@@ -319,14 +314,6 @@ public class Category implements Serializable
 				averageScore = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
 				averageTotalPoints = new Double(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
 				BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide(new BigDecimal(averageTotalPoints.doubleValue()), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
-				if (gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
-				{
-					averageScore += adjustmentPercentage.doubleValue();
-					if (adjustmentWeight!=0)
-						value = value.add((adjustmentPercentage.divide(new BigDecimal(adjustmentWeight), GradebookService.MATH_CONTEXT)).multiply(new BigDecimal("100")));
-					else
-						value = value.add(adjustmentPercentage.multiply(new BigDecimal("100")));
-				}
 				mean = new Double(value.doubleValue()) ;
 			}
 		}
@@ -349,8 +336,6 @@ public class Category implements Serializable
 			int numOfAssignments = 0;
 			BigDecimal total = new BigDecimal("0");
 			BigDecimal totalPossible = new BigDecimal("0");
-			BigDecimal adjustmentPercentage = new BigDecimal("0");
-			double adjustmentWeight = 0;
 
 			if (gradeRecords == null) 
 			{
@@ -412,9 +397,7 @@ public class Category implements Serializable
 										total = total.add(bdScore);
 									else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
 									{
-										adjustmentPercentage = adjustmentPercentage.add(bdScore.multiply(new BigDecimal(1)).divide(new BigDecimal("100")));
-										if (assignCategory.getWeight()!=null)
-											adjustmentWeight = assignCategory.getWeight();
+										total = total.add(bdScore.multiply(new BigDecimal(1)).divide(new BigDecimal("100")));;
 									}
 								}
 							}
@@ -436,14 +419,6 @@ public class Category implements Serializable
 				averageScore = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
 				averageTotalPoints = new Double(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
 				BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide((totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT)), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
-				if (gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
-				{
-					averageScore += adjustmentPercentage.doubleValue();
-					if (adjustmentWeight!=0)
-						value = value.add((adjustmentPercentage.divide(new BigDecimal(adjustmentWeight), GradebookService.MATH_CONTEXT)).multiply(new BigDecimal("100")));
-					else
-						value = value.add(adjustmentPercentage.multiply(new BigDecimal("100")));
-				}
 
 				mean = new Double(value.doubleValue()) ;
 			}
