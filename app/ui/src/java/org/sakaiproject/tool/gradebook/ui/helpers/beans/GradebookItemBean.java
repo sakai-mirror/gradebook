@@ -134,6 +134,12 @@ public class GradebookItemBean {
 		for (String key : OTPMap.keySet()) {
 			Assignment assignment = OTPMap.get(key);
 			
+			// if no item type was selected, default to non-cal. this indicates
+			// that we didn't display the option at all
+			if (gbItemType == null) {
+			    gbItemType = GB_ITEM_TYPE_NON_CAL;
+			}
+			
 			// set the grade entry selection
 			if (gbItemType.equals(GB_ITEM_TYPE_NON_CAL)) {
 			    assignment.setUngraded(true);

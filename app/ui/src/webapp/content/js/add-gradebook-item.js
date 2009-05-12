@@ -39,15 +39,6 @@ var gbItemHelper = gbItemHelper || {};
 			// display the category select w/ all categories
 			all_cats_select.removeClass("hideElement");
 			non_adj_cats_select.addClass("hideElement");
-		} else if (selected_entry == 'non-cal') {
-			// hide all points possible
-			jQuery("#points-possible").addClass("hideElement");
-			jQuery("#adjustment-points-possible").addClass("hideElement");
-			// hide the "counted" option
-			jQuery("#counted").addClass("hideElement");
-			// display the category select w/ all categories
-			all_cats_select.removeClass("hideElement");
-			non_adj_cats_select.addClass("hideElement");
 		} else if (selected_entry == 'adj') {
 			// display the "adjustment" points possible section
 			jQuery("#adjustment-points-possible").removeClass("hideElement");	
@@ -69,10 +60,20 @@ var gbItemHelper = gbItemHelper || {};
 				var all_cats_select = jQuery("#category-selection");
 				all_cats_select.val(-1);
 			}
+		} else {
+			// if not adj or normal, we treat this as non-cal
+			// hide all points possible
+			jQuery("#points-possible").addClass("hideElement");
+			jQuery("#adjustment-points-possible").addClass("hideElement");
+			// hide the "counted" option
+			jQuery("#counted").addClass("hideElement");
+			// display the category select w/ all categories
+			all_cats_select.removeClass("hideElement");
+			non_adj_cats_select.addClass("hideElement");
 		}
 		
 		gbItemHelper.categoryDisplay();
-	}
+	};
 	
 	/**
 	 * To keep the two point inputs in synch. We render two
@@ -84,7 +85,7 @@ var gbItemHelper = gbItemHelper || {};
 		var adj_point_input = jQuery("#adj_point");
 		normal_point_input.val(points);
 		adj_point_input.val(points);
-	}
+	};
 	
 	gbItemHelper.updateCategorySelection = function(selection) {
 		var all_cats_select = jQuery("#category-selection");
@@ -92,7 +93,7 @@ var gbItemHelper = gbItemHelper || {};
 		
 		all_cats_select.val(selection);
 		non_adj_cats_select.val(selection);
-	}
+	};
 	
 	/**
 	 * handles which category select should display (all cats or just non-adj cats)
@@ -146,29 +147,6 @@ var gbItemHelper = gbItemHelper || {};
 			points_possible_input.removeAttr("disabled");
 			points_possible_label.addClass("hideElement");
 		}
-	}
-	
-	/**
-	 * if item non-calculating, we need to hide points possible and "counted" checkbox
-	 */
-	gbItemHelper.hideOrDisplayNonCalcInfo = function() {
-		var noncalc_checkbox = jQuery("input:checkbox[@name='non-calc']").get(0);
-		if (noncalc_checkbox) {
-			// hide the points possible and counted in course grade options if checked
-			if (noncalc_checkbox.checked) {
-				// hide the counted section
-				jQuery("#counted").attr("style", "display:none;");
-				
-				// hide the points possible section
-				jQuery("#points-possible").attr("style", "display:none;");
-			} else {
-				// display the counted section
-				jQuery("#counted").removeAttr("style");
-				
-				// display the points possible section
-				jQuery("#points-possible").removeAttr("style");
-			}
-		}	
 	};
 	
 	/**
