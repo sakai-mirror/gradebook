@@ -112,9 +112,9 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
                 if (agr1Points != null && agr2Points == null) {
                     return 1;
                 }
-                Integer agr1PointsInt = Integer.parseInt(agr1Points);
-                Integer agr2PointsInt = Integer.parseInt(agr2Points);
-                return agr1PointsInt.compareTo(agr2PointsInt);
+                Double agr1PointsDouble = Double.parseDouble(agr1Points);
+                Double agr2PointsDouble = Double.parseDouble(agr2Points);
+                return agr1PointsDouble.compareTo(agr2PointsDouble);
             }
         };
     }
