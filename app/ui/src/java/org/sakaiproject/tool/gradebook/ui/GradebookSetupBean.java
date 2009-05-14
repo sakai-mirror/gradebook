@@ -428,9 +428,65 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			}
 		}
         
-        if(getShowDropsDisplayed() == false) {
+        if(getShowDropsDisplayed() == false
+                || localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER // when Grade Entry change from Points/Percentage to Letter Grades also remove drops from categories
+                 && (origialGradeType==GradebookService.GRADE_TYPE_POINTS 
+                         || origialGradeType==GradebookService.GRADE_TYPE_PERCENTAGE)) { // handles the case when user switches grade entry method
             removeDropsFromCategories();
         }
+        
+        // do drop scores validation before on all categories before the database transactions begins
+        Iterator itr = categories.iterator();
+        while (itr.hasNext()) {
+            Object obj = itr.next();
+            if(!(obj instanceof Category)) {
+                continue;
+            }
+
+            Category uiCategory = (Category) obj;
+            Long categoryId = uiCategory.getId();
+            String categoryName = uiCategory.getName();
+
+            // do cross validation 
+            if((uiCategory.getDrop_lowest() > 0 || uiCategory.getDropHighest() > 0) && uiCategory.getKeepHighest() > 0) {
+               FacesUtil.addErrorMessage(getLocalizedString("cat_keep_and_drop_mutually_exclusive"));
+               return "failure";
+            }
+            if(uiCategory.getItemValue() < 0 && (uiCategory.getDrop_lowest() > 0 || uiCategory.getDropHighest() > 0 || uiCategory.getKeepHighest() > 0)) {
+               FacesUtil.addErrorMessage(getLocalizedString("cat_pointvalue_not_valid"));
+               return "failure";
+            }
+
+            if(uiCategory.isDropScores()) {
+               if (uiCategory.getItemValue() == null || uiCategory.getItemValue() <= 0) {
+                   if(gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_POINTS)) {
+                       FacesUtil.addErrorMessage(getLocalizedString("cat_pointvalue_not_valid"));
+                   } else if(gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_PERCENT)) {
+                       FacesUtil.addErrorMessage(getLocalizedString("cat_relativeweight_not_valid"));
+                   }
+                   return "failure";
+               }
+            } else {
+               uiCategory.setItemValue(0.0);
+            }
+
+            // we will be updating an existing category
+            if (categoryId != null) {
+               Category updatedCategory = getGradebookManager().getCategory(categoryId);
+               if(updatedCategory.isDropScores()) {
+                   if(!updatedCategory.isAssignmentsEqual()) {
+                       if (gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_POINTS)) {
+                           FacesUtil.addErrorMessage(getLocalizedString("cat_point_values_unequal"));
+                       }
+                       if (gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_PERCENT)) {
+                           FacesUtil.addErrorMessage(getLocalizedString("cat_rel_weights_unequal"));
+                       }
+                       return "failure";
+                   }
+               }
+            }
+        }        
+
 		
 		/* now we need to iterate through the categories and
 		 	1) remove categories
@@ -449,29 +505,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				Category uiCategory = (Category) obj;
 				Long categoryId = uiCategory.getId();
 				String categoryName = uiCategory.getName();
-
-				 // do cross validation 
-                if((uiCategory.getDrop_lowest() > 0 || uiCategory.getDropHighest() > 0) && uiCategory.getKeepHighest() > 0) {
-                    FacesUtil.addErrorMessage(getLocalizedString("cat_keep_and_drop_mutually_exclusive"));
-                    return "failure";
-                }
-                if(uiCategory.getItemValue() < 0 && (uiCategory.getDrop_lowest() > 0 || uiCategory.getDropHighest() > 0 || uiCategory.getKeepHighest() > 0)) {
-                    FacesUtil.addErrorMessage(getLocalizedString("cat_pointvalue_not_valid"));
-                    return "failure";
-                }
-
-                if(uiCategory.isDropScores()) {
-                    if (uiCategory.getItemValue() == null || uiCategory.getItemValue() <= 0) {
-                        if(gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_POINTS)) {
-                            FacesUtil.addErrorMessage(getLocalizedString("cat_pointvalue_not_valid"));
-                        } else if(gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_PERCENT)) {
-                            FacesUtil.addErrorMessage(getLocalizedString("cat_relativeweight_not_valid"));
-                        }
-                        return "failure";
-                    }
-                } else {
-                    uiCategory.setItemValue(0.0);
-                }
                     
 				if ((categoryName == null || categoryName.trim().length() < 1) && categoryId != null)
 				{
@@ -533,14 +566,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
                                     assignment.setPointsPossible(updatedCategory.getItemValue());
                                     getGradebookManager().updateAssignment(assignment);
                                 }
-                            } else {
-                                if (gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_POINTS)) {
-                                    FacesUtil.addErrorMessage(getLocalizedString("cat_point_values_unequal"));
-                                }
-                                if (gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_PERCENT)) {
-                                    FacesUtil.addErrorMessage(getLocalizedString("cat_rel_weights_unequal"));
-                                }
-                                return "failure";
                             }
                         }
 					}

@@ -74,7 +74,7 @@
 					</f:facet>
 					<h:selectBooleanCheckbox id="adjustment" value="#{category.isExtraCredit}" onchange="javascript:updateRunningTotal(this.form);"/>
 				</h:column>
-				<h:column>
+				<h:column rendered="#{!gradebookSetupBean.isLetterGrade}">
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_drop_highest}"/>
 					</f:facet>
@@ -86,7 +86,7 @@
 					</h:inputText>
 					<h:message for="dropHighest" styleClass="alertMessageInline"/>
 				</h:column>
-				<h:column>
+				<h:column rendered="#{!gradebookSetupBean.isLetterGrade}">
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_drop_lowest}"/>
 					</f:facet>
@@ -98,7 +98,7 @@
                     </h:inputText>
 					<h:message for="dropLowest" styleClass="alertMessageInline"/>
 				</h:column>
-				<h:column>
+				<h:column rendered="#{!gradebookSetupBean.isLetterGrade}">
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_keep_highest}"/>
 					</f:facet>

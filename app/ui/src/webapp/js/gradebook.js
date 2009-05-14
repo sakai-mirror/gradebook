@@ -313,7 +313,7 @@ function toggleVisibilityDropScoresFields() {
         var dropHighestIdx = 4;  // the index of 1st drop column, if Categories & Weighting is selected
     }
 
-    if(showDrops.checked == false) {
+    if(showDrops == undefined || showDrops.checked == false) {
         visibility = "none";      // make the column and column header not visible
     }
 
