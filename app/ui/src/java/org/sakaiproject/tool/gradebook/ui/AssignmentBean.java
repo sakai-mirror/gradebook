@@ -136,14 +136,18 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
             gradeEntrySelectList.add(new SelectItem(GB_POINTS_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_points")));
             gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
             gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
-            if (assignment.getUngraded()) {
-                assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
-            }
-            if (assignment.getIsExtraCredit()!=null) {
-                if (assignment.getIsExtraCredit())
-                {
-                    assignment.selectedGradeEntryValue = GB_ADJUSTMENT_ENTRY;
-                }
+            //if this already has a value, do not reset it
+            if (assignment.selectedGradeEntryValue==null)
+            {
+	            if (assignment.getUngraded()) {
+	                assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
+	            }
+	            if (assignment.getIsExtraCredit()!=null) {
+	                if (assignment.getIsExtraCredit())
+	                {
+	                    assignment.selectedGradeEntryValue = GB_ADJUSTMENT_ENTRY;
+	                }
+	            }
             }
         }
         else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE)
@@ -151,14 +155,18 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
             gradeEntrySelectList.add(new SelectItem(GB_PERCENTAGE_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_percentage")));
             gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
             gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
-            if (assignment.getUngraded()) {
-                assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
-            }
-            if (assignment.getIsExtraCredit()!=null) {
-                if (assignment.getIsExtraCredit())
-                {
-                    assignment.selectedGradeEntryValue = GB_ADJUSTMENT_ENTRY;
-                }
+            // if this already has a value, do not reset it
+            if (assignment.selectedGradeEntryValue==null)
+            {
+	            if (assignment.getUngraded()) {
+	                assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
+	            }
+	            if (assignment.getIsExtraCredit()!=null) {
+	                if (assignment.getIsExtraCredit())
+	                {
+	                    assignment.selectedGradeEntryValue = GB_ADJUSTMENT_ENTRY;
+	                }
+	            }
             }
         }
         else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER)
@@ -1088,6 +1096,31 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			setIsAdjustment(false);
 		}
 		return GB_ADD_ASSIGNMENT_PAGE;
+	}
+	
+	public String processGradeEntryChangeEdit(ValueChangeEvent vce)
+	{ 
+		String changeGradeEntry = (String) vce.getNewValue();
+		if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))	
+		{
+			gradeEntryType = changeGradeEntry;
+		} 
+		
+		assignment.selectedGradeEntryValue = changeGradeEntry;
+		
+		if(vce.getNewValue().equals(GB_NON_CALCULATING_ENTRY))
+		{
+			setIsNonCalc(true);
+		} else {
+			setIsNonCalc(false);
+		}
+		if(vce.getNewValue().equals(GB_ADJUSTMENT_ENTRY))
+		{
+			setIsAdjustment(true);
+		} else {
+			setIsAdjustment(false);
+		}
+		return GB_EDIT_ASSIGNMENT_PAGE;
 	}
 	
     public String processCategoryChangeInAddBulkGradebookItem(ValueChangeEvent vce)

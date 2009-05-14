@@ -547,7 +547,6 @@ function assignmentNonCalc(myForm) {
 	var pointsLabelAst =  getTheElement(myForm + ':pointsLabelAsterisk');
 	var pointsLabelEditAst = getTheElement(myForm + ':pointsLabelEditAsterisk');
 	var categoryDropDown1 = getTheElement(myForm + ':selectCategory');
-	var categoryDropDown2 = getTheElement(myForm + ':selectCategory2');
 
 	if (undefined != ungradedDropdownEl)
 	{
@@ -582,11 +581,6 @@ function assignmentNonCalc(myForm) {
 			if (undefined != categoryInstructionTextEl)
 			{
 				categoryInstructionTextEl.style.display="none";
-			}
-			if (undefined != categoryDropDown2)
-			{
-				categoryDropDown1.style.display="inline";
-				categoryDropDown2.style.display="none";
 			}
 		} else if (ungradedDropdownEl[ungradedDropdownEl.selectedIndex].value == "Points" || ungradedDropdownEl[ungradedDropdownEl.selectedIndex].value == "Percentage") {
 			if (undefined != countedCheckboxEl)
@@ -634,11 +628,6 @@ function assignmentNonCalc(myForm) {
 			if (undefined != categoryInstructionTextEl)
 			{
 				categoryInstructionTextEl.style.display="inline";
-			}
-			if (undefined != categoryDropDown2)
-			{
-				categoryDropDown1.style.display="inline";
-				categoryDropDown2.style.display="none";
 			}
 		} else if (ungradedDropdownEl[ungradedDropdownEl.selectedIndex].value == "Adjustment") {
 				if (undefined != countedCheckboxEl)
@@ -695,45 +684,9 @@ function assignmentNonCalc(myForm) {
 				{
 					categoryInstructionTextEl.style.display="inline";
 				}
-				if (undefined != categoryDropDown2)
-				{
-					categoryDropDown1.style.display="none";
-					syncAdjustmentDropdowns(myForm);
-					categoryDropDown2.style.display="inline";
-				}
 			}
 	}
 
-}
-
-function syncAdjustmentDropdowns(myForm) {
-	var categoryDropDown1 = getTheElement(myForm + ':selectCategory');
-	var categoryDropDown2 = getTheElement(myForm + ':selectCategory2');
-	
-	if (undefined != categoryDropDown2)
-	{
-		for (i=0;i<categoryDropDown1.options.length;i++){
-			if (categoryDropDown1.options[i].value==categoryDropDown2.options[categoryDropDown2.selectedIndex].value){
-				categoryDropDown1.selectedIndex=i;
-				return true;
-			}
-		}
-	}
-}
-
-function adjustmentDropdownOnLoad(myForm) {
-	var categoryDropDown1 = getTheElement(myForm + ':selectCategory');
-	var categoryDropDown2 = getTheElement(myForm + ':selectCategory2');
-	
-	if (undefined != categoryDropDown2)
-	{
-		for (i=0;i<categoryDropDown2.options.length;i++){
-			if (categoryDropDown2.options[i].value==categoryDropDown1.options[categoryDropDown1.selectedIndex].value){
-				categoryDropDown2.selectedIndex=i;
-				return true;
-			}
-		}
-	}
 }
 
 

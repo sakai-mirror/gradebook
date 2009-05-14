@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
+import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
@@ -92,10 +93,12 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private Integer selectedCommentsColumnId = 0;
     private List categoriesSelectList;
     private List categoriesAdjustmentSelectList;
+    private Category assignmentCategory;
     private String selectedCategory;
     private Gradebook localGradebook;
     private StringBuilder externallyMaintainedImportMsg;
     private List gradeEntrySelectList;
+    private boolean selectedCategoryDropsScores;
     
     // Used for bulk upload of gradebook items
     // Holds list of unknown user ids
@@ -115,6 +118,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     public static final String GB_PERCENTAGE_ENTRY = "Percentage";
     public static final String GB_NON_CALCULATING_ENTRY = "Non-calculating";
     public static final String GB_ADJUSTMENT_ENTRY = "Adjustment";
+    public static final String UNASSIGNED_CATEGORY = "unassigned";
     
     private String pageName;
     
@@ -158,37 +162,59 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 			gradeEntrySelectList.add(new SelectItem(GB_POINTS_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_points")));
 			gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
 			gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
-			if (assignment.getUngraded()) {
-				assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
-			}
-			if (assignment.getIsExtraCredit()!=null) {
-				if (assignment.getIsExtraCredit())
-				{
-					assignment.selectedGradeEntryValue = GB_ADJUSTMENT_ENTRY;
+			//if this already has a value, do not reset it
+            if (assignment.selectedGradeEntryValue!=null)
+            {
+				if (assignment.getUngraded()) {
+					assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
 				}
-			}
+				if (assignment.getIsExtraCredit()!=null) {
+					if (assignment.getIsExtraCredit())
+					{
+						assignment.selectedGradeEntryValue = GB_ADJUSTMENT_ENTRY;
+					}
+				}
+            }
 		}
 		else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE)
 		{
 			gradeEntrySelectList.add(new SelectItem(GB_PERCENTAGE_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_percentage")));
 			gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
 			gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
-			if (assignment.getUngraded()) {
-				assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
-			}
-			if (assignment.getIsExtraCredit()!=null) {
-				if (assignment.getIsExtraCredit())
-				{
-					assignment.selectedGradeEntryValue = GB_ADJUSTMENT_ENTRY;
+			//if this already has a value, do not reset it
+            if (assignment.selectedGradeEntryValue!=null)
+            {
+				if (assignment.getUngraded()) {
+					assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
 				}
-			}
+				if (assignment.getIsExtraCredit()!=null) {
+					if (assignment.getIsExtraCredit())
+					{
+						assignment.selectedGradeEntryValue = GB_ADJUSTMENT_ENTRY;
+					}
+				}
+            }
 		}
 		else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER)
 		{
 			assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
 		}
+		
+		// initialization; shouldn't enter here after category drop down changes
+        if(assignmentCategory == null && !getLocalizedString("cat_unassigned").equalsIgnoreCase(selectedCategory)) {
+            Category assignCategory = assignment.getCategory();
+            if (assignCategory != null) {
+            	selectedCategory = assignCategory.getId().toString();
+                selectedCategoryDropsScores = assignCategory.isDropScores();
+                assignmentCategory = assignCategory;
+            }
+            else {
+            	selectedCategory = getLocalizedString("cat_unassigned");
+            }
+        }
         
-        selectedCategory = AssignmentBean.UNASSIGNED_CATEGORY;
+		if (selectedCategory==null)
+			selectedCategory = AssignmentBean.UNASSIGNED_CATEGORY;
         categoriesSelectList = new ArrayList();
         categoriesAdjustmentSelectList = new ArrayList();
 
@@ -452,6 +478,22 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	this.selectedCategory = selectedCategory;
     }
     
+    public Category getAssignmentCategory() {
+		return assignmentCategory;
+	}
+
+	public void setAssignmentCategory(Category assignmentCategory) {
+		this.assignmentCategory = assignmentCategory;
+	}
+    
+    public boolean isSelectedCategoryDropsScores() {
+		return selectedCategoryDropsScores;
+	}
+
+	public void setSelectedCategoryDropsScores(boolean selectedCategoryDropsScores) {
+		this.selectedCategoryDropsScores = selectedCategoryDropsScores;
+	}
+    
     public Gradebook getLocalGradebook() {
     	return localGradebook;
     }
@@ -472,6 +514,34 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     		return null;
     	
     	return externallyMaintainedImportMsg.toString();
+    }
+    
+    public String processCategoryChangeInImport(ValueChangeEvent vce)
+    {
+        String changeCategory = (String) vce.getNewValue();
+        selectedCategory = changeCategory;
+        if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))  
+        {
+            if(changeCategory.equals(UNASSIGNED_CATEGORY)) {
+                selectedCategoryDropsScores = false;
+                assignmentCategory = null;
+                selectedCategory = getLocalizedString("cat_unassigned");
+            } else {
+                List<Category> categories = getGradebookManager().getCategories(getGradebookId());
+                if (categories != null && categories.size() > 0)
+                {
+                    for (Category category : categories) {
+                        if(changeCategory.equals(category.getId().toString())) {
+                            selectedCategoryDropsScores = category.isDropScores();
+                            assignmentCategory = category;
+                            selectedCategory = category.getId().toString();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return "spreadsheetImport";
     }
     
     /**

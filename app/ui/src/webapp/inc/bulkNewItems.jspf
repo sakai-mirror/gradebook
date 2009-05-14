@@ -59,14 +59,9 @@
 				<h:outputLabel for="selectCategory" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{bean.categoriesEnabled}" />
 				<h:panelGroup rendered="#{bean.categoriesEnabled}">
 					<h:selectOneMenu id="selectCategory" value="#{item.category}" onchange="this.form.submit();">
-						<f:selectItems value="#{bean.categoriesSelectList}" />
+						<f:selectItems value="#{(item.selectedGradeEntryValue == msgs.add_assignment_type_adjustment) ? bean.categoriesAdjustmentSelectList : bean.categoriesSelectList}" />
 					</h:selectOneMenu>
 					
-					<%-- Javascript should copy the value over to the above dropdown and will be the field used for writing to the DB --%>
-					<h:selectOneMenu id="selectCategory2" rendered="#{bean.weightingEnabled}" onclick="syncAdjustmentDropdowns((this.form.name + ':bulkNewAssignmentsTable:' + #{rowIndex}));" >
-						<f:selectItems value="#{bean.categoriesAdjustmentSelectList}" />
-					</h:selectOneMenu>
-
 					<h:outputText id="nonCalCategoryInstructionText" value="#{msgs.add_assignment_category_info}" styleClass="instruction" rendered="#{bean.weightingEnabled}"/>
 				</h:panelGroup>
 
@@ -74,8 +69,8 @@
 					<h:panelGroup rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}">
 						<h:selectOneMenu id="selectGradeEntry" value="#{item.selectedGradeEntryValue}"
 							valueChangeListener="#{addAssignmentBean.processGradeEntryChange}"
-							onclick="assignmentNonCalc((this.form.name + ':bulkNewAssignmentsTable:' + #{rowIndex}));"
-							onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+							onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"
+							onchange="this.form.submit();">
 							<f:selectItems value="#{bean.gradeEntrySelectList}" />
 						</h:selectOneMenu>
 					</h:panelGroup>

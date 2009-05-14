@@ -26,8 +26,8 @@
 					rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}" />
 				<h:panelGroup rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}">
 					<h:selectOneMenu id="selectGradeEntry" value="#{spreadsheetUploadBean.assignment.selectedGradeEntryValue}"
-						onclick="assignmentNonCalc((this.form.name));"
-						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"
+						onchange="this.form.submit();">
 						<f:selectItems value="#{spreadsheetUploadBean.gradeEntrySelectList}" />
 					</h:selectOneMenu>
 				</h:panelGroup>
@@ -42,12 +42,13 @@
 
 					<h:outputLabel for="points" id="pointsLabel" value="#{(spreadsheetUploadBean.localGradebook.grade_type == 1) ? msgs.import_assignment_points : msgs.import_assignment_relative_weight}" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}"/>				
 					<h:panelGroup rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}">
-						<h:inputText id="points" value="#{spreadsheetUploadBean.assignment.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}">
+						<h:inputText id="points" value="#{spreadsheetUploadBean.assignment.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3 && !spreadsheetUploadBean.selectedCategoryDropsScores}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 							<f:validateDoubleRange minimum="0.01" />
 							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE_DOUBLE"/>
 						</h:inputText>
 						<h:message for="points" styleClass="alertMessageInline" />
+						<h:outputText id="pointsDropScores" value="#{spreadsheetUploadBean.assignmentCategory.itemValue}" rendered="#{spreadsheetUploadBean.selectedCategoryDropsScores}" />
 					</h:panelGroup>
            
 					<h:panelGroup>
@@ -61,14 +62,13 @@
 					
 					<h:outputLabel for="category" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{spreadsheetUploadBean.categoriesEnabled && spreadsheetUploadBean.localGradebook.grade_type != 3}" />
 					<h:panelGroup rendered="#{spreadsheetUploadBean.categoriesEnabled}">
-						<h:selectOneMenu id="selectCategory" value="#{spreadsheetUploadBean.selectedCategory}" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3 }">
-							<f:selectItems value="#{spreadsheetUploadBean.categoriesSelectList}" />
+						<h:selectOneMenu id="selectCategory" value="#{spreadsheetUploadBean.selectedCategory}"
+							valueChangeListener="#{spreadsheetUploadBean.processCategoryChangeInImport}"
+							rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3 }"
+							onchange="this.form.submit();">
+							<f:selectItems value="#{(spreadsheetUploadBean.assignment.selectedGradeEntryValue == msgs.add_assignment_type_adjustment) ? spreadsheetUploadBean.categoriesAdjustmentSelectList : spreadsheetUploadBean.categoriesSelectList}" />
 						</h:selectOneMenu>
 						
-						<%-- Javascript should copy the value over to the above dropdown and will be the field used for writing to the DB --%>
-						<h:selectOneMenu id="selectCategory2" rendered="#{spreadsheetUploadBean.weightingEnabled}" onclick="syncAdjustmentDropdowns((this.form.name));" >
-							<f:selectItems value="#{spreadsheetUploadBean.categoriesAdjustmentSelectList}" />
-						</h:selectOneMenu>
 						<f:verbatim><div class="instruction"></f:verbatim>
 							<h:outputText value="#{msgs.add_assignment_category_info}" rendered="#{spreadsheetUploadBean.weightingEnabled}"/>
 						<f:verbatim></div></f:verbatim>			
@@ -122,7 +122,6 @@
        </p>
        
        <script type="text/javascript">
-			adjustmentDropdownOnLoad('gbForm');
 			assignmentNonCalc('gbForm');
 	   </script>
      </h:form>
