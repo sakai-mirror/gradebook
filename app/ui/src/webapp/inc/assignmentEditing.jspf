@@ -34,7 +34,7 @@
 		</h:selectOneMenu>
 		
 		<%-- Javascript should copy the value over to the above dropdown and will be the field used for writing to the DB --%>
-		<h:selectOneMenu id="selectCategory2" rendered="#{bean.weightingEnabled}" onclick="syncAdjustmentDropdowns((this.form.name));" >
+		<h:selectOneMenu id="selectCategory2" rendered="#{bean.weightingEnabled && !bean.assignment.externallyMaintained}" onclick="syncAdjustmentDropdowns((this.form.name));" >
 			<f:selectItems value="#{bean.categoriesAdjustmentSelectList}" />
 		</h:selectOneMenu>
 		<f:verbatim><div class="instruction"></f:verbatim>
@@ -52,7 +52,7 @@
 	</h:panelGroup>
 	<h:panelGroup>
 		<h:outputText value="* " styleClass="reqStarInline"/>
-		<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}" rendered="#{!bean.assignment.externallyMaintained}"/>
+		<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}"/>
 	</h:panelGroup>
 	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained}">
 		<h:inputText id="title" value="#{bean.assignment.name}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
@@ -60,7 +60,7 @@
 		</h:inputText>
 		<h:message for="title" styleClass="alertMessageInline"/>
 	</h:panelGroup>
-	<h:outputText value="#{msgs.add_assignment_title}" rendered="#{bean.assignment.externallyMaintained}" />
+
 	<h:outputText value="#{bean.assignment.name}" rendered="#{bean.assignment.externallyMaintained}" />
 
 	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained && bean.noncalcWithGrades}">

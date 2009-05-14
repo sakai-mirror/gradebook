@@ -671,28 +671,31 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			
 			boolean adjustmentWithNoPoints = false; // used for some logic later
 			
-			// if ungraded, we don't care about points possible
-			if (assignment.getSelectedGradeEntryValue().equals(GB_NON_CALCULATING_ENTRY)) {
-				assignment.setUngraded(true);
-				assignment.setIsExtraCredit(false); // extra insurance
-			}
-			else if (assignment.getSelectedGradeEntryValue().equals(GB_ADJUSTMENT_ENTRY)) {
-				assignment.setIsExtraCredit(true);
-				assignment.setUngraded(false); // extra insurance
-				if (getGradebook().getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE)
+			if (assignment.getSelectedGradeEntryValue() != null) {
+				// if ungraded, we don't care about points possible
+				if (assignment.getSelectedGradeEntryValue().equals(GB_NON_CALCULATING_ENTRY)) {
+					assignment.setUngraded(true);
+					assignment.setIsExtraCredit(false); // extra insurance
+				}
+				else if (assignment.getSelectedGradeEntryValue().equals(GB_ADJUSTMENT_ENTRY)) {
+					assignment.setIsExtraCredit(true);
+					assignment.setUngraded(false); // extra insurance
+					if (getGradebook().getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE)
+					{
+						// Adjustment item in a percent gradebook should never have points possible
+						assignment.setPointsPossible(null);
+					}
+					if (assignment.getPointsPossible() == null || ("".equals(assignment.getPointsPossible()))) {
+						adjustmentWithNoPoints = true;
+					}
+				}
+			
+				else
 				{
-					// Adjustment item in a percent gradebook should never have points possible
-					assignment.setPointsPossible(null);
+					// back to a normal type of item so set these types to false
+					assignment.setUngraded(false);
+					assignment.setIsExtraCredit(false);
 				}
-				if (assignment.getPointsPossible() == null || ("".equals(assignment.getPointsPossible()))) {
-					adjustmentWithNoPoints = true;
-				}
-			}
-			else
-			{
-				// back to a normal type of item so set these types to false
-				assignment.setUngraded(false);
-				assignment.setIsExtraCredit(false);
 			}
 			if (!assignment.getUngraded() && getGradebook().getGrade_type()!=GradebookService.GRADE_TYPE_LETTER)
 			{
