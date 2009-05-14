@@ -1889,7 +1889,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     {
     	double totalPointsPossible = 0;
     	Iterator assignmentIter = session.createQuery(
-    			"select asn from Assignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false and asn.isExtraCredit=false").
+    			"select asn from Assignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false and (asn.isExtraCredit=false or isExtraCredit is null)").
     			setParameter("gbid", gradebookId).
     			list().iterator();
     	while (assignmentIter.hasNext()) {

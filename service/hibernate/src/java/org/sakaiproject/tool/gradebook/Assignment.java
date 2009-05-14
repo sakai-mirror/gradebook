@@ -492,7 +492,7 @@ public class Assignment extends GradableObject {
 		}
 		
 		public Boolean getIsExtraCredit() {
-			return isExtraCredit;
+			return isExtraCredit == null ? false : isExtraCredit;
 		}
 
 
