@@ -173,9 +173,9 @@
 					<h:outputLabel id="countAssignmentLabel" for="countAssignment" value="#{msgs.add_assignment_counted}" rendered="#{bean.localGradebook.grade_type != 3}" />
 				</h:panelGroup>
 		  	  </h:panelGrid>
-			  	<h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
-			  
-			  </h:panelGrid>	
+			  	
+			  </h:panelGrid>
+			  <h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
 	  		  <f:verbatim><hr class="itemSeparator" /></f:verbatim>
 		</h:column>	
 	</t:dataTable>
