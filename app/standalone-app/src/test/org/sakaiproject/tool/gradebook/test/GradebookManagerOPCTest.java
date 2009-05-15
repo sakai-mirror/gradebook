@@ -4156,4 +4156,170 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		//test for removing empty gradebook
 		gradebookManager.removeAllGrades(persistentGradebook.getId());
 	}
+    
+    public void testApplyDropScoresDropLowest() throws Exception {
+        String studentId = "ec9a7587-406e-40e5-9bc8-63edfaa372f9";
+        Gradebook gradebook = new Gradebook("testDropScores");
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+        Long categoryId = 1L;
+        
+        AssignmentGradeRecord highest = getAssignmentGradeRecord(2, 0, 0, 30.0, "19", studentId, "Homework 1", categoryId, gradebook);
+        AssignmentGradeRecord lowest = getAssignmentGradeRecord(2, 0, 0, 30.0, "1", studentId, "Homework 2", categoryId, gradebook);
+        AssignmentGradeRecord mid1 = getAssignmentGradeRecord(2, 0, 0, 30.0, "10", studentId, "Homework 3", categoryId, gradebook);
+        AssignmentGradeRecord mid2 = getAssignmentGradeRecord(2, 0, 0, 30.0, "11", studentId, "Homework 4", categoryId, gradebook);
+        AssignmentGradeRecord mid3 = getAssignmentGradeRecord(2, 0, 0, 30.0, "12", studentId, "Homework 5", categoryId, gradebook);
+        
+        Collection<AssignmentGradeRecord> gradeRecords = new ArrayList();
+        gradeRecords.add(lowest);
+        gradeRecords.add(highest);
+        gradeRecords.add(mid1);
+        gradeRecords.add(mid2);
+        gradeRecords.add(mid3);
+
+        gradebookManager.applyDropScores(gradeRecords);
+        Assert.assertTrue("lowest grade was not dropped", lowest.getDroppedFromGrade());
+        Assert.assertTrue("low grade was not dropped", mid1.getDroppedFromGrade());
+        Assert.assertFalse("set to drop 2 low, but mid grade was dropped too", mid2.getDroppedFromGrade());
+        Assert.assertFalse("set to drop 2 low, but mid grade was dropped too", mid3.getDroppedFromGrade());
+        Assert.assertFalse("set to drop 2 low, but highest grade was dropped too", highest.getDroppedFromGrade());
+    }
+    
+    public void testApplyDropScoresDropLowestAndDropHighest() throws Exception {
+        String studentId = "ec9a7587-406e-40e5-9bc8-63edfaa372f9";
+        Gradebook gradebook = new Gradebook("testDropScores");
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+        Long categoryId = 1L;
+        
+        AssignmentGradeRecord highest = getAssignmentGradeRecord(2, 2, 0, 30.0, "19", studentId, "Homework 1", categoryId, gradebook);
+        AssignmentGradeRecord lowest = getAssignmentGradeRecord(2, 2, 0, 30.0, "1", studentId, "Homework 2", categoryId, gradebook);
+        AssignmentGradeRecord mid1 = getAssignmentGradeRecord(2, 2, 0, 30.0, "10", studentId, "Homework 3", categoryId, gradebook);
+        AssignmentGradeRecord mid2 = getAssignmentGradeRecord(2, 2, 0, 30.0, "11", studentId, "Homework 4", categoryId, gradebook);
+        AssignmentGradeRecord mid3 = getAssignmentGradeRecord(2, 2, 0, 30.0, "12", studentId, "Homework 5", categoryId, gradebook);
+        
+        Collection<AssignmentGradeRecord> gradeRecords = new ArrayList();
+        gradeRecords.add(lowest);
+        gradeRecords.add(highest);
+        gradeRecords.add(mid1);
+        gradeRecords.add(mid2);
+        gradeRecords.add(mid3);
+
+        gradebookManager.applyDropScores(gradeRecords);
+        Assert.assertTrue("lowest grade was not dropped", lowest.getDroppedFromGrade());
+        Assert.assertTrue("highest grade was not dropped", highest.getDroppedFromGrade());
+        Assert.assertTrue("low grade was not dropped", mid1.getDroppedFromGrade());
+        Assert.assertTrue("low grade was not dropped", mid3.getDroppedFromGrade());
+        Assert.assertFalse("set to drop 2 low and 2 high, but mid grade was dropped too", mid2.getDroppedFromGrade());
+    }
+    
+    /*
+     * set to drop 2 lowest, but only 2 grades are entered, so should drop nothing
+     */
+    public void testApplyDropScoresDropLowestThresholdNotReached() throws Exception {
+        String studentId = "ec9a7587-406e-40e5-9bc8-63edfaa372f9";
+        Gradebook gradebook = new Gradebook("testDropScores");
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+        Long categoryId = 1L;
+        
+        AssignmentGradeRecord agr1 = getAssignmentGradeRecord(3, 0, 0, 30.0, "19", studentId, "Homework 1", categoryId, gradebook);
+        AssignmentGradeRecord agr2 = getAssignmentGradeRecord(3, 0, 0, 30.0, "10", studentId, "Homework 2", categoryId, gradebook);
+        
+        Collection<AssignmentGradeRecord> gradeRecords = new ArrayList();
+        gradeRecords.add(agr1);
+        gradeRecords.add(agr2);
+
+        gradebookManager.applyDropScores(gradeRecords);
+        Assert.assertFalse("lowest grade was dropped, but only 2 grades are entered", agr1.getDroppedFromGrade());
+        Assert.assertFalse("lowest grade was dropped, but only 2 grades are entered", agr2.getDroppedFromGrade());
+    }
+    
+    public void testApplyDropScoresDropHighest() throws Exception {
+        String studentId = "ec9a7587-406e-40e5-9bc8-63edfaa372f9";
+        Gradebook gradebook = new Gradebook("testDropScores");
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+        Long categoryId = 1L;
+        
+        AssignmentGradeRecord highest = getAssignmentGradeRecord(0, 2, 0, 30.0, "19", studentId, "Homework 1", categoryId, gradebook);
+        AssignmentGradeRecord lowest = getAssignmentGradeRecord(0, 2, 0, 30.0, "1", studentId, "Homework 2", categoryId, gradebook);
+        AssignmentGradeRecord mid1 = getAssignmentGradeRecord(0, 2, 0, 30.0, "10", studentId, "Homework 3", categoryId, gradebook);
+        AssignmentGradeRecord mid2 = getAssignmentGradeRecord(0, 2, 0, 30.0, "11", studentId, "Homework 4", categoryId, gradebook);
+        AssignmentGradeRecord mid3 = getAssignmentGradeRecord(0, 2, 0, 30.0, "12", studentId, "Homework 5", categoryId, gradebook);
+        
+        Collection<AssignmentGradeRecord> gradeRecords = new ArrayList();
+        gradeRecords.add(lowest);
+        gradeRecords.add(highest);
+        gradeRecords.add(mid1);
+        gradeRecords.add(mid2);
+        gradeRecords.add(mid3);
+        gradebookManager.applyDropScores(gradeRecords);
+        Assert.assertTrue("set to drop 2 highest, but highest grade was not dropped", highest.getDroppedFromGrade());
+        Assert.assertTrue("set to drop 2 highest, but high grade was not dropped", mid3.getDroppedFromGrade());
+        Assert.assertFalse("set to drop 2 highest, but mid grade was dropped too", mid2.getDroppedFromGrade());
+        Assert.assertFalse("set to drop 2 highest, but low grade was dropped too", mid1.getDroppedFromGrade());
+        Assert.assertFalse("set to drop 2 highest, but lowest grade was dropped too", lowest.getDroppedFromGrade());
+    }
+    
+    public void testApplyDropScoresKeepHighest() throws Exception {
+        String studentId = "ec9a7587-406e-40e5-9bc8-63edfaa372f9";
+        Gradebook gradebook = new Gradebook("testDropScores");
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+        Long categoryId = 1L;
+        
+        AssignmentGradeRecord highest = getAssignmentGradeRecord(0, 0, 1, 30.0, "19", studentId, "Homework 1", categoryId, gradebook);
+        AssignmentGradeRecord lowest = getAssignmentGradeRecord(0, 0, 1, 30.0, "1", studentId, "Homework 2", categoryId, gradebook);
+        AssignmentGradeRecord mid1 = getAssignmentGradeRecord(0, 0, 1, 30.0, "10", studentId, "Homework 3", categoryId, gradebook);
+        AssignmentGradeRecord mid2 = getAssignmentGradeRecord(0, 0, 1, 30.0, "11", studentId, "Homework 4", categoryId, gradebook);
+        AssignmentGradeRecord mid3 = getAssignmentGradeRecord(0, 0, 1, 30.0, "12", studentId, "Homework 5", categoryId, gradebook);
+        
+        Collection<AssignmentGradeRecord> gradeRecords = new ArrayList();
+        gradeRecords.add(lowest);
+        gradeRecords.add(highest);
+        gradeRecords.add(mid1);
+        gradeRecords.add(mid2);
+        gradeRecords.add(mid3);
+
+        gradebookManager.applyDropScores(gradeRecords);
+        Assert.assertTrue("lowest grade was not dropped", lowest.getDroppedFromGrade());
+        Assert.assertTrue("low grade was not dropped", mid1.getDroppedFromGrade());
+        Assert.assertTrue("low grade was not dropped", mid2.getDroppedFromGrade());
+        Assert.assertTrue("low grade was not dropped", mid3.getDroppedFromGrade());
+        Assert.assertFalse("highest grade was not kept", highest.getDroppedFromGrade());
+    }
+    
+    public void testApplyDropScoresLetterGrade() throws Exception {
+        String studentId = "ec9a7587-406e-40e5-9bc8-63edfaa372f9";
+        Gradebook gradebook = new Gradebook("testDropScores");
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+        Long categoryId = 1L;
+        
+        AssignmentGradeRecord highest = getAssignmentGradeRecord(0, 1, 0, 30.0, "19", studentId, "Homework 1", categoryId, gradebook);
+        AssignmentGradeRecord lowest = getAssignmentGradeRecord(0, 1, 0, 30.0, "1", studentId, "Homework 2", categoryId, gradebook);
+        AssignmentGradeRecord mid1 = getAssignmentGradeRecord(0, 1, 0, 30.0, "10", studentId, "Homework 3", categoryId, gradebook);
+        AssignmentGradeRecord mid2 = getAssignmentGradeRecord(0, 1, 0, 30.0, "11", studentId, "Homework 4", categoryId, gradebook);
+        AssignmentGradeRecord mid3 = getAssignmentGradeRecord(0, 1, 0, 30.0, "12", studentId, "Homework 5", categoryId, gradebook);
+        
+        Collection<AssignmentGradeRecord> gradeRecords = new ArrayList();
+        gradeRecords.add(lowest);
+        gradeRecords.add(highest);
+        gradeRecords.add(mid1);
+        gradeRecords.add(mid2);
+        gradeRecords.add(mid3);
+        gradebookManager.applyDropScores(gradeRecords);
+        for(AssignmentGradeRecord gradeRecord : gradeRecords) {
+            Assert.assertFalse("An assignmentGradeRecord was dropped in a lettergrade gradebook", gradeRecord.getDroppedFromGrade());
+        }
+    }
+    
+    private AssignmentGradeRecord getAssignmentGradeRecord(Integer dropLowest, Integer dropHighest, Integer keepHighest, Double itemValue, String grade, String studentId, String assignmentName, Long categoryId, Gradebook gradebook) {
+        Category category = new Category();
+        category.setId(categoryId);
+        category.setDrop_lowest(dropLowest);
+        category.setDropHighest(dropHighest);
+        category.setKeepHighest(keepHighest);
+        category.setItemValue(itemValue);
+        Assignment assignment = new Assignment(gradebook, assignmentName, itemValue, null);
+        assignment.setCategory(category);
+        assignment.setUngraded(gradebook.getIsLetterGrade());
+        AssignmentGradeRecord agr = new AssignmentGradeRecord(assignment, studentId, grade);
+        return agr;
+    }
 }
