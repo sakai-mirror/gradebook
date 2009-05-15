@@ -169,6 +169,54 @@ public class AuthzSectionsImpl implements Authz {
 		}
 	}
 	
+	public boolean isUserAbleToViewCourseGradeForStudent(String gradebookUid, String studentUid) {
+		if (studentUid == null || gradebookUid == null) {
+			throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.isUserAbleToGradeItemForStudent");
+		}
+		
+		if (isUserAbleToGradeAll(gradebookUid)) {
+			return true;
+		}
+		
+		String userUid = authn.getUserUid();
+		
+		List viewableSections = getViewableSections(gradebookUid);
+		List sectionIds = new ArrayList();
+		if (viewableSections != null && !viewableSections.isEmpty()) {
+			for (Iterator sectionIter = viewableSections.iterator(); sectionIter.hasNext();) {
+				CourseSection section = (CourseSection) sectionIter.next();
+				sectionIds.add(section.getUuid());
+			}
+		}
+		
+		if (isUserHasGraderPermissions(gradebookUid, userUid)) {
+			
+			List<String> studentIds = new ArrayList<String>();
+			studentIds.add(studentUid);
+			Map<String,String> courseGradePermission = gradebookPermissionService.getCourseGradePermission(gradebookUid, userUid, studentIds, viewableSections);
+			
+			String graderPermission = courseGradePermission.get(studentUid);
+			if (graderPermission!=null && (graderPermission.equals(GradebookService.gradePermission) || graderPermission.equals(GradebookService.viewPermission)))
+				return true;
+			
+			return false;
+			
+		} else {
+			// use OOTB permissions based upon TA section membership
+			for (Iterator iter = sectionIds.iterator(); iter.hasNext(); ) {
+				String sectionUuid = (String) iter.next();
+				if (isUserTAinSection(sectionUuid) && getSectionAwareness().isSectionMemberInRole(sectionUuid, studentUid, Role.STUDENT)) {
+					return true;
+				}
+			}
+			// this will check straight up for the gradebook.gradeSection permission
+			if (isUserAbleToGrade(gradebookUid))
+				return true;
+	
+			return false;
+		}
+	}
+	
 	private boolean isUserAbleToGradeOrViewItemForStudent(String gradebookUid, Long itemId, String studentUid, String function) throws IllegalArgumentException {
 		if (itemId == null || studentUid == null || function == null) {
 			throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.isUserAbleToGradeItemForStudent");

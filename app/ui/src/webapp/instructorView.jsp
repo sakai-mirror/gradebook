@@ -85,7 +85,7 @@
 		<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary gbSection"
-			rendered="#{rosterBean.userAbleToGradeAll}">
+			rendered="#{instructorViewBean.userAbleToViewCourseGradeForStudent}">
 			<h:outputText value="#{msgs.course_grade_name}"/>
 			<h:panelGroup>
 				<h:outputText id="letterGrade" value="#{instructorViewBean.courseGradeLetter}"/>

@@ -65,6 +65,8 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	private static final String ROSTER_PAGE = "roster";
 	private static final String ASSIGN_DETAILS_PAGE = "assignmentDetails";
 
+	private boolean userAbleToViewCourseGradeForStudent;
+	
 	/**
 	 * @see org.sakaiproject.tool.gradebook.ui.InitializableBean#init()
 	 */
@@ -114,6 +116,9 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 					index++;
 				}
 			}
+			
+			// only need to load this once, so it is in the init
+			userAbleToViewCourseGradeForStudent = new Boolean(getGradebookBean().getAuthzService().isUserAbleToViewCourseGradeForStudent(getGradebookUid(), getUserUid()));
 
 			setSortColumn(sortByCol);
 			setSortAscending(sortAsc);
@@ -134,6 +139,10 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	}
 	public boolean isLast() {
 		return nextStudent == null;
+	}
+	
+	public boolean isUserAbleToViewCourseGradeForStudent() {
+		return userAbleToViewCourseGradeForStudent;
 	}
 	
 	public EnrollmentRecord getCurrentStudent() {

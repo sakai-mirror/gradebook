@@ -161,4 +161,14 @@ public interface Authz {
 	 * @return GradebookService.gradePermission, GradebookService.viewPermission, or null if no permission
 	 */
 	public String getGradeViewFunctionForUserForStudentForItem(String gradebookUid, Long itemId, String studentUid);
+	
+	/**
+	 * Check to see if the current user has permission to view the course grade for a student.  This takes into
+	 * account if they have the gradeAll permission, gradeSection permission, and all the appropriate grader
+	 * permissions.
+	 * @param gradebookUid
+	 * @param studentUid
+	 * @return a boolean of this permission check
+	 */
+	public boolean isUserAbleToViewCourseGradeForStudent(String gradebookUid, String studentUid);
 }
