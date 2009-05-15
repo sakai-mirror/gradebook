@@ -71,13 +71,13 @@
 					<h:outputLabel for="points" id="pointsLabel" value="#{(addAssignmentBean.localGradebook.grade_type == 1) ? ((addAssignmentBean.isAdjustment) ? msgs.add_assignment_header_adjustment : msgs.add_assignment_bulk_header_points) : msgs.add_assignment_bulk_header_relative_weight}"/>
 				</f:facet>
 				<h:outputText value="* " styleClass="reqStarInline"  rendered="#{!gbItem.assignment.category.dropScores}"/>
-				<h:inputText id="points" size="5" value="#{gbItem.assignment.pointsPossible}" rendered="#{!gbItem.assignment.category.dropScores}">
+				<h:inputText id="points" size="5" value="#{gbItem.assignment.pointsPossible}" rendered="#{!gbItem.assignment.category.dropScores || (gbItem.assignment.category.dropScores && addAssignmentBean.isAdjustment)}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 					<f:validateDoubleRange minimum="0.01" />
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE_DOUBLE"/>
 				</h:inputText>
 				<h:outputText id="pointsDropScores" value="#{gbItem.assignment.pointsPossible}"
-						rendered="#{gbItem.assignment.category.dropScores}" />
+						rendered="#{gbItem.assignment.category.dropScores && !addAssignmentBean.isAdjustment}" />
 				<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_bulk_no_points}" styleClass="alertMessageInline"
 					rendered="#{gbItem.bulkNoPointsError == 'blank'" />
 				<h:message for="points" styleClass="alertMessageInline"/>

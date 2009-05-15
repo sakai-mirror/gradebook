@@ -40,15 +40,15 @@
 						<h:message for="title" styleClass="alertMessageInline"/>
 					</h:panelGroup>
 
-					<h:outputLabel for="points" id="pointsLabel" value="#{(spreadsheetUploadBean.localGradebook.grade_type == 1) ? msgs.import_assignment_points : msgs.import_assignment_relative_weight}" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}"/>				
-					<h:panelGroup rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}">
-						<h:inputText id="points" value="#{spreadsheetUploadBean.assignment.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3 && !spreadsheetUploadBean.selectedCategoryDropsScores}">
+					<h:outputLabel for="points" id="pointsLabel" value="#{(spreadsheetUploadBean.localGradebook.grade_type == 1) ? msgs.import_assignment_points : msgs.import_assignment_relative_weight}" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3 && (spreadsheetUploadBean.assignment.selectedGradeEntryValue != msgs.add_assignment_type_noncalc)}"/>				
+					<h:panelGroup rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3 && (spreadsheetUploadBean.assignment.selectedGradeEntryValue != msgs.add_assignment_type_noncalc)}">
+						<h:inputText id="points" value="#{spreadsheetUploadBean.assignment.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3 && (!spreadsheetUploadBean.selectedCategoryDropsScores || (spreadsheetUploadBean.selectedCategoryDropsScores && (spreadsheetUploadBean.assignment.selectedGradeEntryValue == msgs.add_assignment_type_adjustment)))}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 							<f:validateDoubleRange minimum="0.01" />
 							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE_DOUBLE"/>
 						</h:inputText>
 						<h:message for="points" styleClass="alertMessageInline" />
-						<h:outputText id="pointsDropScores" value="#{spreadsheetUploadBean.assignmentCategory.itemValue}" rendered="#{spreadsheetUploadBean.selectedCategoryDropsScores}" />
+						<h:outputText id="pointsDropScores" value="#{spreadsheetUploadBean.assignmentCategory.itemValue}" rendered="#{spreadsheetUploadBean.selectedCategoryDropsScores && (spreadsheetUploadBean.assignment.selectedGradeEntryValue != msgs.add_assignment_type_adjustment)}" />
 					</h:panelGroup>
            
 					<h:panelGroup>

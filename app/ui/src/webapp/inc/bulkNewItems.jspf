@@ -109,20 +109,20 @@
 					</h:panelGroup>  
 				</h:panelGroup>
 	<%-- Commented out for non-graded rollback && item.ungraded == 'normal' --%>
-				<h:panelGroup>
+				<h:panelGroup rendered="#{!item.assignment.externallyMaintained && (item.selectedGradeEntryValue != msgs.add_assignment_type_noncalc)}">
 				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{!item.assignment.externallyMaintained && !item.assignment.category.dropScores && bean.localGradebook.grade_type != 3}"/>
 					<h:outputLabel for="points" id="pointsLabel" value="#{(bean.localGradebook.grade_type == 1) ? msgs.add_assignment_points : msgs.add_assignment_relative_weight}" 
 						rendered="#{!item.assignment.externallyMaintained && !item.assignment.category.dropScores && bean.localGradebook.grade_type != 3}"/>
 					<h:outputLabel for="pointsDropScores" id="pointsLabelDropScores" value="#{(bean.localGradebook.grade_type == 1) ? msgs.add_assignment_points : msgs.add_assignment_relative_weight}" 
 						rendered="#{!item.assignment.externallyMaintained && item.assignment.category.dropScores && bean.localGradebook.grade_type != 3}"/>
 				</h:panelGroup>
-				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
+				<h:panelGroup rendered="#{!item.assignment.externallyMaintained && (item.selectedGradeEntryValue != msgs.add_assignment_type_noncalc)}">
 					<h:inputText id="points" value="#{item.pointsPossible}" 
-						rendered="#{bean.localGradebook.grade_type != 3 && !item.assignment.category.dropScores}" />
+						rendered="#{bean.localGradebook.grade_type != 3 && ((item.assignment.category.dropScores && bean.isAdjustment) || !item.assignment.category.dropScores)}" />
 
 				<%-- If the category drops scores --%>
 					<h:outputText id="pointsDropScores" value="#{item.pointsPossible}"
-						rendered="#{bean.localGradebook.grade_type != 3 && item.assignment.category.dropScores}" />
+						rendered="#{bean.localGradebook.grade_type != 3 && item.assignment.category.dropScores && !bean.isAdjustment}" />
 				<%-- end, if the category drops scores --%>
 
 					<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
