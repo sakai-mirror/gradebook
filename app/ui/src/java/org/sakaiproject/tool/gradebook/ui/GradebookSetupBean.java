@@ -555,18 +555,15 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
                             updatedCategory.setItemValue(0.0);
                         }
 
-                        getGradebookManager().updateCategory(updatedCategory);
-                        
-                        // now update the pointsPossible of any assignments within the category that drop scores
-                        if(updatedCategory.isDropScores()) {
-                            if(updatedCategory.isAssignmentsEqual()) {
+                        if(updatedCategory.isDropScores() && updatedCategory.isAssignmentsEqual()) {
+                            if((updatedCategory.getAssignmentList() == null || updatedCategory.getAssignmentList().size() == 0)) { // don't populate, if assignments are already in category (to improve performance)
                                 List assignments = getGradebookManager().getAssignmentsForCategory(updatedCategory.getId());
-                                for(int j=0; assignments != null && j<assignments.size(); j++) {
-                                    Assignment assignment = (Assignment)assignments.get(j);
-                                    assignment.setPointsPossible(updatedCategory.getItemValue());
-                                    getGradebookManager().updateAssignment(assignment);
-                                }
+                                updatedCategory.setAssignmentList(assignments);
                             }
+                            // now update the pointsPossible of any assignments within the category that drop scores
+                            getGradebookManager().updateCategoryAndAssignmentsPointsPossible(getGradebookId(), updatedCategory);
+                        } else {
+                            getGradebookManager().updateCategory(updatedCategory);
                         }
 					}
 				}

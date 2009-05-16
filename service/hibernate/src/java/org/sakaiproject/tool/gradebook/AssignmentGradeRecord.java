@@ -112,9 +112,13 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
                 if (agr1Points != null && agr2Points == null) {
                     return 1;
                 }
-                Double agr1PointsDouble = Double.parseDouble(agr1Points);
-                Double agr2PointsDouble = Double.parseDouble(agr2Points);
-                return agr1PointsDouble.compareTo(agr2PointsDouble);
+                try {
+                    Double agr1PointsDouble = Double.parseDouble(agr1Points);
+                    Double agr2PointsDouble = Double.parseDouble(agr2Points);
+                    return agr1PointsDouble.compareTo(agr2PointsDouble);
+                } catch(NumberFormatException e) {
+                    return agr1Points.compareTo(agr2Points); // if not number, default to calcComparator functionality
+                }
             }
         };
     }
@@ -205,7 +209,7 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
 	}
 
     public Boolean getDroppedFromGrade() {
-        return this.droppedFromGrade;
+        return this.droppedFromGrade == null ? false : this.droppedFromGrade;
     }
 
     public void setDroppedFromGrade(Boolean droppedFromGrade) {

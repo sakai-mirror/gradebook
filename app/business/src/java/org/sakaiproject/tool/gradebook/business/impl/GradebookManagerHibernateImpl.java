@@ -1731,31 +1731,90 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
         throws ConflictingAssignmentNameException, StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-          		session.evict(assignment);
-          		if(assignment.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
-          		{
-          			assignment.setUngraded(true);
-          		}
-          		if(assignment.getUngraded())
-          			assignment.setNotCounted(true);
-            	updateAssignment(assignment, session);
+                session.evict(assignment);
+                if(assignment.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
+                {
+                    assignment.setUngraded(true);
+                }
+                if(assignment.getUngraded())
+                    assignment.setNotCounted(true);
+                updateAssignment(assignment, session);
                 return null;
             }
         };
         try {
-        	/** synchronize from external application*/
-        	String oldTitle = null;
-        	if(synchronizer != null)
-        	{
-        		Assignment assign = getAssignment(assignment.getId());
-        		oldTitle = assign.getName();
-        	}
+            /** synchronize from external application*/
+            String oldTitle = null;
+            if(synchronizer != null)
+            {
+                Assignment assign = getAssignment(assignment.getId());
+                oldTitle = assign.getName();
+            }
             getHibernateTemplate().execute(hc);
-        	/** synchronize from external application*/
-        	if(synchronizer != null && oldTitle != null  && !synchronizer.isProjectSite() && !assignment.getUngraded())
-        	{
-        		synchronizer.updateAssignment(oldTitle, assignment.getName(), assignment.getGradebook().getGrade_type());
-        	}
+            /** synchronize from external application*/
+            if(synchronizer != null && oldTitle != null  && !synchronizer.isProjectSite() && !assignment.getUngraded())
+            {
+                synchronizer.updateAssignment(oldTitle, assignment.getName(), assignment.getGradebook().getGrade_type());
+            }
+        } catch (HibernateOptimisticLockingFailureException holfe) {
+            if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an assignment");
+            throw new StaleObjectModificationException(holfe);
+        }
+    }
+
+    /**
+     * update category and assignments in same session
+     * for drop scores functionality
+     */
+    public void updateCategoryAndAssignmentsPointsPossible(final Long gradebookId, final Category category)
+        throws ConflictingAssignmentNameException, StaleObjectModificationException {
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                updateCategory(category, session);
+                
+                Iterator iter = session.createQuery(
+                "select asn from Assignment asn where asn.gradebook.id=:gbid and asn.category=:category)").
+                setParameter("gbid", gradebookId).
+                setParameter("category", category).
+                list().iterator();
+                while (iter.hasNext()) {
+                    Assignment assignment = (Assignment) iter.next();
+                    session.evict(assignment);
+                    if(assignment.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
+                        assignment.setUngraded(true);
+                    }
+                    if(assignment.getUngraded())
+                        assignment.setNotCounted(true);
+                    // for drop score categories pointsPossible comes from the category
+                    assignment.setPointsPossible(category.getItemValue());
+                    updateAssignment(assignment, session);
+                }
+                return null;
+            }
+        };
+        try {
+            /** synchronize from external application*/
+            
+            Map oldTitles = new HashMap();
+            List assignments = category.getAssignmentList();
+            if(synchronizer != null) {
+                for(Iterator iter = assignments.iterator(); iter.hasNext();) {
+                    Assignment assignment = (Assignment) iter.next();
+                    Assignment assign = getAssignment(assignment.getId());
+                    oldTitles.put(assignment.getId(), assign.getName());
+                }
+            }
+            getHibernateTemplate().execute(hc);
+            
+            /** synchronize from external application*/
+            for(Iterator iter = assignments.iterator(); iter.hasNext();) {
+                Assignment assignment = (Assignment) iter.next();
+                String oldTitle = (String)oldTitles.get(assignment.getId());
+                assignment.setPointsPossible(category.getItemValue());
+                if(synchronizer != null && oldTitle != null  && !synchronizer.isProjectSite() && !assignment.getUngraded()) {
+                    synchronizer.updateAssignment(oldTitle, assignment.getName(), assignment.getGradebook().getGrade_type());
+                }
+            }
         } catch (HibernateOptimisticLockingFailureException holfe) {
             if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an assignment");
             throw new StaleObjectModificationException(holfe);
@@ -2987,6 +3046,10 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
             // reset
             gradeRecord.setDroppedFromGrade(false);
             
+            Assignment assignment = gradeRecord.getAssignment();
+            if(assignment.getUngraded()) { // GradebookService.GRADE_TYPE_LETTER
+                continue;
+            }
             // get all the students represented
             String studentId = gradeRecord.getStudentId();
             if(!studentIds.contains(studentId)) {
@@ -3006,6 +3069,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
             Integer dropHighest = cat.getDropHighest();
             Integer dropLowest = cat.getDrop_lowest();
             Integer keepHighest = cat.getKeepHighest();
+            Long catId = cat.getId();
             
             if((dropHighest != null && dropHighest > 0) || (dropLowest != null && dropLowest > 0) || (keepHighest != null && keepHighest > 0)) {
                 
@@ -3014,24 +3078,26 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                     List<AssignmentGradeRecord> gradesByCategory = new ArrayList<AssignmentGradeRecord>();
                     for(AssignmentGradeRecord gradeRecord : gradeRecords) {
                         if(gradeRecord == null 
+                                || catId == null
                                 || gradeRecord.getStudentId() == null 
                                 || gradeRecord.getStudentId().length() < 1 
-                                || gradeRecord.getAssignment().getCategory() == null) {
+                                || gradeRecord.getAssignment().getCategory() == null
+                                || gradeRecord.getAssignment().getCategory().getId() == null) {
                             continue;
-                        } else if(gradeRecord.getStudentId().equals(studentId) && gradeRecord.getAssignment().getCategory().equals(cat)) {
+                        } else if(gradeRecord.getStudentId().equals(studentId) && gradeRecord.getAssignment().getCategory().getId().equals(catId)) {
                             gradesByCategory.add(gradeRecord);
                         }
                     }
                     
                     int numGrades = gradesByCategory.size();
-                    log.debug("gradesByCategory size is " + gradesByCategory.size());
+                    if(log.isDebugEnabled()) log.debug("gradesByCategory size is " + gradesByCategory.size());
                     
                     if(dropHighest > 0 && numGrades > dropHighest + dropLowest) {
                         for(int i=0; i<dropHighest; i++) {
                             AssignmentGradeRecord highest = Collections.max(gradesByCategory, AssignmentGradeRecord.numericComparator);
                             highest.setDroppedFromGrade(true);
                             gradesByCategory.remove(highest);
-                            log.debug("dropHighest applied to " + highest);
+                            if(log.isDebugEnabled()) log.debug("dropHighest applied to " + highest);
                         }
                     }
                     
@@ -3044,14 +3110,14 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                             AssignmentGradeRecord lowest = Collections.min(gradesByCategory, AssignmentGradeRecord.numericComparator);
                             lowest.setDroppedFromGrade(true);
                             gradesByCategory.remove(lowest);
-                            log.debug("dropLowest applied to " + lowest);
+                            if(log.isDebugEnabled()) log.debug("dropLowest applied to " + lowest);
                         }
                     }
                 }
             }
         }
         
-        log.debug("GradebookManager.applyDropScores took " + (System.currentTimeMillis() - start) + " millis to execute");
+        if(log.isDebugEnabled()) log.debug("GradebookManager.applyDropScores took " + (System.currentTimeMillis() - start) + " millis to execute");
     }
 
 	

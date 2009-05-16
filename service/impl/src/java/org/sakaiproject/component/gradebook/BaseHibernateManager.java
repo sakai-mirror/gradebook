@@ -577,35 +577,57 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	};
     	return (Category) getHibernateTemplate().execute(hc);
     }
+
+    protected void updateCategory(Category category, Session session)
+        throws ConflictingAssignmentNameException, HibernateException {
+        session.evict(category);
+        Category persistentCat = (Category)session.load(Category.class, category.getId());
+
+        List conflictList = ((List)session.createQuery(
+                "select ca from Category as ca where ca.name = ? and ca.gradebook = ? and ca.id != ? and ca.removed=false").
+        setString(0, category.getName()).
+        setEntity(1, category.getGradebook()).
+        setLong(2, category.getId().longValue()).list());
+        int numNameConflicts = conflictList.size();
+        if(numNameConflicts > 0) {
+            throw new ConflictingCategoryNameException("You can not save multiple category in a gradebook with the same name");
+        }
+        if(category.getWeight().doubleValue() > 1 || category.getWeight().doubleValue() < 0)
+        {
+            throw new IllegalArgumentException("weight for category is greater than 1 or less than 0 in updateCategory of BaseHibernateManager");
+        }
+        session.evict(persistentCat);
+        session.update(category);
+    }
     
     public void updateCategory(final Category category) throws ConflictingCategoryNameException, StaleObjectModificationException{
-    	HibernateCallback hc = new HibernateCallback() {
-    		public Object doInHibernate(Session session) throws HibernateException {
-    			session.evict(category);
-    			Category persistentCat = (Category)session.load(Category.class, category.getId());
-    			List conflictList = ((List)session.createQuery(
-    			"select ca from Category as ca where ca.name = ? and ca.gradebook = ? and ca.id != ? and ca.removed=false").
-    			setString(0, category.getName()).
-    			setEntity(1, category.getGradebook()).
-    			setLong(2, category.getId().longValue()).list());
-    			int numNameConflicts = conflictList.size();
-    			if(numNameConflicts > 0) {
-    				throw new ConflictingCategoryNameException("You can not save multiple category in a gradebook with the same name");
-    			}
-    			if(category.getWeight().doubleValue() > 1 || category.getWeight().doubleValue() < 0)
-    			{
-    				throw new IllegalArgumentException("weight for category is greater than 1 or less than 0 in updateCategory of BaseHibernateManager");
-    			}
-    			session.evict(persistentCat);
-    			session.update(category);
-    			return null;
-    		}
-    	};
-    	try {
-    		getHibernateTemplate().execute(hc);
-    	} catch (Exception e) {
-    		throw new StaleObjectModificationException(e);
-    	}
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                session.evict(category);
+                Category persistentCat = (Category)session.load(Category.class, category.getId());
+                List conflictList = ((List)session.createQuery(
+                "select ca from Category as ca where ca.name = ? and ca.gradebook = ? and ca.id != ? and ca.removed=false").
+                setString(0, category.getName()).
+                setEntity(1, category.getGradebook()).
+                setLong(2, category.getId().longValue()).list());
+                int numNameConflicts = conflictList.size();
+                if(numNameConflicts > 0) {
+                    throw new ConflictingCategoryNameException("You can not save multiple category in a gradebook with the same name");
+                }
+                if(category.getWeight().doubleValue() > 1 || category.getWeight().doubleValue() < 0)
+                {
+                    throw new IllegalArgumentException("weight for category is greater than 1 or less than 0 in updateCategory of BaseHibernateManager");
+                }
+                session.evict(persistentCat);
+                session.update(category);
+                return null;
+            }
+        };
+        try {
+            getHibernateTemplate().execute(hc);
+        } catch (Exception e) {
+            throw new StaleObjectModificationException(e);
+        }
     }
     
     public void removeCategory(final Long categoryId) throws StaleObjectModificationException{

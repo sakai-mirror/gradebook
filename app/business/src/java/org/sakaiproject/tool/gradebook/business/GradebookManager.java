@@ -490,6 +490,15 @@ public interface GradebookManager {
     throws ConflictingCategoryNameException, StaleObjectModificationException;
 
     /**
+     * Updates an existing category and its assignments
+     * 
+     * @param category
+     * @throws ConflictingCategoryNameException StaleObjectModificationException
+     */
+    public void updateCategoryAndAssignmentsPointsPossible(final Long gradebookId, Category category)
+    throws ConflictingCategoryNameException, StaleObjectModificationException;
+
+    /**
      * remove category from gradebook
      *
      * @param categoryId
