@@ -893,11 +893,41 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line;
         while((line = reader.readLine())!=null){
+        	// check and filter out the legend column, if it exists
+        	line = filterLegendColumn(line);
             //logger.debug("contents of line: "+line);
             contents.add(line);
         }
         return contents;
 
+    }
+    
+    /**
+     * This filters out the legend column in each row so the importing functions
+     * will not throw errors.
+     * 
+     * @param line
+     * @return line
+     */
+    private String filterLegendColumn(String line)
+    {
+    	List lineList = new ArrayList();
+		CSV csv = new CSV();
+        lineList = csv.parse(line);
+        if (line.startsWith(","))
+        	line = line.substring(1);
+        else if (!line.startsWith("Student ID"))
+    	{
+    		lineList.remove(0);
+    		line = ""; // empty the line to reform it
+    		for(int i = 0;i<lineList.size();i++){
+    			line = line + lineList.get(i);
+    			int o = i + 1;
+    			if (o<lineList.size())
+    				line = line + ",";
+    		}
+    	}
+    	return line;
     }
 
     /**

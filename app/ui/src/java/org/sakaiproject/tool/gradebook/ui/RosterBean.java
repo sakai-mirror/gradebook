@@ -893,6 +893,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         List<Object> headerRow = new ArrayList<Object>();
         List<Object> pointsPossibleRow = new ArrayList<Object>();
         
+        headerRow.add(getLocalizedString("export_legend"));
         headerRow.add(getLocalizedString("export_student_id"));
         headerRow.add(getLocalizedString("export_student_name"));
         
@@ -992,6 +993,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         	String studentUid = student.getUserUid();
         	Map studentMap = (Map)gradesMap.get(studentUid);
         	List<Object> row = new ArrayList<Object>();
+        	row.add("");// for the legend row
         	row.add(student.getDisplayId());
         	row.add(student.getSortName());
         	assignmentCat = null;
