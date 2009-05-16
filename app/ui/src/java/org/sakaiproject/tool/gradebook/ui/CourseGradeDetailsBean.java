@@ -207,19 +207,6 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
 			studentUids = finalizeSortingAndPaging(studentUids);
 		}
 		
-		// for calculating totalPoints with droppedScores
-		
-		List assignmentGradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentUids);
-		getGradebookManager().applyDropScores(assignmentGradeRecords);
-		for(Object obj : assignmentGradeRecords) {
-		    if(obj instanceof AssignmentGradeRecord) {
-		        AssignmentGradeRecord agr = (AssignmentGradeRecord)obj;
-		        if(agr.getDroppedFromGrade()) {
-		            totalPoints -= agr.getAssignment().getPointsPossible();
-		        }
-		    }
-		}
-
 		// Get all of the grading events for these enrollments on this assignment
 		GradingEvents allEvents = getGradebookManager().getGradingEvents(courseGrade, studentUids);
 
