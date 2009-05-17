@@ -300,8 +300,13 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
 
 function toggleVisibilityDropScoresFields() {
     var formName = "gbForm";
-    var showDrops =  getTheElement(formName + ":showDrops");
-    var visibility = ""; // an unspecified display makes the column and column header visible
+    var showDropHighest =  getTheElement(formName + ":showDropHighest");
+    var showDropLowest =  getTheElement(formName + ":showDropLowest");
+    var showKeepHighest =  getTheElement(formName + ":showKeepHighest");
+    var dropHighestVisibility = ""; // an unspecified display makes the column and column header visible
+    var dropLowestVisibility = ""; // an unspecified display makes the column and column header visible
+    var keepHighestVisibility = ""; // an unspecified display makes the column and column header visible
+    var itemValueVisibility = "";
     var tbl  = document.getElementById(formName + ":categoriesTable");
     var thead = tbl.getElementsByTagName('thead');
     var header = thead.item(0);
@@ -313,22 +318,31 @@ function toggleVisibilityDropScoresFields() {
         var dropHighestIdx = 4;  // the index of 1st drop column, if Categories & Weighting is selected
     }
 
-    if(showDrops == undefined || showDrops.checked == false) {
-        visibility = "none";      // make the column and column header not visible
+    if(showDropHighest == undefined || showDropHighest.checked == false) {
+        dropHighestVisibility = "none";      // make the column and column header not visible
+    }
+    if(showDropLowest == undefined || showDropLowest.checked == false) {
+        dropLowestVisibility = "none";      // make the column and column header not visible
+    }
+    if(showKeepHighest == undefined || showKeepHighest.checked == false) {
+        keepHighestVisibility = "none";      // make the column and column header not visible
+    }
+    if(showDropHighest.checked == false && showDropLowest.checked == false && showKeepHighest.checked == false) {
+        itemValueVisibility = "none";      // make the column and column header not visible
     }
 
-    headerRows[dropHighestIdx].style.display=visibility;
-    headerRows[dropHighestIdx+1].style.display=visibility;
-    headerRows[dropHighestIdx+2].style.display=visibility;
-    headerRows[dropHighestIdx+3].style.display=visibility;
+    headerRows[dropHighestIdx].style.display=dropHighestVisibility;
+    headerRows[dropHighestIdx+1].style.display=dropLowestVisibility;
+    headerRows[dropHighestIdx+2].style.display=keepHighestVisibility;
+    headerRows[dropHighestIdx+3].style.display=itemValueVisibility;
     var rows = tbl.getElementsByTagName('tr');
     for (var row=0; row<rows.length;row++) {
         var cels = rows[row].getElementsByTagName('td')
         if(cels.length > 0) {
-            cels[dropHighestIdx].style.display=visibility;
-            cels[dropHighestIdx+1].style.display=visibility;
-            cels[dropHighestIdx+2].style.display=visibility;
-            cels[dropHighestIdx+3].style.display=visibility;
+            cels[dropHighestIdx].style.display=dropHighestVisibility;
+            cels[dropHighestIdx+1].style.display=dropLowestVisibility;
+            cels[dropHighestIdx+2].style.display=keepHighestVisibility;
+            cels[dropHighestIdx+3].style.display=itemValueVisibility;
         }
     }
     dropScoresAdjust();

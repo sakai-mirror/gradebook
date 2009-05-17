@@ -5,6 +5,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.ConverterException;
 import javax.faces.convert.NumberConverter;
+import javax.faces.validator.ValidatorException;
 
 /*
  * converts drop scores values to Integer (from the default Long) to avoid a ClassCastException
@@ -17,6 +18,12 @@ public class DropScoresConverter extends NumberConverter {
     }
     
     public Object getAsObject(FacesContext context, UIComponent component, String newValue) throws ConverterException {
+        if(newValue.indexOf('.') != -1) {
+            FacesMessage message = new FacesMessage(FacesUtil.getLocalizedString("cat_drop_score_too_precise"));
+            message.setSeverity(FacesMessage.SEVERITY_ERROR);
+            throw new ConverterException(message);
+        }
+
         try {
             Integer converted = new Integer(newValue);
             return converted;

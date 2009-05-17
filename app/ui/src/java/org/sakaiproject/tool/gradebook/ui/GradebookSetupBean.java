@@ -52,7 +52,9 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 	private String gradeEntryMethod;
     private String categorySetting;
-    private boolean showDropsDisplayed;
+    private boolean showDropHighestDisplayed;
+    private boolean showDropLowestDisplayed;
+    private boolean showKeepHighestDisplayed;
     private boolean anyCategoriesWithDrops;
 	private List categories;
 	private Gradebook localGradebook;
@@ -111,11 +113,23 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			initLetterGradeRows();
 		}
 
-		if(getAnyCategoriesWithDrops()) {
-		    showDropsDisplayed = true;
-		} else {
-            showDropsDisplayed = false;
-		}
+        if(getAnyCategoriesWithDropHighest()) {
+            showDropHighestDisplayed = true;
+        } else {
+            showDropHighestDisplayed = false;
+        }
+
+        if(getAnyCategoriesWithDropLowest()) {
+            showDropLowestDisplayed = true;
+        } else {
+            showDropLowestDisplayed = false;
+        }
+
+        if(getAnyCategoriesWithKeepHighest()) {
+            showKeepHighestDisplayed = true;
+        } else {
+            showKeepHighestDisplayed = false;
+        }
 	}
     
     /*
@@ -140,15 +154,43 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
         }
     }
     
-    private void removeDropsFromCategories() {
+    private void removeDropHighestFromCategories() {
         if(categories != null) {
             for(Object obj : categories) {
                 if(obj instanceof Category) {
                     Category category = (Category)obj;
-                    category.setItemValue(0.0);
-                    category.setDrop_lowest(0);
                     category.setDropHighest(0);
+                    if(category.getDrop_lowest() == 0 && category.getKeepHighest() == 0) {
+                        category.setItemValue(0.0);
+                    }
+                }
+            }
+        }
+    }
+    
+    private void removeDropLowestFromCategories() {
+        if(categories != null) {
+            for(Object obj : categories) {
+                if(obj instanceof Category) {
+                    Category category = (Category)obj;
+                    category.setDrop_lowest(0);
+                    if(category.getDropHighest() == 0 && category.getKeepHighest() == 0) {
+                        category.setItemValue(0.0);
+                    }
+                }
+            }
+        }
+    }
+    
+    private void removeKeepHighestFromCategories() {
+        if(categories != null) {
+            for(Object obj : categories) {
+                if(obj instanceof Category) {
+                    Category category = (Category)obj;
                     category.setKeepHighest(0);
+                    if(category.getDrop_lowest() == 0 && category.getDropHighest() == 0) {
+                        category.setItemValue(0.0);
+                    }
                 }
             }
         }
@@ -201,27 +243,80 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
     {
         this.categorySetting = categorySetting;
     } 
-
-    public boolean getShowDropsDisplayed() {   
-        return showDropsDisplayed;
+    
+    public boolean getShowDropHighestDisplayed() {
+        return showDropHighestDisplayed;
     }
 
-    public void setShowDropsDisplayed(boolean showDropsDisplayed)
-    {
-        this.showDropsDisplayed = showDropsDisplayed;
-    } 
-    
-    public void setAnyCategoriesWithDrops(boolean anyCategoriesWithDrops) {
+    public void setShowDropHighestDisplayed(boolean showDropHighestDisplayed) {
+        this.showDropHighestDisplayed = showDropHighestDisplayed;
+    }
+
+    public boolean getShowDropLowestDisplayed() {
+        return showDropLowestDisplayed;
+    }
+
+    public void setShowDropLowestDisplayed(boolean showDropLowestDisplayed) {
+        this.showDropLowestDisplayed = showDropLowestDisplayed;
+    }
+
+    public boolean getShowKeepHighestDisplayed() {
+        return showKeepHighestDisplayed;
+    }
+
+    public void setShowKeepHighestDisplayed(boolean showKeepHighestDisplayed) {
+        this.showKeepHighestDisplayed = showKeepHighestDisplayed;
+    }
+
+    public void setAnyCategoriesWithDropHighest(boolean anyCategoriesWithDropHighest) {
+    }
+
+    public void setAnyCategoriesWithDropLowest(boolean anyCategoriesWithDropLowest) {
+    }
+
+    public void setAnyCategoriesWithKeepHighest(boolean anyCategoriesWithKeepHighest) {
     }
     
-    public boolean getAnyCategoriesWithDrops() {
+    public boolean getAnyCategoriesWithDropHighest() {
         boolean anyDrops = false;
         if(categories != null) {
             for(Object obj : categories) {
                 if(obj instanceof Category) {
                     Category category = (Category)obj;
-                    anyDrops = category.isDropScores();
-                    setShowDropsDisplayed(anyDrops);
+                    anyDrops = category.getDropHighest() > 0;
+                    setShowDropHighestDisplayed(anyDrops);
+                    if(anyDrops)
+                        break;
+                }
+            }
+        }
+        return anyDrops;
+    }
+    
+    public boolean getAnyCategoriesWithDropLowest() {
+        boolean anyDrops = false;
+        if(categories != null) {
+            for(Object obj : categories) {
+                if(obj instanceof Category) {
+                    Category category = (Category)obj;
+                    anyDrops = category.getDrop_lowest() > 0;
+                    setShowDropLowestDisplayed(anyDrops);
+                    if(anyDrops)
+                        break;
+                }
+            }
+        }
+        return anyDrops;
+    }
+    
+    public boolean getAnyCategoriesWithKeepHighest() {
+        boolean anyDrops = false;
+        if(categories != null) {
+            for(Object obj : categories) {
+                if(obj instanceof Category) {
+                    Category category = (Category)obj;
+                    anyDrops = category.getKeepHighest() > 0;
+                    setShowKeepHighestDisplayed(anyDrops);
                     if(anyDrops)
                         break;
                 }
@@ -428,11 +523,23 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			}
 		}
         
-        if(getShowDropsDisplayed() == false
+        if(getShowDropHighestDisplayed() == false
                 || localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER // when Grade Entry change from Points/Percentage to Letter Grades also remove drops from categories
                  && (origialGradeType==GradebookService.GRADE_TYPE_POINTS 
                          || origialGradeType==GradebookService.GRADE_TYPE_PERCENTAGE)) { // handles the case when user switches grade entry method
-            removeDropsFromCategories();
+            removeDropHighestFromCategories();
+        }
+        if(getShowDropLowestDisplayed() == false
+                || localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER // when Grade Entry change from Points/Percentage to Letter Grades also remove drops from categories
+                 && (origialGradeType==GradebookService.GRADE_TYPE_POINTS 
+                         || origialGradeType==GradebookService.GRADE_TYPE_PERCENTAGE)) { // handles the case when user switches grade entry method
+            removeDropLowestFromCategories();
+        }
+        if(getShowKeepHighestDisplayed() == false
+                || localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER // when Grade Entry change from Points/Percentage to Letter Grades also remove drops from categories
+                 && (origialGradeType==GradebookService.GRADE_TYPE_POINTS 
+                         || origialGradeType==GradebookService.GRADE_TYPE_PERCENTAGE)) { // handles the case when user switches grade entry method
+            removeKeepHighestFromCategories();
         }
         
         // do drop scores validation before on all categories before the database transactions begins
@@ -681,16 +788,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
                 changeAssign.equals(CATEGORY_OPT_CAT_ONLY)))
         {
             categorySetting = changeAssign;
-        }
-        return GB_SETUP_PAGE;
-    }
-
-    public String processShowDropsChange(ValueChangeEvent vce)
-    {
-        Boolean changeAssign = (Boolean)vce.getNewValue(); 
-        if (changeAssign != null)
-        {
-            showDropsDisplayed = changeAssign;
         }
         return GB_SETUP_PAGE;
     }
