@@ -235,6 +235,13 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		}
 		if(assignment.getUngraded())
 			assignment.setNotCounted(true);
+		
+		if (assignment.getName() == null) {
+		    throw new IllegalArgumentException("Attempted to update an assignments with a null assignment name");
+		}
+		// trim excess whitespace before processing
+		assignment.setName(assignment.getName().trim());
+		
 		List conflictList = ((List)session.createQuery(
 				"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false and go.id != ?").
 				setString(0, assignment.getName()).

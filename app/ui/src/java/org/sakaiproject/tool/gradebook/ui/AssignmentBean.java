@@ -366,12 +366,17 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			
 				// Check for blank entry else check if duplicate within items to be
 				// added or with item currently in gradebook.
-				if ("".equals(bulkAssignment.getName().toString().trim())) {
+				
+				// first, let's trim the assignment name
+				String trimmedName = bulkAssignment.getName().trim();
+				bulkAssignment.setName(trimmedName);
+				
+				if ("".equals(bulkAssignment.getName())) {
 					bulkAssignDecoBean.setBulkNoTitleError("blank");
 					saveAll = false;
 					resultString = "failure";
 				}
-				else if (newAssignmentNameList.contains(bulkAssignment.getName().trim()) ||
+				else if (newAssignmentNameList.contains(bulkAssignment.getName()) ||
 						 ! getGradebookManager().checkValidName(getGradebookId(), bulkAssignment)){
 					bulkAssignDecoBean.setBulkNoTitleError("dup");
 					saveAll = false;
@@ -379,7 +384,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 				}
 				else {
 					bulkAssignDecoBean.setBulkNoTitleError("OK");
-					newAssignmentNameList.add(bulkAssignment.getName().trim());
+					newAssignmentNameList.add(bulkAssignment.getName());
 				}
 
 				boolean adjustmentWithNoPoints = false; // used for some logic later
@@ -526,23 +531,28 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		
 			// Check for blank entry else check if duplicate within items to be
 			// added or with item currently in gradebook.
-			if ("".equals(bulkAssignDecoBean.getAssignment().getName().toString().trim())) {
+			
+			// first, trim the assignment name
+			String assignName = bulkAssignDecoBean.getAssignment().getName();
+			bulkAssignDecoBean.getAssignment().setName(assignName.trim());
+			
+			if ("".equals(bulkAssignDecoBean.getAssignment().getName())) {
 				bulkAssignDecoBean.setBulkNoTitleError("blank");
 				saveBlankTitle = false;
 				saveAll = false;
 				resultString = "failure";
 			}
-			else if (newAssignmentNameList.contains(bulkAssignDecoBean.getAssignment().getName().trim()) ||
+			else if (newAssignmentNameList.contains(bulkAssignDecoBean.getAssignment().getName()) ||
 					 ! getGradebookManager().checkValidName(getGradebookId(), bulkAssignDecoBean.getAssignment())){
 				bulkAssignDecoBean.setBulkNoTitleError("dup");
-				gbItemName = bulkAssignDecoBean.getAssignment().getName().trim();
+				gbItemName = bulkAssignDecoBean.getAssignment().getName();
 				saveDupTitle=false;
 				saveAll = false;
 				resultString = "failure";
 			}
 			else {
 				bulkAssignDecoBean.setBulkNoTitleError("OK");
-				newAssignmentNameList.add(bulkAssignDecoBean.getAssignment().getName().trim());
+				newAssignmentNameList.add(bulkAssignDecoBean.getAssignment().getName());
 			}
 						
 			boolean adjustmentWithNoPoints = false; // used for some logic later

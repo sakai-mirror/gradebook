@@ -2729,12 +2729,20 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     /** synchronize from external application - override createAssignment method in BaseHibernateManager.*/
     public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Boolean isExtraCredit) throws ConflictingAssignmentNameException, StaleObjectModificationException {
 
+        if (name == null) {
+            throw new IllegalArgumentException("Null name passed to createAssignment");
+        }
+        
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
     			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+    			
+    	        // first, trim excess whitespace
+    	        String trimmedName = name.trim();
+    	        
     			List conflictList = ((List)session.createQuery(
     					"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
-    					setString(0, name).
+    					setString(0, trimmedName).
     					setEntity(1, gb).list());
     			int numNameConflicts = conflictList.size();
     			if(numNameConflicts > 0) {
@@ -2743,7 +2751,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 
     			Assignment asn = new Assignment();
     			asn.setGradebook(gb);
-    			asn.setName(name.trim());
+    			asn.setName(trimmedName);
     			asn.setPointsPossible(points);
     			asn.setDueDate(dueDate);
     			asn.setUngraded(false);
