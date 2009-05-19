@@ -1768,8 +1768,9 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
             public Object doInHibernate(Session session) throws HibernateException {
                 updateCategory(category, session);
                 
+                // get assignments for this category, excluding adjustment items (is_extra_credit)
                 Iterator iter = session.createQuery(
-                "select asn from Assignment asn where asn.gradebook.id=:gbid and asn.category=:category)").
+                "select asn from Assignment asn where asn.gradebook.id=:gbid and asn.category=:category and (asn.isExtraCredit=false or asn.isExtraCredit is null))").
                 setParameter("gbid", gradebookId).
                 setParameter("category", category).
                 list().iterator();
@@ -3052,7 +3053,8 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
             gradeRecord.setDroppedFromGrade(false);
             
             Assignment assignment = gradeRecord.getAssignment();
-            if(assignment.getUngraded()) { // GradebookService.GRADE_TYPE_LETTER
+            if(assignment.getUngraded()  // GradebookService.GRADE_TYPE_LETTER
+                    || assignment.getItemType().equals(Assignment.item_type_adjustment)) {
                 continue;
             }
             // get all the students represented

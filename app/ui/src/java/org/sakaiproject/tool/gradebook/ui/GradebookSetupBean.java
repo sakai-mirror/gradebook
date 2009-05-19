@@ -145,8 +145,18 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
                     List assignments = category.getAssignmentList();
                     if(category.isDropScores() && (assignments == null || assignments.size() == 0)) { // don't populate, if assignments are already in category (to improve performance)
                         assignments = getGradebookManager().getAssignmentsForCategory(category.getId());
+                        List assignmentsToUpdate = new ArrayList();
+                     // only include assignments which are not adjustments must not update adjustment item pointsPossible
+                        for(Object o : assignments) { 
+                            if(o instanceof Assignment) {
+                                Assignment assignment = (Assignment)o;
+                                if(!Assignment.item_type_adjustment.equals(assignment.getItemType())) {
+                                    assignmentsToUpdate.add(assignment);
+                                }
+                            }
+                        }
                         if(assignments != null && assignments.size() > 0) {
-                            category.setAssignmentList(assignments);
+                            category.setAssignmentList(assignmentsToUpdate);
                         }
                     }
                 }
@@ -665,7 +675,16 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
                         if(updatedCategory.isDropScores() && updatedCategory.isAssignmentsEqual()) {
                             if((updatedCategory.getAssignmentList() == null || updatedCategory.getAssignmentList().size() == 0)) { // don't populate, if assignments are already in category (to improve performance)
                                 List assignments = getGradebookManager().getAssignmentsForCategory(updatedCategory.getId());
-                                updatedCategory.setAssignmentList(assignments);
+                                List assignmentsToUpdate = new ArrayList();
+                                for(Object o : assignments) { // must not update adjustment item pointsPossible
+                                    if(o instanceof Assignment) {
+                                        Assignment assignment = (Assignment)o;
+                                        if(!Assignment.item_type_adjustment.equals(assignment.getItemType())) {
+                                            assignmentsToUpdate.add(assignment);
+                                        }
+                                    }
+                                }
+                                updatedCategory.setAssignmentList(assignmentsToUpdate);
                             }
                             // now update the pointsPossible of any assignments within the category that drop scores
                             getGradebookManager().updateCategoryAndAssignmentsPointsPossible(getGradebookId(), updatedCategory);

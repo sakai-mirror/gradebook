@@ -482,13 +482,15 @@ public class Category implements Serializable
         if(assignments == null) {
             return isEqual;
         } else {
-            for(Object o : assignments) {
-                if(o instanceof Assignment) {
-                    Assignment assignment = (Assignment)o;
+            for(Object obj : assignments) {
+                if(obj instanceof Assignment) {
+                    Assignment assignment = (Assignment)obj;
                     if(pointsPossible == null) {
                         pointsPossible = assignment.getPointsPossible();
                     } else {
-                        if(assignment.getPointsPossible() != null && !pointsPossible.equals(assignment.getPointsPossible())) {
+                        if(assignment.getPointsPossible() != null
+                                && !Assignment.item_type_adjustment.equals(assignment.getItemType()) // ignore adjustment items that are not equal
+                                && !pointsPossible.equals(assignment.getPointsPossible())) {
                             isEqual = false;
                             return isEqual;
                         }
