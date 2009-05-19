@@ -46,11 +46,11 @@ import org.hibernate.StaleObjectStateException;
 import org.hibernate.TransientObjectException;
 import org.sakaiproject.component.gradebook.BaseHibernateManager;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.MultipleAssignmentSavingException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
@@ -64,14 +64,10 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.Spreadsheet;
-import org.sakaiproject.tool.gradebook.business.GradebookManager;
+import org.sakaiproject.tool.gradebook.business.GbSynchronizer;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
-
-/** synchronize from external application*/
-import org.sakaiproject.tool.gradebook.business.GbSynchronizer;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
 
 /**
@@ -3037,6 +3033,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
         
         List<String> studentIds = new ArrayList<String>();
         List<Category> categories = new ArrayList<Category>();
+        Map<String, List<AssignmentGradeRecord>> gradeRecordMap = new HashMap<String, List<AssignmentGradeRecord>>();
         for(AssignmentGradeRecord gradeRecord : gradeRecords) {
             
             if(gradeRecord == null) {
@@ -3057,9 +3054,19 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
             }
             // get all the categories represented
             Category cat = gradeRecord.getAssignment().getCategory();
-            if(cat != null && !categories.contains(cat)) {
-                categories.add(cat);
-            }
+            if(cat != null) {
+                if(!categories.contains(cat)) {
+                    categories.add(cat);
+                }
+                List<AssignmentGradeRecord> gradeRecordsByCatAndStudent = gradeRecordMap.get(studentId + cat.getId());
+                if(gradeRecordsByCatAndStudent == null) {
+                    gradeRecordsByCatAndStudent = new ArrayList<AssignmentGradeRecord>();
+                    gradeRecordsByCatAndStudent.add(gradeRecord);
+                    gradeRecordMap.put(studentId + cat.getId(), gradeRecordsByCatAndStudent);
+                } else {
+                    gradeRecordsByCatAndStudent.add(gradeRecord);
+                }
+            }            
         }
         
         if(categories == null || categories.size() < 1) {
@@ -3076,50 +3083,41 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 for(String studentId : studentIds) {
                     // get the student's gradeRecords for this category
                     List<AssignmentGradeRecord> gradesByCategory = new ArrayList<AssignmentGradeRecord>();
-                    for(AssignmentGradeRecord gradeRecord : gradeRecords) {
-                        if(gradeRecord == null 
-                                || catId == null
-                                || gradeRecord.getStudentId() == null 
-                                || gradeRecord.getStudentId().length() < 1 
-                                || gradeRecord.getAssignment().getCategory() == null
-                                || gradeRecord.getAssignment().getCategory().getId() == null) {
-                            continue;
-                        } else if(gradeRecord.getStudentId().equals(studentId) && gradeRecord.getAssignment().getCategory().getId().equals(catId)) {
-                            gradesByCategory.add(gradeRecord);
+                    List<AssignmentGradeRecord> gradeRecordsByCatAndStudent = gradeRecordMap.get(studentId + cat.getId());
+                    if(gradeRecordsByCatAndStudent != null) {
+                        gradesByCategory.addAll(gradeRecordsByCatAndStudent);
+                    
+                        int numGrades = gradesByCategory.size();
+                        
+                        if(dropHighest > 0 && numGrades > dropHighest + dropLowest) {
+                            for(int i=0; i<dropHighest; i++) {
+                                AssignmentGradeRecord highest = Collections.max(gradesByCategory, AssignmentGradeRecord.numericComparator);
+                                highest.setDroppedFromGrade(true);
+                                gradesByCategory.remove(highest);
+                                if(log.isDebugEnabled()) log.debug("dropHighest applied to " + highest);
+                            }
                         }
-                    }
-                    
-                    int numGrades = gradesByCategory.size();
-                    if(log.isDebugEnabled()) log.debug("gradesByCategory size is " + gradesByCategory.size());
-                    
-                    if(dropHighest > 0 && numGrades > dropHighest + dropLowest) {
-                        for(int i=0; i<dropHighest; i++) {
-                            AssignmentGradeRecord highest = Collections.max(gradesByCategory, AssignmentGradeRecord.numericComparator);
-                            highest.setDroppedFromGrade(true);
-                            gradesByCategory.remove(highest);
-                            if(log.isDebugEnabled()) log.debug("dropHighest applied to " + highest);
+                        
+                        if(keepHighest > 0 && numGrades > (gradesByCategory.size() - keepHighest)) {
+                            dropLowest = gradesByCategory.size() - keepHighest;
                         }
-                    }
-                    
-                    if(keepHighest > 0 && numGrades > (gradesByCategory.size() - keepHighest)) {
-                        dropLowest = gradesByCategory.size() - keepHighest;
-                    }
-                    
-                    if(dropLowest > 0 &&  numGrades > dropLowest + dropHighest) {
-                        for(int i=0; i<dropLowest; i++) {
-                            AssignmentGradeRecord lowest = Collections.min(gradesByCategory, AssignmentGradeRecord.numericComparator);
-                            lowest.setDroppedFromGrade(true);
-                            gradesByCategory.remove(lowest);
-                            if(log.isDebugEnabled()) log.debug("dropLowest applied to " + lowest);
+                        
+                        if(dropLowest > 0 &&  numGrades > dropLowest + dropHighest) {
+                            for(int i=0; i<dropLowest; i++) {
+                                AssignmentGradeRecord lowest = Collections.min(gradesByCategory, AssignmentGradeRecord.numericComparator);
+                                lowest.setDroppedFromGrade(true);
+                                gradesByCategory.remove(lowest);
+                                if(log.isDebugEnabled()) log.debug("dropLowest applied to " + lowest);
+                            }
                         }
                     }
                 }
+                if(log.isDebugEnabled()) log.debug("processed " + studentIds.size() + "students in category " + cat.getId());
             }
         }
         
         if(log.isDebugEnabled()) log.debug("GradebookManager.applyDropScores took " + (System.currentTimeMillis() - start) + " millis to execute");
     }
-
 	
 	/**
 	 * 
