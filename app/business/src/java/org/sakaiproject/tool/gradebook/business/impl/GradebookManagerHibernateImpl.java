@@ -981,6 +981,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 			{
                 				if (gradeRecordFromCall.getPointsEarned() != null &&
                 						!assignment.getUngraded() && 
+                						!assignment.getIsExtraCredit() &&
                 						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(assignment.getPointsPossible()) > 0) {
                 					assignmentsWithExcessiveScores.add(assignment);
                 				}
@@ -988,7 +989,8 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 			else if(assignment.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
                 			{
                 				if (gradeRecordFromCall.getPointsEarned() != null &&
-                						!assignment.getUngraded() && 
+                						!assignment.getUngraded() &&
+                						!assignment.getIsExtraCredit() &&
                 						new Double(gradeRecordFromCall.getPointsEarned()).compareTo(new Double("100.0")) > 0) {
                 					assignmentsWithExcessiveScores.add(assignment);
                 				}                				
