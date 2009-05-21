@@ -978,13 +978,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					List totalEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session, gradebook, cates);
 					double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
 					double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
+					double adjustmentPointsEarned = ((Double)totalEarned.get(2)).doubleValue();
 					double courseGradePointsAdjustment = 0;
 					if (cgr.getAdjustmentScore()!=null)
 					{
 						courseGradePointsAdjustment += cgr.getAdjustmentScore().doubleValue();
 					}
 					double totalPointsPossible = getTotalPointsInternal(gradebookId, session, gradebook, cates, cgr.getStudentId());
-					cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment);
+					cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment, adjustmentPointsEarned);
 					if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
 				}
 
@@ -1120,6 +1121,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		double totalPointsEarned = 0;
 		double literalTotalPointsEarned = 0;
+		double adjustmentPointsEarned = 0;
 		Iterator scoresIter = session.createQuery(
 		"select agr.pointsEarned, asn from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.pointsPossible > 0 and asn.ungraded=false").
 		setParameter("student", studentId).
@@ -1186,7 +1188,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						{
 							if(go.getPointsPossible() != null)
 							{
-								totalPointsEarned += pointsEarned.doubleValue() * go.getPointsPossible() / 100.0d;
+								adjustmentPointsEarned += pointsEarned.doubleValue() * go.getPointsPossible() / 100.0d;
 								literalTotalPointsEarned += pointsEarned.doubleValue();
 								assignmentsTaken.add(go.getId());
 							}
@@ -1195,7 +1197,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						{
 							if(go.getPointsPossible() != null)
 							{
-								totalPointsEarned += pointsEarned.doubleValue() * go.getPointsPossible() / 100.0d;
+								adjustmentPointsEarned += pointsEarned.doubleValue() * go.getPointsPossible() / 100.0d;
 								literalTotalPointsEarned += pointsEarned.doubleValue();
 								assignmentsTaken.add(go.getId());
 							}
@@ -1277,6 +1279,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		List returnList = new ArrayList();
 		returnList.add(new Double(totalPointsEarned));
 		returnList.add(new Double(literalTotalPointsEarned));
+		returnList.add(new Double(adjustmentPointsEarned));
 		return returnList;
 	}
 
@@ -2277,13 +2280,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					List totalEarned = getTotalPointsEarnedInternalFixing(gradebookId, cgr.getStudentId(), session, gradebook, cates);
 					double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
 					double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
+					double adjustmentPointsEarned = 0; // this will never be set, but making 0 to comply with the initNonpersistentFields
 					double courseGradePointsAdjustment = 0;
 					if (cgr.getAdjustmentScore()!=null)
 					{
 						courseGradePointsAdjustment += cgr.getAdjustmentScore().doubleValue();
 					}
 					double totalPointsPossible = getTotalPointsInternal(gradebookId, session, gradebook, cates, cgr.getStudentId());
-					cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment);
+					cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment, courseGradePointsAdjustment);
 					if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
 				}
 

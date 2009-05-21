@@ -231,12 +231,13 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		autoCalculatedGrade = percentageEarned;
 	}
 
-	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned, double literalTotalPointsEarned, double courseGradePointsAdjustment) {
+	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned, double literalTotalPointsEarned, double courseGradePointsAdjustment, double adjustmentPointsEarned) {
 		Double percentageEarned;
 		//calculatedPointsEarned = totalPointsEarned;
 		calculatedPointsEarned = new Double(literalTotalPointsEarned).toString();
 		BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
 		BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
+		BigDecimal bdAdjustmentPointsEarned = new BigDecimal(adjustmentPointsEarned);
 		BigDecimal bdCourseGradePointsAdjustment = new BigDecimal(courseGradePointsAdjustment);
 		if (totalPointsPossible <= 0.0) {
 			percentageEarned = null;
@@ -244,6 +245,10 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 			if (getCourseGrade().getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
 			{
 				percentageEarned = new Double(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
+				if (getCourseGrade().getGradebook().getCategory_type() != GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY)
+				{
+					percentageEarned += bdAdjustmentPointsEarned.multiply(new BigDecimal("100")).doubleValue();
+				}
 				percentageEarned += courseGradePointsAdjustment;
 			}
 			else

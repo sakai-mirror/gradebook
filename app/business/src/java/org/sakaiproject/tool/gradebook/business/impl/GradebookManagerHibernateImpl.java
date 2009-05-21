@@ -161,13 +161,14 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     				List totalEarned = getTotalPointsEarnedInternal(cgr.getStudentId(), gradebook, cates, studentGradeRecs, countedAssigns);
     				double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
     				double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
+    				double adjustmentPointsEarned = ((Double)totalEarned.get(2)).doubleValue();
     				double courseGradePointsAdjustment = 0;
 					if (cgr.getAdjustmentScore()!=null)
 					{
 						courseGradePointsAdjustment += cgr.getAdjustmentScore().doubleValue();
 					}
     				double totalPointsPossible = getTotalPointsInternal(gradebook, cates, cgr.getStudentId(), studentGradeRecs, countedAssigns);
-    				cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment);
+    				cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment, adjustmentPointsEarned);
     				if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
     			}
 
@@ -493,7 +494,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 					{
 						courseGradePointsAdjustment += cgr.getAdjustmentScore().doubleValue();
 					}
-    				cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment);
+    				cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment, 0);
     				if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
     			}
 
@@ -1421,12 +1422,13 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 	List totalEarned = getTotalPointsEarnedInternal(studentId, gradebook, cates, gradeRecs, countedAssigns);
                 	double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
                 	double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
+                	double adjustmentPointsEarned = ((Double)totalEarned.get(2)).doubleValue();
                 	double courseGradePointsAdjustment = 0;
 					if (courseGradeRecord.getAdjustmentScore()!=null)
 					{
 						courseGradePointsAdjustment += courseGradeRecord.getAdjustmentScore().doubleValue();
 					}
-                	courseGradeRecord.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment);
+                	courseGradeRecord.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment, adjustmentPointsEarned);
                 }             
                 return courseGradeRecord;
             }
@@ -1467,13 +1469,14 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 	double totalPointsPossible = getTotalPointsInternal(gradebook, cates, studentId, gradeRecs, countedAssigns);
                 	
                 	List totalEarned = getTotalPointsEarnedInternal(studentId, gradebook, cates, gradeRecs, countedAssigns);
-                	double totalPointsEarned = (((Double)totalEarned.get(0)).doubleValue()) - (((Double)totalEarned.get(2)).doubleValue());
+                	double totalPointsEarned = (((Double)totalEarned.get(0)).doubleValue());
                 	double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
+                	double adjustmentPointsEarned = 0;
                 	double courseGradePointsAdjustment = 0;
 					
                 	// NOTE: we do not include the course adjustment item on this one since it defeats the purpose
                 	
-                	courseGradeRecord.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment);
+                	courseGradeRecord.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned, courseGradePointsAdjustment, adjustmentPointsEarned);
                 }             
                 return courseGradeRecord;
             }

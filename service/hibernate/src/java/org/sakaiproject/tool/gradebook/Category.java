@@ -249,6 +249,7 @@ public class Category implements Serializable
 			int numOfAssignments = 0;
 			BigDecimal total = new BigDecimal("0");
 			BigDecimal totalPossible = new BigDecimal("0");
+			BigDecimal adjustmentPoints = new BigDecimal("0");
 
 			for (Assignment assign : assignmentsWithStats) 
 			{
@@ -266,7 +267,7 @@ public class Category implements Serializable
 					{
 						if (assign.getIsExtraCredit()!=null)
 						{
-							if (assign.getIsExtraCredit()!=null)
+							if (assign.getIsExtraCredit())
 							{
 								if (assign.getPointsPossible()==null || assign.getPointsPossible()==0)
 									adjustmentItemWithNoPoints = true;
@@ -293,7 +294,10 @@ public class Category implements Serializable
 								total = total.add(bdScore);
 							else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
 							{
-								total = total.add(bdScore.multiply(new BigDecimal(1)).divide(new BigDecimal("100")));
+								if (assign.getIsExtraCredit()!=null && assign.getIsExtraCredit())
+									adjustmentPoints = adjustmentPoints.add(bdScore.multiply(new BigDecimal(1)).divide(new BigDecimal("100")));
+								else
+									total = total.add(bdScore.multiply(new BigDecimal(1)).divide(new BigDecimal("100")));
 							}
 						}
 					}
@@ -314,6 +318,11 @@ public class Category implements Serializable
 				averageScore = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
 				averageTotalPoints = new Double(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
 				BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide(new BigDecimal(averageTotalPoints.doubleValue()), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
+				if (gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE) 	 
+                {
+					averageScore += adjustmentPoints.doubleValue();
+					value = value.add(adjustmentPoints.multiply(new BigDecimal("100"), GradebookService.MATH_CONTEXT), GradebookService.MATH_CONTEXT);
+                }
 				mean = new Double(value.doubleValue()) ;
 			}
 		}
@@ -336,6 +345,7 @@ public class Category implements Serializable
 			int numOfAssignments = 0;
 			BigDecimal total = new BigDecimal("0");
 			BigDecimal totalPossible = new BigDecimal("0");
+			BigDecimal adjustmentPoints = new BigDecimal("0");
 
 			if (gradeRecords == null) 
 			{
@@ -397,7 +407,10 @@ public class Category implements Serializable
 										total = total.add(bdScore);
 									else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
 									{
-										total = total.add(bdScore.multiply(new BigDecimal(1)).divide(new BigDecimal("100")));;
+										if (assignment.getIsExtraCredit()!=null && assignment.getIsExtraCredit())
+											adjustmentPoints = adjustmentPoints.add(bdScore.multiply(new BigDecimal(1)).divide(new BigDecimal("100")));
+										else
+											total = total.add(bdScore.multiply(new BigDecimal(1)).divide(new BigDecimal("100")));
 									}
 								}
 							}
@@ -419,7 +432,11 @@ public class Category implements Serializable
 				averageScore = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
 				averageTotalPoints = new Double(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
 				BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide((totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT)), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
-
+				if (gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE) 	 
+                {
+					averageScore += adjustmentPoints.doubleValue();
+					value = value.add(adjustmentPoints.multiply(new BigDecimal("100"), GradebookService.MATH_CONTEXT), GradebookService.MATH_CONTEXT);
+                }
 				mean = new Double(value.doubleValue()) ;
 			}
 		}
