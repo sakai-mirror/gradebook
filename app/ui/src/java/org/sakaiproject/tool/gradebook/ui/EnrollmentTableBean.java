@@ -62,7 +62,11 @@ public abstract class EnrollmentTableBean
      */
     static final Comparator<EnrollmentRecord> ENROLLMENT_NAME_COMPARATOR = new Comparator<EnrollmentRecord>() {
 		public int compare(EnrollmentRecord o1, EnrollmentRecord o2) {
-            return o1.getUser().getSortName().compareToIgnoreCase(o2.getUser().getSortName());
+			// if the sortNames are identical, use display id for sorting to keep the lists consistent when navigating
+			if (o1.getUser().getSortName().equals(o2.getUser().getSortName()))
+				return o1.getUser().getDisplayId().compareToIgnoreCase(o2.getUser().getDisplayId());
+			else
+				return o1.getUser().getSortName().compareToIgnoreCase(o2.getUser().getSortName());
 		}
 	};
 
