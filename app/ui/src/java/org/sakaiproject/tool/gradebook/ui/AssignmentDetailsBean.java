@@ -25,6 +25,7 @@ package org.sakaiproject.tool.gradebook.ui;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -75,6 +76,102 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	private boolean isAllStudentsViewOnly = true;  // with grader perms, user may be able to grade/comment a selection
 													// of the students and view the rest. If all view only, disable
 													// the buttons
+	
+    public static Comparator<ScoreRow> alphaNumericComparator;
+
+    static {
+        
+        alphaNumericComparator = new Comparator<ScoreRow>() {
+            public int compare(ScoreRow scoreRow1, ScoreRow scoreRow2) {
+                if(scoreRow1 == null && scoreRow2 == null) {
+                    return 0;
+                }
+                if(scoreRow1 == null) {
+                    return -1;
+                }
+                if(scoreRow2 == null) {
+                    return 1;
+                }
+                String score1 = scoreRow1.getScore();
+                String score2 = scoreRow2.getScore();
+                
+                if (score1 == null && score2 == null) {
+                    return 0;
+                }
+                if (score1 == null && score2 != null) {
+                    return -1;
+                }
+                if (score1 != null && score2 == null) {
+                    return 1;
+                }
+
+                int thisMarker = 0;
+                int thatMarker = 0;
+                int score1Length = score1.length();
+                int score2Length = score2.length();
+
+                while (thisMarker < score1Length && thatMarker < score2Length) {
+                    String thisChunk = getChunk(score1, score1Length, thisMarker);
+                    thisMarker += thisChunk.length();
+
+                    String thatChunk = getChunk(score2, score2Length, thatMarker);
+                    thatMarker += thatChunk.length();
+
+                    // If both chunks contain numeric characters, sort them numerically
+                    int result = 0;
+                    if (isDigit(thisChunk.charAt(0)) && isDigit(thatChunk.charAt(0))) {
+                        // Simple chunk comparison by length.
+                        int thisChunkLength = thisChunk.length();
+                        result = thisChunkLength - thatChunk.length();
+                        // If equal, the first different number counts
+                        if (result == 0) {
+                            for (int i = 0; i < thisChunkLength; i++) {
+                                result = thisChunk.charAt(i) - thatChunk.charAt(i);
+                                if (result != 0) {
+                                    return result;
+                                }
+                            }
+                        }
+                    } else {
+                        result = thisChunk.compareTo(thatChunk);
+                    }
+
+                    if (result != 0)
+                        return result;
+                }
+                return score1Length - score2Length;
+            }
+            
+            private final boolean isDigit(char ch) {
+                return ch >= 48 && ch <= 57;
+            }
+
+            private final String getChunk(String s, int slength, int marker) {
+                StringBuilder chunk = new StringBuilder();
+                char c = s.charAt(marker);
+                chunk.append(c);
+                marker++;
+                if (isDigit(c)) {
+                    while (marker < slength) {
+                        c = s.charAt(marker);
+                        if (!isDigit(c))
+                            break;
+                        chunk.append(c);
+                        marker++;
+                    }
+                } else {
+                    while (marker < slength) {
+                        c = s.charAt(marker);
+                        if (isDigit(c))
+                            break;
+                        chunk.append(c);
+                        marker++;
+                    }
+                }
+                return chunk.toString();
+            }
+        };
+    }
 
     public class ScoreRow implements Serializable {
         private AssignmentGradeRecord gradeRecord;
@@ -82,9 +179,9 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         private Comment comment;
         private List eventRows;
         private boolean userCanGrade;
- 
 		public ScoreRow() {
 		}
+		
 		public ScoreRow(EnrollmentRecord enrollment, AssignmentGradeRecord gradeRecord, Comment comment, List gradingEvents, boolean userCanGrade) {
             Collections.sort(gradingEvents);
             this.enrollment = enrollment;
@@ -346,7 +443,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 if (!isEnrollmentSort()) {
                 	gradeRecords = new ArrayList(gradeRecordMap.values());
                 }
-
+                
                 // Get all of the comments for these enrollments on this assignment.
                 List comments = getGradebookManager().getComments(assignment, studentUids);
                 Map commentMap = new HashMap();
@@ -418,7 +515,13 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 						assignmentCategory = getLocalizedString("assignment_details_assign_category");
 					}
 				}
-
+                
+                if(getSortColumn().equals(PreferencesBean.SORT_BY_SCORE)) {
+                    Collections.sort(scoreRows, alphaNumericComparator);
+                    if(!isSortAscending()) {
+                        Collections.reverse(scoreRows);
+                    }
+                }
 			} else {
 				// The assignment might have been removed since this link was set up.
 				if (logger.isWarnEnabled()) logger.warn("No assignmentId=" + assignmentId + " in gradebookUid " + getGradebookUid());

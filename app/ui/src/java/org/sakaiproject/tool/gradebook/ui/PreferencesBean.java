@@ -35,7 +35,8 @@ public class PreferencesBean {
 
     public static final String SORT_BY_NAME = "studentSortName";
     public static final String SORT_BY_UID = "studentDisplayId";
-
+    public static final String SORT_BY_SCORE = "studentScore";
+    
     private String assignmentSortColumn;
     private boolean assignmentSortAscending;
     
