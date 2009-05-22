@@ -300,9 +300,9 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
 
 function toggleVisibilityDropScoresFields() {
     var formName = "gbForm";
-    var showDropHighest =  getTheElement(formName + ":showDropHighest");
-    var showDropLowest =  getTheElement(formName + ":showDropLowest");
-    var showKeepHighest =  getTheElement(formName + ":showKeepHighest");
+    var showDropHighest = getTheElement(formName + ":showDropHighest");
+    var showDropLowest = getTheElement(formName + ":showDropLowest");
+    var showKeepHighest = getTheElement(formName + ":showKeepHighest");
     var dropHighestVisibility = ""; // an unspecified display makes the column and column header visible
     var dropLowestVisibility = ""; // an unspecified display makes the column and column header visible
     var keepHighestVisibility = ""; // an unspecified display makes the column and column header visible
@@ -357,7 +357,8 @@ function dropScoresAdjust() {
         var keepHighest =  getTheElement(formName + ":categoriesTable:" + i + ":keepHighest");
         var pointValue =  getTheElement(formName + ":categoriesTable:" + i + ":pointValue");
         var relativeWeight =  getTheElement(formName + ":categoriesTable:" + i + ":relativeWeight");
-
+        var pointValueLabelAsterisk = getTheElement(formName + ":categoriesTable:" + i + ":pointValueLabelAsterisk");
+        
         if(dropHighest == undefined) {
             break;
         } else {
@@ -377,9 +378,15 @@ function dropScoresAdjust() {
                     
                     if(pointValue != undefined) {
                         pointValue.disabled = true;
+                        if(pointValueLabelAsterisk != undefined) {
+                            pointValueLabelAsterisk.style.visibility="hidden";
+                        }
                     }
                     if(relativeWeight != undefined) {
                         relativeWeight.disabled = true;
+                        if(pointValueLabelAsterisk != undefined) {
+                            pointValueLabelAsterisk.style.visibility="hidden";
+                        }
                     }
                     
                 }    
@@ -396,16 +403,28 @@ function dropScoresAdjust() {
                 if(dropHighest.value > 0 || dropLowest.value > 0 || keepHighest.value > 0) {
                     if(pointValue != undefined) {
                         pointValue.disabled = false;
+                        if(pointValueLabelAsterisk != undefined) {
+                            pointValueLabelAsterisk.style.visibility="visible";
+                        }
                     }
                     if(relativeWeight != undefined) {
                         relativeWeight.disabled = false;
+                        if(pointValueLabelAsterisk != undefined) {
+                            pointValueLabelAsterisk.style.visibility="visible";
+                        }
                     }
                 } else {
                     if(pointValue != undefined) {
                         pointValue.disabled = true;
+                        if(pointValueLabelAsterisk != undefined) {
+                            pointValueLabelAsterisk.style.visibility="hidden";
+                        }
                     }
                     if(relativeWeight != undefined) {
                         relativeWeight.disabled = true;
+                        if(pointValueLabelAsterisk != undefined) {
+                            pointValueLabelAsterisk.style.visibility="hidden";
+                        }
                     }
                 }
 

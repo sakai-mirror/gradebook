@@ -122,7 +122,7 @@
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_point_value}" rendered="#{gradebookSetupBean.isPointGrade}"/>
 					</f:facet>
-				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{gradebookSetupBean.isPointGrade && !!category.assignmentsEqual}"/>
+				  	<h:outputText id="pointValueLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{gradebookSetupBean.isPointGrade && category.assignmentsEqual}"/>
 					<h:inputText id="pointValue" value="#{category.itemValue}" size="3" title="#{msgs.cat_point_value_tooltip}"
 					rendered="#{gradebookSetupBean.isPointGrade}" onfocus="javascript:dropScoresAdjust(this.form);"
 					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{!category.assignmentsEqual}">
@@ -135,7 +135,7 @@
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_percent_value}" rendered="#{gradebookSetupBean.isPercentageGrade}"/>
 					</f:facet>
-				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{gradebookSetupBean.isPercentageGrade && !!category.assignmentsEqual}"/>
+				  	<h:outputText id="pointValueLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{gradebookSetupBean.isPercentageGrade && category.assignmentsEqual}"/>
 					<h:inputText id="relativeWeight" value="#{category.itemValue}" size="3" title="#{msgs.cat_percent_value_tooltip}"
 					rendered="#{gradebookSetupBean.isPercentageGrade}" onfocus="javascript:dropScoresAdjust(this.form);"
 					onchange="javascript:dropScoresAdjust(this.form);" disabled="#{!category.assignmentsEqual}">
