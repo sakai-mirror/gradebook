@@ -54,11 +54,17 @@
 			styleClass="itemSummary"
  			summary="Table contains information on assignment properties"
 			border="0">
-				<h:outputText id="titleLabel" value="#{msgs.assignment_details_title}"/>
-				<h:panelGroup>
-					<h:outputText id="title" value="#{assignmentDetailsBean.assignment.name}"/>
+				<h:outputText id="titleLabel" value="#{msgs.assignment_details_title}#{msgs.assignment_details_footnote_symbol1}"/>
+				<h:panelGroup styleClass="inactive" rendered="#{!assignmentDetailsBean.assignment.released}">
+					<h:outputText id="titleInactive" styleClass="inactive" value="#{assignmentDetailsBean.assignment.name}" rendered="#{!assignmentDetailsBean.assignment.released}"/>
 					<h:outputText id="noncalctitlespace" value=" " rendered="#{assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter}"/>
-					<h:outputText id="noncalctitle" value="#{msgs.assignment_details_noncalc_title}" rendered="#{assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter}"/>
+					<h:outputText id="noncalctitleInactive" styleClass="inactive" value="#{msgs.assignment_details_noncalc_title}" rendered="#{assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter}"/>
+				</h:panelGroup>
+				
+				<h:panelGroup rendered="#{assignmentDetailsBean.assignment.released}">
+					<h:outputText id="title" value="#{assignmentDetailsBean.assignment.name}"/>
+					<h:outputText id="noncalctitlespaceInactive" value=" " rendered="#{assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter}"/>
+					<h:outputText id="noncalctitle" value="#{msgs.assignment_details_noncalc_title}" rendered="#{assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter"/>
 				</h:panelGroup>
 				
 				<h:outputText id="itemTypeLabel" value="#{msgs.assignment_details_item_type}"/>
@@ -219,6 +225,7 @@
 				<f:facet name="header">
 		      <t:commandSortHeader columnName="studentScore" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
 					  <h:outputText value="#{(assignmentDetailsBean.assignment.isExtraCredit) ? msgs.assignment_details_adjustment_score : msgs.assignment_details_grade}"/>
+		      	    <h:outputText value="#{msgs.assignment_details_footnote_symbol2}" />
 		      </t:commandSortHeader>
 				</f:facet>
 
