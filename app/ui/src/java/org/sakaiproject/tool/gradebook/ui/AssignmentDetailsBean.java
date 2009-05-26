@@ -575,7 +575,22 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 			setAssignmentId(idParam);
 			isAllCommentsEditable = false;
 		}
+		saveScoresFromPreviousOrNextButtons();
 	}
+	
+	private void saveScoresFromPreviousOrNextButtons() throws StaleObjectModificationException {
+        if (logger.isDebugEnabled()) logger.debug("saveScores " + assignmentId);
+		
+        Set excessiveScores = getGradebookManager().updateAssignmentGradesAndComments(assignment, updatedGradeRecords, updatedComments);
+
+        if (logger.isDebugEnabled()) logger.debug("About to save " + updatedComments.size() + " updated comments");
+        if(updatedGradeRecords.size() > 0){
+            getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
+        }
+        if(updatedComments.size() > 0){
+            getGradebookBean().getEventTrackingService().postEvent("gradebook.comment","/gradebook/"+getGradebookId()+"/"+updatedComments.size()+"/"+getAuthzLevel());
+        }
+    }
 
 	/**
 	 * Action listener to update scores.

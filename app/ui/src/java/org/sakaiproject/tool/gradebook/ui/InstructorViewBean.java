@@ -195,10 +195,65 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		Map params = FacesUtil.getEventParameterMap(event);
 		if (logger.isDebugEnabled()) 
 			logger.debug("processStudentUidChange params=" + params + ", current studentUid=" + getStudentUid());
+		// run the updates before changing the student id
+		processUpdateScoresForPreNextStudent();
 		String idParam = (String)params.get("studentUid");
 		if (idParam != null) {
 			setStudentUid(idParam);
 		}
+	}
+	
+	public void processUpdateScoresForPreNextStudent() {
+		try {
+			saveScoresWithoutConfirmation();
+		} catch (StaleObjectModificationException e) {
+			FacesUtil.addErrorMessage(getLocalizedString("assignment_details_locking_failure"));
+		}
+	}
+	
+	/**
+	 * Save the input scores for the user
+	 * @throws StaleObjectModificationException
+	 */
+	public void saveScoresWithoutConfirmation() throws StaleObjectModificationException {
+        if (logger.isInfoEnabled()) logger.info("saveScores for " + getStudentUid());
+
+		// first, determine which scores were updated
+		List updatedGradeRecords = new ArrayList();
+		if (getGradebookItems() != null) {
+			Iterator itemIter = getGradebookItems().iterator();
+			while (itemIter.hasNext()) {
+				Object item = itemIter.next();
+				if (item instanceof AssignmentGradeRow) {
+					AssignmentGradeRow gradeRow = (AssignmentGradeRow) item;
+					AssignmentGradeRecord gradeRecord = gradeRow.getGradeRecord();
+
+					if (gradeRecord == null && (gradeRow.getScore() != null || gradeRow.getLetterScore() != null)) {
+						// this is a new grade
+						gradeRecord = new AssignmentGradeRecord(gradeRow.getAssociatedAssignment(), getStudentUid(), null);
+					}
+					if (gradeRecord != null) {
+						String originalScore = null;
+						originalScore = gradeRecord.getPointsEarned();
+
+						String newScore = gradeRow.getScore();
+						if ( (originalScore != null && !originalScore.equals(newScore)) ||
+								(originalScore == null && newScore != null && newScore.length() != 0) ) {
+							gradeRecord.setPointsEarned(newScore);
+							updatedGradeRecords.add(gradeRecord);
+						}
+					} 
+				}
+			}
+		}
+
+		Set excessiveScores = getGradebookManager().updateStudentGradeRecords(updatedGradeRecords, getGradebook().getGrade_type(), getStudentUid());
+
+		if(updatedGradeRecords.size() > 0){
+			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
+		}
+
+
 	}
 	
 	/**
