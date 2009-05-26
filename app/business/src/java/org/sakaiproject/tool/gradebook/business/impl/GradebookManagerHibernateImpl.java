@@ -3050,7 +3050,8 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
         Map<String, List<AssignmentGradeRecord>> gradeRecordMap = new HashMap<String, List<AssignmentGradeRecord>>();
         for(AssignmentGradeRecord gradeRecord : gradeRecords) {
             
-            if(gradeRecord == null) {
+            if(gradeRecord == null 
+                    || gradeRecord.getPointsEarned() == null) { // don't consider grades that have null pointsEarned (this occurs when a previously entered score for an assignment is removed; record stays in database) 
                 continue;
             }
             
