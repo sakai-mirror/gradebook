@@ -1775,7 +1775,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 
                 // get assignments for this category, excluding adjustment items (is_extra_credit)
                 Iterator iter = session.createQuery(
-                "select asn from Assignment asn where asn.gradebook.id=:gbid and asn.category=:category and (asn.isExtraCredit=false or asn.isExtraCredit is null))").
+                "select asn from Assignment asn where asn.gradebook.id=:gbid and asn.category=:category and asn.removed = false and (asn.isExtraCredit=false or asn.isExtraCredit is null))").
                 setParameter("gbid", gradebookId).
                 setParameter("category", category).
                 list().iterator();
