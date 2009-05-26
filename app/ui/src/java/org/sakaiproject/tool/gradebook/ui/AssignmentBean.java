@@ -678,6 +678,10 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		try {
 			Category category = retrieveSelectedCategory();
 			assignment.setCategory(category);
+
+            if(category != null && category.isDropScores()) {
+                assignment.setPointsPossible(category.getItemValue()); // if category drops scores, point value will come from the category level
+            }
 			
 			Assignment originalAssignment = getGradebookManager().getAssignment(assignmentId);
 			Double origPointsPossible = originalAssignment.getPointsPossible();
