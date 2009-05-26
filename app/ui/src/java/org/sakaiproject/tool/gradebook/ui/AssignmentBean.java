@@ -205,12 +205,17 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
             while (catIter.hasNext()) {
                 Category cat = (Category) catIter.next();
                 categoriesSelectList.add(new SelectItem(cat.getId().toString(), cat.getName()));
+                // if it is not an adjustment category, we want to add the category to our alternate list
                 if (cat.getIsExtraCredit()!=null)
                 {
                     if (!cat.getIsExtraCredit())
                     {
                         categoriesAdjustmentSelectList.add(new SelectItem(cat.getId().toString(), cat.getName()));
                     }
+                }
+                else
+                {
+                	categoriesAdjustmentSelectList.add(new SelectItem(cat.getId().toString(), cat.getName()));
                 }
             }
         }
