@@ -73,7 +73,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
     private boolean isLetterGrade = false;
     private boolean isPointGrade = false;
     private boolean isPercentageGrade = false;
-    private boolean isExistingGrades=false;
 
     private static final int NUM_EXTRA_CAT_ENTRIES = 50;
 	private static final String ENTRY_OPT_POINTS = "points";
@@ -1221,14 +1220,14 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		this.isLetterGrade = isLetterGrade;
 	}
 	
+	private transient Boolean isExistingGrades;
 	public boolean getIsExistingGrades() {
-		isExistingGrades = getGradebookManager().checkIfGradeExists(getGradebookId())
-			|| getGradebookManager().isExplicitlyEnteredCourseGradeRecords(getGradebookId());
-		return isExistingGrades;
-	}
-
-	public void setExistingGrades(boolean isExistingGrades) {
-		this.isExistingGrades = isExistingGrades;
+	    if (isExistingGrades == null) {
+	        Long gradebookId = getGradebook().getId();
+	        isExistingGrades = getGradebookManager().checkIfGradeExists(gradebookId)
+	        || getGradebookManager().isExplicitlyEnteredCourseGradeRecords(gradebookId);
+	    }
+	    return isExistingGrades;
 	}
 	
 	public boolean getIsPointGrade() {
