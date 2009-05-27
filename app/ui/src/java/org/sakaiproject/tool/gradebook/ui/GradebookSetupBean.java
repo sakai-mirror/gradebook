@@ -94,7 +94,10 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		if (localGradebook == null)
 		{
 			localGradebook = getGradebook();
-			categories = getGradebookManager().getCategoriesWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+			categories = getGradebookManager().getCategoriesWithAssignments(localGradebook.getId());
+			if (categories != null) {
+			    Collections.sort(categories, Category.nameComparator);
+			}
 			populateCategoryAssignments(categories);
 			convertWeightsFromDecimalsToPercentages();
 			intializeGradeEntryAndCategorySettings();
@@ -471,7 +474,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 			getGradebookManager().updateGradebook(localGradebook);
 
-			List<Assignment> assignmentsList = getGradebookManager().getAssignments(getGradebookId());
+			List<Assignment> assignmentsList = getGradebookManager().getAssignments(localGradebook.getId());
 			Iterator it = assignmentsList.iterator();
 
 		//Grade Entry change from Points/Percentage to Letter Grades	
@@ -686,7 +689,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
                                 updatedCategory.setAssignmentList(assignmentsToUpdate);
                             }
                             // now update the pointsPossible of any assignments within the category that drop scores
-                            getGradebookManager().updateCategoryAndAssignmentsPointsPossible(getGradebookId(), updatedCategory);
+                            getGradebookManager().updateCategoryAndAssignmentsPointsPossible(localGradebook.getId(), updatedCategory);
                         } else {
                             getGradebookManager().updateCategory(updatedCategory);
                         }
@@ -745,7 +748,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 		getGradebookManager().updateGradebook(localGradebook);
 		
-		List<Assignment> assignmentsList = getGradebookManager().getAssignments(getGradebookId());
+		List<Assignment> assignmentsList = getGradebookManager().getAssignments(localGradebook.getId());
 		Iterator it = assignmentsList.iterator();
 
 	//Grade Entry change from Points/Percentage to Letter Grades	
