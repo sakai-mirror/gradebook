@@ -1949,10 +1949,13 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     private double getLiteralTotalPointsInternal(final Long gradebookId, Session session, final Gradebook gradebook, final List categories)
     {
     	double totalPointsPossible = 0;
+    	Map<Long,Integer> numAssignments = new HashMap<Long,Integer>();
+        
     	Iterator assignmentIter = session.createQuery(
     			"select asn from Assignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.ungraded=false and (asn.isExtraCredit=false or asn.isExtraCredit is null)").
     			setParameter("gbid", gradebookId).
     			list().iterator();
+        
     	while (assignmentIter.hasNext()) {
     		Assignment asn = (Assignment) assignmentIter.next();
     		if(asn != null)
@@ -1965,10 +1968,25 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     					totalPointsPossible += pointsPossible.doubleValue();
     			}
     			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY)
- 					{
+				{
     				if (pointsPossible!=null)
     					totalPointsPossible += pointsPossible.doubleValue();
- 					}
+                    for(int i=0; i<categories.size(); i++)
+                    {
+                        Category cate = (Category) categories.get(i);
+                        if(cate != null && !cate.isRemoved() && asn.getCategory() != null && cate.getId().equals(asn.getCategory().getId()))
+                        {
+                            
+                            Integer num = numAssignments.get(cate.getId()); // to calculate totalPointsToDrop, must know the number of assignments for each category
+                            if(num == null) {
+                                num = new Integer(0);
+                            }
+                            num++;
+                            numAssignments.put(cate.getId(), num);
+                            break;
+                        }
+                    }
+                }
     			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && categories != null)
     			{
     				for(int i=0; i<categories.size(); i++)
@@ -1978,12 +1996,45 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     					{
     						if (pointsPossible!=null)
     							totalPointsPossible += pointsPossible.doubleValue();
+    						
+    						Integer num = numAssignments.get(cate.getId()); // to calculate totalPointsToDrop, must know the number of assignments for each category
+                            if(num == null) {
+                                num = new Integer(0);
+                            }
+                            num++;
+    						numAssignments.put(cate.getId(), num);
     						break;
     					}
     				}
     			}
     		}
     	}
+        double totalPointsToDrop = 0;
+        
+        for(int i=0; i<categories.size(); i++) {
+            Category category = (Category) categories.get(i);
+            if(category != null && !category.isRemoved() && category.isDropScores()) {
+                Double itemValue = category.getItemValue();
+                Integer dropHighest = category.getDropHighest();
+                Integer dropLowest = category.getDrop_lowest();
+                Integer keepHighest = category.getKeepHighest();
+                
+                Integer assignmentCount = numAssignments.get(category.getId());
+                if(keepHighest != null && keepHighest > 0) {
+                    if(assignmentCount != null && assignmentCount > 0) {
+                        dropLowest = assignmentCount - keepHighest; // dropLowest and keepHighest will not occur at the same time
+                        if(dropLowest < 0) {
+                            dropLowest = 0;
+                        }
+                    }
+                }
+                if(assignmentCount != null && assignmentCount > (dropLowest + dropHighest)) {
+                    totalPointsToDrop += (itemValue * dropHighest);
+                    totalPointsToDrop += (itemValue * dropLowest);
+                }
+            }                       
+        }
+    	totalPointsPossible -= totalPointsToDrop;
     	return totalPointsPossible;
     }
 
