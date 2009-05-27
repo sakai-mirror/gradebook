@@ -1471,7 +1471,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 	List totalEarned = getTotalPointsEarnedInternal(studentId, gradebook, cates, gradeRecs, countedAssigns);
                 	double totalPointsEarned = (((Double)totalEarned.get(0)).doubleValue());
                 	double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
-                	double adjustmentPointsEarned = 0;
+                	double adjustmentPointsEarned = (((Double)totalEarned.get(2)).doubleValue());
                 	double courseGradePointsAdjustment = 0;
 					
                 	// NOTE: we do not include the course adjustment item on this one since it defeats the purpose

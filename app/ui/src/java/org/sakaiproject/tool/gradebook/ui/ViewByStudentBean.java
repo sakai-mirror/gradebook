@@ -66,6 +66,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     private boolean anyExternallyMaintained = false;
     private boolean isAllItemsViewOnly = true;
     private boolean anyAdjustmentItemsGraded = false;
+    private boolean anyCourseGradeAdjustmentsOrOverrides = false;
 
     private boolean sortAscending;
     private String sortColumn;
@@ -244,6 +245,8 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			if (courseGradeReleased || isInstructorView) {
     				courseGrade = gradeRecord;
     				courseGradeLetter = gradeRecord.getDisplayGrade();
+    				if (gradeRecord.getAdjustmentScore()!=null || (gradeRecord.getEnteredGrade()!=null || "".equals(gradeRecord.getEnteredGrade())))
+    				anyCourseGradeAdjustmentsOrOverrides = true;
     			}
     		}
     		// this is used only on the student's view / instructor's view of student
@@ -370,6 +373,14 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
      */
     public boolean isAnyAdjustmentItemsGraded() {
 		return anyAdjustmentItemsGraded;
+	}
+    
+    /**
+     * if any course grade adjustments or overrides exist
+     * @return
+     */
+    public boolean isAnyCourseGradeAdjustmentsOrOverrides() {
+		return anyCourseGradeAdjustmentsOrOverrides;
 	}
     
     /**
