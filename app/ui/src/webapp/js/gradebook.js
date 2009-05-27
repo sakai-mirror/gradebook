@@ -327,7 +327,9 @@ function toggleVisibilityDropScoresFields() {
     if(showKeepHighest == undefined || showKeepHighest.checked == false) {
         keepHighestVisibility = "none";      // make the column and column header not visible
     }
-    if(showDropHighest.checked == false && showDropLowest.checked == false && showKeepHighest.checked == false) {
+    if((showDropHighest == undefined || showDropHighest.checked == false)
+            && (showDropLowest == undefined || showDropLowest.checked == false)
+            && (showKeepHighest == undefined || showKeepHighest.checked == false)) {
         itemValueVisibility = "none";      // make the column and column header not visible
     }
 
@@ -351,6 +353,10 @@ function toggleVisibilityDropScoresFields() {
 
 function dropScoresAdjust() {
     var formName = "gbForm";
+    var showDropHighest = getTheElement(formName + ":showDropHighest");
+    var showDropLowest = getTheElement(formName + ":showDropLowest");
+    var showKeepHighest = getTheElement(formName + ":showKeepHighest");
+    
     for (var i=0; i < document.gbForm.elements.length; ++i) {
         var dropHighest =  getTheElement(formName + ":categoriesTable:" + i + ":dropHighest");
         var dropLowest =  getTheElement(formName + ":categoriesTable:" + i + ":dropLowest");
@@ -359,82 +365,120 @@ function dropScoresAdjust() {
         var relativeWeight =  getTheElement(formName + ":categoriesTable:" + i + ":relativeWeight");
         var pointValueLabelAsterisk = getTheElement(formName + ":categoriesTable:" + i + ":pointValueLabelAsterisk");
         
-        if(dropHighest == undefined) {
-            break;
-        } else {
-            var pointsPossibleUnequal = false;
-            // if all are disabled, this means that the category was disabled for entering drop scores (because items pointsPossible are unequal)
+        var dropHighestEnabled = true;
+        var dropLowestEnabled = true;
+        var keepHighestEnabled = true;
+        
+        var pointsPossibleUnequal = false;
+        if(showDropHighest == undefined || showDropHighest.checked == false) {
+            dropHighestEnabled = false;
+            if(dropHighest != undefined) {
+                dropHighest.value = 0;
+            }
+        }
+        if(showDropLowest == undefined || showDropLowest.checked == false) {
+            dropLowestEnabled = false;
+            if(dropLowest != undefined) {
+                dropLowest.value = 0;
+            }
+        }
+        if(showKeepHighest == undefined || showKeepHighest.checked == false) {
+            keepHighestEnabled = false;
+            if(keepHighest != undefined) {
+                keepHighest.value = 0;
+            }
+        }
+        if(dropHighestEnabled == false && dropLowestEnabled == false && keepHighestEnabled == false) {
+            if(pointValue != undefined) {
+                pointValue.value = 0;
+            }
+            if(relativeWeight != undefined) {
+                relativeWeight.value = 0;
+            }
+        }
+        // if all are disabled, this means that the category was disabled for entering drop scores (because items pointsPossible are unequal)
+        if(dropHighest != undefined && dropLowest != undefined && keepHighest != undefined) {
             if(dropHighest.disabled == true && dropLowest.disabled == true && keepHighest.disabled == true) {
                 pointsPossibleUnequal = true;
             } else {
                 pointsPossibleUnequal = false;
             }
-            if(!pointsPossibleUnequal) {
-                if(dropHighest.value > 0 || dropLowest.value > 0) {
+        }        
+        if(!pointsPossibleUnequal) {
+            if(dropHighest != undefined && (dropHighest.value > 0 || dropLowest.value > 0)) {
+                if(keepHighest != undefined) {
                     keepHighest.value = 0;
                     keepHighest.disabled = true;
-                } else {
-                    keepHighest.disabled = false;
-                    
-                    if(pointValue != undefined) {
-                        pointValue.disabled = true;
-                        if(pointValueLabelAsterisk != undefined) {
-                            pointValueLabelAsterisk.style.visibility="hidden";
-                        }
+                }
+            } else if(keepHighest != undefined) {
+                keepHighest.disabled = false;
+                
+                if(pointValue != undefined) {
+                    pointValue.disabled = true;
+                    if(pointValueLabelAsterisk != undefined) {
+                        pointValueLabelAsterisk.style.visibility="hidden";
                     }
-                    if(relativeWeight != undefined) {
-                        relativeWeight.disabled = true;
-                        if(pointValueLabelAsterisk != undefined) {
-                            pointValueLabelAsterisk.style.visibility="hidden";
-                        }
+                }
+                if(relativeWeight != undefined) {
+                    relativeWeight.disabled = true;
+                    if(pointValueLabelAsterisk != undefined) {
+                        pointValueLabelAsterisk.style.visibility="hidden";
                     }
-                    
-                }    
-                if(keepHighest.value > 0) {
-                    dropLowest.value = 0;
-                    dropHighest.value = 0;
-                    dropLowest.disabled = true;
-                    dropHighest.disabled = true;
-                } else {
-                    dropLowest.disabled = false;
-                    dropHighest.disabled = false;
                 }
                 
-                if(dropHighest.value > 0 || dropLowest.value > 0 || keepHighest.value > 0) {
-                    if(pointValue != undefined) {
-                        pointValue.disabled = false;
-                        if(pointValueLabelAsterisk != undefined) {
-                            pointValueLabelAsterisk.style.visibility="visible";
-                        }
-                    }
-                    if(relativeWeight != undefined) {
-                        relativeWeight.disabled = false;
-                        if(pointValueLabelAsterisk != undefined) {
-                            pointValueLabelAsterisk.style.visibility="visible";
-                        }
-                    }
-                } else {
-                    if(pointValue != undefined) {
-                        pointValue.disabled = true;
-                        if(pointValueLabelAsterisk != undefined) {
-                            pointValueLabelAsterisk.style.visibility="hidden";
-                        }
-                    }
-                    if(relativeWeight != undefined) {
-                        relativeWeight.disabled = true;
-                        if(pointValueLabelAsterisk != undefined) {
-                            pointValueLabelAsterisk.style.visibility="hidden";
-                        }
+            }    
+            if(keepHighest != undefined && keepHighest.value > 0) {
+                if(dropLowest != undefined) {
+                    dropLowest.value = 0;
+                    dropLowest.disabled = true;
+                }
+                if(dropHighest != undefined) {
+                    dropHighest.value = 0;
+                    dropHighest.disabled = true;
+                }
+            } else if(dropLowest != undefined && dropHighest != undefined) {
+                dropLowest.disabled = false;
+                dropHighest.disabled = false;
+            }
+            
+            if((dropHighest != undefined && dropHighest.value > 0) 
+                    || (dropLowest != undefined && dropLowest.value > 0)
+                    || (keepHighest != undefined && keepHighest.value > 0)) {
+                if(pointValue != undefined) {
+                    pointValue.disabled = false;
+                    if(pointValueLabelAsterisk != undefined) {
+                        pointValueLabelAsterisk.style.visibility="visible";
                     }
                 }
+                if(relativeWeight != undefined) {
+                    relativeWeight.disabled = false;
+                    if(pointValueLabelAsterisk != undefined) {
+                        pointValueLabelAsterisk.style.visibility="visible";
+                    }
+                }
+            } else {
+                if(pointValue != undefined) {
+                    pointValue.disabled = true;
+                    if(pointValueLabelAsterisk != undefined) {
+                        pointValueLabelAsterisk.style.visibility="hidden";
+                    }
+                }
+                if(relativeWeight != undefined) {
+                    relativeWeight.disabled = true;
+                    if(pointValueLabelAsterisk != undefined) {
+                        pointValueLabelAsterisk.style.visibility="hidden";
+                    }
+                }
+            }
 
-                if(dropHighest.value < 1 && dropLowest.value < 1 && keepHighest.value < 1) {
-                    if(pointValue != undefined) {
-                        pointValue.value = 0.0;
-                    }
-                    if(relativeWeight != undefined) {
-                        relativeWeight.value = 0.0;
-                    }
+            if((dropHighest == undefined || dropHighest.value < 1) 
+                    && (dropLowest == undefined || dropLowest.value < 1)
+                    && (keepHighest == undefined || keepHighest.value < 1)) {
+                if(pointValue != undefined) {
+                    pointValue.value = 0.0;
+                }
+                if(relativeWeight != undefined) {
+                    relativeWeight.value = 0.0;
                 }
             }
         }
