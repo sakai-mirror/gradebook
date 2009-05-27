@@ -406,7 +406,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 							for(int i=0; i<categories.size(); i++)
 							{
 								Category cate = (Category) categories.get(i);
-								if(cate != null && !cate.isRemoved() && cateScoreMap.get(cate.getId()) != null && cateTotalScoreMap.get(cate.getId()) != null)
+								if(cate != null && !cate.isRemoved() && cateScoreMap.get(cate.getId()) != null && cateTotalScoreMap.get(cate.getId()) != null && ((cate.getIsExtraCredit()!=null && !cate.getIsExtraCredit()) || cate.getIsExtraCredit()==null))
 								{
 									totalPointsPossible += cate.getWeight().doubleValue();
 								}
@@ -763,7 +763,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 		                for(int i=0; i<categories.size(); i++)
 		                {
 		                    Category cate = (Category) categories.get(i);
-		                    if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()))
+		                    if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()) && ((cate.getIsExtraCredit()!=null && !cate.getIsExtraCredit()) || cate.getIsExtraCredit()==null))
 		                    {
 		                        assignmentsTaken.add(go.getId());
 		                        categoryTaken.add(cate.getId());
