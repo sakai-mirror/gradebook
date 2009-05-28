@@ -63,8 +63,9 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     private boolean isNonCalc;
     private boolean isAdjustment;
     
-    //used to determine whether to zero-out the point value in applyPointsPossibleForDropScoreCategories
+    // these 2 used to determine whether to zero-out the point value in applyPointsPossibleForDropScoreCategories
     private boolean categoryChanged;
+    public boolean gradeEntryTypeChanged;
 
 	private Category selectedCategory;
     private boolean selectedCategoryDropsScores;
@@ -262,7 +263,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
             if(getLocalizedString("cat_unassigned").equalsIgnoreCase(assignmentCategory)) {
                 Category unassigned = new Category();
                 bulkAssignment.getAssignment().setCategory(unassigned); // set this unassigned category, so that in the ui, item.assignment.category.dropScores will return false
-                if(categoryChanged) {
+                if(categoryChanged || gradeEntryTypeChanged) {
                     bulkAssignment.setPointsPossible(null);
                     bulkAssignment.getAssignment().setPointsPossible(null);
                 }
@@ -272,10 +273,10 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
                     
                     if(assignmentCategory.equals(category.getId().toString())) {
                         bulkAssignment.getAssignment().setCategory(category); // set here, because need to read item.assignment.category.dropScores in the ui
-                        if(category.isDropScores()) {
+                        if(category.isDropScores() && !GB_ADJUSTMENT_ENTRY.equals(bulkAssignment.getSelectedGradeEntryValue())) {
                             bulkAssignment.setPointsPossible(category.getItemValue().toString());
                             bulkAssignment.getAssignment().setPointsPossible(category.getItemValue());
-                        } else if(categoryChanged) {
+                        } else if(categoryChanged || gradeEntryTypeChanged) {
                             bulkAssignment.setPointsPossible(null);
                             bulkAssignment.getAssignment().setPointsPossible(null);
                         }
@@ -409,7 +410,9 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 				boolean categoryDropsScores = false;
 				if(selectedCategory != null && selectedCategory.isDropScores()) {
 				    categoryDropsScores = true;
-                    bulkAssignDecoBean.setPointsPossible(selectedCategory.getItemValue().toString()); // if category drops scores, point value will come from the category level
+                    if(!GB_ADJUSTMENT_ENTRY.equals(bulkAssignDecoBean.getSelectedGradeEntryValue())) {
+                        bulkAssignDecoBean.setPointsPossible(selectedCategory.getItemValue().toString()); // if category drops scores and is not adjustment, point value will come from the category level
+                    }
 				}
 				if (!bulkAssignment.getUngraded() && getGradebook().getGrade_type()!=GradebookService.GRADE_TYPE_LETTER)
 				{
@@ -684,7 +687,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			Category category = retrieveSelectedCategory();
 			assignment.setCategory(category);
 
-            if(category != null && category.isDropScores()) {
+            if(!GB_ADJUSTMENT_ENTRY.equals(assignment.getSelectedGradeEntryValue()) && category != null && category.isDropScores()) {
                 assignment.setPointsPossible(category.getItemValue()); // if category drops scores, point value will come from the category level
             }
 			
@@ -1099,6 +1102,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		String changeGradeEntry = (String) vce.getNewValue();
 		if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))	
 		{
+		    gradeEntryTypeChanged = true;
 			gradeEntryType = changeGradeEntry;
 		} 
 		

@@ -503,7 +503,9 @@ public class Category implements Serializable
                 if(obj instanceof Assignment) {
                     Assignment assignment = (Assignment)obj;
                     if(pointsPossible == null) {
-                        pointsPossible = assignment.getPointsPossible();
+                        if(!Assignment.item_type_adjustment.equals(assignment.getItemType())) {// ignore adjustment items
+                            pointsPossible = assignment.getPointsPossible();
+                        }
                     } else {
                         if(assignment.getPointsPossible() != null
                                 && !Assignment.item_type_adjustment.equals(assignment.getItemType()) // ignore adjustment items that are not equal

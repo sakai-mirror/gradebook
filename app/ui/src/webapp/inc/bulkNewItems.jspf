@@ -118,11 +118,11 @@
 				</h:panelGroup>
 				<h:panelGroup rendered="#{!item.assignment.externallyMaintained && (item.selectedGradeEntryValue != msgs.add_assignment_type_noncalc)}">
 					<h:inputText id="points" value="#{item.pointsPossible}" 
-						rendered="#{bean.localGradebook.grade_type != 3 && ((item.assignment.category.dropScores && bean.isAdjustment) || !item.assignment.category.dropScores)}" />
+						rendered="#{bean.localGradebook.grade_type != 3 && ((item.assignment.category.dropScores && item.selectedGradeEntryValue == 'Adjustment') || !item.assignment.category.dropScores)}" />
 
 				<%-- If the category drops scores --%>
 					<h:outputText id="pointsDropScores" value="#{item.pointsPossible}"
-						rendered="#{bean.localGradebook.grade_type != 3 && item.assignment.category.dropScores && !bean.isAdjustment}" />
+						rendered="#{bean.localGradebook.grade_type != 3 && item.assignment.category.dropScores && item.selectedGradeEntryValue != 'Adjustment'}" />
 				<%-- end, if the category drops scores --%>
 
 					<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
