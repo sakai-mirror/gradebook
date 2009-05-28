@@ -4,7 +4,7 @@
 
 <div class="indnt1 gbSection">
 	<h:selectOneRadio value="#{gradebookSetupBean.categorySetting}" id="categorySetting" layout="pageDirection" 
-			valueChangeListener="#{gradebookSetupBean.processCategorySettingChange}" onclick="this.form.submit();" 
+			valueChangeListener="#{gradebookSetupBean.processCategorySettingChange}" onclick="reEnableCategoryDropInputs();this.form.submit();" 
 			rendered="#{!gradebookSetupBean.isLetterGrade}">
 			<f:selectItem itemValue="noCategories" itemLabel="#{msgs.opt_no_categories}" />
       <f:selectItem itemValue="onlyCategories" itemLabel="#{msgs.opt_categories_only}" />
@@ -88,7 +88,7 @@
 					</f:facet>
 					<h:inputText id="dropHighest" value="#{category.dropHighest}" size="3" title="#{msgs.cat_drop_highest_tooltip}" 
 					    onkeyup="javascript:dropScoresAdjust(this.form);"
-					    disabled="#{!category.assignmentsEqual || category.keepHighest > 0}">
+					    disabled="#{!category.assignmentsEqual}">
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
 					</h:inputText>
@@ -100,7 +100,7 @@
 					</f:facet>
 					<h:inputText id="dropLowest" value="#{category.drop_lowest}" size="3" title="#{msgs.cat_drop_lowest_tooltip}"
                         onkeyup="javascript:dropScoresAdjust(this.form);" 
-                        disabled="#{!category.assignmentsEqual || category.keepHighest > 0}" >
+                        disabled="#{!category.assignmentsEqual}" >
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
                     </h:inputText>
@@ -111,11 +111,11 @@
 						<h:outputText value="#{msgs.cat_keep_highest}"/>
 					</f:facet>
 					<h:inputText id="keepHighest" value="#{category.keepHighest}" size="3" title="#{msgs.cat_keep_highest_tooltip}"
-					onkeyup="javascript:dropScoresAdjust(this.form);"
-					disabled="#{!category.assignmentsEqual || (category.drop_lowest > 0 || category.dropHighest > 0)}">
+                        onkeyup="javascript:dropScoresAdjust(this.form);" 
+                        disabled="#{!category.assignmentsEqual}" >
 					<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.DROP_SCORES"/>
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
-					</h:inputText>
+                    </h:inputText>
 					<h:message for="keepHighest" styleClass="alertMessageInline"/>
 				</h:column>
 				<h:column rendered="#{gradebookSetupBean.isPointGrade}">
@@ -148,7 +148,7 @@
 					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_list_remove}" />
 					</f:facet>
-					<h:commandLink value="" title="#{msgs.cat_remove}" actionListener="#{gradebookSetupBean.processRemoveCategory}" >
+					<h:commandLink value="" title="#{msgs.cat_remove}" actionListener="#{gradebookSetupBean.processRemoveCategory}" onclick="javascript:reEnableCategoryDropInputs();" >
 						<h:outputText value="#{msgs.cat_remove}" />
 						<f:param name="rowIndex" value="#{rowIndex}"/>
 					</h:commandLink>

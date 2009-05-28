@@ -298,6 +298,31 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
   }
 }
 
+function reEnableCategoryDropInputs(component) {
+    var formName = "gbForm";
+    if(component == null) {
+        // Enable all of the category drop scores inputs on the page
+        // This is required because of the lack of support for
+        // disabled components in myfaces
+        var allElements = document.forms[0].elements;
+        for(i=0; i < allElements.length; i++) {
+                var currentElement = allElements[i];
+                if(currentElement.name.indexOf(":pointValue") != -1
+                        || currentElement.name.indexOf(":relativeWeight") != -1
+                        || currentElement.name.indexOf(":dropHighest") != -1
+                        || currentElement.name.indexOf(":dropLowest") != -1
+                        || currentElement.name.indexOf(":keepHighest") != -1
+                   ) {
+                        // Recursive function call
+                    reEnableCategoryDropInputs(currentElement);
+                }
+        }
+    } else {
+        var dropElement = getTheElement(component.name);
+        dropElement.disabled = false;
+    }
+}
+
 function toggleVisibilityDropScoresFields() {
     var formName = "gbForm";
     var showDropHighest = getTheElement(formName + ":showDropHighest");
@@ -356,7 +381,7 @@ function dropScoresAdjust() {
     var showDropHighest = getTheElement(formName + ":showDropHighest");
     var showDropLowest = getTheElement(formName + ":showDropLowest");
     var showKeepHighest = getTheElement(formName + ":showKeepHighest");
-    
+        
     for (var i=0; i < document.gbForm.elements.length; ++i) {
         var dropHighest =  getTheElement(formName + ":categoriesTable:" + i + ":dropHighest");
         var dropLowest =  getTheElement(formName + ":categoriesTable:" + i + ":dropLowest");

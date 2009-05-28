@@ -97,7 +97,7 @@
 		<h:outputText styleClass="instruction" value="#{msgs.gradebook_setup_message1}" rendered="#{gradebookSetupBean.isExistingGrades && gradebookSetupBean.isPointGrade}"/>
 		<h:outputText styleClass="instruction" value="#{msgs.gradebook_setup_message5}" rendered="#{gradebookSetupBean.isExistingGrades && gradebookSetupBean.isPercentageGrade}"/>
 		<h:outputText styleClass="instruction" value="#{msgs.gradebook_setup_message3}" rendered="#{gradebookSetupBean.isExistingGrades && gradebookSetupBean.isLetterGrade}"/> 
-		 <h:commandLink	action="#{gradebookSetupBean.navigateToDeleteAllGrades}" immediate="true" rendered="#{gradebookSetupBean.isExistingGrades}">
+		 <h:commandLink	onclick="javascript:reEnableCategoryDropInputs();" action="#{gradebookSetupBean.navigateToDeleteAllGrades}" immediate="true" rendered="#{gradebookSetupBean.isExistingGrades}">
 			<h:outputText value="#{msgs.gradebook_setup_message2}" />
 		</h:commandLink> 
 		<h:outputText value="#{msgs.gradebook_setup_message4}" rendered="#{gradebookSetupBean.isExistingGrades}"/>
@@ -132,10 +132,12 @@
 					id="saveButton"
 					styleClass="active"
 					value="#{msgs.gb_setup_save}"
-					action="#{gradebookSetupBean.processSaveGradebookSetup}"/>
+					action="#{gradebookSetupBean.processSaveGradebookSetup}"
+					onclick="javascript:reEnableCategoryDropInputs();" />
 				<h:commandButton
 					value="#{msgs.gb_setup_cancel}"
-					action="#{gradebookSetupBean.processCancelGradebookSetup}" immediate="true"/>
+					action="#{gradebookSetupBean.processCancelGradebookSetup}"
+					onclick="javascript:reEnableCategoryDropInputs();" immediate="true"/>
 			</div>
 			
 			<%
