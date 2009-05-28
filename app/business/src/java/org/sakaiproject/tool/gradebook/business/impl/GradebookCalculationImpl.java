@@ -664,7 +664,8 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 
 							if(cateTotalScoreMap.get(cate.getId()) == null)
 							{
-								cateTotalScoreMap.put(cate.getId(), asgn.getPointsPossible());
+								if (asgn.getIsExtraCredit()!=null && !asgn.getIsExtraCredit())
+									cateTotalScoreMap.put(cate.getId(), asgn.getPointsPossible());
 							}
 							else
 							{
