@@ -112,9 +112,7 @@
 				<h:panelGroup rendered="#{!item.assignment.externallyMaintained && (item.selectedGradeEntryValue != msgs.add_assignment_type_noncalc)}">
 				  	<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{!item.assignment.externallyMaintained && !item.assignment.category.dropScores && bean.localGradebook.grade_type != 3}"/>
 					<h:outputLabel for="points" id="pointsLabel" value="#{(bean.localGradebook.grade_type == 1) ? msgs.add_assignment_points : msgs.add_assignment_relative_weight}" 
-						rendered="#{!item.assignment.externallyMaintained && !item.assignment.category.dropScores && bean.localGradebook.grade_type != 3}"/>
-					<h:outputLabel for="pointsDropScores" id="pointsLabelDropScores" value="#{(bean.localGradebook.grade_type == 1) ? msgs.add_assignment_points : msgs.add_assignment_relative_weight}" 
-						rendered="#{!item.assignment.externallyMaintained && item.assignment.category.dropScores && bean.localGradebook.grade_type != 3}"/>
+						rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 3}"/>
 				</h:panelGroup>
 				<h:panelGroup rendered="#{!item.assignment.externallyMaintained && (item.selectedGradeEntryValue != msgs.add_assignment_type_noncalc)}">
 					<h:inputText id="points" value="#{item.pointsPossible}" 
