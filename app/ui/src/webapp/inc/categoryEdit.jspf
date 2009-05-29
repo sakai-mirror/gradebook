@@ -40,7 +40,7 @@
 				id="categoriesTable"
 				value="#{gradebookSetupBean.categories}"
 				var="category"
-	      columnClasses="left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,specialLink"
+	      columnClasses="left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,right,specialLink"
 	      		rowClasses="#{gradebookSetupBean.rowClasses}"
 				styleClass="listHier"
 				rowIndexVar="rowIndex">
