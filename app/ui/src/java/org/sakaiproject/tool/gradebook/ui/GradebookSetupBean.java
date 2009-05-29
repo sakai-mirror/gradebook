@@ -73,7 +73,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
     private boolean isLetterGrade = false;
     private boolean isPointGrade = false;
     private boolean isPercentageGrade = false;
-    private boolean isExistingGrades = false;
 
     private static final int NUM_EXTRA_CAT_ENTRIES = 50;
 	private static final String ENTRY_OPT_POINTS = "points";
@@ -133,9 +132,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
         } else {
             showKeepHighestDisplayed = false;
         }
-        
-        isExistingGrades = getGradebookManager().checkIfGradeExists(localGradebook.getId())
-        || getGradebookManager().isExplicitlyEnteredCourseGradeRecords(localGradebook.getId());
 	}
     
     /*
@@ -1245,7 +1241,18 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		this.isPercentageGrade = isPercentageGrade;
 	}
 	
+	private transient Boolean isExistingGrades;
+	/**
+	 * 
+	 * @return true if at least one grade has been entered for the site or
+	 * there is at least one course grade override
+	 */
 	public boolean getIsExistingGrades() {
+	    if (isExistingGrades == null) {
+	        isExistingGrades = getGradebookManager().checkIfGradeExists(getLocalGradebook().getId())
+	        || getGradebookManager().isExplicitlyEnteredCourseGradeRecords(getLocalGradebook().getId());
+	    }
+	    
 	    return isExistingGrades;
 	}
 }
