@@ -80,6 +80,12 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     protected Authn authn;
     protected EventTrackingService eventTrackingService;
 
+    /**
+	 * For use in the UI, we differentiate the preadjusted course grade record from the final course grade record
+	 * by using this bogus GradableObject id (see usage in GradableObjectColumn)
+	 */
+	public static final Long PRE_ADJ_COURSE_GRADE_ID=-1L;
+
     // Local cache of static-between-deployment properties.
     protected Map propertiesMap = new HashMap();
 
@@ -362,6 +368,42 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                     total = new Integer(0);
                     Query q = session.createQuery(
                             "select cgr.studentId from CourseGradeRecord as cgr where cgr.enteredGrade is not null and cgr.gradableObject.gradebook.id=:gradebookId");
+                    q.setLong("gradebookId", gradebookId.longValue());
+                    for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
+                        String studentId = (String)iter.next();
+                        if (studentUids.contains(studentId)) {
+                            total = new Integer(1);
+                            break;
+                        }
+                    }
+                }
+                return total;
+            }
+        };
+        return ((Integer)getHibernateTemplate().execute(hc)).intValue() > 0;
+    }
+    
+    public boolean isExplicitlyEnteredCourseGradeAdjustments(final Long gradebookId) {
+        final Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
+        if (studentUids.isEmpty()) {
+            return false;
+        }
+
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                Integer total;
+                if (studentUids.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+                    Query q = session.createQuery(
+                            "select cgr from CourseGradeRecord as cgr where cgr.adjustmentScore is not null and cgr.gradableObject.gradebook.id=:gradebookId and cgr.studentId in (:studentUids)");
+                    q.setLong("gradebookId", gradebookId.longValue());
+                    q.setParameterList("studentUids", studentUids);
+                    List totalList = (List)q.list();
+                    total = new Integer(totalList.size());
+                    if (log.isInfoEnabled()) log.info("total number of explicitly entered adjustment scores = " + total);
+                } else {
+                    total = new Integer(0);
+                    Query q = session.createQuery(
+                            "select cgr.studentId from CourseGradeRecord as cgr where cgr.adjustmentScore is not null and cgr.gradableObject.gradebook.id=:gradebookId");
                     q.setLong("gradebookId", gradebookId.longValue());
                     for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
                         String studentId = (String)iter.next();

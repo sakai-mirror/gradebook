@@ -64,6 +64,7 @@ import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.jsf.AssignmentPointsConverter;
 import org.sakaiproject.tool.gradebook.jsf.CategoryPointsConverter;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
@@ -192,10 +193,25 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		CourseGrade courseGrade = null;
 		if (isUserAbleToGradeAll()) {
 			courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
-			// first add Cumulative if not a selected category
-			if(selectedCategoryUid == null){
-				gradableObjectColumns.add(new GradableObjectColumn(courseGrade));
-			}	
+			if (isCourseAdjustmentOrGradeOverrideExist())
+			{
+				CourseGrade preAdjustmentCourseGradeColumn = new CourseGrade();
+				// this is to differentiate the preadjusted course grade record from the final course grade record in the map.
+				// See BaseHibernateManager.PRE_ADJ_COURSE_GRADE_ID for usage.
+				preAdjustmentCourseGradeColumn.setId(GradebookManager.PRE_ADJ_COURSE_GRADE_ID);
+				// first add Cumulative if not a selected category
+				if(selectedCategoryUid == null){
+					gradableObjectColumns.add(new GradableObjectColumn(courseGrade));
+					gradableObjectColumns.add(new GradableObjectColumn(preAdjustmentCourseGradeColumn));
+				}	
+			}
+			else
+			{
+				// first add Cumulative if not a selected category
+				if(selectedCategoryUid == null){
+					gradableObjectColumns.add(new GradableObjectColumn(courseGrade));
+				}	
+			}
 		}
 		
 		List categories = new ArrayList();
@@ -395,6 +411,13 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			Collections.sort(courseGradeRecords, CourseGradeRecord.calcComparator);
 	        getGradebookManager().addToGradeRecordMap(gradeRecordMap, courseGradeRecords);
 	        gradeRecords.addAll(courseGradeRecords);
+	        if (isCourseAdjustmentOrGradeOverrideExist())
+	        {
+				List preCourseGradeRecords = getGradebookManager().getPreadjustedPointsEarnedCourseGradeRecords(courseGrade, studentIdEnrRecMap.keySet());
+				Collections.sort(preCourseGradeRecords, CourseGradeRecord.calcComparator);
+				getGradebookManager().addToGradeRecordMap(gradeRecordMap, preCourseGradeRecords);
+				gradeRecords.addAll(preCourseGradeRecords);
+	        }
 		}
         
         //do category results
@@ -409,7 +432,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         	List scoreSortedEnrollments = new ArrayList();
 			for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
 				AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
-				if(getColumnHeader(agr.getGradableObject()).equals(sortColumn)) {
+				if(getColumnHeader(agr).equals(sortColumn)) {
 					scoreSortedEnrollments.add(studentIdEnrRecMap.get(agr.getStudentId()));
 				}
 			}
@@ -441,9 +464,30 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	
 	private String getColumnHeader(GradableObject gradableObject) {
 		if (gradableObject.isCourseGrade()) {
-			return getLocalizedString("roster_course_grade_column_name");
+			if (gradableObject.getId().equals(GradebookManager.PRE_ADJ_COURSE_GRADE_ID) || !isCourseAdjustmentOrGradeOverrideExist())
+				return getLocalizedString("roster_course_grade_column_name");
+			else
+				return getLocalizedString("roster_adjusted_course_grade_column_name");
 		} else {
 			return ((Assignment)gradableObject).getName();
+		}
+	}
+	
+	private String getColumnHeader(AbstractGradeRecord agr) {
+		if (agr instanceof CourseGradeRecord)
+		{
+			if (((CourseGradeRecord)agr).isPreAdjustedCourseGrade() || !isCourseAdjustmentOrGradeOverrideExist())
+			{	
+				return getLocalizedString("roster_course_grade_column_name");
+			}
+			else
+			{
+				return getLocalizedString("roster_adjusted_course_grade_column_name");
+			}
+		}
+		else
+		{
+			return agr.getGradableObject().getName();
 		}
 	}
 	
@@ -533,7 +577,12 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 					HtmlOutputText headerText = new HtmlOutputText();
 					headerText.setId(ASSIGNMENT_COLUMN_PREFIX + "hdr_" + colpos);
 					// Try straight setValue rather than setValueBinding.
-					headerText.setValue(columnData.getName());
+					if (columnData.getName().equals(getLocalizedString("roster_adjusted_course_grade_column_name")) || (columnData.getName().equals(getLocalizedString("roster_course_grade_column_name")) && !isCourseAdjustmentOrGradeOverrideExist()))
+						headerText.setValue(columnData.getName() + "*");
+					else if (columnData.getName().equals(getLocalizedString("roster_course_grade_column_name")))
+						headerText.setValue(columnData.getName() + "**");
+					else
+						headerText.setValue(columnData.getName());
 	
 	                sortHeader.getChildren().add(headerText);
 	                
@@ -575,7 +624,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		                if (extraCredit!=null && extraCredit)
 		                {
 		                	HtmlOutputText asterisk = new HtmlOutputText();
-		                	asterisk.setValue(" *");
+		                	asterisk.setValue(" ***");
 			                pg.getChildren().add(asterisk);
 		                }
 		                pg.getChildren().add(br);
@@ -645,10 +694,19 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	}
 	
 	public String getColLock() {
-		if (isUserAbleToGradeAll() || getSelectedCategoryUid() != null)
+		if ((isUserAbleToGradeAll() && getSelectedCategoryUid() == null) && isCourseAdjustmentOrGradeOverrideExist())
+			return "4";
+		else if (isUserAbleToGradeAll() || getSelectedCategoryUid() != null)
 			return "3";
 		else
 			return "2";
+	}
+	
+	public boolean isCourseAdjustmentOrGradeOverrideExist() {
+		if (getGradebookManager().isExplicitlyEnteredCourseGradeRecords(getGradebookId()) || getGradebookManager().isExplicitlyEnteredCourseGradeAdjustments(getGradebookId()))
+			return true;
+		else
+			return false;
 	}
 
 	// Sorting
@@ -868,6 +926,16 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentUids, gradableObjects, filteredGradesMap);
 	        getGradebookManager().addToGradeRecordMap(filteredGradesMap, courseGradeRecords);
 	        gradableObjects.add(courseGrade);
+	        if (isCourseAdjustmentOrGradeOverrideExist())
+	        {
+		        CourseGrade preAdjustmentCourseGradeColumn = new CourseGrade();
+				// this is to differentiate the preadjusted course grade record from the final course grade record in the map.
+				// See BaseHibernateManager.PRE_ADJ_COURSE_GRADE_ID for usage.
+				preAdjustmentCourseGradeColumn.setId(GradebookManager.PRE_ADJ_COURSE_GRADE_ID);
+		        List preAdjustedCourseGradeRecords = getGradebookManager().getPreadjustedPointsEarnedCourseGradeRecords(courseGrade, studentUids);
+		        getGradebookManager().addToGradeRecordMap(filteredGradesMap, preAdjustedCourseGradeRecords);
+		        gradableObjects.add(preAdjustmentCourseGradeColumn);
+	        }
 		}
     	return getSpreadsheetData(filteredEnrollments, filteredGradesMap, filteredCategoriesMap, gradableObjects, includeCourseGrade, includeCategories);
     }
@@ -967,7 +1035,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
          			}
          		}
          		assignmentCat = null;
-         		colName = getLocalizedString("roster_course_grade_column_name");
+         		colName = getColumnHeader((CourseGrade)gradableObject);
          	}
 
          	headerRow.add(colName);

@@ -40,6 +40,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
     private Double autoCalculatedGrade;  // Not persisted
     private String calculatedPointsEarned;	// Not persisted
     private Double adjustmentScore;
+    private boolean preAdjustedCourseGrade = false;
 
 	public static Comparator<CourseGradeRecord> calcComparator;
     public static Comparator<CourseGradeRecord> calcComparatorIgnoreEnteredGrade;
@@ -202,6 +203,22 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 	}
 	public void setAdjustmentScore(Double adjustmentScore) {
 		this.adjustmentScore = adjustmentScore;
+	}
+	
+	/**
+	 * 
+	 * @return true if this course grade record represents the preadjusted course grade
+	 */
+	public boolean isPreAdjustedCourseGrade() {
+		return preAdjustedCourseGrade;
+	}
+	
+	/**
+	 * 
+	 * @param preAdjustedCourseGrade true if this course grade record represents the preadjusted course grade
+	 */
+	public void setPreAdjustedCourseGrade(boolean preAdjustedCourseGrade) {
+		this.preAdjustedCourseGrade = preAdjustedCourseGrade;
 	}
 
 	/**

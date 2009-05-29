@@ -40,6 +40,12 @@ import org.sakaiproject.tool.gradebook.*;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public interface GradebookManager {
+	/**
+	 * For use in the UI, we differentiate the preadjusted course grade record from the final course grade record
+	 * by using this bogus GradableObject id (see usage in GradableObjectColumn)
+	 */
+	public static final Long PRE_ADJ_COURSE_GRADE_ID=-1L;
+	
     /**
      * Updates a gradebook's representation in persistence.
      *
@@ -130,6 +136,8 @@ public interface GradebookManager {
      * @return CourseGradeRecord list
      */
     public List getPointsEarnedCourseGradeRecords(CourseGrade courseGrade, Collection studentUids);
+    
+    public List getPreadjustedPointsEarnedCourseGradeRecords(CourseGrade courseGrade, Collection studentUids);
 
     /**
      * As a side-effect, this version of the method calculates the mean course grade.
@@ -143,6 +151,15 @@ public interface GradebookManager {
     public List<CourseGradeRecord> getPointsEarnedCourseGradeRecordsWithStats(CourseGrade courseGrade, Collection studentUids);
     
     public List<CourseGradeRecord> getPointsEarnedCourseGradeRecords(CourseGrade courseGrade, Collection studentUids, Collection assignments, Map scoreMap);
+    
+    /**
+     * Adds the given grade records to the gradeRecordMap in the following way:
+     * Map of StudentId --> Map of GradableObject Id --> gradeRecord.
+     * If the gradeRecord is a preadjusted course grade record, the GradableObject id used in the map
+     * will be {@link BaseHibernateManager#PRE_ADJ_COURSE_GRADE_ID}
+     * @param gradeRecordMap
+     * @param gradeRecords
+     */
     public void addToGradeRecordMap(Map gradeRecordMap, List gradeRecords);
     
     /**
@@ -184,6 +201,14 @@ public interface GradebookManager {
      * @return Whether there are course grade records that have a non-null enteredGrade field
      */
     public boolean isExplicitlyEnteredCourseGradeRecords(Long gradebookId);
+    
+    /**
+     * Gets whether there are explicitly entered adjustment scores in a gradebook.
+     *
+     * @param gradebookId The gradebook
+     * @return Whether there are adjusment scores that have a non-null adjustmentScore field
+     */
+    public boolean isExplicitlyEnteredCourseGradeAdjustments(Long gradebookId);
     
     /**
      * 
