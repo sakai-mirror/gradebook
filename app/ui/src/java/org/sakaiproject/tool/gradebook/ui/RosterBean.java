@@ -213,21 +213,24 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 				}	
 			}
 		}
-		
-		List categories = new ArrayList();
 
-		//next get all of the categories
-		List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+        List<Category> categories = new ArrayList<Category>();
+        List<Assignment> allAssignments = new ArrayList<Assignment>();
 
-		// first, remove the CourseGrade from the Category list
-		for (Iterator catIter = categoryListWithCG.iterator(); catIter.hasNext();) {
-			Object catOrCourseGrade = catIter.next();
-			if (catOrCourseGrade instanceof Category) {
-				categories.add((Category)catOrCourseGrade);
-			} else if (catOrCourseGrade instanceof CourseGrade) {
-				avgCourseGrade = (CourseGrade)catOrCourseGrade;
-			}
-		}
+        // get all of the assignments and categories
+        List assignCategoryCGList = getGradebookManager().getAssignmentsCategoriesAndCourseGradeWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+
+        // let's filter these into assignment list, category list, and course grade
+        for (Iterator listIter = assignCategoryCGList.iterator(); listIter.hasNext();) {
+            Object assignCatOrCourseGrade = listIter.next();
+            if (assignCatOrCourseGrade instanceof Category) {
+                categories.add((Category)assignCatOrCourseGrade);
+            } else if (assignCatOrCourseGrade instanceof CourseGrade) {
+                avgCourseGrade = (CourseGrade)assignCatOrCourseGrade;
+            } else if (assignCatOrCourseGrade instanceof Assignment) {
+                allAssignments.add((Assignment)assignCatOrCourseGrade);
+            }
+        }
 		
 		if (getCategoriesEnabled()) {
 			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
@@ -295,9 +298,6 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			}
 		}
 		
-		//List allAssignments = getGradebookManager().getAssignments(getGradebookId());
-		List allAssignments = getGradebookManager().getAssignmentsAndCourseGradeWithStats(getGradebookId(),
-				Assignment.DEFAULT_SORT, true);
 		if (isRefreshRoster()) {
 			enrollmentMap = getOrderedEnrollmentMapForAllItems(); // Map of EnrollmentRecord --> Map of Item --> function (grade/view)
 			setRefreshRoster(false);
