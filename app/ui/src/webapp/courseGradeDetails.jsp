@@ -88,6 +88,18 @@
 				
 				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{scoreRow.calculatedLetterGrade == null && !overviewBean.isLetterGrade}"/>
 			</h:column>
+			<h:column rendered="#{!overviewBean.isLetterGrade && (courseGradeDetailsBean.gradeEntryByPercent || (courseGradeDetailsBean.gradeEntryByPoints && courseGradeDetailsBean.weightingEnabled))}">
+				<f:facet name="header">
+		            <t:commandSortHeader columnName="pointsEarned" propertyName="pointsEarned" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
+						<h:outputText value="#{msgs.assignment_details_percentage}"/>
+		            </t:commandSortHeader>
+				</f:facet>
+				<h:outputFormat value="#{msgs.course_grade_details_percentage_earned_display}" rendered="#{scoreRow.calculatedLetterGrade != null && !overviewBean.isLetterGrade}" >
+					<f:param value="#{scoreRow.preadjustedCalculatedPercentGrade}" />
+				</h:outputFormat>
+				
+				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{scoreRow.preadjustedCalculatedPercentGrade == null && !overviewBean.isLetterGrade}"/>
+			</h:column>
 			<h:column rendered="#{!overviewBean.isLetterGrade}">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="adjustmentScore" propertyName="adjustmentScore" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">

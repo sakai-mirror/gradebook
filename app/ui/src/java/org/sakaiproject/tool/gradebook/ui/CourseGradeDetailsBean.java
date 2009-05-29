@@ -115,6 +115,23 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         	
         	return grade;
         }
+        
+        public Double getPreadjustedCalculatedPercentGrade() {
+        	Double grade = courseGradeRecord.getAutoCalculatedGrade();
+        	if (grade != null) {
+        		// to emulate the converter, truncate to 4 decimal places, then return 2
+        		Double adjustment = courseGradeRecord.getAdjustmentScore();
+        		if (adjustment == null)
+        		{
+        			adjustment = new Double(0);
+        		}
+        		grade = new Double(FacesUtil.getRoundDown(grade.doubleValue() - adjustment.doubleValue(), 4));
+        		BigDecimal bdGrade = (new BigDecimal(grade.toString())).setScale(2, BigDecimal.ROUND_DOWN);
+        		grade = new Double(bdGrade.doubleValue());
+        	}
+        	
+        	return grade;
+        }
 
         public CourseGradeRecord getCourseGradeRecord() {
             return courseGradeRecord;
@@ -246,6 +263,9 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
             }
 			
 			scoreRows.add(new ScoreRow(enrollment, gradeRecord, allEvents.getEvents(studentUid), userCanGrade));
+			for (Iterator tts = scoreRows.iterator(); tts.hasNext();){
+				tts.next();
+			}
 		}
 	}
 
