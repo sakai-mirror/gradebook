@@ -91,7 +91,7 @@
 			<h:column rendered="#{!overviewBean.isLetterGrade}">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="adjustmentScore" propertyName="adjustmentScore" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
-						<h:outputText value="#{(courseGradeDetailsBean.gradeEntryByPercent) ? msgs.course_grade_details_adjustment_percentage : msgs.course_grade_details_adjustment_points}" />
+						<h:outputText value="#{(courseGradeDetailsBean.gradeEntryByPercent) ? msgs.course_grade_details_adjustment_percentage : (courseGradeDetailsBean.weightingEnabled) ? msgs.course_grade_details_adjustment_percentage : msgs.course_grade_details_adjustment_points}" />
 		            </t:commandSortHeader>
 				</f:facet>
 				<h:inputText rendered="#{scoreRow.userCanGrade}"
