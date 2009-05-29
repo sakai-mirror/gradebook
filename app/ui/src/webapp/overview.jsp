@@ -209,7 +209,8 @@
 		</h:panelGroup>
 		<h:panelGroup rendered="#{!overviewBean.isLetterGrade}">
 			<h:outputText value="#{msgs.overview_footnote_symbol2}" />
-			<h:outputText value="#{msgs.overview_footnote_legend2}" />
+			<h:outputText value="#{msgs.overview_footnote_legend2}" rendered="#{!overviewBean.anyCategoriesDropScores}" />
+			<h:outputText value="#{msgs.overview_footnote_legend2} #{msgs.overview_footnote_legend2b}" rendered="#{overviewBean.anyCategoriesDropScores}" />
 		</h:panelGroup>
 		<h:panelGroup>
 			<h:outputText value="#{msgs.overview_footnote_symbol3}" />

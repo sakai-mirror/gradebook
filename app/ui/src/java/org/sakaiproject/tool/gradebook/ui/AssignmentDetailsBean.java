@@ -332,13 +332,15 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                             	    for(Assignment catAssignment : catAssignments) {
                             	        if(catAssignment.equals(assignment)) {
                             	            assignment.setAverageTotal(catAssignment.getAverageTotal());
+                            	            assignment.setMean(catAssignment.getMean());
                             	        }
                             	        
                             	    }
                         	    }
                     	    }
-                    	}
+                    	}           	
                     }
+                    
         			List categoryList = new ArrayList();
         			
         			// first, remove the CourseGrade from the Category list

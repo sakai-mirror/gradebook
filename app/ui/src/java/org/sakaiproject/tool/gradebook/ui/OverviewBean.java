@@ -91,6 +91,19 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 		
 		return letterGrade;
 	}
+	
+	public boolean isAnyCategoriesDropScores() {
+        boolean anyDrops = false;
+        for(Object obj : gradebookItemList) {
+            if(obj instanceof Category) {
+                Category category = (Category)obj;
+                anyDrops = category.isDropScores();
+                if(anyDrops)
+                    break;
+            }
+        }
+	    return anyDrops;
+	}
 
 	protected void init() {
 
@@ -100,8 +113,10 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 		if (getCategoriesEnabled()) {
 			/* if categories are enabled, we need to display a table that includes
 			 * categories, assignments, and the course grade.
+			 * 
 			 */
-			List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending());
+		    //passing the includeDroppedScores flag (true) as we want to include dropped scores in calculations on the Gradebook Item Summary page
+			List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending(), true);
 			List categoryList = new ArrayList();
 			
 			// first, remove the CourseGrade from the Category list

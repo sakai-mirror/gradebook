@@ -1613,11 +1613,17 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     /**
      */
     public List getAssignmentsWithStats(final Long gradebookId, final String sortBy, final boolean ascending) {
+       return getAssignmentsWithStats(gradebookId, sortBy, ascending, false);
+    }
+    
+    public List getAssignmentsWithStats(final Long gradebookId, final String sortBy, final boolean ascending, boolean includeDroppedScores) {
         Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
         List assignments = getAssignments(gradebookId);
         List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecords(gradebookId, studentUids);
         
-        applyDropScores(gradeRecords);
+        if(!includeDroppedScores) {
+            applyDropScores(gradeRecords);
+        }
         
         for (Iterator iter = assignments.iterator(); iter.hasNext(); ) {
         	Assignment assignment = (Assignment)iter.next();
@@ -1714,14 +1720,20 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
         return (Assignment)getHibernateTemplate().load(Assignment.class, assignmentId);
     }
 
+    public Assignment getAssignmentWithStats(Long assignmentId) {
+        return getAssignmentWithStats(assignmentId, false);
+    }
+    
     /**
      */
-    public Assignment getAssignmentWithStats(Long assignmentId) {
+    public Assignment getAssignmentWithStats(Long assignmentId, boolean includeDroppedScores) {
     	Assignment assignment = getAssignment(assignmentId);
     	Long gradebookId = assignment.getGradebook().getId();
         Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
         List<AssignmentGradeRecord> gradeRecords = getAssignmentGradeRecords(assignment, studentUids);
-        applyDropScores(gradeRecords);
+        if(!includeDroppedScores) {
+            applyDropScores(gradeRecords);
+        }
         assignment.calculateStatistics(gradeRecords);
         return assignment;
     }
@@ -2471,17 +2483,23 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     }
     
     public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending) {
+        return getCategoriesWithStats(gradebookId, assignmentSort, assignAscending, categorySort, categoryAscending, false);
+    }
+    
+    public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending, boolean includeDroppedScores) {
     	List categories = getCategories(gradebookId);
     	Set allStudentUids = getAllStudentUids(getGradebookUid(gradebookId));
     	List allAssignments;
     	if(assignmentSort != null)
-    		allAssignments = getAssignmentsWithStats(gradebookId, assignmentSort, assignAscending);
+    		allAssignments = getAssignmentsWithStats(gradebookId, assignmentSort, assignAscending, includeDroppedScores);
     	else
-    		allAssignments = getAssignmentsWithStats(gradebookId, Assignment.DEFAULT_SORT, assignAscending);
+    		allAssignments = getAssignmentsWithStats(gradebookId, Assignment.DEFAULT_SORT, assignAscending, includeDroppedScores);
     	
 //    	List releasedAssignments = new ArrayList();
     	List gradeRecords = getAllAssignmentGradeRecords(gradebookId, allStudentUids);
-        applyDropScores(gradeRecords);
+        if(!includeDroppedScores) {
+            applyDropScores(gradeRecords);
+        }
 
     	Map cateMap = new HashMap();
     	for (Iterator iter = allAssignments.iterator(); iter.hasNext(); )

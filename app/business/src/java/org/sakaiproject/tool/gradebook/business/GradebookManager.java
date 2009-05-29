@@ -310,6 +310,20 @@ public interface GradebookManager {
     public List getAssignmentsWithStats(Long gradebookId, String sortBy, boolean ascending);
 
     /**
+     * Fetches a List of Assignments for a given gradebook, and populates the
+     * Assignments with all of the statistics fields available in the Assignment
+     * object.
+     *
+     * @param gradebookId The gradebook ID
+     * @param studentUids The current enrollment list to filter dropped students
+     *        from the calculation
+     * @param sortBy The field by which to sort the list.
+     * @param includeDroppedScores whether or not to include dropped scores in the calculations
+     * @return A list of Assignments with their statistics fields populated
+     */
+    public List getAssignmentsWithStats(Long gradebookId, String sortBy, boolean ascending, boolean includeDroppedScores);
+
+    /**
      * Same as the other getAssignmentsWithStats except for tacking the
      * CourseGrade (with statistics) at the end of the list. This is
      * combined into one call as a way to avoid either exposing the
@@ -335,6 +349,18 @@ public interface GradebookManager {
      * @return The GradableObject with all statistics fields populated
      */
     public Assignment getAssignmentWithStats(Long assignmentId);
+
+    /**
+     * Fetches an assignment and populates its non-persistent statistics
+     * fields.
+     *
+     * @param assignmentId The assignment ID
+     * @param studentUids The current enrollment list to filter dropped students
+     *        from the calculation
+     * @param includeDroppedScores whether or not to include dropped scores in the calculations
+     * @return The GradableObject with all statistics fields populated
+     */
+    public Assignment getAssignmentWithStats(Long assignmentId, boolean includeDroppedScores);
 
    /**
      * Add a new assignment to a gradebook
@@ -569,6 +595,19 @@ public interface GradebookManager {
      * @return Category list - the last object is CourseGrade for this gradebook
      */
     public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending);
+
+    /**
+     * Get all categories with stats
+     *  
+     * @param gradebookId
+     * @param assignmentSort assignment sorting string
+     * @param assignAscending assignment sorting ascending/descending
+     * @param categorySort category sorting string
+     * @param categoryAscending category sorting ascending/descending
+     * @param includeDroppedScores whether or not to include dropped scores in the calculations
+     * @return Category list - the last object is CourseGrade for this gradebook
+     */
+    public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending, boolean includeDroppedScores);
     
     /**
      * 
