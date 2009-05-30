@@ -381,8 +381,9 @@ function dropScoresAdjust() {
     var showDropHighest = getTheElement(formName + ":showDropHighest");
     var showDropLowest = getTheElement(formName + ":showDropLowest");
     var showKeepHighest = getTheElement(formName + ":showKeepHighest");
-        
-    for (var i=0; i < document.gbForm.elements.length; ++i) {
+    var numPossibleCategories = 51;
+
+    for (var i=0; i < numPossibleCategories; ++i) {
         var dropHighest =  getTheElement(formName + ":categoriesTable:" + i + ":dropHighest");
         var dropLowest =  getTheElement(formName + ":categoriesTable:" + i + ":dropLowest");
         var keepHighest =  getTheElement(formName + ":categoriesTable:" + i + ":keepHighest");
