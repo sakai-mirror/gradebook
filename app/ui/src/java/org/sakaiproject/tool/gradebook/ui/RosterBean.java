@@ -985,7 +985,14 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         List<Object> headerRow = new ArrayList<Object>();
         List<Object> pointsPossibleRow = new ArrayList<Object>();
         
-        headerRow.add(getLocalizedString("export_legend"));
+        if (getGradeEntryByLetter())
+        {
+        	headerRow.add(getLocalizedString("export_legend_nc"));
+        }
+        else
+        {
+        	headerRow.add(getLocalizedString("export_legend"));
+        }
         headerRow.add(getLocalizedString("export_student_id"));
         headerRow.add(getLocalizedString("export_student_name"));
         

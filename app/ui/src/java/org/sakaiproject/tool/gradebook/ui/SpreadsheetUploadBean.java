@@ -1086,12 +1086,23 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         		// this checks if the assignment being imported is an adjustment item and set the variables accordingly
         		if(pointsPossibleAsString.startsWith(getLocalizedString("ADJUSTMENT_ITEM")))
         		{
-        			isAdjustmentItem = true;
-        			// if this makes it into the next block, pointsPossibleAsString will have the points value
-        			if (pointsPossibleAsString.length() > 2)
+        			// we want this to be an error if we're trying to import an adjustment item into a non-calc gb
+        			if (getGradeEntryByLetter())
         			{
-	        			String [] temp = pointsPossibleAsString.split("\\:");
-	        			pointsPossibleAsString = temp[1].trim();
+        				hasUnknownAssignments = true;
+                		unknownAssignments.add(assignmentName);
+
+            			continue;
+        			}
+        			else
+        			{
+	        			isAdjustmentItem = true;
+	        			// if this makes it into the next block, pointsPossibleAsString will have the points value
+	        			if (pointsPossibleAsString.length() > 2)
+	        			{
+		        			String [] temp = pointsPossibleAsString.split("\\:");
+		        			pointsPossibleAsString = temp[1].trim();
+	        			}
         			}
         		}
         		
