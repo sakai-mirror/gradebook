@@ -95,6 +95,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		private Boolean assignmentColumn = false;
 		private Long assignmentId;
 		private Boolean inactive = false;
+		private boolean extraCreditAssignment = false;
 
 		public GradableObjectColumn() {
 		}
@@ -105,6 +106,13 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			assignmentId = getColumnHeaderAssignmentId(gradableObject);
 			assignmentColumn = !gradableObject.isCourseGrade();
 			inactive = (!gradableObject.isCourseGrade() && !((Assignment)gradableObject).isReleased() ? true : false);
+			
+			if (gradableObject instanceof Assignment) {
+			    Boolean isExtraCredit = ((Assignment)gradableObject).getIsExtraCredit();
+			    extraCreditAssignment = isExtraCredit != null && isExtraCredit;
+			} else {
+			    extraCreditAssignment = false;
+			}
 		}
 
 		public Long getId() {
@@ -143,6 +151,23 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		public void setInactive(Boolean inactive) {
 			this.inactive = inactive;
 		}
+		/**
+		 * 
+		 * @return true if this GradableObject represents an extra credit assignment
+		 */
+        public boolean isExtraCreditAssignment()
+        {
+            return extraCreditAssignment;
+        }
+        
+        /**
+         * 
+         * @param extraCreditAssignment true if this GradableObject represents an extra credit assignment
+         */
+        public void setExtraCreditAssignment(boolean extraCreditAssignment)
+        {
+            this.extraCreditAssignment = extraCreditAssignment;
+        }
 	}
 
 	// Controller fields - transient.
@@ -620,8 +645,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		                //make a panel group to add link 
 		                HtmlPanelGroup pg = new HtmlPanelGroup();
 		                pg.getChildren().add(sortHeader);
-		                Boolean extraCredit = getGradebookManager().getAssignment(columnData.getAssignmentId()).getIsExtraCredit();
-		                if (extraCredit!=null && extraCredit)
+		                if (columnData.isExtraCreditAssignment())
 		                {
 		                	HtmlOutputText asterisk = new HtmlOutputText();
 		                	asterisk.setValue(" ***");
@@ -702,7 +726,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			return "2";
 	}
 	
-	public boolean isCourseAdjustmentOrGradeOverrideExist() {
+	private boolean isCourseAdjustmentOrGradeOverrideExist() {
 		if (getGradebookManager().isExplicitlyEnteredCourseGradeRecords(getGradebookId()) || getGradebookManager().isExplicitlyEnteredCourseGradeAdjustments(getGradebookId()))
 			return true;
 		else
