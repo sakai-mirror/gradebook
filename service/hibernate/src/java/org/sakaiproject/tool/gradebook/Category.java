@@ -305,7 +305,9 @@ public class Category implements Serializable
 				//    	}
 			}
 
-			if (numScored == 0 || numOfAssignments == 0) 
+			// if totalPossible is 0, this prevents a division by zero scenario likely from
+			// an adjustment item being the only thing graded.
+			if (numScored == 0 || numOfAssignments == 0 || totalPossible.doubleValue() == 0) 
 			{
 				averageScore = null;
 				averageTotalPoints = null;
@@ -419,7 +421,9 @@ public class Category implements Serializable
 				}
 			}
 
-			if (numScored == 0 || numOfAssignments == 0) 
+			// if totalPossible is 0, this prevents a division by zero scenario likely from
+			// an adjustment item being the only thing graded.
+			if (numScored == 0 || numOfAssignments == 0 || totalPossible.doubleValue() == 0) 
 			{
 				averageScore = null;
 				averageTotalPoints = null;
