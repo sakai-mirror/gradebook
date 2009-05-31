@@ -22,6 +22,13 @@ table.itemSummaryGray td.Gray {
 	color:#999;
 }
 
+/*
+ 	Change the color of the popup calendar month and year title 
+*/
+td.jscalendar-DB-title-style {	
+	color:#7D120C	
+}
+
 /* Create a container for filter/paging controls to enable bottom-alignment. */
 /* THIS SHOULD BE MOVED INTO SAKAI CSS. */
 table.gbContainerNav {
