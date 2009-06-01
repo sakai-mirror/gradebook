@@ -602,7 +602,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 					HtmlOutputText headerText = new HtmlOutputText();
 					headerText.setId(ASSIGNMENT_COLUMN_PREFIX + "hdr_" + colpos);
 					// Try straight setValue rather than setValueBinding.
-					if (columnData.getName().equals(getLocalizedString("roster_adjusted_course_grade_column_name")) || (columnData.getName().equals(getLocalizedString("roster_course_grade_column_name")) && !isCourseAdjustmentOrGradeOverrideExist()))
+					if (columnData.getName().equals(getLocalizedString("roster_adjusted_course_grade_column_name")))
 						headerText.setValue(columnData.getName() + "*");
 					else if (columnData.getName().equals(getLocalizedString("roster_course_grade_column_name")))
 						headerText.setValue(columnData.getName() + "**");
