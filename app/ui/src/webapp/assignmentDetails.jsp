@@ -243,9 +243,9 @@
 							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton1');">
 							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE" />
 						</h:inputText>
-						</h:panelGroup>
+					</h:panelGroup>
 						
-						<h:panelGroup rendered="#{assignmentDetailsBean.assignment.externallyMaintained || !scoreRow.userCanGrade}">
+					<h:panelGroup rendered="#{assignmentDetailsBean.assignment.externallyMaintained || !scoreRow.userCanGrade}">
 						<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}"/>
 						<h:outputText value="#{scoreRow.letterScore}" 
 							 rendered="#{assignmentDetailsBean.gradeEntryByLetter && scoreRow.letterScore != null}">
@@ -267,18 +267,7 @@
 							 style="text-align:right;text-decoration:line-through" onkeypress="return submitOnEnter(event, 'gbForm:saveButton1');">
 							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE" />
 						</h:inputText>
-						</h:panelGroup>
-						
-						<h:panelGroup rendered="#{assignmentDetailsBean.assignment.externallyMaintained || !scoreRow.userCanGrade}">
-						<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}"/>
-						<h:outputText value="#{scoreRow.letterScore}" 
-							 rendered="#{assignmentDetailsBean.gradeEntryByLetter && scoreRow.letterScore != null}">
-							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.LETTER_GRADE_CONVERTER" />
-						</h:outputText>
-						<h:outputText value="#{msgs.score_null_placeholder}" 
-							 rendered="#{assignmentDetailsBean.gradeEntryByLetter && scoreRow.letterScore == null}" />
 					</h:panelGroup>
-					
 				</t:div>
 			</h:column>
 			<h:column>
