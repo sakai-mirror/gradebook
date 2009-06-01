@@ -331,7 +331,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 	// Categories are enabled, so the assignments are grouped by category
                 	assignments = new ArrayList();
                 	
-                	List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending());
+                	List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending(), true);
                 	
                 	// if drop scores, must apply the average total as it was calculated for all assignments within the category
                     if(assignment.getCategory() != null && assignment.getCategory().isDropScores()) {
