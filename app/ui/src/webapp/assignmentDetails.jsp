@@ -76,7 +76,9 @@
 				</h:outputText>
 
 				<h:outputText id="averageLabel" value="#{msgs.assignment_details_average}"
-					rendered="#{overviewBean.userAbleToGradeAll && (!assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter)}"/>
+					rendered="#{overviewBean.userAbleToGradeAll && (!assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter) && !assignmentDetailsBean.assignmentCategoryDropsScores}"/>
+				<h:outputText id="averageLabelFootnote3" value="#{msgs.assignment_details_average}#{msgs.assignment_details_footnote_symbol3}"
+					rendered="#{overviewBean.userAbleToGradeAll && (!assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter) && assignmentDetailsBean.assignmentCategoryDropsScores}"/>
 				<h:panelGroup rendered="#{overviewBean.userAbleToGradeAll && (!assignmentDetailsBean.assignment.ungraded && !assignmentDetailsBean.gradeEntryByLetter)}">
 					<h:outputText id="average" value="#{assignmentDetailsBean.assignment}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_BASIC" />
@@ -346,6 +348,10 @@
 				<h:panelGroup rendered="#{!assignmentDetailsBean.gradeEntryByLetter}">
 					<h:outputText value="#{msgs.assignment_details_footnote_symbol2}" />
 					<h:outputText value="#{msgs.assignment_details_footnote_legend2}" />
+				</h:panelGroup>
+				<h:panelGroup rendered="#{!assignmentDetailsBean.gradeEntryByLetter && assignmentDetailsBean.assignmentCategoryDropsScores}">
+					<h:outputText value="#{msgs.assignment_details_footnote_symbol3}" />
+					<h:outputText value="#{msgs.assignment_details_footnote_legend3}" />
 				</h:panelGroup>
 			</h:panelGrid>
 
