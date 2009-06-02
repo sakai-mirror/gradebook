@@ -436,7 +436,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			Collections.sort(courseGradeRecords, CourseGradeRecord.calcComparator);
 	        getGradebookManager().addToGradeRecordMap(gradeRecordMap, courseGradeRecords);
 	        gradeRecords.addAll(courseGradeRecords);
-	        if (isCourseAdjustmentOrGradeOverrideExist())
+	        if (isCourseAdjustmentOrGradeOverrideExist() && !getGradebook().getIsLetterGrade())
 	        {
 				List preCourseGradeRecords = getGradebookManager().getPreadjustedPointsEarnedCourseGradeRecords(courseGrade, studentIdEnrRecMap.keySet());
 				Collections.sort(preCourseGradeRecords, CourseGradeRecord.calcComparator);
