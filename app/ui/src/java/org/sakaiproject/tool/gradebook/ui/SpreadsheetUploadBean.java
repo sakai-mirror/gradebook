@@ -892,9 +892,19 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         List contents = new ArrayList();
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line;
+        String oldLine;
+        boolean legendExists = true;
         while((line = reader.readLine())!=null){
         	// check and filter out the legend column, if it exists
-        	line = filterLegendColumn(line);
+        	// the legendExists check will determine on the first row
+        	// has the legend or not.
+        	if (legendExists)
+        	{
+        		oldLine = line;
+	        	line = filterLegendColumn(line);
+	        	if (oldLine.equals(line))
+	        		legendExists = false;
+        	}
             //logger.debug("contents of line: "+line);
             contents.add(line);
         }
