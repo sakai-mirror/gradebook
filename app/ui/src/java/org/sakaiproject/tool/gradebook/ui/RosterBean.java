@@ -216,27 +216,33 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		String selectedCategoryUid = getSelectedCategoryUid();
 		
 		CourseGrade courseGrade = null;
+        // we display one or two course grade columns depending on several factors.
+        // if the gradebook is non-calculating, we only display one "course grade"
+        // column, and that will contain the course grade override. otherwise,
+        // if there is a course adjustment or override, we display one column for
+        // the course grade and one for the adjusted course grade. we never
+        // display the course grade if the view is filtered by category. the course
+		// grade is only included if user has "grade all" perm
 		if (isUserAbleToGradeAll()) {
-			courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
-			if (isCourseAdjustmentOrGradeOverrideExist())
-			{
-				CourseGrade preAdjustmentCourseGradeColumn = new CourseGrade();
-				// this is to differentiate the preadjusted course grade record from the final course grade record in the map.
-				// See BaseHibernateManager.PRE_ADJ_COURSE_GRADE_ID for usage.
-				preAdjustmentCourseGradeColumn.setId(GradebookManager.PRE_ADJ_COURSE_GRADE_ID);
-				// first add Cumulative if not a selected category
-				if(selectedCategoryUid == null){
-					gradableObjectColumns.add(new GradableObjectColumn(courseGrade));
-					gradableObjectColumns.add(new GradableObjectColumn(preAdjustmentCourseGradeColumn));
-				}	
-			}
-			else
-			{
-				// first add Cumulative if not a selected category
-				if(selectedCategoryUid == null){
-					gradableObjectColumns.add(new GradableObjectColumn(courseGrade));
-				}	
-			}
+		    courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
+		    if (selectedCategoryUid == null) {
+		        if (!getGradeEntryByLetter() && isCourseAdjustmentOrGradeOverrideExist())
+		        {
+		            CourseGrade preAdjustmentCourseGradeColumn = new CourseGrade();
+		            // this is to differentiate the preadjusted course grade record from the final course grade record in the map.
+		            // See BaseHibernateManager.PRE_ADJ_COURSE_GRADE_ID for usage.
+		            preAdjustmentCourseGradeColumn.setId(GradebookManager.PRE_ADJ_COURSE_GRADE_ID);
+
+		            // first add Cumulative if not a selected category
+		            gradableObjectColumns.add(new GradableObjectColumn(courseGrade));
+		            gradableObjectColumns.add(new GradableObjectColumn(preAdjustmentCourseGradeColumn));
+
+		        }
+		        else
+		        {
+		            gradableObjectColumns.add(new GradableObjectColumn(courseGrade));	
+		        }
+		    }
 		}
 
         List<Category> categories = new ArrayList<Category>();
@@ -489,7 +495,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	
 	private String getColumnHeader(GradableObject gradableObject) {
 		if (gradableObject.isCourseGrade()) {
-			if (gradableObject.getId().equals(GradebookManager.PRE_ADJ_COURSE_GRADE_ID) || !isCourseAdjustmentOrGradeOverrideExist())
+			if (getGradeEntryByLetter() || gradableObject.getId().equals(GradebookManager.PRE_ADJ_COURSE_GRADE_ID) || !isCourseAdjustmentOrGradeOverrideExist())
 				return getLocalizedString("roster_course_grade_column_name");
 			else
 				return getLocalizedString("roster_adjusted_course_grade_column_name");
@@ -501,7 +507,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	private String getColumnHeader(AbstractGradeRecord agr) {
 		if (agr instanceof CourseGradeRecord)
 		{
-			if (((CourseGradeRecord)agr).isPreAdjustedCourseGrade() || !isCourseAdjustmentOrGradeOverrideExist())
+			if (getGradeEntryByLetter() || ((CourseGradeRecord)agr).isPreAdjustedCourseGrade() || !isCourseAdjustmentOrGradeOverrideExist())
 			{	
 				return getLocalizedString("roster_course_grade_column_name");
 			}
@@ -718,7 +724,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	}
 	
 	public String getColLock() {
-		if ((isUserAbleToGradeAll() && getSelectedCategoryUid() == null) && isCourseAdjustmentOrGradeOverrideExist())
+		if (getSelectedCategoryUid() == null && isUserAbleToGradeAll() && 
+		        !getGradeEntryByLetter() && isCourseAdjustmentOrGradeOverrideExist())
 			return "4";
 		else if (isUserAbleToGradeAll() || getSelectedCategoryUid() != null)
 			return "3";

@@ -34,10 +34,12 @@
 			columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary"
-			rendered="#{!studentViewBean.anyAdjustmentItemsGraded && !studentViewBean.anyCourseGradeAdjustmentsOrOverrides}">	
+			rendered="#{(!studentViewBean.anyAdjustmentItemsGraded && 
+			!studentViewBean.anyCourseGradeAdjustmentsOrOverrides) ||
+			studentViewBean.gradeEntryByLetter}">	
 			<h:outputText value="#{msgs.course_grade_name}" />
 			<h:panelGroup>
-				<h:outputText id="letterGrade" value="#{studentViewBean.courseGradeLetter} " rendered="#{studentViewBean.courseGradeReleased && studentViewBean.courseGradeLetter != ''}"/>
+				<h:outputText id="letterGrade" value="#{studentViewBean.courseGradeLetter} " rendered="#{studentViewBean.courseGradeReleased && studentViewBean.courseGradeLetter != '' && studentViewBean.courseGradeLetter != null}"/>
 				<h:outputText id="letterGradeEmpty" value="-" rendered="#{studentViewBean.courseGradeReleased && (studentViewBean.courseGradeLetter == '' || studentViewBean.courseGradeLetter == null) && overviewBean.isLetterGrade}"/>
 				<h:outputText id="cumScore" value="#{studentViewBean.courseGrade}" rendered="#{studentViewBean.courseGradeReleased && !overviewBean.isLetterGrade}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
@@ -52,7 +54,9 @@
 			columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary"
-			rendered="#{studentViewBean.anyAdjustmentItemsGraded && !studentViewBean.anyCourseGradeAdjustmentsOrOverrides}">
+			rendered="#{studentViewBean.anyAdjustmentItemsGraded && 
+			!studentViewBean.anyCourseGradeAdjustmentsOrOverrides &&
+			!studentViewBean.gradeEntryByLetter}">
 			<h:panelGroup>	
 				<h:outputText value="#{msgs.course_grade_name} " />
 				<h:outputText value="#{msgs.student_view_adjustment_inc}" />
@@ -73,7 +77,9 @@
 			columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary"
-			rendered="#{!studentViewBean.anyAdjustmentItemsGraded && studentViewBean.anyCourseGradeAdjustmentsOrOverrides}">
+			rendered="#{!studentViewBean.anyAdjustmentItemsGraded && 
+			studentViewBean.anyCourseGradeAdjustmentsOrOverrides &&
+			!studentViewBean.gradeEntryByLetter}">
 			<h:panelGroup>
 				<h:outputText value="#{msgs.adjusted_course_grade_name} " />
 				<h:outputText value="#{msgs.student_view_course_adjustment_inc}" />
@@ -92,7 +98,9 @@
 			columns="2"
 			columnClasses="itemNameGray, Gray"
 			styleClass="itemSummaryGray"
-			rendered="#{!studentViewBean.anyAdjustmentItemsGraded && studentViewBean.anyCourseGradeAdjustmentsOrOverrides}">	
+			rendered="#{!studentViewBean.anyAdjustmentItemsGraded && 
+			studentViewBean.anyCourseGradeAdjustmentsOrOverrides &&
+			!studentViewBean.gradeEntryByLetter}">	
 			<h:outputText value="#{msgs.course_grade_name}" />
 			<h:panelGroup>
 				<h:outputText id="letterGrade" value="#{studentViewBean.preadjustedCourseGradeLetter} " rendered="#{studentViewBean.courseGradeReleased && studentViewBean.preadjustedCourseGradeLetter != ''}"/>
@@ -110,7 +118,9 @@
 			columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary"
-			rendered="#{studentViewBean.anyAdjustmentItemsGraded && studentViewBean.anyCourseGradeAdjustmentsOrOverrides}">
+			rendered="#{studentViewBean.anyAdjustmentItemsGraded && 
+			studentViewBean.anyCourseGradeAdjustmentsOrOverrides &&
+			!studentViewBean.gradeEntryByLetter}">
 			<h:panelGroup>
 				<h:outputText value="#{msgs.adjusted_course_grade_name} " />
 				<h:outputText value="#{msgs.student_view_course_adjustment_inc}" />
@@ -129,7 +139,9 @@
 			columns="2"
 			columnClasses="itemNameGray, Gray"
 			styleClass="itemSummaryGray"
-			rendered="#{studentViewBean.anyAdjustmentItemsGraded && studentViewBean.anyCourseGradeAdjustmentsOrOverrides}">
+			rendered="#{studentViewBean.anyAdjustmentItemsGraded && 
+			studentViewBean.anyCourseGradeAdjustmentsOrOverrides &&
+			!studentViewBean.gradeEntryByLetter}">
 			<h:panelGroup>
 				<h:outputText value="#{msgs.course_grade_name} " />
 				<h:outputText value="#{msgs.student_view_adjustment_inc}" />

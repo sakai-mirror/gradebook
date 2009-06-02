@@ -82,12 +82,15 @@
 		
 		<hr/>
 		
-<%-- Scenario 1 - no adjustment items graded and no course grade adjustments/grade overrides --%>
+<%-- Scenario 1 - no adjustment items graded and no course grade adjustments/grade overrides OR it is a letter grade gb --%>
 		<h:panelGrid cellpadding="0" cellspacing="0"
 			columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary gbSection"
-			rendered="#{instructorViewBean.userAbleToViewCourseGradeForStudent && !instructorViewBean.anyAdjustmentItemsGraded && !instructorViewBean.anyCourseGradeAdjustmentsOrOverrides}">	
+			rendered="#{instructorViewBean.userAbleToViewCourseGradeForStudent && 
+			(instructorViewBean.gradeEntryByLetter || 
+			(!instructorViewBean.anyAdjustmentItemsGraded && 
+			!instructorViewBean.anyCourseGradeAdjustmentsOrOverrides))}">	
 			<h:outputText value="#{msgs.course_grade_name}" />
 			<h:panelGroup>
 				<h:outputText id="letterGrade" value="#{instructorViewBean.courseGradeLetter} " rendered="#{instructorViewBean.courseGradeReleased && instructorViewBean.courseGradeLetter != ''}"/>
@@ -105,7 +108,10 @@
 			columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary gbSection"
-			rendered="#{instructorViewBean.userAbleToViewCourseGradeForStudent && instructorViewBean.anyAdjustmentItemsGraded && !instructorViewBean.anyCourseGradeAdjustmentsOrOverrides}">
+			rendered="#{instructorViewBean.userAbleToViewCourseGradeForStudent && 
+			instructorViewBean.anyAdjustmentItemsGraded && 
+			!instructorViewBean.anyCourseGradeAdjustmentsOrOverrides && 
+			!instructorViewBean.gradeEntryByLetter}">
 			<h:panelGroup>	
 				<h:outputText value="#{msgs.course_grade_name} " />
 				<h:outputText value="#{msgs.student_view_adjustment_inc}" />
@@ -126,7 +132,10 @@
 			columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary gbSection"
-			rendered="#{instructorViewBean.userAbleToViewCourseGradeForStudent && !instructorViewBean.anyAdjustmentItemsGraded && instructorViewBean.anyCourseGradeAdjustmentsOrOverrides}">
+			rendered="#{instructorViewBean.userAbleToViewCourseGradeForStudent && 
+			!instructorViewBean.anyAdjustmentItemsGraded && 
+			instructorViewBean.anyCourseGradeAdjustmentsOrOverrides &&
+			!instructorViewBean.gradeEntryByLetter}">
 			<h:panelGroup>
 				<h:outputText value="#{msgs.adjusted_course_grade_name} " />
 				<h:outputText value="#{msgs.student_view_course_adjustment_inc}" />
@@ -145,7 +154,10 @@
 			columns="2"
 			columnClasses="itemNameGray, Gray"
 			styleClass="itemSummaryGray gbSection"
-			rendered="#{instructorViewBean.userAbleToViewCourseGradeForStudent && !instructorViewBean.anyAdjustmentItemsGraded && instructorViewBean.anyCourseGradeAdjustmentsOrOverrides}">	
+			rendered="#{instructorViewBean.userAbleToViewCourseGradeForStudent && 
+			!instructorViewBean.anyAdjustmentItemsGraded && 
+			instructorViewBean.anyCourseGradeAdjustmentsOrOverrides &&
+			!instructorViewBean.gradeEntryByLetter}">	
 			<h:outputText value="#{msgs.course_grade_name}" />
 			<h:panelGroup>
 				<h:outputText id="letterGrade" value="#{instructorViewBean.preadjustedCourseGradeLetter} " rendered="#{instructorViewBean.courseGradeReleased && instructorViewBean.preadjustedCourseGradeLetter != ''}"/>
@@ -163,7 +175,10 @@
 			columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary gbSection"
-			rendered="#{instructorViewBean.userAbleToViewCourseGradeForStudent && instructorViewBean.anyAdjustmentItemsGraded && instructorViewBean.anyCourseGradeAdjustmentsOrOverrides}">
+			rendered="#{instructorViewBean.userAbleToViewCourseGradeForStudent && 
+			instructorViewBean.anyAdjustmentItemsGraded && 
+			instructorViewBean.anyCourseGradeAdjustmentsOrOverrides &&
+			!instructorViewBean.gradeEntryByLetter}">
 			<h:panelGroup>
 				<h:outputText value="#{msgs.adjusted_course_grade_name} " />
 				<h:outputText value="#{msgs.student_view_course_adjustment_inc}" />
@@ -182,7 +197,10 @@
 			columns="2"
 			columnClasses="itemNameGray, Gray"
 			styleClass="itemSummaryGray gbSection"
-			rendered="#{instructorViewBean.userAbleToViewCourseGradeForStudent && instructorViewBean.anyAdjustmentItemsGraded && instructorViewBean.anyCourseGradeAdjustmentsOrOverrides}">
+			rendered="#{instructorViewBean.userAbleToViewCourseGradeForStudent && 
+			instructorViewBean.anyAdjustmentItemsGraded && 
+			instructorViewBean.anyCourseGradeAdjustmentsOrOverrides &&
+			!instructorViewBean.gradeEntryByLetter}">
 			<h:panelGroup>
 				<h:outputText value="#{msgs.course_grade_name} " />
 				<h:outputText value="#{msgs.student_view_adjustment_inc}" />
