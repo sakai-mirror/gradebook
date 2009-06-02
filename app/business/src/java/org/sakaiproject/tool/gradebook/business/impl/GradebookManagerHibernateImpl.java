@@ -1504,7 +1504,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 
                 // Only take the hit of autocalculating the course grade if no explicit
                 // grade has been entered.
-                if (courseGradeRecord.getEnteredGrade() == null && !gradebook.getIsLetterGrade()) {
+                if (!gradebook.getIsLetterGrade()) {
                     // TODO We could easily get everything we need in a single query by using an outer join if we
                     // weren't mapping the different classes together into single sparsely populated
                     // tables. When we finally break up the current mungings of Assignment with CourseGrade
@@ -1531,6 +1531,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
                 	double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
                 	double adjustmentPointsEarned = (((Double)totalEarned.get(2)).doubleValue());
                 	double courseGradePointsAdjustment = 0;
+                	courseGradeRecord.setPreAdjustedCourseGrade(true);
 					
                 	// NOTE: we do not include the course adjustment item on this one since it defeats the purpose
                 	

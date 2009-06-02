@@ -143,6 +143,8 @@ public class CourseGradeRecord extends AbstractGradeRecord {
     public Double getGradeAsPercentage() {
         if(enteredGrade == null) {
             return autoCalculatedGrade;
+        } else if (isPreAdjustedCourseGrade()){
+        	return autoCalculatedGrade;
         } else {
             return getCourseGrade().getGradebook().getSelectedGradeMapping().getValue(enteredGrade);
         }
@@ -184,10 +186,12 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 	 * @return Returns the displayGrade.
 	 */
 	public String getDisplayGrade() {
-        if(enteredGrade != null) {
-            return enteredGrade;
+        if(enteredGrade == null) {
+        	return getCourseGrade().getGradebook().getSelectedGradeMapping().getGrade(autoCalculatedGrade);
+        } else if (isPreAdjustedCourseGrade()) {
+        	return getCourseGrade().getGradebook().getSelectedGradeMapping().getGrade(autoCalculatedGrade);
         } else {
-            return getCourseGrade().getGradebook().getSelectedGradeMapping().getGrade(autoCalculatedGrade);
+            return enteredGrade;
         }
 	}
 
