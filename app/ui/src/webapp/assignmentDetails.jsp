@@ -231,6 +231,7 @@
 
 				<t:div>
 					<h:panelGroup rendered="#{!scoreRow.droppedFromGrade && !assignmentDetailsBean.assignment.externallyMaintained && scoreRow.userCanGrade}">
+						<h:outputText value="#{msgs.assignment_details_open}" rendered="#{assignmentDetailsBean.assignment.notCounted && scoreRow.letterScore != null}" />
 						<h:inputText id="Score" value="#{scoreRow.score}" size="6" 						     
 							 maxlength="8"
 							 rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}"
@@ -243,9 +244,11 @@
 							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton1');">
 							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE" />
 						</h:inputText>
+						<h:outputText value="#{msgs.assignment_details_close}" rendered="#{assignmentDetailsBean.assignment.notCounted && scoreRow.letterScore != null}" />
 					</h:panelGroup>
 						
 					<h:panelGroup rendered="#{assignmentDetailsBean.assignment.externallyMaintained || !scoreRow.userCanGrade}">
+						<h:outputText value="#{msgs.assignment_details_open}" rendered="#{assignmentDetailsBean.assignment.notCounted && scoreRow.letterScore != null}" />
 						<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}"/>
 						<h:outputText value="#{scoreRow.letterScore}" 
 							 rendered="#{assignmentDetailsBean.gradeEntryByLetter && scoreRow.letterScore != null}">
@@ -253,8 +256,10 @@
 						</h:outputText>
 						<h:outputText value="#{msgs.score_null_placeholder}" 
 							 rendered="#{assignmentDetailsBean.gradeEntryByLetter && scoreRow.letterScore == null}" />
+						<h:outputText value="#{msgs.assignment_details_close}" rendered="#{assignmentDetailsBean.assignment.notCounted && scoreRow.letterScore != null}" />
 					</h:panelGroup>
 					<h:panelGroup rendered="#{scoreRow.droppedFromGrade && !assignmentDetailsBean.assignment.externallyMaintained && scoreRow.userCanGrade}">
+						<h:outputText value="#{msgs.assignment_details_open}" rendered="#{assignmentDetailsBean.assignment.notCounted && scoreRow.letterScore != null}" />
 						<h:inputText id="ScoreDropped" value="#{scoreRow.score}" size="6" 						     
 							 maxlength="8"
 							 rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}"
@@ -267,6 +272,7 @@
 							 style="text-align:right;text-decoration:line-through" onkeypress="return submitOnEnter(event, 'gbForm:saveButton1');">
 							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE" />
 						</h:inputText>
+						<h:outputText value="#{msgs.assignment_details_close}" rendered="#{assignmentDetailsBean.assignment.notCounted && scoreRow.letterScore != null}" />
 					</h:panelGroup>
 				</t:div>
 			</h:column>
