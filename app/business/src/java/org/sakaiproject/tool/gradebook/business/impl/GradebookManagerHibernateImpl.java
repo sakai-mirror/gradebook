@@ -3255,6 +3255,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
             
             Assignment assignment = gradeRecord.getAssignment();
             if(assignment.getUngraded()  // GradebookService.GRADE_TYPE_LETTER
+                    || assignment.isNotCounted() // don't consider grades that are not counted toward course grade
                     || assignment.getItemType().equals(Assignment.item_type_adjustment)) {
                 continue;
             }
