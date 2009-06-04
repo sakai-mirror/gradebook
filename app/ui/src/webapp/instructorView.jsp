@@ -93,12 +93,11 @@
 			!instructorViewBean.anyCourseGradeAdjustmentsOrOverrides))}">	
 			<h:outputText value="#{msgs.course_grade_name}" />
 			<h:panelGroup>
-				<h:outputText id="letterGrade" value="#{instructorViewBean.courseGradeLetter} " rendered="#{instructorViewBean.courseGradeReleased && instructorViewBean.courseGradeLetter != ''}"/>
-				<h:outputText id="letterGradeEmpty" value="-" rendered="#{instructorViewBean.courseGradeReleased && (instructorViewBean.courseGradeLetter == '' || instructorViewBean.courseGradeLetter == null) && overviewBean.isLetterGrade}"/>
-				<h:outputText id="cumScore" value="#{instructorViewBean.courseGrade}" rendered="#{instructorViewBean.courseGradeReleased && !overviewBean.isLetterGrade}">
+				<h:outputText id="letterGrade" value="#{instructorViewBean.courseGradeLetter} " rendered="#{instructorViewBean.courseGradeLetter != ''}"/>
+				<h:outputText id="letterGradeEmpty" value="-" rendered="#{(instructorViewBean.courseGradeLetter == '' || instructorViewBean.courseGradeLetter == null) && overviewBean.isLetterGrade}"/>
+				<h:outputText id="cumScore" value="#{instructorViewBean.courseGrade}" rendered="#{!overviewBean.isLetterGrade}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
-				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!instructorViewBean.courseGradeReleased}"/>
 			</h:panelGroup>
 		</h:panelGrid>
 <%-- end Scenario 1 --%>
@@ -117,12 +116,11 @@
 				<h:outputText value="#{msgs.student_view_adjustment_inc}" />
 			</h:panelGroup>
 			<h:panelGroup>
-				<h:outputText id="letterGrade" value="#{instructorViewBean.courseGradeLetter} " rendered="#{instructorViewBean.courseGradeReleased && instructorViewBean.courseGradeLetter != ''}"/>
-				<h:outputText id="letterGradeEmpty" value="-" rendered="#{instructorViewBean.courseGradeReleased && (instructorViewBean.courseGradeLetter == '' || instructorViewBean.courseGradeLetter == null) && overviewBean.isLetterGrade}"/>
-				<h:outputText id="cumScore" value="#{instructorViewBean.courseGrade}" rendered="#{instructorViewBean.courseGradeReleased && !overviewBean.isLetterGrade}">
+				<h:outputText id="letterGrade" value="#{instructorViewBean.courseGradeLetter} " rendered="#{instructorViewBean.courseGradeLetter != ''}"/>
+				<h:outputText id="letterGradeEmpty" value="-" rendered="#{(instructorViewBean.courseGradeLetter == '' || instructorViewBean.courseGradeLetter == null) && overviewBean.isLetterGrade}"/>
+				<h:outputText id="cumScore" value="#{instructorViewBean.courseGrade}" rendered="#{!overviewBean.isLetterGrade}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
-				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!instructorViewBean.courseGradeReleased}"/>
 			</h:panelGroup>
 		</h:panelGrid>
 <%-- end Scenario 2 --%>
@@ -141,12 +139,11 @@
 				<h:outputText value="#{msgs.student_view_course_adjustment_inc}" />
 			</h:panelGroup>
 			<h:panelGroup>
-				<h:outputText id="letterGradeAdjusted" value="#{instructorViewBean.courseGradeLetter} " rendered="#{instructorViewBean.courseGradeReleased && instructorViewBean.courseGradeLetter != ''}"/>
-				<h:outputText id="letterGradeEmptyAdjusted" value="-" rendered="#{instructorViewBean.courseGradeReleased && (instructorViewBean.courseGradeLetter == '' || instructorViewBean.courseGradeLetter == null) && overviewBean.isLetterGrade}"/>
-				<h:outputText id="cumScoreAdjusted" value="#{instructorViewBean.courseGrade}" rendered="#{instructorViewBean.courseGradeReleased && !overviewBean.isLetterGrade}">
+				<h:outputText id="letterGradeAdjusted" value="#{instructorViewBean.courseGradeLetter} " rendered="#{instructorViewBean.courseGradeLetter != ''}"/>
+				<h:outputText id="letterGradeEmptyAdjusted" value="-" rendered="#{(instructorViewBean.courseGradeLetter == '' || instructorViewBean.courseGradeLetter == null) && overviewBean.isLetterGrade}"/>
+				<h:outputText id="cumScoreAdjusted" value="#{instructorViewBean.courseGrade}" rendered="#{!overviewBean.isLetterGrade}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
-				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!instructorViewBean.courseGradeReleased}"/>
 			</h:panelGroup>
 		</h:panelGrid>
 		
@@ -160,12 +157,11 @@
 			!instructorViewBean.gradeEntryByLetter}">	
 			<h:outputText value="#{msgs.course_grade_name}" />
 			<h:panelGroup>
-				<h:outputText id="letterGrade" value="#{instructorViewBean.preadjustedCourseGradeLetter} " rendered="#{instructorViewBean.courseGradeReleased && instructorViewBean.preadjustedCourseGradeLetter != ''}"/>
-				<h:outputText id="letterGradeEmpty" value="-" rendered="#{instructorViewBean.courseGradeReleased && (instructorViewBean.preadjustedCourseGradeLetter == '' || instructorViewBean.preadjustedCourseGradeLetter == null) && overviewBean.isLetterGrade}"/>
-				<h:outputText id="cumScore" value="#{instructorViewBean.preadjustedCourseGrade}" rendered="#{instructorViewBean.courseGradeReleased && !overviewBean.isLetterGrade}">
+				<h:outputText id="letterGrade" value="#{instructorViewBean.preadjustedCourseGradeLetter} " rendered="#{instructorViewBean.preadjustedCourseGradeLetter != ''}"/>
+				<h:outputText id="letterGradeEmpty" value="-" rendered="#{(instructorViewBean.preadjustedCourseGradeLetter == '' || instructorViewBean.preadjustedCourseGradeLetter == null) && overviewBean.isLetterGrade}"/>
+				<h:outputText id="cumScore" value="#{instructorViewBean.preadjustedCourseGrade}" rendered="#{!overviewBean.isLetterGrade}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
-				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!instructorViewBean.courseGradeReleased}"/>
 			</h:panelGroup>
 		</h:panelGrid>
 <%-- end Scenario 3 --%>
@@ -184,12 +180,11 @@
 				<h:outputText value="#{msgs.student_view_course_adjustment_inc}" />
 			</h:panelGroup>
 			<h:panelGroup>
-				<h:outputText id="letterGradeAdjusted" value="#{instructorViewBean.courseGradeLetter} " rendered="#{instructorViewBean.courseGradeReleased && instructorViewBean.courseGradeLetter != ''}"/>
-				<h:outputText id="letterGradeEmptyAdjusted" value="-" rendered="#{instructorViewBean.courseGradeReleased && (instructorViewBean.courseGradeLetter == '' || instructorViewBean.courseGradeLetter == null) && overviewBean.isLetterGrade}"/>
-				<h:outputText id="cumScoreAdjusted" value="#{instructorViewBean.courseGrade}" rendered="#{instructorViewBean.courseGradeReleased && !overviewBean.isLetterGrade}">
+				<h:outputText id="letterGradeAdjusted" value="#{instructorViewBean.courseGradeLetter} " rendered="#{instructorViewBean.courseGradeLetter != ''}"/>
+				<h:outputText id="letterGradeEmptyAdjusted" value="-" rendered="#{(instructorViewBean.courseGradeLetter == '' || instructorViewBean.courseGradeLetter == null) && overviewBean.isLetterGrade}"/>
+				<h:outputText id="cumScoreAdjusted" value="#{instructorViewBean.courseGrade}" rendered="#{!overviewBean.isLetterGrade}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
-				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!instructorViewBean.courseGradeReleased}"/>
 			</h:panelGroup>
 		</h:panelGrid>
 		
@@ -206,12 +201,11 @@
 				<h:outputText value="#{msgs.student_view_adjustment_inc}" />
 			</h:panelGroup>
 			<h:panelGroup>
-				<h:outputText id="letterGrade" value="#{instructorViewBean.preadjustedCourseGradeLetter} " rendered="#{instructorViewBean.courseGradeReleased && instructorViewBean.preadjustedCourseGradeLetter != ''}"/>
-				<h:outputText id="letterGradeEmpty" value="-" rendered="#{instructorViewBean.courseGradeReleased && (instructorViewBean.preadjustedCourseGradeLetter == '' || instructorViewBean.preadjustedCourseGradeLetter == null) && overviewBean.isLetterGrade}"/>
-				<h:outputText id="cumScore" value="#{instructorViewBean.preadjustedCourseGrade}" rendered="#{instructorViewBean.courseGradeReleased && !overviewBean.isLetterGrade}">
+				<h:outputText id="letterGrade" value="#{instructorViewBean.preadjustedCourseGradeLetter} " rendered="#{instructorViewBean.preadjustedCourseGradeLetter != ''}"/>
+				<h:outputText id="letterGradeEmpty" value="-" rendered="#{(instructorViewBean.preadjustedCourseGradeLetter == '' || instructorViewBean.preadjustedCourseGradeLetter == null) && overviewBean.isLetterGrade}"/>
+				<h:outputText id="cumScore" value="#{instructorViewBean.preadjustedCourseGrade}" rendered="#{!overviewBean.isLetterGrade}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
-				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!instructorViewBean.courseGradeReleased}"/>
 			</h:panelGroup>
 		</h:panelGrid>
 <%-- end Scenario 4 --%>
