@@ -66,7 +66,7 @@
             
             <h:panelGrid styleClass="instruction" cellpadding="0" cellspacing="0" columns="1">
 				<h:outputText value="#{msgs.import_verify_legend_title}" />
-				<h:panelGroup>
+				<h:panelGroup rendered="#{!spreadsheetUploadBean.gradeEntryByLetter}">
 					<h:outputText value="#{msgs.ADJUSTMENT_ITEM} = " />
 					<h:outputText value="#{msgs.import_verify_legend_ai}" />
 				</h:panelGroup>

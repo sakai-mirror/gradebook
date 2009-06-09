@@ -34,7 +34,7 @@
 		</h:column>
 	</h:dataTable>
 
-	<h:outputText value="#{msgs.import_verify_assignment_no_exists_bottom}" />
+	<h:outputText value="#{(!spreadsheetUploadBean.gradeEntryByLetter) ? msgs.import_verify_assignment_no_exists_bottom : msgs.import_verify_assignment_no_exists_bottom_nc}" />
 <f:verbatim>
 </div>
 </f:verbatim>
