@@ -23,6 +23,8 @@ package org.sakaiproject.tool.gradebook;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,19 @@ import java.util.Map;
  */
 public class GradingEvents implements Serializable {
     protected Map studentsToEventsMap;
+    public static Comparator dateComparator;
+    
+    static {
+	    dateComparator = new Comparator() {
+	        public int compare(Object o1, Object o2) {
+	        	GradingEvent one = (GradingEvent)o1;
+	        	GradingEvent two = (GradingEvent)o2;
+
+	            int comp = (one.getDateGraded().compareTo(two.getDateGraded()));
+	            return comp;
+	        }
+	    };
+    }
 
     public GradingEvents() {
         studentsToEventsMap = new HashMap();
@@ -47,6 +62,7 @@ public class GradingEvents implements Serializable {
      */
     public List getEvents(String studentId) {
         List gradingEvents = (List)studentsToEventsMap.get(studentId);
+        Collections.sort(gradingEvents, dateComparator);
         if(gradingEvents == null) {
             return new ArrayList();
         } else {
