@@ -61,7 +61,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 			{
 				if(studentUids == null || studentUids.size() == 0) 
 				{
-					if(log.isInfoEnabled()) log.info("Returning no grade records for an empty collection of student UIDs in GradebookCalculationImpl.getPointsEarnedCourseGradeRecords(CourseGrade, Collection).");
+					if(log.isDebugEnabled()) log.debug("Returning no grade records for an empty collection of student UIDs in GradebookCalculationImpl.getPointsEarnedCourseGradeRecords(CourseGrade, Collection).");
 					return new ArrayList();
 				}
 				int gbGradeType = getGradebook(courseGrade.getGradebook().getId()).getGrade_type();
@@ -128,7 +128,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 			{
 				if(studentUids == null || studentUids.size() == 0) 
 				{
-					if(log.isInfoEnabled()) log.info("Returning no grade records for an empty collection of student UIDs in GradebookCalculationImpl.getPointsEarnedCourseGradeRecords");
+					if(log.isDebugEnabled()) log.debug("Returning no grade records for an empty collection of student UIDs in GradebookCalculationImpl.getPointsEarnedCourseGradeRecords");
 					return new ArrayList();
 				}
 				int gbGradeType = getGradebook(courseGrade.getGradebook().getId()).getGrade_type();
