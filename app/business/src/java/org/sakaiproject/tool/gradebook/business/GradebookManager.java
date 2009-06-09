@@ -217,6 +217,14 @@ public interface GradebookManager {
      * all students in the gradebook with the given id
      */
     public List<CourseGradeRecord> getExplicitlyEnteredCourseGradeRecords(final Long gradebookId);
+    
+    /**
+     * 
+     * @param gradebookId
+     * @return a list of the CourseGradeRecords with explicitly entered grade adjustment records for
+     * all students in the gradebook with the given id
+     */
+    public List<CourseGradeRecord> getExplicitlyEnteredCourseGradeAdjustmentRecords(final Long gradebookId);
 
     /**
      * Gets whether scores have been entered for the given assignment.

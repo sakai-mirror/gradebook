@@ -3189,6 +3189,18 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 			// update the course grade records
 			updateCourseGradeRecords(courseGrade, overrides);
 		}
+		
+		// now remove any course grade adjustments
+		List<CourseGradeRecord> adjustments = getExplicitlyEnteredCourseGradeAdjustmentRecords(gradebookId);
+		if (adjustments != null && !adjustments.isEmpty()) {
+			for (CourseGradeRecord adjustment : adjustments) {
+				adjustment.setAdjustmentScore(null);
+			}
+			
+			CourseGrade courseGrade = getCourseGrade(gradebookId);
+			// update the course grade records
+			updateCourseGradeRecords(courseGrade, adjustments);
+		}
 	}
 
 	/**
