@@ -162,6 +162,22 @@ public class GradebookItemBean {
 				assignment.setUngraded(true);
 			}
 			
+			Long selectedCategoryId = null;
+            if (gradebook.getCategory_type() != GradebookService.CATEGORY_TYPE_NO_CATEGORY) {         
+                // if the item is "adjustment" we need to use the category id
+                // sent back as nonAdjCategoryId. otherwise, we use the categoryId                          
+                if (gbItemType.equals(GB_ITEM_TYPE_ADJ)) {
+                    selectedCategoryId = this.nonAdjCategoryId;
+                } else {
+                    selectedCategoryId = this.categoryId;
+                }
+                
+                // set to null if category is unassigned
+                if (selectedCategoryId.equals(CATEGORY_UNASSIGNED)) {
+                    selectedCategoryId = null;
+                }
+            }
+			
 			if (assignment.getUngraded()) {
 				// ungraded items have null points possible and are not counted
 				assignment.setPointsPossible(null);
@@ -187,6 +203,15 @@ public class GradebookItemBean {
 			            pointsPossible = null; // this will get caught later on b/c invalid
 			        }
 			    }
+			    
+                // if this assignment is in a category with drop high/low,
+			    // we set the points possible to the category points possible               
+			    if (selectedCategoryId != null) {
+			        Category category = gradebookManager.getCategory(selectedCategoryId);
+			        if (category != null && category.isDropScores()) {
+			            pointsPossible = category.getItemValue();
+			        }
+                }
 
 			    assignment.setPointsPossible(pointsPossible);
 
@@ -204,7 +229,7 @@ public class GradebookItemBean {
 				// check for more than 2 decimal places
 				if (assignment.getPointsPossible() != null) {
 					String pointsToSplit = assignment.getPointsPossible().toString();
-					String[] decimalSplit = pointsAsString.split("\\.");
+					String[] decimalSplit = pointsToSplit.split("\\.");
 					if (decimalSplit.length == 2) {
 						String decimal = decimalSplit[1];
 						if (decimal != null && decimal.length() > 2) {
@@ -226,30 +251,6 @@ public class GradebookItemBean {
 				
 			if (errorFound) {
 				return FAILURE;
-			}
-			
-			Long selectedCategoryId = null;
-			if (gradebook.getCategory_type() != GradebookService.CATEGORY_TYPE_NO_CATEGORY) {         
-	            // if the item is "adjustment" we need to use the category id
-	            // sent back as nonAdjCategoryId. otherwise, we use the categoryId          	            
-	            if (gbItemType.equals(GB_ITEM_TYPE_ADJ)) {
-	                selectedCategoryId = this.nonAdjCategoryId;
-	            } else {
-	                selectedCategoryId = this.categoryId;
-	            }
-	            
-	            // set to null if category is unassigned
-	            if (selectedCategoryId.equals(CATEGORY_UNASSIGNED)) {
-	                selectedCategoryId = null;
-	            }
-	            
-	            // double check that the points possible is set to the category setting if category has drop high/low
-	            if (selectedCategoryId != null) {
-	                Category category = gradebookManager.getCategory(selectedCategoryId);
-	                if (category != null && category.isDropScores()) {
-	                    assignment.setPointsPossible(category.getItemValue());
-	                }
-	            }
 			}
 			
 			if (key.equals(EntityBeanLocator.NEW_PREFIX + "1")){
