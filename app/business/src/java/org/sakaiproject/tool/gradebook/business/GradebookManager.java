@@ -213,6 +213,16 @@ public interface GradebookManager {
     /**
      * 
      * @param gradebookId
+     * @return true if there is at least one course grade override or course grade
+     * adjustment for the given gradebook. More efficient than calling {@link #isExplicitlyEnteredCourseGradeRecords(Long)}
+     * and {@link #isExplicitlyEnteredCourseGradeAdjustments(Long)} separately if
+     * you want to know if either exists.
+     */
+    public boolean isExistingCourseGradeOverrideOrAdjustment(Long gradebookId);
+    
+    /**
+     * 
+     * @param gradebookId
      * @return a list of the CourseGradeRecords with explicitly entered grade records for
      * all students in the gradebook with the given id
      */

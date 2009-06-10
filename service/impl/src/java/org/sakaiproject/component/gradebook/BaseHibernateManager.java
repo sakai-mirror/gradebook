@@ -419,6 +419,46 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         return ((Integer)getHibernateTemplate().execute(hc)).intValue() > 0;
     }
     
+    public boolean isExistingCourseGradeOverrideOrAdjustment(final Long gradebookId) {
+        final Set<String> studentUids = getAllStudentUids(getGradebookUid(gradebookId));
+        if (studentUids.isEmpty()) {
+            return false;
+        }
+
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                Boolean exists = false;
+                if (studentUids.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+                    String sql = "select cgr.studentId from CourseGradeRecord as cgr " +
+                    		"where (cgr.adjustmentScore is not null " +
+                    		"or cgr.enteredGrade is not null) " +
+                    		"and cgr.gradableObject.gradebook.id=:gradebookId " +
+                    		"and cgr.studentId in (:studentUids)";
+                    Query q = session.createQuery(sql);
+                    q.setParameterList("studentUids", studentUids);
+                    List totalList = (List)q.list();
+                    exists = totalList != null && totalList.size() > 0;
+                } else {
+                    String sql = "select cgr.studentId from CourseGradeRecord as cgr " +
+                    		"where (cgr.adjustmentScore is not null " +
+                    		"or cgr.enteredGrade is not null) " +
+                    		"and cgr.gradableObject.gradebook.id=:gradebookId";
+                    Query q = session.createQuery(sql);
+                    q.setLong("gradebookId", gradebookId.longValue());
+                    List<String> studentsReturned = q.list();
+                    for (Iterator iter = q.list().iterator(); iter.hasNext(); ) {
+                        String studentId = (String)iter.next();
+                        if (studentUids.contains(studentId)) {
+                            exists = true;
+                        }
+                    }
+                }
+                return exists;
+            }
+        };
+        return (Boolean)getHibernateTemplate().execute(hc);
+    }
+    
     public List<CourseGradeRecord> getExplicitlyEnteredCourseGradeRecords(final Long gradebookId) {
     	List<CourseGradeRecord> courseGradeRecords = new ArrayList<CourseGradeRecord>();
         final Set<String> studentUids = getAllStudentUids(getGradebookUid(gradebookId));

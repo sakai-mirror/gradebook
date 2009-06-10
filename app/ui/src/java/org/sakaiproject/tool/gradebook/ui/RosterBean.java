@@ -733,11 +733,13 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			return "2";
 	}
 	
-	private boolean isCourseAdjustmentOrGradeOverrideExist() {
-		if (getGradebookManager().isExplicitlyEnteredCourseGradeRecords(getGradebookId()) || getGradebookManager().isExplicitlyEnteredCourseGradeAdjustments(getGradebookId()))
-			return true;
-		else
-			return false;
+	private transient Boolean courseAdjustmentOrGradeOverrideExist;
+	public boolean isCourseAdjustmentOrGradeOverrideExist() {
+	    if (courseAdjustmentOrGradeOverrideExist == null) {
+	        courseAdjustmentOrGradeOverrideExist = getGradebookManager().isExistingCourseGradeOverrideOrAdjustment(getGradebookId());
+	    }
+	    
+	    return courseAdjustmentOrGradeOverrideExist;
 	}
 
 	// Sorting
