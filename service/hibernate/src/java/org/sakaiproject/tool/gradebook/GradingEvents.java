@@ -62,10 +62,10 @@ public class GradingEvents implements Serializable {
      */
     public List getEvents(String studentId) {
         List gradingEvents = (List)studentsToEventsMap.get(studentId);
-        Collections.sort(gradingEvents, dateComparator);
         if(gradingEvents == null) {
             return new ArrayList();
         } else {
+        	Collections.sort(gradingEvents, dateComparator);
             return gradingEvents;
         }
     }
