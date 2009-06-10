@@ -264,7 +264,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
                 Category unassigned = new Category();
                 bulkAssignment.getAssignment().setCategory(unassigned); // set this unassigned category, so that in the ui, item.assignment.category.dropScores will return false
                 if(categoryChanged || gradeEntryTypeChanged) {
-                    bulkAssignment.setPointsPossible(null);
+                	//bulkAssignment.setPointsPossible(null);
                     bulkAssignment.getAssignment().setPointsPossible(null);
                 }
             } else {
@@ -277,7 +277,9 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
                             bulkAssignment.setPointsPossible(category.getItemValue().toString());
                             bulkAssignment.getAssignment().setPointsPossible(category.getItemValue());
                         } else if(categoryChanged || gradeEntryTypeChanged) {
-                            bulkAssignment.setPointsPossible(null);
+                        	if (category.isDropScores()) {
+                        		bulkAssignment.setPointsPossible(null);
+                        	}
                             bulkAssignment.getAssignment().setPointsPossible(null);
                         }
                         continue;
