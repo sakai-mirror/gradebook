@@ -420,6 +420,9 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     }
     
     public boolean isExistingCourseGradeOverrideOrAdjustment(final Long gradebookId) {
+        if (gradebookId == null) {
+            throw new IllegalArgumentException("Null gradebookId passed to isExistingCourseGradeOverrideOrAdjustment");
+        }
         final Set<String> studentUids = getAllStudentUids(getGradebookUid(gradebookId));
         if (studentUids.isEmpty()) {
             return false;
@@ -435,6 +438,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                     		"and cgr.gradableObject.gradebook.id=:gradebookId " +
                     		"and cgr.studentId in (:studentUids)";
                     Query q = session.createQuery(sql);
+                    q.setLong("gradebookId", gradebookId.longValue());
                     q.setParameterList("studentUids", studentUids);
                     List totalList = (List)q.list();
                     exists = totalList != null && totalList.size() > 0;
