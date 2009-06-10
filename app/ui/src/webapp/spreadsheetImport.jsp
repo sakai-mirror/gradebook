@@ -7,7 +7,10 @@
        <sakai:flowState bean="#{spreadsheetUploadBean}" />
        <h2><h:outputText value="#{msgs.import_assignment_page_title}"/></h2>
        <div class="instruction">
-           <h:outputText value="#{msgs.import_assignment_instruction}" escape="false"/>
+       		<h:outputText value="#{msgs.import_assignment_instruction}" escape="false"/>
+       		<br><br>
+       		<h:outputText value="* " styleClass="reqStarInline"/>
+       		<h:outputText value="#{msgs.flag_required}"/>
        </div>
        <p/>
        <%@include file="/inc/globalMessages.jspf"%>
@@ -31,16 +34,20 @@
 						<f:selectItems value="#{spreadsheetUploadBean.gradeEntrySelectList}" />
 					</h:selectOneMenu>
 				</h:panelGroup>
-			
+				<h:panelGroup>
+					<h:outputText value="* " styleClass="reqStarInline" />
 					<h:outputLabel for="title" id="titleLabel" value="#{msgs.import_assignment_title}"/>
+				</h:panelGroup>
 					<h:panelGroup>
 						<h:inputText id="title" value="#{spreadsheetUploadBean.assignment.name}" required="true" >
                <f:validateLength minimum="1" maximum="255"/>
            	</h:inputText>
 						<h:message for="title" styleClass="alertMessageInline"/>
 					</h:panelGroup>
-
-					<h:outputLabel for="points" id="pointsLabel" value="#{(spreadsheetUploadBean.localGradebook.grade_type == 1) ? msgs.import_assignment_points : msgs.import_assignment_relative_weight}" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3 && (spreadsheetUploadBean.assignment.selectedGradeEntryValue != msgs.add_assignment_type_noncalc)}"/>				
+					<h:panelGroup>
+						<h:outputText id="pointsLabelAsterisk" value="* " styleClass="reqStarInline" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3}"/>
+						<h:outputLabel for="points" id="pointsLabel" value="#{(spreadsheetUploadBean.localGradebook.grade_type == 1) ? msgs.import_assignment_points : msgs.import_assignment_relative_weight}" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3 && (spreadsheetUploadBean.assignment.selectedGradeEntryValue != msgs.add_assignment_type_noncalc)}"/>				
+					</h:panelGroup>
 					<h:panelGroup rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3 && (spreadsheetUploadBean.assignment.selectedGradeEntryValue != msgs.add_assignment_type_noncalc)}">
 						<h:inputText id="points" value="#{spreadsheetUploadBean.assignment.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');" rendered="#{spreadsheetUploadBean.localGradebook.grade_type != 3 && (!spreadsheetUploadBean.selectedCategoryDropsScores || (spreadsheetUploadBean.selectedCategoryDropsScores && (spreadsheetUploadBean.assignment.selectedGradeEntryValue == msgs.add_assignment_type_adjustment)))}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
