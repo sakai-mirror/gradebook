@@ -377,7 +377,14 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         }
         
         List assignments = viewableAssignmentList;
-		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), new ArrayList(studentIdEnrRecMap.keySet()));
+        // we want to retrieve all of the assignment grade recs here and then keep them
+        // aside for reuse later. the gradeRecords list is heavily modified and eventually
+        // contains both AssignmentGradeRecords and CourseGradeRecords
+        List<AssignmentGradeRecord> allAssignGradeRecs = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), new ArrayList(studentIdEnrRecMap.keySet()));
+		List gradeRecords = new ArrayList();
+		if (allAssignGradeRecs != null) {
+		    gradeRecords.addAll(allAssignGradeRecs);
+		}
         
 		if (!getCategoriesEnabled()) {
 			int unassignedAssignmentCount = assignments.size();
@@ -444,7 +451,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	        gradeRecords.addAll(courseGradeRecords);
 	        if (isCourseAdjustmentOrGradeOverrideExist() && !getGradebook().getIsLetterGrade())
 	        {
-				List preCourseGradeRecords = getGradebookManager().getPreadjustedPointsEarnedCourseGradeRecords(courseGrade, studentIdEnrRecMap.keySet());
+	            // make sure you pass the originally retrieved assignment grade recs to save some db calls
+				List preCourseGradeRecords = getGradebookManager().getPreadjustedCourseGradeRecords(courseGrade, allAssignGradeRecs);
 				Collections.sort(preCourseGradeRecords, CourseGradeRecord.calcComparator);
 				getGradebookManager().addToGradeRecordMap(gradeRecordMap, preCourseGradeRecords);
 				gradeRecords.addAll(preCourseGradeRecords);
@@ -864,7 +872,13 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 
 		Map filteredGradesMap = new HashMap();
 		Map filteredCategoriesMap = new HashMap();
-		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentUids);
+		// we will use the assignGradeRecs later on to avoid calling this query again, so
+		// keep it separate from the gradeRecords variable we are using for processing
+		List<AssignmentGradeRecord> assignGradeRecs = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentUids);
+		List gradeRecords = new ArrayList();
+		if (assignGradeRecs != null) {
+		    gradeRecords.addAll(assignGradeRecs);
+		}
 		
 		List categories = new ArrayList();
 		if(includeCategories){
@@ -974,7 +988,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 				// this is to differentiate the preadjusted course grade record from the final course grade record in the map.
 				// See BaseHibernateManager.PRE_ADJ_COURSE_GRADE_ID for usage.
 				preAdjustmentCourseGradeColumn.setId(GradebookManager.PRE_ADJ_COURSE_GRADE_ID);
-		        List preAdjustedCourseGradeRecords = getGradebookManager().getPreadjustedPointsEarnedCourseGradeRecords(courseGrade, studentUids);
+		        List preAdjustedCourseGradeRecords = getGradebookManager().getPreadjustedCourseGradeRecords(courseGrade, assignGradeRecs);
 		        getGradebookManager().addToGradeRecordMap(filteredGradesMap, preAdjustedCourseGradeRecords);
 		        gradableObjects.add(preAdjustmentCourseGradeColumn);
 	        }

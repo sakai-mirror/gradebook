@@ -137,7 +137,27 @@ public interface GradebookManager {
      */
     public List getPointsEarnedCourseGradeRecords(CourseGrade courseGrade, Collection studentUids);
     
-    public List getPreadjustedPointsEarnedCourseGradeRecords(CourseGrade courseGrade, Collection studentUids);
+    /**
+     * 
+     * @param courseGrade
+     * @param studentUids - the students you would like course grade recs for
+     * @return a list of CourseGradeRecords with autocalculated fields populated for the given studentUids.
+     * Identical to {@link #getPreadjustedCourseGradeRecords(CourseGrade, Collection)} except takes in
+     * a list of studentUids instead of the actual AssignmentGradeRecords
+     */
+    public List<CourseGradeRecord> getPreadjustedPointsEarnedCourseGradeRecords(CourseGrade courseGrade, Collection<String> studentUids);
+    
+    /**
+     * 
+     * @param courseGrade
+     * @param gradeRecs - all of the AssignmentGradeRecords for the students you wish to
+     * retrieve pre-adjusted course grade info for. This saves us from repeating
+     * very expensive calls to retrieve grade recs if you already have them
+     * @return a list of CourseGradeRecords with autocalculated fields populated given the passed gradeRecs.
+     * Identical to {@link #getPreadjustedPointsEarnedCourseGradeRecords(CourseGrade, Collection)} but
+     * takes in the gradeRecs as a parm instead of the studentUids
+     */
+    public List<CourseGradeRecord> getPreadjustedCourseGradeRecords(final CourseGrade courseGrade, final Collection<AssignmentGradeRecord> gradeRecs);
 
     /**
      * As a side-effect, this version of the method calculates the mean course grade.
