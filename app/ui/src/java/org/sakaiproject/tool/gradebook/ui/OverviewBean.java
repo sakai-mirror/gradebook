@@ -116,7 +116,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 			 * 
 			 */
 		    //passing the includeDroppedScores flag (true) as we want to include dropped scores in calculations on the Gradebook Item Summary page
-			List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending(), true);
+			List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getAssignmentSortColumn(), isAssignmentSortAscending(), true);
 			List categoryList = new ArrayList();
 			
 			// first, remove the CourseGrade from the Category list

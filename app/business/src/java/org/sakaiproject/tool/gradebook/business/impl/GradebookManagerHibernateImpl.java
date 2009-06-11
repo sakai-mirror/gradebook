@@ -2718,7 +2718,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     		comp = Category.nameComparator;
     	}
     	Collections.sort(categories, comp);
-    	if(!ascending) 
+    	if(!ascending && !(Category.nameComparator.equals(comp) && !Category.SORT_BY_NAME.equals(sortBy)))
     	{
     		Collections.reverse(categories);
     	}
