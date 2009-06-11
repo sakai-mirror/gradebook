@@ -97,7 +97,8 @@
 <!-- This should be part of the test framework -->
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
+      <artifactId>sakai-kernel-private</artifactId>
+      <version>${sakai.kernel.version}</version>
       <scope>test</scope>
     </dependency>
 <!--org.sakaiprojectsakai-component-api${sakai.version}-->
