@@ -24,21 +24,21 @@ public class GradeValidationTest extends TestCase
 
   public void testNullGrade() throws Exception 
   {
-  	Grade g = new Grade(null, GradebookService.GRADE_TYPE_POINTS, false, null);
-  	g = new Grade("", GradebookService.GRADE_TYPE_POINTS, false, null);
-  	g = new Grade(null, GradebookService.GRADE_TYPE_PERCENTAGE, false, null);
-  	g = new Grade("", GradebookService.GRADE_TYPE_PERCENTAGE, false, null);
-  	g = new Grade(null, GradebookService.GRADE_TYPE_LETTER, false, null);
-  	g = new Grade("", GradebookService.GRADE_TYPE_LETTER, false, null);
-  	g = new Grade(null, GradebookService.GRADE_TYPE_POINTS, true, null);
-  	g = new Grade("", GradebookService.GRADE_TYPE_PERCENTAGE, true, null);
+  	Grade g = new Grade(null, GradebookService.GRADE_TYPE_POINTS, false, false);
+  	g = new Grade("", GradebookService.GRADE_TYPE_POINTS, false, false);
+  	g = new Grade(null, GradebookService.GRADE_TYPE_PERCENTAGE, false, false);
+  	g = new Grade("", GradebookService.GRADE_TYPE_PERCENTAGE, false, false);
+  	g = new Grade(null, GradebookService.GRADE_TYPE_LETTER, false, false);
+  	g = new Grade("", GradebookService.GRADE_TYPE_LETTER, false, false);
+  	g = new Grade(null, GradebookService.GRADE_TYPE_POINTS, true, false);
+  	g = new Grade("", GradebookService.GRADE_TYPE_PERCENTAGE, true, false);
   }
 
   public void testPointGrade() throws Exception 
   {
   	try
   	{
-  		Grade g = new Grade("85.555", GradebookService.GRADE_TYPE_POINTS, false, null);
+  		Grade g = new Grade("85.555", GradebookService.GRADE_TYPE_POINTS, false, false);
   		fail();
   	}
   	catch(InvalidDecimalGradeException ige)
@@ -47,7 +47,7 @@ public class GradeValidationTest extends TestCase
   	}
   	try
   	{
-  		Grade g = new Grade("-0.5", GradebookService.GRADE_TYPE_POINTS, false, null);
+  		Grade g = new Grade("-0.5", GradebookService.GRADE_TYPE_POINTS, false, false);
   		fail();
   	}
   	catch(NegativeGradeException ige)
@@ -56,7 +56,7 @@ public class GradeValidationTest extends TestCase
   	}
   	try
   	{
-  		Grade g = new Grade("abc", GradebookService.GRADE_TYPE_POINTS, false, null);
+  		Grade g = new Grade("abc", GradebookService.GRADE_TYPE_POINTS, false, false);
   		fail();
   	}
   	catch(NonNumericGradeException ige)
@@ -64,17 +64,17 @@ public class GradeValidationTest extends TestCase
   		log.info(ige.getMessage());
   	}
   	
-		Grade g = new Grade("85.55", GradebookService.GRADE_TYPE_POINTS, false, null);
-		g = new Grade("85.5", GradebookService.GRADE_TYPE_POINTS, false, null);
-		g = new Grade("0", GradebookService.GRADE_TYPE_POINTS, false, null);
-		g = new Grade("-0.0", GradebookService.GRADE_TYPE_POINTS, false, null);
+		Grade g = new Grade("85.55", GradebookService.GRADE_TYPE_POINTS, false, false);
+		g = new Grade("85.5", GradebookService.GRADE_TYPE_POINTS, false, false);
+		g = new Grade("0", GradebookService.GRADE_TYPE_POINTS, false, false);
+		g = new Grade("-0.0", GradebookService.GRADE_TYPE_POINTS, false, false);
   }
 
   public void testPercentGrade() throws Exception 
   {
   	try
   	{
-  		Grade g = new Grade("85.555", GradebookService.GRADE_TYPE_PERCENTAGE, false, null);
+  		Grade g = new Grade("85.555", GradebookService.GRADE_TYPE_PERCENTAGE, false, false);
   		fail();
   	}
   	catch(InvalidDecimalGradeException ige)
@@ -83,7 +83,7 @@ public class GradeValidationTest extends TestCase
   	}
   	try
   	{
-  		Grade g = new Grade("abcd", GradebookService.GRADE_TYPE_PERCENTAGE, false, null);
+  		Grade g = new Grade("abcd", GradebookService.GRADE_TYPE_PERCENTAGE, false, false);
   		fail();
   	}
   	catch(NonNumericGradeException nfe)
@@ -92,7 +92,7 @@ public class GradeValidationTest extends TestCase
   	}
   	try
   	{
-  		Grade g = new Grade("-0.5", GradebookService.GRADE_TYPE_PERCENTAGE, false, null);
+  		Grade g = new Grade("-0.5", GradebookService.GRADE_TYPE_PERCENTAGE, false, false);
   		fail();
   	}
   	catch(NegativeGradeException ige)
@@ -100,17 +100,17 @@ public class GradeValidationTest extends TestCase
   		log.info(ige.getMessage());
   	}
   	
-	Grade g = new Grade("85.55", GradebookService.GRADE_TYPE_PERCENTAGE, false, null);
-	g = new Grade("85.5", GradebookService.GRADE_TYPE_PERCENTAGE, false, null);
-	g = new Grade("0", GradebookService.GRADE_TYPE_PERCENTAGE, false, null);
-	g = new Grade("-0.0", GradebookService.GRADE_TYPE_PERCENTAGE, false, null);
+	Grade g = new Grade("85.55", GradebookService.GRADE_TYPE_PERCENTAGE, false, false);
+	g = new Grade("85.5", GradebookService.GRADE_TYPE_PERCENTAGE, false, false);
+	g = new Grade("0", GradebookService.GRADE_TYPE_PERCENTAGE, false, false);
+	g = new Grade("-0.0", GradebookService.GRADE_TYPE_PERCENTAGE, false, false);
   }
   
   public void testUngrade() throws Exception 
   {
   	try
   	{
-  		Grade g = new Grade("85.555555", GradebookService.GRADE_TYPE_PERCENTAGE, true, null);
+  		Grade g = new Grade("85.555555", GradebookService.GRADE_TYPE_PERCENTAGE, true, false);
   		fail();
   	}
   	catch(InvalidGradeLengthException ige)
@@ -118,7 +118,7 @@ public class GradeValidationTest extends TestCase
   		log.info(ige.getMessage());
   	}
   	
-  	Grade g = new Grade("85.55555", GradebookService.GRADE_TYPE_PERCENTAGE, true, null);
+  	Grade g = new Grade("85.55555", GradebookService.GRADE_TYPE_PERCENTAGE, true, false);
   	g = new Grade("-56", GradebookService.GRADE_TYPE_POINTS, true, null);
   }
   
@@ -126,7 +126,7 @@ public class GradeValidationTest extends TestCase
   {
   	try
   	{
-  		Grade g = new Grade("10.0", 0, false, null);
+  		Grade g = new Grade("10.0", 0, false, false);
   		fail();
   	}
   	catch(GradebookException ge)

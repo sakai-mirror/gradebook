@@ -62,7 +62,7 @@ public class GradeCommentTest extends GradebookTestBase  {
     	addUsersEnrollments(gradebook, studentUids);
 
         // Create an asssignment.
-        Long asnId = gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE, null);
+        Long asnId = gradebookManager.createAssignment(gradebook.getId(), "Scores Entered Test", new Double(10), new Date(), Boolean.FALSE,Boolean.FALSE, false);
         Assignment asn = gradebookManager.getAssignmentWithStats(asnId);
     	
     	// Make sure comments start off as null.

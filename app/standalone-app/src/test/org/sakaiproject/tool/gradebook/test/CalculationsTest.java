@@ -93,10 +93,9 @@ public class CalculationsTest extends TestCase {
 	public static double getTotalPointsPossible(Collection assignments) {
 		double total = 0;
 		for (Iterator iter = assignments.iterator(); iter.hasNext();) {
-			if (((Assignment)iter.next()).getIsExtraCredit()!=null)
+			if (((Assignment)iter.next()).getIsExtraCredit()!=null && !((Assignment)iter.next()).getIsExtraCredit())
 			{
-				if (!((Assignment)iter.next()).getIsExtraCredit())
-					total += ((Assignment)iter.next()).getPointsPossible();
+				total += ((Assignment)iter.next()).getPointsPossible();
 			}
 			else
 				total += ((Assignment)iter.next()).getPointsPossible();
@@ -159,7 +158,6 @@ public class CalculationsTest extends TestCase {
         // The grade records should total 90%
         CourseGradeRecord cgr = new CourseGradeRecord();
         cgr.setStudentId("studentId");
-        // TODO FIX THIS
         cgr.initNonpersistentFields(getTotalPointsPossible(assignments), getTotalPointsEarned(studentGradeRecords), 0);
         Assert.assertEquals(new Double(90), cgr.getAutoCalculatedGrade());
     }
@@ -246,7 +244,6 @@ public class CalculationsTest extends TestCase {
 			cgr.setGradableObject(courseGrade);
 			cgr.setStudentId("student" + i);
 			double scoreVal = (score != null) ? score.doubleValue() : 0.0;
-			//TODO FIX THIS
 			cgr.initNonpersistentFields(asn.getPointsPossible(), scoreVal, 0);
 			courseRecords.add(cgr);
 		}

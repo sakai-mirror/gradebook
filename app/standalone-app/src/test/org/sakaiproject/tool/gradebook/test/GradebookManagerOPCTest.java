@@ -46,8 +46,8 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
 //	    public Long createCategory(final Long gradebookId, final String name, final Double weight, final int drop_lowest, final Integer dropLowest, final Integer dropHighest, final Integer keepHighest, final Double pointValue, final Integer relativeWeight, final Boolean is_extra_credit) 
 
-		cate1Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 1", new Double(0.40), new Integer(0), new Integer(0), new Integer(0), new Double(0), null);
-		cate2Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 2", new Double(0.60), new Integer(0), new Integer(0), new Integer(0), new Double(0), null);
+		cate1Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 1", new Double(0.40), new Integer(0), new Integer(0), new Integer(0), new Double(0), false);
+		cate2Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 2", new Double(0.60), new Integer(0), new Integer(0), new Integer(0), new Double(0), false);
 
 		List list = (List) gradebookManager.getCategories(persistentGradebook.getId());
 
@@ -57,15 +57,15 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			if(i == 0)
 			{
 				assgn1Long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cat.getId(), 
-						cat.getName() + "_assignment_1", new Double(10.0), new Date(), new Boolean(false), new Boolean(true), null);
+						cat.getName() + "_assignment_1", new Double(10.0), new Date(), new Boolean(false), new Boolean(true), false);
 			}
 			if(i == 1)
 			{
 				assgn3Long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cat.getId(), 
-						cat.getName() + "_assignment_1", new Double(10.0), new Date(), new Boolean(false), new Boolean(true), null);
+						cat.getName() + "_assignment_1", new Double(10.0), new Date(), new Boolean(false), new Boolean(true), false);
 			}
 			Long assign2 = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cat.getId(), 
-					cat.getName() + "_assignment_2", new Double(10.0), new Date(), new Boolean(false), new Boolean(true), null);
+					cat.getName() + "_assignment_2", new Double(10.0), new Date(), new Boolean(false), new Boolean(true), false);
 		}
 		
 //create default in GradebookFrameworkServiceImpl
@@ -232,7 +232,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
-		gradebookManager.createCategory(persistentGradebook.getId(), "cate 3", new Double(0), new Integer(0), new Integer(0), new Integer(0), new Double(0), null);
+		gradebookManager.createCategory(persistentGradebook.getId(), "cate 3", new Double(0), new Integer(0), new Integer(0), new Integer(0), new Double(0), false);
 		List list = (List) gradebookManager.getCategories(persistentGradebook.getId());
 		for(int i=0; i<list.size(); i++)
 		{
@@ -677,7 +677,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
         Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
         
         //test for assignment with 0 points
-        Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), null);
+        Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), false);
         Assignment assign3 = gradebookManager.getAssignment(assign0long);
 
         //test for ungraded item
@@ -741,7 +741,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 		
 		//test for assignment with 0 points
-		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), null);
+		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), false);
 		Assignment assign3 = gradebookManager.getAssignment(assign0long);
 
 		//test for ungraded item
@@ -1039,7 +1039,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 
 		//test for assignment with 0 points
-		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), null);
+		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), false);
 		Assignment assign3 = gradebookManager.getAssignment(assign0long);
 		
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
@@ -1186,7 +1186,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 
 		//test for assignment with 0 points
-		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), null);
+		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), false);
 		Assignment assign3 = gradebookManager.getAssignment(assign0long);
 		
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
@@ -1526,7 +1526,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 
 		//test for assignment with 0 points
-		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), null);
+		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), false);
 		Assignment assign3 = gradebookManager.getAssignment(assign0long);
 
 		//test for ungraded item
@@ -1676,7 +1676,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 
 		//test for assignment with 0 points
-		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), null);
+		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), false);
 		Assignment assign3 = gradebookManager.getAssignment(assign0long);
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
@@ -2021,7 +2021,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 
 		//test for assignment with 0 points
-		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), null);
+		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), false);
 		Assignment assign3 = gradebookManager.getAssignment(assign0long);
 
 		//test for ungraded item
@@ -2179,7 +2179,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		//test for non-released assignment
 		Category cateWithNonRleased = (Category)cateList.get(0);
 		gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cateWithNonRleased.getId(), 
-				cateWithNonRleased.getName() + "_assignment_non_released", new Double(10.0), new Date(), new Boolean(false), new Boolean(false), null);
+				cateWithNonRleased.getName() + "_assignment_non_released", new Double(10.0), new Date(), new Boolean(false), new Boolean(false), false);
 		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
 		List assignListWithNonReleased = cateWithNonRleased.getAssignmentList();
 		Assert.assertTrue(new BigDecimal(cateWithNonRleased.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
@@ -2226,7 +2226,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		//add another assignment to cate_1 for test 
 		Category cate1 = (Category)cateList.get(0);
 		Long assignAddedId = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1.getId(), 
-				cate1.getName() + "_assignment_added", new Double(10.0), new Date(), new Boolean(false), new Boolean(true), null);
+				cate1.getName() + "_assignment_added", new Double(10.0), new Date(), new Boolean(false), new Boolean(true), false);
 		generateGradeRecords(gradebookManager.getAssignment(assignAddedId), 5);
 		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
 		for(int i=0; i<(cateList.size() - 1); i++)
@@ -2256,8 +2256,8 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 	public void testGetAssignmentsWithNoCategory() throws Exception
 	{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
-		Long assignId1 = gradebookManager.createAssignment(persistentGradebook.getId(), "no_cate_1", new Double(10), new Date(), new Boolean(false), new Boolean(true), null);
-		Long assignId2 = gradebookManager.createAssignment(persistentGradebook.getId(), "no_cate_2", new Double(9), new Date(), new Boolean(false), new Boolean(true), null);
+		Long assignId1 = gradebookManager.createAssignment(persistentGradebook.getId(), "no_cate_1", new Double(10), new Date(), new Boolean(false), new Boolean(true), false);
+		Long assignId2 = gradebookManager.createAssignment(persistentGradebook.getId(), "no_cate_2", new Double(9), new Date(), new Boolean(false), new Boolean(true), false);
 		List assigns = gradebookManager.getAssignmentsWithNoCategory(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true);
 		
 		Assert.assertTrue(assigns.size() == 2);
@@ -2369,8 +2369,8 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 	{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
 		
-		Long assignId1 = gradebookManager.createAssignment(persistentGradebook.getId(), "no_cate_1", new Double(10), new Date(), new Boolean(false), new Boolean(true), null);
-		Long assignId2 = gradebookManager.createAssignment(persistentGradebook.getId(), "no_cate_2", new Double(9), new Date(), new Boolean(false), new Boolean(true), null);
+		Long assignId1 = gradebookManager.createAssignment(persistentGradebook.getId(), "no_cate_1", new Double(10), new Date(), new Boolean(false), new Boolean(true), false);
+		Long assignId2 = gradebookManager.createAssignment(persistentGradebook.getId(), "no_cate_2", new Double(9), new Date(), new Boolean(false), new Boolean(true), false);
 
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
@@ -3797,7 +3797,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
         //test for non-released assignment
         Category cateWithNonRleased = (Category)catsAssignsAndCG.get(4);
         gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cateWithNonRleased.getId(), 
-                cateWithNonRleased.getName() + "_assignment_non_released", new Double(10.0), new Date(), new Boolean(false), new Boolean(false), null);
+                cateWithNonRleased.getName() + "_assignment_non_released", new Double(10.0), new Date(), new Boolean(false), new Boolean(false), false);
         catsAssignsAndCG = gradebookManager.getAssignmentsCategoriesAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
 
         cg = (CourseGrade) catsAssignsAndCG.get(catsAssignsAndCG.size() - 1);
@@ -3828,7 +3828,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
    
         //add another assignment to cat0 for test 
         Long assignAddedId = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cat0.getId(), 
-                cat0.getName() + "_assignment_added", new Double(10.0), new Date(), new Boolean(false), new Boolean(true), null);
+                cat0.getName() + "_assignment_added", new Double(10.0), new Date(), new Boolean(false), new Boolean(true), false);
         generateGradeRecords(gradebookManager.getAssignment(assignAddedId), 5);
         
         catsAssignsAndCG = gradebookManager.getAssignmentsCategoriesAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
@@ -3858,7 +3858,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 		
 		//test for assignment with 0 points
-		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), null);
+		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), false);
 		Assignment assign3 = gradebookManager.getAssignment(assign0long);
 
 		//test for ungraded item
@@ -4136,7 +4136,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 
 		//test for assignment with 0 points
-		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), null);
+		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true), false);
 		Assignment assign3 = gradebookManager.getAssignment(assign0long);
 		
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
