@@ -276,10 +276,17 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 			{
 				// if its a weighted category gradebook, divide by 100 to go in the pointsEarned correctly
 				if (getCourseGrade().getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY)
-					bdCourseGradePointsAdjustment = bdCourseGradePointsAdjustment.divide(new BigDecimal("100"));
-				// this adds in the Course Grade Adjustment Score
-				bdTotalPointsEarned = bdTotalPointsEarned.add(bdCourseGradePointsAdjustment);
-				percentageEarned = new Double(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
+				{
+					// if it is weighted, we treat the course grade adjustment the same as a percentage gradebook
+					percentageEarned = new Double(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
+					percentageEarned += courseGradePointsAdjustment;
+				}
+				else
+				{
+					// this adds in the Course Grade Adjustment Score
+					bdTotalPointsEarned = bdTotalPointsEarned.add(bdCourseGradePointsAdjustment);
+					percentageEarned = new Double(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
+				}
 			}
 		}
 		autoCalculatedGrade = percentageEarned;
