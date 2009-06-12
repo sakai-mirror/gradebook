@@ -152,7 +152,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 				for (Iterator iter = assignments.iterator(); iter.hasNext(); ) 
 				{
 					Assignment assignment = (Assignment)iter.next();
-					if (!assignment.isCounted() || assignment.getUngraded()) 
+					if (!assignment.isIncludedInCalculations())
 					{
 						assignmentsNotCounted.add(assignment.getId());
 					}
@@ -495,7 +495,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 			if(gradeRec.getPointsEarned() != null && !gradeRec.getPointsEarned().equals("") && !gradeRec.getDroppedFromGrade())
 			{
 				Assignment go = gradeRec.getAssignment();
-				if (go.isCounted() && !go.getUngraded()) 
+				if (go.isIncludedInCalculations())
 				{
 					Double pointsEarned = new Double(gradeRec.getPointsEarned());
 					if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)

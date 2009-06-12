@@ -93,12 +93,11 @@ public class CalculationsTest extends TestCase {
 	public static double getTotalPointsPossible(Collection assignments) {
 		double total = 0;
 		for (Iterator iter = assignments.iterator(); iter.hasNext();) {
-			if (((Assignment)iter.next()).getIsExtraCredit()!=null && !((Assignment)iter.next()).getIsExtraCredit())
+			Assignment a = ((Assignment)iter.next());
+			if (!a.getUngraded() && (a.getIsExtraCredit()==null || !a.getIsExtraCredit()) && a.isCounted())
 			{
-				total += ((Assignment)iter.next()).getPointsPossible();
+				total += a.getPointsPossible();
 			}
-			else
-				total += ((Assignment)iter.next()).getPointsPossible();
 		}
 		return total;
 	}
@@ -148,7 +147,8 @@ public class CalculationsTest extends TestCase {
      * @throws Exception
      */
     public void testCourseGradeCalculation() throws Exception {
-        //CourseGrade cg = gradebook.getCourseGrade();
+        CourseGrade cg = new CourseGrade();
+        cg.setGradebook(gradebook);
 
         List studentGradeRecords = new ArrayList();
         studentGradeRecords.add(new AssignmentGradeRecord(homework1, "studentId", "110"));
@@ -158,7 +158,9 @@ public class CalculationsTest extends TestCase {
         // The grade records should total 90%
         CourseGradeRecord cgr = new CourseGradeRecord();
         cgr.setStudentId("studentId");
-        cgr.initNonpersistentFields(getTotalPointsPossible(assignments), getTotalPointsEarned(studentGradeRecords), 0);
+        cgr.setGradableObject(cg);
+        // just use the same getTotalPointsEarned(studentGradeRecords) for now.  Assuming points gradebook.
+        cgr.initNonpersistentFields(getTotalPointsPossible(assignments), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), 0, 0);
         Assert.assertEquals(new Double(90), cgr.getAutoCalculatedGrade());
     }
 
@@ -244,7 +246,8 @@ public class CalculationsTest extends TestCase {
 			cgr.setGradableObject(courseGrade);
 			cgr.setStudentId("student" + i);
 			double scoreVal = (score != null) ? score.doubleValue() : 0.0;
-			cgr.initNonpersistentFields(asn.getPointsPossible(), scoreVal, 0);
+			// use scoreVal now for the literal
+			cgr.initNonpersistentFields(asn.getPointsPossible(), scoreVal, scoreVal, 0, 0);
 			courseRecords.add(cgr);
 		}
 		

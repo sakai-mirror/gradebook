@@ -2077,7 +2077,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 				Category cat = (Category) cateList.get(i);
 				if(i == 0)
 				{
-					Assert.assertTrue(new BigDecimal(cat.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					Assert.assertEquals(new BigDecimal(cat.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
 						new BigDecimal(5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 					Assert.assertTrue(new BigDecimal(cat.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 						new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
@@ -3814,7 +3814,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
         catsAssignsAndCG = gradebookManager.getAssignmentsCategoriesAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
 
         cat0 = (Category) catsAssignsAndCG.get(5);
-        Assert.assertTrue(cat0.getAverageTotalPoints() == null);
+        Assert.assertEquals(cat0.getAverageTotalPoints(), null);
         Assert.assertTrue(cat0.getAverageScore() == null);
         Assert.assertTrue(cat0.getMean() == null);
         
@@ -3913,9 +3913,9 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		for(int i=0; i<courseGradeRecords.size(); i++)
 		{
 			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
-			Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			Assert.assertEquals(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
 				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			Assert.assertEquals(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
 				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())) ) * 0.4 + ((Double)studentIdMap.get(cgr.getStudentId())) * 0.6 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
 
@@ -4181,9 +4181,9 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		for(int i=0; i<courseGradeRecords.size(); i++)
 		{
 			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
-			Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			Assert.assertEquals(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
 				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) + (((Double)studentIdMap.get(cgr.getStudentId())))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			Assert.assertEquals(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), 
 				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 0.4 + (((Double)studentIdMap.get(cgr.getStudentId()))) * 0.6).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
 

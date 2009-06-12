@@ -3421,14 +3421,22 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 	protected List<Assignment> getCountedAssignments(Session session, Long gradebookId) {
 	    List<Assignment> assignList = new ArrayList<Assignment>();
 	    
-	    List results = session.createQuery(
+	    List <Assignment>results = session.createQuery(
         "from Assignment as asn where asn.gradebook.id=:gbid and asn.removed=false and " +
         "asn.notCounted=false and asn.ungraded=false").
         setParameter("gbid", gradebookId).
         list();
 	    
 	    if (results != null) {
-	        assignList = results;
+	    	// making sure there's no invalid points possible for normal assignments
+	    	for (Assignment a : results)
+	    	{
+	    		boolean isExtraCredit = a.getIsExtraCredit()!=null && a.getIsExtraCredit();
+	    		if (isExtraCredit || (a.getPointsPossible()!=null && a.getPointsPossible()>0))
+	    		{
+	    			assignList.add(a);
+	    		}
+	    	}
 	    }
 	    
 	    return assignList;

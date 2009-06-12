@@ -559,4 +559,20 @@ public class Assignment extends GradableObject {
 		public void setSelectedGradeEntryValue(String selectedGradeEntryValue) {
 			this.selectedGradeEntryValue = selectedGradeEntryValue;
 		}
+		
+		/**
+		 * Convenience method for checking if the grade for the assignment should be included in calculations.
+		 * This is different from just the {@link #isCounted()} method for an assignment.  This method does a more thorough check
+		 * using other values, such as if removed, isExtraCredit, ungraded, etc in addition to the assignment's notCounted property.
+		 * @return true if grades for this assignment should be included in various calculations.
+		 */
+		public boolean isIncludedInCalculations() {
+			boolean isIncludedInCalculations = false;
+			boolean extraCredit = isExtraCredit!=null && isExtraCredit;
+    		if (!removed && !ungraded && !notCounted && (extraCredit || (pointsPossible != null && pointsPossible>0)))
+    		{
+    			isIncludedInCalculations = true;
+    		}
+			return isIncludedInCalculations;
+		}
 }
