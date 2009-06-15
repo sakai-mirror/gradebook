@@ -170,6 +170,15 @@ public interface GradebookManager {
      */
     public List<CourseGradeRecord> getPointsEarnedCourseGradeRecordsWithStats(CourseGrade courseGrade, Collection studentUids);
     
+    /**
+     * 
+     * @param courseGrade
+     * @param studentUids
+     * @param assignments
+     * @param scoreMap Map of studentId --> Map of assignment id --> corresponding AssignmentGradeRecord. 
+     * This information is passed here to avoid repeated calls to retrieve grade information
+     * @return course grade records for the given students and grade records with the nonpersistent fields populated
+     */
     public List<CourseGradeRecord> getPointsEarnedCourseGradeRecords(CourseGrade courseGrade, Collection studentUids, Collection assignments, Map scoreMap);
     
     /**
