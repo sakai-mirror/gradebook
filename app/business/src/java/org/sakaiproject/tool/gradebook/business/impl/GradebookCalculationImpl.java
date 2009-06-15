@@ -143,9 +143,11 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl
 	        
 	        List<Assignment> countedAssigns = new ArrayList<Assignment>();
 	        // let's filter the passed assignments to make sure they are all counted
-	        for (Assignment assign : assignments) {
-	            if (assign.isIncludedInCalculations()) {
-	                countedAssigns.add(assign);
+	        if (assignments != null) {
+	            for (Assignment assign : assignments) {
+	                if (assign.isIncludedInCalculations()) {
+	                    countedAssigns.add(assign);
+	                }
 	            }
 	        }
 
