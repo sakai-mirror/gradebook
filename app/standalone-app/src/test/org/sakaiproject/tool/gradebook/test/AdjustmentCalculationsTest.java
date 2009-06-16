@@ -43,8 +43,6 @@ import junit.framework.TestCase;
 
 public class AdjustmentCalculationsTest extends TestCase {
 	private Gradebook gradebook;
-    private CourseGrade courseGrade;
-//    private GradeMapping gradeMap;
     private Assignment homework1points;
     private Assignment homework2points;
     private Assignment homework3points;
@@ -55,8 +53,6 @@ public class AdjustmentCalculationsTest extends TestCase {
     private Assignment homework3percentage;
     private Assignment homework4percentage;
     private Assignment homework5percentage;
-//    private List<AssignmentGradeRecord> gradeRecords;
-//    private List<CourseGradeRecord> courseGradeRecords;
     private Set assignmentsPoints;
     private Set assignmentsPercentage;
 
@@ -66,10 +62,6 @@ public class AdjustmentCalculationsTest extends TestCase {
         gradebook = new Gradebook("Calculation Test GB");
         gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
 
-//        gradeMap = new LetterGradeMapping();
-//        gradeMap.setDefaultValues();
-//        gradebook.setSelectedGradeMapping(gradeMap);
-//
         homework1points = new Assignment(gradebook, "homework1points", new Double(200), now);
         homework2points = new Assignment(gradebook, "homework2points", new Double(300), now);
         homework3points = new Assignment(gradebook, "homework3points", new Double(400), now);
@@ -88,23 +80,6 @@ public class AdjustmentCalculationsTest extends TestCase {
         homework4percentage.setIsExtraCredit(true);
         homework5percentage = new Assignment(gradebook, "homework5percentage", null, now);
         homework5percentage.setIsExtraCredit(true);
-//
-//        courseGrade = new CourseGrade();
-//        courseGrade.setGradebook(gradebook);
-//
-//        assignments = new HashSet();
-//        assignments.add(homework1points);
-//        assignments.add(homework2points);
-//        assignments.add(homework3points);
-//        assignments.add(homework4points);
-//        assignments.add(homework5points);
-//
-//        // The statistics calculation should be able to deal with grade records
-//        // that do not belong to the assignment
-//        gradeRecords = generateGradeRecords(homework1, 101);
-//        gradeRecords.addAll(generateGradeRecords(homework2, 101));
-//        gradeRecords.addAll(generateGradeRecords(homework3, 101));
-//        courseGradeRecords = generateCourseGradeRecords(courseGrade, 30);
     }
 	
 	public static double getTotalPointsPossible(Collection assignments) {
@@ -154,6 +129,10 @@ public class AdjustmentCalculationsTest extends TestCase {
 		}
 		return hasScores ? new Double(total) : null;
 	}
+	
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//  POINTS TESTS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	/**
      * Tests the course grade auto-calculation for a points gradebook with positive adjustment items
@@ -308,7 +287,7 @@ public class AdjustmentCalculationsTest extends TestCase {
     }
     
     /**
-     * Tests the course grade auto-calculation for a points gradebook with both positive and negative adjustment items
+     * Tests the course grade auto-calculation for a points gradebook with a positive course grade adjustment and positive adjustment items
      *
      * @throws Exception
      */
@@ -338,6 +317,170 @@ public class AdjustmentCalculationsTest extends TestCase {
         cgr.initNonpersistentFields(getTotalPointsPossible(assignmentsPoints), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), 45, 0);
         Assert.assertEquals(new Double(97), cgr.getAutoCalculatedGrade());
     }
+    
+    /**
+     * Tests the course grade auto-calculation for a points gradebook with a positive course grade adjustment and negative adjustment items
+     *
+     * @throws Exception
+     */
+    public void testCourseGradeCalculationPointsPositiveCourseGradeAdjustmentWithNegativeAdjustmentItems() throws Exception {
+        CourseGrade cg = new CourseGrade();
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+        cg.setGradebook(gradebook);
+        
+        assignmentsPoints = new HashSet();
+        assignmentsPoints.add(homework1points);
+        assignmentsPoints.add(homework2points);
+        assignmentsPoints.add(homework3points);
+        assignmentsPoints.add(homework4points);
+        assignmentsPoints.add(homework5points);
+
+        List studentGradeRecords = new ArrayList();
+        studentGradeRecords.add(new AssignmentGradeRecord(homework1points, "studentId", "110"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework2points, "studentId", "300"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework3points, "studentId", "400"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework4points, "studentId", "-15"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework5points, "studentId", "-3"));
+
+        // The grade records should total 93%: (810 + (-18 + 45)) / 900
+        CourseGradeRecord cgr = new CourseGradeRecord();
+        cgr.setStudentId("studentId");
+        cgr.setGradableObject(cg);
+        cgr.initNonpersistentFields(getTotalPointsPossible(assignmentsPoints), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), 45, 0);
+        Assert.assertEquals(new Double(93), cgr.getAutoCalculatedGrade());
+    }
+    
+    /**
+     * Tests the course grade auto-calculation for a points gradebook with a positive course grade adjustment and both positive and negative adjustment items
+     *
+     * @throws Exception
+     */
+    public void testCourseGradeCalculationPointsPositiveCourseGradeAdjustmentWithMixedAdjustmentItems() throws Exception {
+        CourseGrade cg = new CourseGrade();
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+        cg.setGradebook(gradebook);
+        
+        assignmentsPoints = new HashSet();
+        assignmentsPoints.add(homework1points);
+        assignmentsPoints.add(homework2points);
+        assignmentsPoints.add(homework3points);
+        assignmentsPoints.add(homework4points);
+        assignmentsPoints.add(homework5points);
+
+        List studentGradeRecords = new ArrayList();
+        studentGradeRecords.add(new AssignmentGradeRecord(homework1points, "studentId", "110"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework2points, "studentId", "300"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework3points, "studentId", "400"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework4points, "studentId", "15"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework5points, "studentId", "-3"));
+
+        // The grade records should total 96%: (810 + (12 + 42)) / 900
+        CourseGradeRecord cgr = new CourseGradeRecord();
+        cgr.setStudentId("studentId");
+        cgr.setGradableObject(cg);
+        cgr.initNonpersistentFields(getTotalPointsPossible(assignmentsPoints), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), 42, 0);
+        Assert.assertEquals(new Double(96), cgr.getAutoCalculatedGrade());
+    }
+    
+    /**
+     * Tests the course grade auto-calculation for a points gradebook with a negative course grade adjustment and positive adjustment items
+     *
+     * @throws Exception
+     */
+    public void testCourseGradeCalculationPointsNegativeCourseGradeAdjustmentWithPositiveAdjustmentItems() throws Exception {
+        CourseGrade cg = new CourseGrade();
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+        cg.setGradebook(gradebook);
+        
+        assignmentsPoints = new HashSet();
+        assignmentsPoints.add(homework1points);
+        assignmentsPoints.add(homework2points);
+        assignmentsPoints.add(homework3points);
+        assignmentsPoints.add(homework4points);
+        assignmentsPoints.add(homework5points);
+
+        List studentGradeRecords = new ArrayList();
+        studentGradeRecords.add(new AssignmentGradeRecord(homework1points, "studentId", "110"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework2points, "studentId", "300"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework3points, "studentId", "400"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework4points, "studentId", "15"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework5points, "studentId", "3"));
+
+        // The grade records should total 87%: (810 + (18 + -45)) / 900
+        CourseGradeRecord cgr = new CourseGradeRecord();
+        cgr.setStudentId("studentId");
+        cgr.setGradableObject(cg);
+        cgr.initNonpersistentFields(getTotalPointsPossible(assignmentsPoints), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), -45, 0);
+        Assert.assertEquals(new Double(87), cgr.getAutoCalculatedGrade());
+    }
+    
+    /**
+     * Tests the course grade auto-calculation for a points gradebook with a negative course grade adjustment and negative adjustment items
+     *
+     * @throws Exception
+     */
+    public void testCourseGradeCalculationPointsNegativeCourseGradeAdjustmentWithNegativeAdjustmentItems() throws Exception {
+        CourseGrade cg = new CourseGrade();
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+        cg.setGradebook(gradebook);
+        
+        assignmentsPoints = new HashSet();
+        assignmentsPoints.add(homework1points);
+        assignmentsPoints.add(homework2points);
+        assignmentsPoints.add(homework3points);
+        assignmentsPoints.add(homework4points);
+        assignmentsPoints.add(homework5points);
+
+        List studentGradeRecords = new ArrayList();
+        studentGradeRecords.add(new AssignmentGradeRecord(homework1points, "studentId", "110"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework2points, "studentId", "300"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework3points, "studentId", "400"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework4points, "studentId", "-15"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework5points, "studentId", "-3"));
+
+        // The grade records should total 83%: (810 + (-18 + -45)) / 900
+        CourseGradeRecord cgr = new CourseGradeRecord();
+        cgr.setStudentId("studentId");
+        cgr.setGradableObject(cg);
+        cgr.initNonpersistentFields(getTotalPointsPossible(assignmentsPoints), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), -45, 0);
+        Assert.assertEquals(new Double(83), cgr.getAutoCalculatedGrade());
+    }
+    
+    /**
+     * Tests the course grade auto-calculation for a points gradebook with a negative course grade adjustment and both positive and negative adjustment items
+     *
+     * @throws Exception
+     */
+    public void testCourseGradeCalculationPointsNegativeCourseGradeAdjustmentWithMixedAdjustmentItems() throws Exception {
+        CourseGrade cg = new CourseGrade();
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+        cg.setGradebook(gradebook);
+        
+        assignmentsPoints = new HashSet();
+        assignmentsPoints.add(homework1points);
+        assignmentsPoints.add(homework2points);
+        assignmentsPoints.add(homework3points);
+        assignmentsPoints.add(homework4points);
+        assignmentsPoints.add(homework5points);
+
+        List studentGradeRecords = new ArrayList();
+        studentGradeRecords.add(new AssignmentGradeRecord(homework1points, "studentId", "110"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework2points, "studentId", "300"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework3points, "studentId", "400"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework4points, "studentId", "12"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework5points, "studentId", "-3"));
+
+        // The grade records should total 86%: (810 + (9 + -45)) / 900
+        CourseGradeRecord cgr = new CourseGradeRecord();
+        cgr.setStudentId("studentId");
+        cgr.setGradableObject(cg);
+        cgr.initNonpersistentFields(getTotalPointsPossible(assignmentsPoints), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), -45, 0);
+        Assert.assertEquals(new Double(86), cgr.getAutoCalculatedGrade());
+    }
+    
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//   PERCENTAGE TESTS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     /**
      * Tests the course grade auto-calculation for a pecentage gradebook with positive adjustment items
@@ -433,5 +576,253 @@ public class AdjustmentCalculationsTest extends TestCase {
         cgr.setGradableObject(cg);
         cgr.initNonpersistentFields(getTotalPointsPossible(assignmentsPercentage), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), 0, getAdjustmentPointsEarned(studentGradeRecords));
         Assert.assertEquals(new Double(80), cgr.getAutoCalculatedGrade());
+    }
+    
+    /**
+     * Tests the course grade auto-calculation for a pecentage gradebook with a positive course grade adjustment
+     *
+     * @throws Exception
+     */
+    public void testCourseGradeCalculationPercentagePositiveCourseGradeAdjustment() throws Exception {
+        CourseGrade cg = new CourseGrade();
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+        cg.setGradebook(gradebook);
+        
+        assignmentsPercentage = new HashSet();
+        assignmentsPercentage.add(homework1percentage);
+        assignmentsPercentage.add(homework2percentage);
+        assignmentsPercentage.add(homework3percentage);
+
+        List studentGradeRecords = new ArrayList();
+        studentGradeRecords.add(new AssignmentGradeRecord(homework1percentage, "studentId", "0.90"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework2percentage, "studentId", "0.80"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework3percentage, "studentId", "0.64"));
+
+        // The grade records should total 83%: 78% + 5%
+        CourseGradeRecord cgr = new CourseGradeRecord();
+        cgr.setStudentId("studentId");
+        cgr.setGradableObject(cg);
+        cgr.initNonpersistentFields(getTotalPointsPossible(assignmentsPercentage), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), 5, 0);
+        Assert.assertEquals(new Double(83), cgr.getAutoCalculatedGrade());
+    }
+    
+    /**
+     * Tests the course grade auto-calculation for a pecentage gradebook with a negative course grade adjustment
+     *
+     * @throws Exception
+     */
+    public void testCourseGradeCalculationPercentageNegativeCourseGradeAdjustment() throws Exception {
+        CourseGrade cg = new CourseGrade();
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+        cg.setGradebook(gradebook);
+        
+        assignmentsPercentage = new HashSet();
+        assignmentsPercentage.add(homework1percentage);
+        assignmentsPercentage.add(homework2percentage);
+        assignmentsPercentage.add(homework3percentage);
+
+        List studentGradeRecords = new ArrayList();
+        studentGradeRecords.add(new AssignmentGradeRecord(homework1percentage, "studentId", "0.90"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework2percentage, "studentId", "0.80"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework3percentage, "studentId", "0.64"));
+
+        // The grade records should total 73%: 78% + -5%
+        CourseGradeRecord cgr = new CourseGradeRecord();
+        cgr.setStudentId("studentId");
+        cgr.setGradableObject(cg);
+        cgr.initNonpersistentFields(getTotalPointsPossible(assignmentsPercentage), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), -5, 0);
+        Assert.assertEquals(new Double(73), cgr.getAutoCalculatedGrade());
+    }
+    
+    /**
+     * Tests the course grade auto-calculation for a pecentage gradebook with a positive course grade adjustment and positive adjustment items
+     *
+     * @throws Exception
+     */
+    public void testCourseGradeCalculationPercentagePositiveCourseGradeAdjustmentWithPositiveAdjustmentItems() throws Exception {
+        CourseGrade cg = new CourseGrade();
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+        cg.setGradebook(gradebook);
+        
+        assignmentsPercentage = new HashSet();
+        assignmentsPercentage.add(homework1percentage);
+        assignmentsPercentage.add(homework2percentage);
+        assignmentsPercentage.add(homework3percentage);
+        assignmentsPercentage.add(homework4percentage);
+        assignmentsPercentage.add(homework5percentage);
+
+        List studentGradeRecords = new ArrayList();
+        studentGradeRecords.add(new AssignmentGradeRecord(homework1percentage, "studentId", "0.90"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework2percentage, "studentId", "0.80"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework3percentage, "studentId", "0.64"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework4percentage, "studentId", "0.05"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework5percentage, "studentId", "0.03"));
+
+        // The grade records should total 91%: 78% + 8% + 5%
+        CourseGradeRecord cgr = new CourseGradeRecord();
+        cgr.setStudentId("studentId");
+        cgr.setGradableObject(cg);
+        cgr.initNonpersistentFields(getTotalPointsPossible(assignmentsPercentage), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), 5, getAdjustmentPointsEarned(studentGradeRecords));
+        Assert.assertEquals(new Double(91), cgr.getAutoCalculatedGrade());
+    }
+    
+    /**
+     * Tests the course grade auto-calculation for a pecentage gradebook with a positive course grade adjustment and negative adjustment items
+     *
+     * @throws Exception
+     */
+    public void testCourseGradeCalculationPercentagePositiveCourseGradeAdjustmentWithNegativeAdjustmentItems() throws Exception {
+        CourseGrade cg = new CourseGrade();
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+        cg.setGradebook(gradebook);
+        
+        assignmentsPercentage = new HashSet();
+        assignmentsPercentage.add(homework1percentage);
+        assignmentsPercentage.add(homework2percentage);
+        assignmentsPercentage.add(homework3percentage);
+        assignmentsPercentage.add(homework4percentage);
+        assignmentsPercentage.add(homework5percentage);
+
+        List studentGradeRecords = new ArrayList();
+        studentGradeRecords.add(new AssignmentGradeRecord(homework1percentage, "studentId", "0.90"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework2percentage, "studentId", "0.80"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework3percentage, "studentId", "0.64"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework4percentage, "studentId", "-0.05"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework5percentage, "studentId", "-0.03"));
+
+        // The grade records should total 75%: 78% + -8% + 5%
+        CourseGradeRecord cgr = new CourseGradeRecord();
+        cgr.setStudentId("studentId");
+        cgr.setGradableObject(cg);
+        cgr.initNonpersistentFields(getTotalPointsPossible(assignmentsPercentage), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), 5, getAdjustmentPointsEarned(studentGradeRecords));
+        Assert.assertEquals(new Double(75), cgr.getAutoCalculatedGrade());
+    }
+    
+    /**
+     * Tests the course grade auto-calculation for a pecentage gradebook with a positive course grade adjustment and both positive and negative adjustment items
+     *
+     * @throws Exception
+     */
+    public void testCourseGradeCalculationPercentagePositiveCourseGradeAdjustmentWithMixedAdjustmentItems() throws Exception {
+        CourseGrade cg = new CourseGrade();
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+        cg.setGradebook(gradebook);
+        
+        assignmentsPercentage = new HashSet();
+        assignmentsPercentage.add(homework1percentage);
+        assignmentsPercentage.add(homework2percentage);
+        assignmentsPercentage.add(homework3percentage);
+        assignmentsPercentage.add(homework4percentage);
+        assignmentsPercentage.add(homework5percentage);
+
+        List studentGradeRecords = new ArrayList();
+        studentGradeRecords.add(new AssignmentGradeRecord(homework1percentage, "studentId", "0.90"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework2percentage, "studentId", "0.80"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework3percentage, "studentId", "0.64"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework4percentage, "studentId", "0.05"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework5percentage, "studentId", "-0.03"));
+
+        // The grade records should total 85%: 78% + 2% + 5%
+        CourseGradeRecord cgr = new CourseGradeRecord();
+        cgr.setStudentId("studentId");
+        cgr.setGradableObject(cg);
+        cgr.initNonpersistentFields(getTotalPointsPossible(assignmentsPercentage), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), 5, getAdjustmentPointsEarned(studentGradeRecords));
+        Assert.assertEquals(new Double(85), cgr.getAutoCalculatedGrade());
+    }
+    
+    /**
+     * Tests the course grade auto-calculation for a pecentage gradebook with a negative course grade adjustment and positive adjustment items
+     *
+     * @throws Exception
+     */
+    public void testCourseGradeCalculationPercentageNegativeCourseGradeAdjustmentWithPositiveAdjustmentItems() throws Exception {
+        CourseGrade cg = new CourseGrade();
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+        cg.setGradebook(gradebook);
+        
+        assignmentsPercentage = new HashSet();
+        assignmentsPercentage.add(homework1percentage);
+        assignmentsPercentage.add(homework2percentage);
+        assignmentsPercentage.add(homework3percentage);
+        assignmentsPercentage.add(homework4percentage);
+        assignmentsPercentage.add(homework5percentage);
+
+        List studentGradeRecords = new ArrayList();
+        studentGradeRecords.add(new AssignmentGradeRecord(homework1percentage, "studentId", "0.90"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework2percentage, "studentId", "0.80"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework3percentage, "studentId", "0.64"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework4percentage, "studentId", "0.05"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework5percentage, "studentId", "0.03"));
+
+        // The grade records should total 81%: 78% + 8% + -5%
+        CourseGradeRecord cgr = new CourseGradeRecord();
+        cgr.setStudentId("studentId");
+        cgr.setGradableObject(cg);
+        cgr.initNonpersistentFields(getTotalPointsPossible(assignmentsPercentage), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), -5, getAdjustmentPointsEarned(studentGradeRecords));
+        Assert.assertEquals(new Double(81), cgr.getAutoCalculatedGrade());
+    }
+    
+    /**
+     * Tests the course grade auto-calculation for a pecentage gradebook with a negative course grade adjustment and negative adjustment items
+     *
+     * @throws Exception
+     */
+    public void testCourseGradeCalculationPercentageNegativeCourseGradeAdjustmentWithNegativeAdjustmentItems() throws Exception {
+        CourseGrade cg = new CourseGrade();
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+        cg.setGradebook(gradebook);
+        
+        assignmentsPercentage = new HashSet();
+        assignmentsPercentage.add(homework1percentage);
+        assignmentsPercentage.add(homework2percentage);
+        assignmentsPercentage.add(homework3percentage);
+        assignmentsPercentage.add(homework4percentage);
+        assignmentsPercentage.add(homework5percentage);
+
+        List studentGradeRecords = new ArrayList();
+        studentGradeRecords.add(new AssignmentGradeRecord(homework1percentage, "studentId", "0.90"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework2percentage, "studentId", "0.80"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework3percentage, "studentId", "0.64"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework4percentage, "studentId", "-0.05"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework5percentage, "studentId", "-0.03"));
+
+        // The grade records should total 65%: 78% + -8% + -5%
+        CourseGradeRecord cgr = new CourseGradeRecord();
+        cgr.setStudentId("studentId");
+        cgr.setGradableObject(cg);
+        cgr.initNonpersistentFields(getTotalPointsPossible(assignmentsPercentage), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), -5, getAdjustmentPointsEarned(studentGradeRecords));
+        Assert.assertEquals(new Double(65), cgr.getAutoCalculatedGrade());
+    }
+    
+    /**
+     * Tests the course grade auto-calculation for a pecentage gradebook with a negative course grade adjustment and both positive and negative adjustment items
+     *
+     * @throws Exception
+     */
+    public void testCourseGradeCalculationPercentageNegativeCourseGradeAdjustmentWithMixedAdjustmentItems() throws Exception {
+        CourseGrade cg = new CourseGrade();
+        gradebook.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+        cg.setGradebook(gradebook);
+        
+        assignmentsPercentage = new HashSet();
+        assignmentsPercentage.add(homework1percentage);
+        assignmentsPercentage.add(homework2percentage);
+        assignmentsPercentage.add(homework3percentage);
+        assignmentsPercentage.add(homework4percentage);
+        assignmentsPercentage.add(homework5percentage);
+
+        List studentGradeRecords = new ArrayList();
+        studentGradeRecords.add(new AssignmentGradeRecord(homework1percentage, "studentId", "0.90"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework2percentage, "studentId", "0.80"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework3percentage, "studentId", "0.64"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework4percentage, "studentId", "0.05"));
+        studentGradeRecords.add(new AssignmentGradeRecord(homework5percentage, "studentId", "-0.03"));
+
+        // The grade records should total 75%: 78% + 2% + -5%
+        CourseGradeRecord cgr = new CourseGradeRecord();
+        cgr.setStudentId("studentId");
+        cgr.setGradableObject(cg);
+        cgr.initNonpersistentFields(getTotalPointsPossible(assignmentsPercentage), getTotalPointsEarned(studentGradeRecords), getTotalPointsEarned(studentGradeRecords), -5, getAdjustmentPointsEarned(studentGradeRecords));
+        Assert.assertEquals(new Double(75), cgr.getAutoCalculatedGrade());
     }
 }
