@@ -982,7 +982,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentUids, gradableObjects, filteredGradesMap);
 	        getGradebookManager().addToGradeRecordMap(filteredGradesMap, courseGradeRecords);
 	        gradableObjects.add(courseGrade);
-	        if (isCourseAdjustmentOrGradeOverrideExist())
+	        if (isCourseAdjustmentOrGradeOverrideExist() && getGradebook().getGrade_type()!=GradebookService.GRADE_TYPE_LETTER)
 	        {
 		        CourseGrade preAdjustmentCourseGradeColumn = new CourseGrade();
 				// this is to differentiate the preadjusted course grade record from the final course grade record in the map.
