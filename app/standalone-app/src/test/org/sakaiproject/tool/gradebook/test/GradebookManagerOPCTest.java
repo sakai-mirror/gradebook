@@ -19,6 +19,7 @@ import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.facade.Role;
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
@@ -2837,6 +2838,134 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		
 		gradebookManager.createOrUpdateDefaultLetterGradePercentMapping(gradeMap);
 		Assert.assertTrue(lgpm.getValue("a").equals(new Double("96")));
+	}
+	
+	public void testCreateAssignment() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		Long assignment = new Long(0); // place holder
+		
+		// null everything
+		try
+		{
+			assignment = gradebookManager.createAssignment(null, null, null, null, null, null, null);
+			Assert.fail("Did not pass the all null scenario.");
+		}
+		catch(IllegalArgumentException e){}
+		
+		// null gradebookId - fill in a name to cause this error
+		try
+		{
+			assignment = gradebookManager.createAssignment(null, "NullGradebookIdTest", null, null, null, null, null);
+			Assert.fail("Did not pass the all null gradebookId scenario.");
+		}
+		catch(IllegalArgumentException e){}
+		
+		// null everything except title and gradebookId
+		try
+		{
+			assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "null-test", null, null, null, null, null);
+			Assert.fail("Did not pass the all null points possible and points gradebook scenario.");
+		}
+		catch(IllegalArgumentException e){}
+		
+		// similar test as above, but set extraCredit to false
+		try
+		{
+			assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "null-test2", null, null, null, null, false);
+			Assert.fail("Did not pass the all null points possible, false isExtraCredit, and points gradebook scenario.");
+		}
+		catch(IllegalArgumentException e){}
+		
+		// another test like the above, but make extra credit null and set the gradebook type to letter grade to force ungraded to be set to true;
+		persistentGradebook.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "null-test3", null, null, null, null, null);
+		Assert.assertNotNull(gradebookManager.getAssignment(assignment));
+		
+		// similar to above, but set the extraCredit to false to test the lettergrade scenario for a null points possible
+		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "null-test4", null, null, null, null, false);
+		Assert.assertNotNull(gradebookManager.getAssignment(assignment));
+		
+		// Set the Gradebook back to points
+		persistentGradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+		
+		// unique name test
+		try
+		{
+			assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "UniqueNameTest", new Double(5), null, null, null, null);
+			assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "UniqueNameTest", new Double(5), null, null, null, null);
+			Assert.fail("Did not pass the non-unique name scenario.");
+		}
+		catch (ConflictingAssignmentNameException e){}
+
+// TODO: Commented out these different points possible scenarios to note they should be dealt with at a later time
+//		// Various points possible scenarios
+//		Double pointsPossible = new Double(0);
+//
+//		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "ZeroPointsPossible", pointsPossible, null, null, null, null);
+//		Assert.assertEquals(new Double(0), gradebookManager.getAssignment(assignment).getPointsPossible());
+//		
+//		pointsPossible = new Double(5.25);
+//		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "TwoDecimalPointsPossible", pointsPossible, null, null, null, null);
+//		Assert.assertEquals(new Double(5.25), gradebookManager.getAssignment(assignment).getPointsPossible());
+//		
+//		pointsPossible = new Double(5.255555555555);
+//		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "ExcessiveDecimalPointsPossible", pointsPossible, null, null, null, null);
+//		Assert.assertEquals(new Double(5.255555555555), gradebookManager.getAssignment(assignment).getPointsPossible());
+//		
+//		pointsPossible = new Double(-5);
+//		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "NegativePointsPossible", pointsPossible, null, null, null, null);
+//		Assert.assertEquals(new Double(-5), gradebookManager.getAssignment(assignment).getPointsPossible());
+//		
+		Double pointsPossible = new Double(5);
+		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "NormalPointsPossible", pointsPossible, null, null, null, null);
+		Assert.assertEquals(new Double(5), gradebookManager.getAssignment(assignment).getPointsPossible());
+		
+		// checking valid Date entry and other correct null/false properties
+		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "DateTest", pointsPossible, new Date(), null, null, null);
+		Assert.assertNotNull(gradebookManager.getAssignment(assignment).getDueDate());
+		Assert.assertEquals(false, gradebookManager.getAssignment(assignment).isNotCounted());
+		Assert.assertEquals(false, gradebookManager.getAssignment(assignment).isReleased());
+		Assert.assertFalse(gradebookManager.getAssignment(assignment).getIsExtraCredit());
+		
+		// notCounted tests
+		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "NotCountedFalseTest", pointsPossible, new Date(), false, null, null);
+		Assert.assertEquals(false, gradebookManager.getAssignment(assignment).isNotCounted());
+		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "NotCountedTrueTest", pointsPossible, new Date(), true, null, null);
+		Assert.assertEquals(true, gradebookManager.getAssignment(assignment).isNotCounted());
+		
+		// isReleased tests
+		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "IsReleasedFalseTest", pointsPossible, new Date(), false, false, null);
+		Assert.assertEquals(false, gradebookManager.getAssignment(assignment).isReleased());
+		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "IsReleasedTrueTest", pointsPossible, new Date(), false, true, null);
+		Assert.assertEquals(true, gradebookManager.getAssignment(assignment).isReleased());
+		
+		// isExtraCredit tests
+		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "IsExtraCreditFalseTest", pointsPossible, new Date(), false, true, false);
+		Assert.assertFalse(gradebookManager.getAssignment(assignment).getIsExtraCredit());
+		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "IsExtraCreditTrueTest", pointsPossible, new Date(), false, true, true);
+		Assert.assertTrue(gradebookManager.getAssignment(assignment).getIsExtraCredit());
+		
+		// isExtraCredit - points possible per GB type test
+		// Points GB
+		persistentGradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "IsExtraCredit-PointsGB-PointsPossible", pointsPossible, new Date(), false, true, true);
+		Assert.assertTrue(gradebookManager.getAssignment(assignment).getIsExtraCredit());
+		Assert.assertEquals(new Double(5), gradebookManager.getAssignment(assignment).getPointsPossible());
+		
+		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "IsExtraCredit-PointsGB-NullPointsPossible", null, new Date(), false, true, true);
+		Assert.assertTrue(gradebookManager.getAssignment(assignment).getIsExtraCredit());
+		Assert.assertEquals(null, gradebookManager.getAssignment(assignment).getPointsPossible());
+		// Percentage GB
+		persistentGradebook.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "IsExtraCredit-PercentageGB-PointsPossible", pointsPossible, new Date(), false, true, true);
+		Assert.assertTrue(gradebookManager.getAssignment(assignment).getIsExtraCredit());
+		// percentage gb items (adjustment) should never have a points possible
+		Assert.assertEquals(null, gradebookManager.getAssignment(assignment).getPointsPossible());
+		
+		assignment = gradebookManager.createAssignment(persistentGradebook.getId(), "IsExtraCredit-PercentageGB-NullPointsPossible", null, new Date(), false, true, true);
+		Assert.assertTrue(gradebookManager.getAssignment(assignment).getIsExtraCredit());
+		Assert.assertEquals(null, gradebookManager.getAssignment(assignment).getPointsPossible());
 	}
 	
 	public void testCreateUngradedAssignment() throws Exception

@@ -2984,6 +2984,22 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     			
     			if(isExtraCredit!=null){
     				asn.setIsExtraCredit(isExtraCredit.booleanValue());
+        			if ((gb.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) && isExtraCredit)
+        			{
+        				// extra insurance this stays null for % gradebook
+        				asn.setPointsPossible(null);
+        			}
+        			if (!isExtraCredit && !asn.getUngraded() && points==null)
+        			{
+        				throw new IllegalArgumentException("pointsPossible can not be null if this is not an extraCredit item or non an ungraded item");
+        			}
+    			}
+    			else
+    			{
+    				if (!asn.getUngraded() && points==null)
+        			{
+        				throw new IllegalArgumentException("pointsPossible can not be null if this is not an extraCredit item or non an ungraded item");
+        			}
     			}
 
     			/** synchronize from external application */
