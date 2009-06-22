@@ -837,13 +837,29 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         if(logger.isInfoEnabled()) logger.info("exporting roster as CSV for gradebook " + getGradebookUid());
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
         if (isUserAbleToGradeAll()) {
+        	if(getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY || getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY){
         	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true, true), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterCsv());
+        	}
+        	else
+        	{
+        		SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true, false), 
+                		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
+                		new SpreadsheetDataFileWriterCsv());
+        	}
         } else {
+        	if(getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY || getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY){
         	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false, true), 
             		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
             		new SpreadsheetDataFileWriterCsv());
+        	}
+        	else
+        	{
+        		SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false, false), 
+                		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
+                		new SpreadsheetDataFileWriterCsv());
+        	}
         }
     }
 
@@ -852,13 +868,29 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
         if (isUserAbleToGradeAll()) {
+        	if(getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY || getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY){
         	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true, true), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterXls());
+        	}
+        	else
+        	{
+        		SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true, true), 
+                		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
+                		new SpreadsheetDataFileWriterXls());
+        	}
         } else {
+        	if(getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY || getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY){
         	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false, true), 
             		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
             		new SpreadsheetDataFileWriterXls());
+        	}
+        	else
+        	{
+        		SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false, false), 
+                		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
+                		new SpreadsheetDataFileWriterXls());
+        	}
         }
     }
     
@@ -909,7 +941,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		}
 		if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
 			getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords, studentIdItemIdFunctionMap);
-			if(includeCategories){
+			if(includeCategories && (getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY || getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY)){
 				categories = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categories, getGradebook().getCategory_type());				
 			}
 		} else {
