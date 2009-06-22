@@ -87,7 +87,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     private CourseGrade avgCourseGrade;
     
     private HtmlDataTable originalRosterDataTable = null;
-
+    private boolean selectedCategoryDropsScores;
+    
     public class GradableObjectColumn implements Serializable {
 		private Long id;
 		private String name;
@@ -215,6 +216,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		//get the selected categoryUID 
 		String selectedCategoryUid = getSelectedCategoryUid();
 		
+		if(selectedCategoryUid != null) {
+		    Category selectedCategory = getSelectedCategory();
+            selectedCategoryDropsScores = selectedCategory.isDropScores();
+		}
+		
 		CourseGrade courseGrade = null;
         // we display one or two course grade columns depending on several factors.
         // if the gradebook is non-calculating, we only display one "course grade"
@@ -272,7 +278,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			
 			for (Iterator iter = categories.iterator(); iter.hasNext(); ){
 				Category cat = (Category) iter.next();
-	
+
 				if(selectedCategoryUid == null || selectedCategoryUid.equals(cat.getId().toString())){
 				
 					//get the category column
@@ -811,6 +817,14 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		return letterGrade;
 	}
     
+    public void setSelectedCategoryDropsScores(boolean selectedCategoryDropsScores) {
+        this.selectedCategoryDropsScores = selectedCategoryDropsScores;
+    }
+
+    public boolean isSelectedCategoryDropsScores() {
+        return selectedCategoryDropsScores;
+    }
+
     public void exportCsvNoCourseGrade(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting gradebook " + getGradebookUid() + " as CSV");
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());

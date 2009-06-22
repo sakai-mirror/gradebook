@@ -33,7 +33,8 @@
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
 			</h:panelGroup>
-			<h:outputText value="#{msgs.roster_average_category}" rendered="#{rosterBean.selectedCategory != null && !rosterBean.gradeEntryByLetter}" />
+			<h:outputText value="#{msgs.roster_average_category}" rendered="#{rosterBean.selectedCategory != null && !rosterBean.gradeEntryByLetter && !rosterBean.selectedCategoryDropsScores}" />
+			<h:outputText value="#{msgs.roster_average_category}#{msgs.roster_footnote_symbol4}" rendered="#{rosterBean.selectedCategory != null && !rosterBean.gradeEntryByLetter && rosterBean.selectedCategoryDropsScores}"/>
 			<h:panelGroup rendered="#{rosterBean.selectedCategory != null && !rosterBean.gradeEntryByLetter}" >
 				<h:outputText value="#{rosterBean.selectedCategory}" rendered="#{!rosterBean.gradeEntryByLetter}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
@@ -85,6 +86,7 @@
 	  		<h:outputText value="#{msgs.roster_adjustment_legend1}" />
 	  		<h:outputText value="#{msgs.roster_adjustment_legend2}" />
 	  		<h:outputText value="#{msgs.roster_adjustment_legend3}" />
+	  		<h:outputText value="#{msgs.roster_adjustment_legend4}" rendered="#{rosterBean.selectedCategory != null && !rosterBean.gradeEntryByLetter && rosterBean.selectedCategoryDropsScores}"/>
 	  		<f:verbatim><br/></f:verbatim>
 			<h:outputText value="#{msgs.overview_legend_title}" />
 			<t:dataList var="legend" value="#{rosterBean.legendRows}" layout="unorderedList">
