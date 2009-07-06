@@ -134,9 +134,19 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
         
         if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_POINTS) 
         {
-            gradeEntrySelectList.add(new SelectItem(GB_POINTS_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_points")));
-            gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
-            gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
+        	if (assignmentId != null) {
+        		if (!isNoncalcWithGrades()) {
+        			gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
+        		} else {
+        			gradeEntrySelectList.add(new SelectItem(GB_POINTS_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_points")));
+                	gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
+                	gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
+        		}
+            } else {
+            	gradeEntrySelectList.add(new SelectItem(GB_POINTS_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_points")));
+            	gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
+            	gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
+            }
             //if this already has a value, do not reset it
             if (assignment.selectedGradeEntryValue==null)
             {
@@ -153,9 +163,19 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
         }
         else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_PERCENTAGE)
         {
-            gradeEntrySelectList.add(new SelectItem(GB_PERCENTAGE_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_percentage")));
-            gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
-            gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
+        	if (assignmentId != null) {
+        		if (!isNoncalcWithGrades()) {
+        			gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
+        		} else {
+        			gradeEntrySelectList.add(new SelectItem(GB_PERCENTAGE_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_percentage")));
+                	gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
+                	gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
+        		}
+            } else {
+            	gradeEntrySelectList.add(new SelectItem(GB_PERCENTAGE_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_percentage")));
+            	gradeEntrySelectList.add(new SelectItem(GB_NON_CALCULATING_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_noncalc")));
+            	gradeEntrySelectList.add(new SelectItem(GB_ADJUSTMENT_ENTRY, FacesUtil.getLocalizedString("add_assignment_type_adjustment")));
+            }
             // if this already has a value, do not reset it
             if (assignment.selectedGradeEntryValue==null)
             {
@@ -172,7 +192,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
         }
         else if (localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER)
         {
-            assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
+        	assignment.selectedGradeEntryValue = GB_NON_CALCULATING_ENTRY;
         }
         
         addBulkItemSelectList = new ArrayList();
