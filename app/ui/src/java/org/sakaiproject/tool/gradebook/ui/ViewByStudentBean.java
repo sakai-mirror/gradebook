@@ -631,6 +631,16 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     					unassignedCat.setGradebook(gradebook);
     					unassignedCat.setName(getLocalizedString("cat_unassigned"));
     					unassignedCat.setAssignmentList(assignNoCat);
+    					unassignedCat.setId(-1L);
+    					Iterator catIter = gradeRecords.iterator();
+        				while (catIter.hasNext()) {
+        					AssignmentGradeRecord a = (AssignmentGradeRecord)catIter.next();
+        					if (a.getAssignment().getCategory()==null)
+        					{
+        						a.getAssignment().setCategory(unassignedCat);
+        					}
+        				}
+        				unassignedCat.calculateStatisticsPerStudent(gradeRecords, studentUid);
 
     					//add this category to our list
     					gradebookItems.add(unassignedCat);

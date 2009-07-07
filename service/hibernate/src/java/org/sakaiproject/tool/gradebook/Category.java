@@ -368,7 +368,7 @@ public class Category implements Serializable
 					if (assignment.isCounted() && !assignment.getUngraded() && !gradeRecord.getDroppedFromGrade()) 
 					{
 						Category assignCategory = assignment.getCategory();
-						if (assignCategory != null && assignCategory.getId().equals(id))
+						if (assignCategory != null && assignCategory.getId()!=null && assignCategory.getId().equals(id))
 						{
 							String score = gradeRecord.getPointsEarned();
 							if (assignment.getIsExtraCredit()!=null)

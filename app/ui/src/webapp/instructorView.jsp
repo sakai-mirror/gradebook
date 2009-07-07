@@ -383,9 +383,11 @@
 							<h:outputText value="#{msgs.inst_view_not_counted_close}" rendered="#{(!row.associatedAssignment.counted && !instructorViewBean.gradeEntryByLetter) || (!instructorViewBean.gradeEntryByLetter && instructorViewBean.weightingEnabled && row.associatedAssignment.category == null)}" />
 						</h:panelGroup>
 						
+						<h:outputText value="(" rendered="#{instructorViewBean.weightingEnabled && row.isCategory && row.mean!=null && row.id == -1}" />
 						<h:outputText value="#{row}" escape="false" rendered="#{row.isCategory && !instructorViewBean.gradeEntryByLetter}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER"/>
 						</h:outputText>
+						<h:outputText value=")" rendered="#{instructorViewBean.weightingEnabled && row.isCategory && row.mean!=null && row.id == -1}" />
         </h:column>
         
         <h:column  rendered="#{!instructorViewBean.gradeEntryByLetter}">			

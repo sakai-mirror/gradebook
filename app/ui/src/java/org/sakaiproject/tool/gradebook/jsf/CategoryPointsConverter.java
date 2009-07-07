@@ -64,7 +64,14 @@ public class CategoryPointsConverter extends PointsConverter {
 			formattedScore = FacesUtil.getLocalizedString("overview_unassigned_cat_avg");
 		} else {
 			//display percentage
-			formattedScore = super.getAsString(context, component, studentMean) + "%";
+			if (cat.getGradebook().getCategory_type()==GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && cat.getId()==-1)
+			{	
+				formattedScore = "(" + super.getAsString(context, component, studentMean) + "%)";
+			}
+			else
+			{
+				formattedScore = super.getAsString(context, component, studentMean) + "%";
+			}
 		}
 		return formattedScore;
 	}

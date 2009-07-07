@@ -234,9 +234,11 @@
 						</t:commandSortHeader>
 					</f:facet>
 					
+					<h:outputText value="(" rendered="#{studentViewBean.weightingEnabled && row.isCategory && row.mean!=null && row.id == -1}" />
 					<h:outputText value="#{row}" escape="false" rendered="#{row.isCategory && !overviewBean.isLetterGrade}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER"/>
 					</h:outputText>
+					<h:outputText value=")" rendered="#{studentViewBean.weightingEnabled && row.isCategory && row.mean!=null && row.id == -1}" />
 
 			        <h:outputText value="#{row}" escape="false" rendered="#{row.assignment && !overviewBean.isLetterGrade && !row.associatedAssignment.ungraded && !row.gradeRecord.droppedFromGrade}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.SCORE_CONVERTER"/>

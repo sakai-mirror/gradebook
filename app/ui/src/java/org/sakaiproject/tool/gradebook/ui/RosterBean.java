@@ -268,11 +268,19 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
                 allAssignments.add((Assignment)assignCatOrCourseGrade);
             }
         }
+        
+        Category unassignedCat = new Category();
+		unassignedCat.setGradebook(getGradebook());
+		unassignedCat.setAverageScore(new Double(0));
+		unassignedCat.setName(getLocalizedString("cat_unassigned"));
+		unassignedCat.setId(GradebookManager.PRE_ADJ_COURSE_GRADE_ID);
 		
 		if (getCategoriesEnabled()) {
 			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
 				categories = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categories, getGradebook().getCategory_type());
 			}
+			
+			categories.add(unassignedCat);
 
 			int categoryCount = categories.size();
 			
@@ -285,10 +293,13 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 					GradableObjectColumn categoryColumn = new GradableObjectColumn();
 					String name = cat.getName();
 					if(getWeightingEnabled()){
-						//if weighting is enabled, then add "(weight)" to column
-						Double value = (Double) ((Number)cat.getWeight());
-						name = name + " (" +  NumberFormat.getNumberInstance().format(value * 100.0) + "%)";
-						//name = name + " (" + Integer.toString(cat.getWeight() * 100) + "%)";
+						if (!cat.equals(unassignedCat))
+						{
+							//if weighting is enabled, then add "(weight)" to column
+							Double value = (Double) ((Number)cat.getWeight());
+							name = name + " (" +  NumberFormat.getNumberInstance().format(value * 100.0) + "%)";
+							//name = name + " (" + Integer.toString(cat.getWeight() * 100) + "%)";
+						}
 					}
 					categoryColumn.setName(name);
 					categoryColumn.setId(cat.getId());
@@ -320,6 +331,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 					//get Assignments with no category
 					List unassignedAssignments = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId(), Assignment.DEFAULT_SORT, true);
 					int unassignedAssignmentCount = unassignedAssignments.size();
+					unassignedCat.setAssignmentList(unassignedAssignments);
 					for (Iterator assignmentsIter = unassignedAssignments.iterator(); assignmentsIter.hasNext(); ){
 						gradableObjectColumns.add(new GradableObjectColumn((GradableObject) assignmentsIter.next()));
 					}
@@ -329,6 +341,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 						GradableObjectColumn unassignedCategoryColumn = new GradableObjectColumn();
 						unassignedCategoryColumn.setName(FacesUtil.getLocalizedString("cat_unassigned"));
 						unassignedCategoryColumn.setCategoryColumn(true);
+						unassignedCategoryColumn.setId(unassignedCat.getId());
 						gradableObjectColumns.add(unassignedCategoryColumn);
 					}
 				}
@@ -389,7 +402,17 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         List<AssignmentGradeRecord> allAssignGradeRecs = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), new ArrayList(studentIdEnrRecMap.keySet()));
 		List gradeRecords = new ArrayList();
 		if (allAssignGradeRecs != null) {
-		    gradeRecords.addAll(allAssignGradeRecs);
+			for (AssignmentGradeRecord agr : allAssignGradeRecs)
+			{
+				if (getCategoriesEnabled())
+				{
+					if (agr.getAssignment().getCategory()==null)
+					{
+						agr.getAssignment().setCategory(unassignedCat);
+					}
+				}
+				gradeRecords.add(agr);
+			}
 		}
         
 		if (!getCategoriesEnabled()) {
