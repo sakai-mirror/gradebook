@@ -20,6 +20,7 @@ import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
@@ -32,6 +33,7 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.Permission;
+import org.springframework.dao.DataIntegrityViolationException;
 
 public class GradebookManagerOPCTest extends GradebookTestBase {
 	private Long assgn1Long;
@@ -2985,6 +2987,94 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assert.assertTrue(gradebookManager.getAssignment(assignment).getPointsPossible() == null);
 		Assert.assertTrue(gradebookManager.getAssignment(assignment).getUngraded());
 		Assert.assertTrue(gradebookManager.getAssignment(assignment).getCategory().getId().equals(cate1Long));
+	}
+	
+	public void testCreateCategory() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		Long category = new Long(0); // place holder
+		category = gradebookManager.createCategory(persistentGradebook.getId(), "NormalTest", new Double(0), 0, 0, 0, null, false);
+		Assert.assertNotNull(gradebookManager.getCategory(category));
+		
+		try
+		{
+			category = gradebookManager.createCategory(persistentGradebook.getId(), "UniqueNameTest", new Double(0), 0, 0, 0, null, false);
+			category = gradebookManager.createCategory(persistentGradebook.getId(), "UniqueNameTest", new Double(0), 0, 0, 0, null, false);
+			Assert.fail("Did not pass the non-unique name scenario.");
+		}
+		catch (ConflictingCategoryNameException e){}
+		
+		try
+		{
+			category = gradebookManager.createCategory(null, "NullGBIdTest", new Double(0), 0, 0, 0, null, false);
+			Assert.fail("Did not pass the null gradebook id test.");
+		}
+		catch(IllegalArgumentException e){}
+		
+		try
+		{
+			category = gradebookManager.createCategory(persistentGradebook.getId(), "NullWeightTest", null, 0, 0, 0, null, false);
+			Assert.assertNotNull(gradebookManager.getCategory(category));
+		}
+		catch(NullPointerException e){}
+		
+		category = gradebookManager.createCategory(persistentGradebook.getId(), "NullDropLowestTest", new Double(0), null, 0, 0, null, false);
+		Assert.assertNotNull(gradebookManager.getCategory(category));
+		
+		category = gradebookManager.createCategory(persistentGradebook.getId(), "NullDropHighestTest", new Double(0), 0, null, 0, null, false);
+		Assert.assertNotNull(gradebookManager.getCategory(category));
+		
+		category = gradebookManager.createCategory(persistentGradebook.getId(), "NullKeepHighestTest", new Double(0), 0, 0, null, null, false);
+		Assert.assertNotNull(gradebookManager.getCategory(category));
+		
+		category = gradebookManager.createCategory(persistentGradebook.getId(), "NullIsExtraCreditTest", new Double(0), 0, 0, 0, null, null);
+		Assert.assertNotNull(gradebookManager.getCategory(category));
+		
+		// true extra credit
+		category = gradebookManager.createCategory(persistentGradebook.getId(), "TrueIsExtraCreditTest", new Double(0), 0, 0, 0, null, true);
+		Assert.assertNotNull(gradebookManager.getCategory(category));
+		
+		try
+		{
+			category = gradebookManager.createCategory(persistentGradebook.getId(), "DropLowKeepHighTest", new Double(0), 5, 0, 3, new Double(10), false);
+			Assert.fail("Did not pass the drop lowest and keep highest test.");
+		}
+		catch(IllegalArgumentException e){}
+		
+		try
+		{
+			category = gradebookManager.createCategory(persistentGradebook.getId(), "DropHighKeepHighTest", new Double(0), 0, 5, 3, new Double(10), false);
+			Assert.fail("Did not pass the drop highest and keep highest test.");
+		}
+		catch(IllegalArgumentException e){}
+		
+		try
+		{
+			category = gradebookManager.createCategory(persistentGradebook.getId(), "DropLowDropHighKeepHighTest", new Double(0), 5, 5, 3, new Double(10), false);
+			Assert.fail("Did not pass the drop lowest/drop highest and keep highest test.");
+		}
+		catch(IllegalArgumentException e){}
+		
+		// Legit drop low
+		category = gradebookManager.createCategory(persistentGradebook.getId(), "DropLowTest", new Double(0), 5, 0, 0, new Double(10), false);
+		Assert.assertEquals(5, gradebookManager.getCategory(category).getDrop_lowest().intValue());
+		Assert.assertEquals(10.0, gradebookManager.getCategory(category).getItemValue());
+		
+		// Legit drop high
+		category = gradebookManager.createCategory(persistentGradebook.getId(), "DropHighTest", new Double(0), 0, 7, 0, new Double(10), false);
+		Assert.assertEquals(7, gradebookManager.getCategory(category).getDropHighest().intValue());
+		Assert.assertEquals(10.0, gradebookManager.getCategory(category).getItemValue());
+		
+		// Legit keep high
+		category = gradebookManager.createCategory(persistentGradebook.getId(), "KeepHighTest", new Double(0), 0, 0, 3, new Double(10), false);
+		Assert.assertEquals(3, gradebookManager.getCategory(category).getKeepHighest().intValue());
+		Assert.assertEquals(10.0, gradebookManager.getCategory(category).getItemValue());
+		
+		// Legit drop low/high
+		category = gradebookManager.createCategory(persistentGradebook.getId(), "DropLowDropHighTest", new Double(0), 5, 7, 0, new Double(10), false);
+		Assert.assertEquals(5, gradebookManager.getCategory(category).getDrop_lowest().intValue());
+		Assert.assertEquals(7, gradebookManager.getCategory(category).getDropHighest().intValue());
+		Assert.assertEquals(10.0, gradebookManager.getCategory(category).getItemValue());
 	}
 	
 	public void testSortLetterGrade() throws Exception

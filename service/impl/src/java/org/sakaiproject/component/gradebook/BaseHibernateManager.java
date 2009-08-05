@@ -584,6 +584,16 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			{
     				throw new IllegalArgumentException("weight for category is greater than 1 or less than 0 in createCategory of BaseHibernateManager");
     			}
+    			
+    			if(((drop_lowest!=null && drop_lowest > 0) || (dropHighest!=null && dropHighest > 0)) && (keepHighest!=null && keepHighest > 0))
+    			{
+    				throw new IllegalArgumentException("a combination of positive values for keepHighest and either drop_lowest or dropHighest occurred in createCategory of BaseHibernateManager");
+    			}
+    			
+    			if((itemValue!=null && itemValue<=0) && ((drop_lowest!=null && drop_lowest > 0) || (dropHighest!=null && dropHighest > 0) || (keepHighest!=null && keepHighest > 0)))
+    			{
+    				throw new IllegalArgumentException("no valid itemValue provided with drop_lowest, dropHighest, or keepHighest in createCategory of BaseHibernateManager");
+    			}
 
     			Category ca = new Category();
     			ca.setGradebook(gb);
