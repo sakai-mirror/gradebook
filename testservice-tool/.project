@@ -1,11 +1,7 @@
 <projectDescription>
   <name>sakai-gradebook-testservice</name>
   <comment/>
-  <projects>
-    <project>sakai-gradebook-service-api</project>
-    <project>sakai-jsf-app</project>
-    <project>sakai-jsf-tool</project>
-  </projects>
+  <projects/>
   <buildSpec>
     <buildCommand>
       <name>org.eclipse.jdt.core.javabuilder</name>
