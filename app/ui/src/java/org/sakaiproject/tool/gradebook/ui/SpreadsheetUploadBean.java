@@ -42,6 +42,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Entity;
@@ -52,6 +53,7 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.jsf.util.JsfTool;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
 import org.sakaiproject.tool.api.Tool;
@@ -113,6 +115,23 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     static final String PICKED_FILE_REFERENCE = "pickedFileReference";
     static final String PICKED_FILE_DESC = "pickedFileDesc";
     static final String IMPORT_TITLE = "gradebookImportTitle";
+    
+    /**
+     * Property set via sakai.properties to limit the file size allowed for spreadsheet
+     * uploads. This property is in MB and defaults to 1 MB.
+     */
+    public static final String PROPERTY_FILE_SIZE_MAX = "gradebook.upload.max";
+    
+    /**
+     * The default max file size, in MB, for a spreadsheet upload.
+     */
+    public static final int FILE_SIZE_DEFAULT = 1;
+    
+    /**
+     * If an upload contains more than the number of students in the class plus
+     * this value, the upload will fail.
+     */
+    private static final int MAX_NUM_ROWS_OVER_CLASS_SIZE = 50;
 
     private String pageName;
     
@@ -530,6 +549,15 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	InputStream inputStream = null;
     	String fileName = null;
 	    List contents = null;
+	    
+	    int maxFileSizeInMB;
+	    try {
+	        maxFileSizeInMB = ServerConfigurationService.getInt(PROPERTY_FILE_SIZE_MAX, FILE_SIZE_DEFAULT);
+	    } catch (NumberFormatException nfe) {
+	        if (logger.isDebugEnabled()) logger.debug("Invalid property set for gradebook max file size");
+	        maxFileSizeInMB = FILE_SIZE_DEFAULT;
+	    }
+        long maxFileSizeInBytes = 1024L * 1024L * maxFileSizeInMB;
 
         if (upFile != null) {
 	        if (upFile != null && logger.isDebugEnabled()) {
@@ -541,6 +569,11 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	        if (!upFile.getName().endsWith("csv")) {
 	            FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error",new String[] {upFile.getName()}));
 	            return null;
+	        }
+	        
+	        if (upFile.getSize() > maxFileSizeInBytes) {
+	            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filesize_error",new String[] {maxFileSizeInMB + ""}));
+                return null;
 	        }
 	        
 	        fileName = upFile.getName();
@@ -558,7 +591,17 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		        }
 		        
 		        fileName = pickedFileDesc;
-		        inputStream = getPickedFileStream();
+		        
+		        ContentResource resource = getPickedContentResource();
+		        if (resource != null) {
+		            // double check the file size does not exceed our limit
+		            if (resource.getContentLength() > maxFileSizeInBytes) {
+		                FacesUtil.addErrorMessage(getLocalizedString("upload_view_filesize_error", new String[] {maxFileSizeInMB + ""}));
+		                return null;
+		            }
+		        }
+		        inputStream = getPickedFileStream(resource);
+		        
 		        clearPickedFile();
         	}
             else {
@@ -582,6 +625,13 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_config_error"));
             return null;
 		}
+		
+		// double check that the number of rows in this spreadsheet is reasonable
+        int numStudentsInSite = getNumStudentsInSite();
+        if (contents.size() > (numStudentsInSite + MAX_NUM_ROWS_OVER_CLASS_SIZE)) {
+            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filerows_error", new String[] {contents.size() + "", numStudentsInSite + ""}));
+            return null;
+        }
         
         // reset error lists
         unknownUsers = new ArrayList();
@@ -689,6 +739,15 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	InputStream inputStream = null;
     	String fileName = null;
 	    List contents = null;
+	    
+	    int maxFileSizeInMB;
+        try {
+            maxFileSizeInMB = ServerConfigurationService.getInt(PROPERTY_FILE_SIZE_MAX, FILE_SIZE_DEFAULT);
+        } catch (NumberFormatException nfe) {
+            if (logger.isDebugEnabled()) logger.debug("Invalid property set for gradebook max file size");
+            maxFileSizeInMB = FILE_SIZE_DEFAULT;
+        }
+        long maxFileSizeInBytes = 1024L * 1024L * maxFileSizeInMB;
 
 	    if (upFile != null) {
 	        if (upFile != null && logger.isDebugEnabled()) {
@@ -701,6 +760,11 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error",new String[] {upFile.getName()}));
 	            return null;
 	        }
+	        
+	        if (upFile.getSize() > maxFileSizeInBytes) {
+                FacesUtil.addErrorMessage(getLocalizedString("upload_view_filesize_error",new String[] {maxFileSizeInMB + ""}));
+                return null;
+            }
 	        
 	        fileName = upFile.getName();
 	        inputStream = new BufferedInputStream(upFile.getInputStream());
@@ -717,7 +781,17 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		        }
 		        
 		        fileName = pickedFileDesc;
-		        inputStream = getPickedFileStream();
+		        
+		        ContentResource resource = getPickedContentResource();
+                if (resource != null) {
+                    // double check the file size does not exceed our limit
+                    if (resource.getContentLength() > maxFileSizeInBytes) {
+                        FacesUtil.addErrorMessage(getLocalizedString("upload_view_filesize_error", new String[] {maxFileSizeInMB + ""}));
+                        return null;
+                    }
+                }
+                inputStream = getPickedFileStream(resource);
+		        
 		        clearPickedFile();
         	}
             else {
@@ -741,6 +815,13 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_config_error"));
             return null;
 		}
+		
+	    // double check that the number of rows in this spreadsheet is reasonable
+		int numStudentsInSite = getNumStudentsInSite();
+        if (contents.size() > (numStudentsInSite + MAX_NUM_ROWS_OVER_CLASS_SIZE)) {
+            FacesUtil.addErrorMessage(getLocalizedString("upload_view_filerows_error",new String[] {contents.size() + "", numStudentsInSite + ""}));
+            return null;
+        }
 
 		spreadsheet = new Spreadsheet();
         spreadsheet.setDate(new Date());
@@ -832,6 +913,10 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         String line;
         while((line = reader.readLine())!=null){
             //logger.debug("contents of line: "+line);
+            if (line.replaceAll(",", "").replaceAll("\"", "").equals("")) {
+                continue;
+            }
+            
             contents.add(line);
         }
         return contents;
@@ -2035,29 +2120,44 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     /**
      * Use the uploaded file reference to get an InputStream.
      * Must be a reference to a ContentResource
-     * 
+     * @param resource the ContentResource associated with {@link #pickedFileReference}.
+     * see {@link #getPickedContentResource()}
      * @return InputStream
      */
-    private InputStream getPickedFileStream() {
-    	InputStream inStream = null;
-    	
-    	if (pickedFileReference != null) {
-    		try {
-    			Reference ref = EntityManager.newReference(pickedFileReference);
-    			if (ref != null) {
-	    			Entity ent = ref.getEntity();
-	    		    if (ent instanceof ContentResource) {
-				    // entity came from file picker, so it should be a content resource
-				    	inStream = ((ContentResource) ent).streamContent();
-	    			}
-    			}
-		    }
-		    catch(ServerOverloadException soe) {
-		        logger.error(soe.getStackTrace());
-		    }
-		}
-    	
-    	return inStream;
+    private InputStream getPickedFileStream(ContentResource resource) {
+        InputStream inStream = null;
+
+        if (resource != null) {
+            try {
+                inStream = resource.streamContent();
+            }
+            catch(ServerOverloadException soe) {
+                logger.error(soe.getStackTrace());
+            }
+        }
+
+        return inStream;
+    }
+    
+    /**
+     * 
+     * @return the ContentResource associated with the {@link #pickedFileReference} property.
+     * returns null if the entity is not a ContentResource
+     */
+    private ContentResource getPickedContentResource() {
+        ContentResource resource = null;
+        if (pickedFileReference != null) {
+            Reference ref = EntityManager.newReference(pickedFileReference);
+            if (ref != null) {
+                Entity ent = ref.getEntity();
+                if (ent instanceof ContentResource) {
+                    // entity came from file picker, so it should be a content resource
+                    resource = (ContentResource) ent;
+                }
+            }
+        }
+
+        return resource;
     }
     
     private void clearPickedFile() {
@@ -2087,6 +2187,16 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	 */
 	public void setPickedFileDesc(String pickedFileDesc) {
 		this.pickedFileDesc = pickedFileDesc;
+	}
+	
+	/**
+	 * 
+	 * @return the number of users with the student-type role enrolled in the current site
+	 */
+	private int getNumStudentsInSite() {
+	    List enrollments = getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.STUDENT);
+        int numStudentsInSite = enrollments != null ? enrollments.size() : 0;
+        return numStudentsInSite;
 	}
 
 }
