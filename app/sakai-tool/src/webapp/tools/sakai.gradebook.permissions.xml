@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool id="sakai.gradebook.permissions" title="Grader Permissions" description="Gradebook Grader Permissions Helper Tool">
+       <category name="sakai.helper" />
+	</tool>
+
+</registration>

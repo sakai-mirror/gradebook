@@ -61,6 +61,27 @@
         <load-on-startup>2</load-on-startup>
     </servlet>
     
+    <!-- helper for the grader permissions -->
+    <servlet>
+      <servlet-name>sakai.gradebook.permissions</servlet-name>
+      <servlet-class>org.sakaiproject.jsf.util.HelperAwareJsfTool</servlet-class>
+        <init-param>
+            <param-name>path</param-name>
+            <param-value>/</param-value>
+        </init-param>
+
+        <init-param>
+            <param-name>default</param-name>
+            <!-- the path is inserted before and .jsp inserted after -->
+            <param-value>graderRules</param-value>
+        </init-param>
+         <init-param>
+            <param-name>default.last.view</param-name>
+            <param-value>false</param-value>
+        </init-param>
+      <load-on-startup>1</load-on-startup>
+   </servlet>
+    
     <!--  Servlet for RSF Helper -->
     <servlet>
     	<servlet-name>sakai-gradebook-item-helper</servlet-name>
@@ -102,6 +123,8 @@
 		<servlet-name>Entry Servlet</servlet-name>
 		<url-pattern>/entry.servlet</url-pattern>
 	</servlet-mapping>
+  
+  
 
     <listener>
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>
