@@ -29,9 +29,13 @@ import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,6 +86,7 @@ public class GraderRulesBean extends GradebookDependentBean implements Serializa
 	
 	private boolean refreshView = true;
 
+	private final String PERM_HELPER = "sakai.gradebook.permissions.helper";
 
 	protected void init() {
 		// first, load data that is non-grader specific. only load first time through
@@ -235,6 +240,25 @@ public class GraderRulesBean extends GradebookDependentBean implements Serializa
 		if (selectedGrader == null || selectedGrader.getGraderRules() == null || selectedGrader.getGraderRules().size() <= 0)
 			return false;
 		return true;
+	}
+	
+	   
+    private Boolean helperView;
+	public boolean isHelperView() {
+	    if (helperView == null) {
+	        helperView = false;
+	        
+	        // this is a helper view if it came from sakai.gradebook.permissions.helper
+	        ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+	        Map requestMap = externalContext.getRequestMap();
+	        if (requestMap != null) {
+	            String requestUri = (String) requestMap.get("javax.servlet.forward.request_uri");
+	            if (requestUri != null && requestUri.contains(PERM_HELPER)) {
+	                helperView = true;
+	            }
+	        }
+	    }
+	    return helperView;
 	}
 	
 	public String processSelectGrader(ValueChangeEvent event) {

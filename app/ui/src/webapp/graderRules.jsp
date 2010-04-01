@@ -2,12 +2,14 @@
 <f:view>
 	<div class="portletBody">
 	  <h:form id="gbForm">
-
-			<t:aliasBean alias="#{bean}" value="#{graderRulesBean}">
-				<%@include file="/inc/appMenu.jspf"%>
-			</t:aliasBean>
 	
 			<sakai:flowState bean="#{graderRulesBean}" />
+            
+      <h:panelGroup rendered="#{!graderRulesBean.helperView}">
+          <t:aliasBean alias="#{bean}" value="#{graderRulesBean}">
+            <%@include file="/inc/appMenu.jspf"%>
+          </t:aliasBean>
+      </h:panelGroup>
 	
 			<h2>
 					<h:outputText value="#{msgs.grader_rules_title}" />
