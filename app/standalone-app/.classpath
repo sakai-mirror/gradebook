@@ -1,8 +1,8 @@
 <classpath>
   <classpathentry kind="src" path="src/test" output="target/test-classes"/>
-  <classpathentry kind="src" path="/Users/arwhyte/Development/svn/sakai/branches/2.6.x/gradebook/app/ui/src/webapp/WEB-INF" output="target/test-classes" including="spring-*.xml" excluding="**/*.java"/>
+  <classpathentry kind="src" path="/Users/arwhyte/Development/svn/sakai/branches/2.6.3/gradebook/app/ui/src/webapp/WEB-INF" output="target/test-classes" including="spring-*.xml" excluding="**/*.java"/>
   <classpathentry kind="src" path="src/webapp/WEB-INF" output="target/test-classes" including="spring-*.xml" excluding="**/*.java"/>
-  <classpathentry kind="src" path="/Users/arwhyte/Development/svn/sakai/branches/2.6.x/gradebook/app/ui/src/bundle" excluding="**/*.java"/>
+  <classpathentry kind="src" path="/Users/arwhyte/Development/svn/sakai/branches/2.6.3/gradebook/app/ui/src/bundle" excluding="**/*.java"/>
   <classpathentry kind="src" path="src/resources" excluding="**/*.java"/>
   <classpathentry kind="output" path="target/classes"/>
   <classpathentry kind="var" path="M2_REPO/javax/servlet/jsp-api/2.0/jsp-api-2.0.jar"/>
@@ -27,7 +27,6 @@
   <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.1/commons-lang-2.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
   <classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.2/commons-pool-1.2.jar"/>
-  <classpathentry kind="var" path="M2_REPO/commons-validator/commons-validator/1.3.1/commons-validator-1.3.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.4/dom4j-1.4.jar"/>
   <classpathentry kind="var" path="M2_REPO/net/sf/ehcache/ehcache/1.3.0/ehcache-1.3.0.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.2.5.ga/hibernate-3.2.5.ga.jar"/>
@@ -44,13 +43,16 @@
   <classpathentry kind="var" path="M2_REPO/org/apache/myfaces/core/myfaces-api/1.1.5/myfaces-api-1.1.5.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/myfaces/core/myfaces-impl/1.1.5/myfaces-impl-1.1.5.jar"/>
   <classpathentry kind="var" path="M2_REPO/odmg/odmg/3.0/odmg-3.0.jar"/>
-  <classpathentry kind="var" path="M2_REPO/oro/oro/2.0.8/oro-2.0.8.jar"/>
   <classpathentry kind="var" path="M2_REPO/poi/poi/2.5.1-final-20040804/poi-2.5.1-final-20040804.jar"/>
   <classpathentry kind="var" path="M2_REPO/uk/org/ponder/ponderutilcore/1.2.3/ponderutilcore-1.2.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/relaxngDatatype/relaxngDatatype/20020414/relaxngDatatype-20020414.jar"/>
   <classpathentry kind="var" path="M2_REPO/uk/org/ponder/rsfutil/RSFComponents-evolvers/0.7.3/RSFComponents-evolvers-0.7.3.jar"/>
   <classpathentry kind="var" path="M2_REPO/uk/org/ponder/rsfutil/rsfutil/0.7.3/rsfutil-0.7.3.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-component-manager/1.0.12/sakai-component-manager-1.0.12.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-component-manager/1.0.16/sakai-component-manager-1.0.16.jar" sourcepath="M2_REPO/org/sakaiproject/kernel/sakai-component-manager/1.0.16/sakai-component-manager-1.0.16-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/arwhyte/.m2/repository/org/sakaiproject/kernel/sakai-component-manager/1.0.16/sakai-component-manager-1.0.16-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
   <classpathentry kind="src" path="/sakai-gradebook-app-business"/>
   <classpathentry kind="src" path="/sakai-gradebook-app-ui"/>
   <classpathentry kind="src" path="/sakai-gradebook-service-api"/>
@@ -61,9 +63,21 @@
   <classpathentry kind="src" path="/sakai-jsf-tool"/>
   <classpathentry kind="src" path="/sakai-jsf-widgets"/>
   <classpathentry kind="src" path="/sakai-jsf-widgets-myfaces"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-api/1.0.12/sakai-kernel-api-1.0.12.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-private/1.0.12/sakai-kernel-private-1.0.12.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.0.12/sakai-kernel-util-1.0.12.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-api/1.0.16/sakai-kernel-api-1.0.16.jar" sourcepath="M2_REPO/org/sakaiproject/kernel/sakai-kernel-api/1.0.16/sakai-kernel-api-1.0.16-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/arwhyte/.m2/repository/org/sakaiproject/kernel/sakai-kernel-api/1.0.16/sakai-kernel-api-1.0.16-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-private/1.0.16/sakai-kernel-private-1.0.16.jar" sourcepath="M2_REPO/org/sakaiproject/kernel/sakai-kernel-private/1.0.16/sakai-kernel-private-1.0.16-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/arwhyte/.m2/repository/org/sakaiproject/kernel/sakai-kernel-private/1.0.16/sakai-kernel-private-1.0.16-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.0.16/sakai-kernel-util-1.0.16.jar" sourcepath="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/1.0.16/sakai-kernel-util-1.0.16-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/arwhyte/.m2/repository/org/sakaiproject/kernel/sakai-kernel-util/1.0.16/sakai-kernel-util-1.0.16-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
   <classpathentry kind="src" path="/sakai-sections-api"/>
   <classpathentry kind="src" path="/sakai-sections-impl-standalone"/>
   <classpathentry kind="src" path="/sakai-sections-integrationsupport"/>
