@@ -290,7 +290,20 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			}
 			
 			getGradebookManager().updateAssignment(assignment);
-			
+			long dueDateMillis = -1;
+			java.util.Date dueDate = assignment.getDueDate();
+			if (dueDate != null) {
+				dueDateMillis = dueDate.getTime();
+			}
+			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateAssignment","/gradebook/"
+				+getGradebookUid()+"/"
+				+assignment.getName()+"/"
+				+assignment.getPointsPossible()+"/"
+				+dueDateMillis+"/"
+				+assignment.isReleased()+"/"
+				+assignment.isCounted()+"/"
+				+getAuthzLevel());
+
 			if ((!origPointsPossible.equals(newPointsPossible)) && scoresEnteredForAssignment) {
 				if (getGradeEntryByPercent())
 					FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_percentage", new String[] {assignment.getName()}));
