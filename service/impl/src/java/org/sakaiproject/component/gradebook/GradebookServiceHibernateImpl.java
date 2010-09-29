@@ -860,7 +860,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 	public void updateExternalAssessmentScore(String gradebookUid, String externalId,
 			String studentUid, Double points) throws GradebookNotFoundException, AssessmentNotFoundException {
-		externalAssessmentService.updateExternalAssessmentScore(gradebookUid, externalId, studentUid, points.toString());
+	    String strPoints = (points == null ? null : points.toString());
+		externalAssessmentService.updateExternalAssessmentScore(gradebookUid, externalId, studentUid, strPoints);
 	}
 	//comment out for non-cal dev.
 //	public void updateExternalAssessmentScores(String gradebookUid, String externalId, Map studentUidsToScores)
