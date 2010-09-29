@@ -56,6 +56,7 @@ import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
+import org.sakaiproject.util.Validator;
 
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -160,7 +161,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             EnrollmentRecord enr;
             enr = (EnrollmentRecord)iter.next();
             if(logger.isDebugEnabled()) logger.debug("displayid "+enr.getUser().getDisplayId() + "  userid "+enr.getUser().getUserUid());
-            rosterMap.put(enr.getUser().getDisplayId(),enr.getUser());
+            rosterMap.put(enr.getUser().getDisplayId().toLowerCase(),enr.getUser());
         }
         
         if (assignment == null) {
@@ -1310,7 +1311,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         				!assignment.getPointsPossible().toString().equals(getLocalizedString("NON_CALCULATING_ITEM")) && !getGradeEntryByLetter()) {
         			if (assignment.isExternallyMaintained()) {
         				externallyMaintainedImportMsg.append(getLocalizedString("import_assignment_externally_maintained_settings",
-        						new String[] {assignment.getName(), assignment.getExternalAppName()}) + "<br />");
+        						new String[] {Validator.escapeHtml(assignment.getName()), Validator.escapeHtml(assignment.getExternalAppName())}) + "<br />");
         			} else if (pointsPossibleAsString != null) {
         				try{
         					double pointsPossible = new Double(pointsPossibleAsString);
@@ -1616,7 +1617,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		if (updatingExternalGrade){
 			updatingAnyExternalAssignments = true;
 			externallyMaintainedImportMsg.append(getLocalizedString("import_assignment_externally_maintained_grades",
-					new String[] {assignment.getName(), assignment.getExternalAppName()}) + "<br/>");
+					new String[] {Validator.escapeHtml(assignment.getName()), Validator.escapeHtml(assignment.getExternalAppName())}) + "<br/>");
 		}
 		
 		return updatedGradeRecords;
@@ -2079,7 +2080,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             try {
                 if(logger.isDebugEnabled()) logger.debug("getuser name for "+ rowcontent.get(0));
                 //userDisplayName = getUserDirectoryService().getUserDisplayName(tokens[0]);
-                userId = (String) rowcontent.get(0);
+                userId = ((String) rowcontent.get(0)).toLowerCase();
                 
                	userDisplayName = ((User)rosterMap.get(userId)).getDisplayName();
                	userUid = ((User)rosterMap.get(userId)).getUserUid();
