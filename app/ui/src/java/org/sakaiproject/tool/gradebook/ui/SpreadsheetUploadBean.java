@@ -22,8 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -107,6 +109,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private UIComponent uploadButton;
     private String csvDelimiter;
     private NumberFormat numberFormat;
+    private String date_entry_format_description;
 
     // Used for bulk upload of gradebook items
     // Holds list of unknown user ids
@@ -168,6 +171,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 				categoriesSelectList.add(new SelectItem(cat.getId().toString(), cat.getName()));
 			}
 		}
+
+		DateFormat df = DateFormat.getDateInstance( DateFormat.SHORT, (new ResourceLoader()).getLocale() ); 
+		date_entry_format_description = ((SimpleDateFormat)df).toPattern();
 
     }
     
@@ -2383,6 +2389,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	    return numberFormat;
 	}
 
+	public String getDateEntryFormatDescription(){
+		return this.date_entry_format_description;
+	}
 
 }
 
