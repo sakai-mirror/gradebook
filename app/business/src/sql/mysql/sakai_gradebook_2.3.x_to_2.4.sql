@@ -10,7 +10,7 @@ create table GB_COMMENT_T (
 	DATE_RECORDED datetime not null,
 	GRADABLE_OBJECT_ID bigint not null,
 	primary key (ID),
-	unique (STUDENT_ID, GRADABLE_OBJECT_ID)) TYPE=InnoDB;
+	unique (STUDENT_ID, GRADABLE_OBJECT_ID)) ENGINE=InnoDB;
 alter table GB_COMMENT_T 
 	add index FK7977DFF06F98CFF (GRADABLE_OBJECT_ID), 
 	add constraint FK7977DFF06F98CFF foreign key (GRADABLE_OBJECT_ID) references GB_GRADABLE_OBJECT_T (ID);
