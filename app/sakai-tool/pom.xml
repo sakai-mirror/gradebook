@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>sakai-gradebook-app</artifactId>
@@ -48,27 +49,10 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-app-business</artifactId>
     </dependency>
-<!--
-			The Gradebook application doesn't call the GradebookService,
-			but it does share some classes with the implementation.
-		-->
-    <!--<dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-gradebook-service-impl</artifactId>
-    </dependency>-->
     <dependency>
       <groupId>org.sakaiproject.edu-services.gradebook</groupId>
       <artifactId>gradebook-service-api</artifactId>
     </dependency>
-    <!--<dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-gradebook-service-hibernate</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-gradebook-service-impl</artifactId>
-    </dependency>-->
 <!-- Section Awareness -->
     <dependency>
       <groupId>org.sakaiproject.edu-services.sections</groupId>
@@ -137,14 +121,11 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>3.1.12</version>
 		</dependency>
-
 -->
 <!-- End database dependencies -->
-<!--${sakai.spring.groupId}${sakai.spring.artifactId}${sakai.spring.version}-->
     <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.test.artifactId}</artifactId>
-      <version>${sakai.spring.test.version}</version>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -158,8 +139,6 @@
       <artifactId>jta</artifactId>
       <version>h2.1.8</version>
     </dependency>
-<!--${sakai.hibernate.groupId}${sakai.hibernate.artifactId}${sakai.hibernate.version}-->
-<!--${sakai.ehcache.groupId}${sakai.ehcache.artifactId}${sakai.ehcache.version}-->
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
@@ -184,7 +163,6 @@
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>${sakai.commons.lang.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-collections</groupId>
@@ -204,7 +182,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
@@ -214,7 +191,6 @@
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.9</version>
     </dependency>
     <dependency>
       <groupId>dom4j</groupId>
@@ -243,11 +219,9 @@
       <version>1.1.6</version>
     </dependency>
 <!-- Needed by MyFaces ExtensionsFilter -->
-<!-- although this is in shared, the maven 1 build put it into the war -->
     <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
-      <version>1.1.1</version>
     </dependency>
 <!-- base64 used to implement STATE_SAVING_METHOD client -->
     <dependency>
@@ -265,7 +239,6 @@
       <artifactId>standard</artifactId>
       <version>1.1.2</version>
     </dependency>
-<!--javax.servletservlet-api${sakai.servletapi.version}-->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
