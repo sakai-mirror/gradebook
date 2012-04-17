@@ -794,7 +794,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     public void exportXlsNoCourseGrade(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting gradebook " + getGradebookUid() + " as Excel");
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
-        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false), 
+        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false,false), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterXls());
     }
@@ -802,7 +802,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     public void exportCsvNoCourseGrade(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting gradebook " + getGradebookUid() + " as CSV");
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
-        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false), 
+        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false,true), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterCsv());
     }
@@ -811,11 +811,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         if(logger.isInfoEnabled()) logger.info("exporting roster as CSV for gradebook " + getGradebookUid());
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
         if (isUserAbleToGradeAll()) {
-        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true), 
+        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true,true), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterCsv());
         } else {
-        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false), 
+        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false,true), 
             		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
             		new SpreadsheetDataFileWriterCsv());
         }
@@ -826,17 +826,17 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
         if (isUserAbleToGradeAll()) {
-        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true), 
+        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true,false), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterXls());
         } else {
-        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false), 
+        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false,false), 
             		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
             		new SpreadsheetDataFileWriterXls());
         }
     }
     
-    private List<List<Object>> getSpreadsheetData(boolean includeCourseGrade) {
+    private List<List<Object>> getSpreadsheetData(boolean includeCourseGrade, boolean localizeScores) {
     	// Get the full list of filtered enrollments and scores (not just the current page's worth).
     	Map enrRecItemIdFunctionMap = getWorkingEnrollmentsForAllItems();
     	List filteredEnrollments = new ArrayList(enrRecItemIdFunctionMap.keySet());  
@@ -957,7 +957,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	        getGradebookManager().addToGradeRecordMap(filteredGradesMap, courseGradeRecords);
 	        gradableObjects.add(courseGrade);
 		}
-    	return getSpreadsheetData(filteredEnrollments, filteredGradesMap, gradableObjects, includeCourseGrade);
+    	return getSpreadsheetData(filteredEnrollments, filteredGradesMap, gradableObjects, includeCourseGrade, localizeScores);
     }
  
     /**
@@ -974,7 +974,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
      * @return
      */
     private List<List<Object>> getSpreadsheetData(List enrollments, Map gradesMap, List gradableObjects,
-    												boolean includeCourseGrade) {
+    												boolean includeCourseGrade, boolean localizeScores) {
     	List<List<Object>> spreadsheetData = new ArrayList<List<Object>>();
 
     	NumberFormat nf = NumberFormat.getInstance(new ResourceLoader().getLocale());
@@ -1034,7 +1034,10 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         		}
         		if (score != null && score instanceof Double) {
         			score = new Double(FacesUtil.getRoundDown(((Double)score).doubleValue(), 2));
-        			score = nf.format(score);
+        			// SAK-19849: do NOT localize the score if exporting to Excel. Let Excel localize it!
+					if (localizeScores) {
+						score = nf.format(score);
+					}
         		}
     			
         		row.add(score);
