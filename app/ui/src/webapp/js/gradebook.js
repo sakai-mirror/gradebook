@@ -346,7 +346,7 @@ function toggleVisibilityDropScoresFields() {
     headerRows[dropHighestIdx].style.display=dropHighestVisibility;
     headerRows[dropHighestIdx+1].style.display=dropLowestVisibility;
     headerRows[dropHighestIdx+2].style.display=keepHighestVisibility;
-    headerRows[dropHighestIdx+3].style.display=itemValueVisibility;
+    //headerRows[dropHighestIdx+3].style.display=itemValueVisibility;
     var rows = tbl.getElementsByTagName('tr');
     for (var row=0; row<rows.length;row++) {
         var cels = rows[row].getElementsByTagName('td')
@@ -354,7 +354,7 @@ function toggleVisibilityDropScoresFields() {
             cels[dropHighestIdx].style.display=dropHighestVisibility;
             cels[dropHighestIdx+1].style.display=dropLowestVisibility;
             cels[dropHighestIdx+2].style.display=keepHighestVisibility;
-            cels[dropHighestIdx+3].style.display=itemValueVisibility;
+            //cels[dropHighestIdx+3].style.display=itemValueVisibility;
         }
     }
     dropScoresAdjust();
