@@ -334,7 +334,8 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
             if (assign.isExtraCredit()!=null)
             	extraCredit = assign.isExtraCredit();
             if (assign.isCounted() && !assign.getUngraded() && !assign.isRemoved() && 
-                    assign.getPointsPossible() != null && assign.getPointsPossible() > 0 && !gradeRec.getDroppedFromGrade() && !extraCredit) {
+                    assign.getPointsPossible() != null && assign.getPointsPossible() > 0 && !gradeRec.getDroppedFromGrade() && !extraCredit &&
+                    studentCanView(studentId, assign)) {
                 countedGradeRecs.add(gradeRec);
             }
         }
