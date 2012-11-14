@@ -14,7 +14,7 @@
   <modules>
     <module>business</module>
     <module>sakai-tool</module>
-    <module>standalone-app</module>
+    <!--module>standalone-app</module--><!-- removed to fix java 7 build issue -->
     <module>ui</module>
   </modules>
 </project>
