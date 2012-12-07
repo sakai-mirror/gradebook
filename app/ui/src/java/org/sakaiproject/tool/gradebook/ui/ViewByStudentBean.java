@@ -522,12 +522,12 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			i.remove();
     	}
 
+        boolean checkExternalGroups = ServerConfigurationService.getBoolean("gradebook.check.external.groups", false);
 		i = gradeRows.iterator();
+        if (checkExternalGroups) { 
 		while (i.hasNext()) {
 			Assignment assignment = ((AssignmentGradeRow)i.next()).getAssociatedAssignment();
 
-            boolean checkExternalGroups = ServerConfigurationService.getBoolean("gradebook.check.external.groups", false);
-            if (checkExternalGroups) { 
 			GradebookExternalAssessmentService gext = getGradebookExternalAssessmentService();
 			if (assignment.isExternallyMaintained()) {
 				if (gext.isExternalAssignmentGrouped(gradebook.getUid(), assignment.getExternalId())) {
@@ -539,7 +539,6 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
 		}
 		}
 
-    	
     	if (!sortColumn.equals(Category.SORT_BY_WEIGHT)) {
 	    	Collections.sort(gradeRows, (Comparator)columnSortMap.get(sortColumn));
 	    	if(!sortAscending) {
