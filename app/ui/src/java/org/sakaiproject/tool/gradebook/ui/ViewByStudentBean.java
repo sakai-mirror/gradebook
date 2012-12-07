@@ -525,6 +525,9 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
 		i = gradeRows.iterator();
 		while (i.hasNext()) {
 			Assignment assignment = ((AssignmentGradeRow)i.next()).getAssociatedAssignment();
+
+            boolean checkExternalGroups = ServerConfigurationService.getBoolean("gradebook.check.external.groups", false);
+            if (checkExternalGroups) { 
 			GradebookExternalAssessmentService gext = getGradebookExternalAssessmentService();
 			if (assignment.isExternallyMaintained()) {
 				if (gext.isExternalAssignmentGrouped(gradebook.getUid(), assignment.getExternalId())) {
@@ -533,6 +536,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
 					}
 				}
 			}
+		}
 		}
 
     	
