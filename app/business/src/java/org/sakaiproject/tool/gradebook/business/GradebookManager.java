@@ -353,8 +353,6 @@ public interface GradebookManager {
     public CourseGrade getCourseGrade(Long gradebookId);
 
     public double getTotalPoints(Long gradebookId);
-    
-    abstract double getTotalPointsInternal(final Gradebook gradebook, final List categories, final String studentId, List<AssignmentGradeRecord> studentGradeRecs, List<Assignment> countedAssigns, boolean literalTotal);
 
     /**
      * Fetches a spreadsheet that has been saved
@@ -411,18 +409,13 @@ public interface GradebookManager {
     /**method to create a category for a gradebook
     *
     * @param gradebookId
-     * @param name
-     * @param weight
-     * @param dropLowest
-     * @param dropHighest
-     * @param keepHighest
-     * @param pointValue
-     * @param relativeWeight
-     * @param is_extra_credit
+    * @param name
+    * @param weight
+    * @param drop_lowest
     * @return id of the new category
     * @throws ConflictingAssignmentNameException StaleObjectModificationException
     */
-    public Long createCategory(final Long gradebookId, final String name, final Double weight, final Integer drop_lowest, final Integer dropHighest, final Integer keepHighest, final Boolean is_extra_credit) 
+    public Long createCategory(final Long gradebookId, final String name, final Double weight, final int drop_lowest) 
     throws ConflictingCategoryNameException, StaleObjectModificationException;
     
     /**method to get all categories for a gradebook
@@ -544,19 +537,6 @@ public interface GradebookManager {
      * @return Category list - the last object is CourseGrade for this gradebook
      */
     public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending);
-    
-    /**
-     * Get all categories with stats
-     *  
-     * @param gradebookId
-     * @param assignmentSort assignment sorting string
-     * @param assignAscending assignment sorting ascending/descending
-     * @param categorySort category sorting string
-     * @param categoryAscending category sorting ascending/descending
-     * @param includeDroppedScores whether or not to include dropped scores in the calculations
-     * @return Category list - the last object is CourseGrade for this gradebook
-     */
-    public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending, boolean includeDroppedScores);
     
     /**
      * 
@@ -867,9 +847,4 @@ public interface GradebookManager {
      * @return boolean
      */
     public boolean checkValidName(final Long gradebookId, final Assignment assignment);
-    
-    public void updateCategoryAndAssignmentsPointsPossible(final Long gradebookId, final Category category)
-    throws ConflictingAssignmentNameException, StaleObjectModificationException;    
-    
-    public void applyDropScores(Collection<AssignmentGradeRecord> gradeRecords);
 }

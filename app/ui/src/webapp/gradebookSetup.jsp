@@ -13,11 +13,6 @@
 			<h2><h:outputText value="#{msgs.gb_setup_title}"/></h2>
 			
 			<%@include file="/inc/globalMessages.jspf"%>
-			
-			<p class="instruction">
-				<h:outputText value="* " styleClass="reqStarInline"/>
-				<h:outputText value="#{msgs.flag_required2}"/>
-			</p>
 		
 			<h:panelGroup rendered="#{!gradebookSetupBean.isExistingConflictScale}" styleClass="validation">
 			  <h:outputText value="#{msgs.feedback_options_existing_conflict1}" rendered="#{!gradebookSetupBean.isExistingConflictScale}"/>
@@ -41,14 +36,13 @@
 			<div class="indnt1">
 				<div class="instruction"><h:outputText value="#{msgs.grade_entry_info}" escape="false"/></div>
 			
-				<h:selectOneRadio value="#{gradebookSetupBean.gradeEntryMethod}" id="gradeEntryMethod1" layout="pageDirection"  rendered="#{gradebookSetupBean.enableLetterGrade}"
-				valueChangeListener="#{gradebookSetupBean.processGradeEntryMethodChange}" onclick="this.form.submit();">
+				<h:selectOneRadio value="#{gradebookSetupBean.gradeEntryMethod}" id="gradeEntryMethod1" layout="pageDirection"  rendered="#{gradebookSetupBean.enableLetterGrade}">
 					<f:selectItem itemValue="points" itemLabel="#{msgs.entry_opt_points}" />
-	        		<f:selectItem itemValue="percent" itemLabel="#{msgs.entry_opt_percent}" /> 
+	        <f:selectItem itemValue="percent" itemLabel="#{msgs.entry_opt_percent}" /> 
+	        <f:selectItem itemValue="letterGrade" itemLabel="#{msgs.entry_opt_letters}"/>
 				</h:selectOneRadio>
 
-				<h:selectOneRadio value="#{gradebookSetupBean.gradeEntryMethod}" id="gradeEntryMethod2" layout="pageDirection"  rendered="#{!gradebookSetupBean.enableLetterGrade}"
-					valueChangeListener="#{gradebookSetupBean.processGradeEntryMethodChange}" onclick="this.form.submit();">
+				<h:selectOneRadio value="#{gradebookSetupBean.gradeEntryMethod}" id="gradeEntryMethod2" layout="pageDirection"  rendered="#{!gradebookSetupBean.enableLetterGrade}">
 					<f:selectItem itemValue="points" itemLabel="#{msgs.entry_opt_points}" />
 	        <f:selectItem itemValue="percent" itemLabel="#{msgs.entry_opt_percent}" /> 
 				</h:selectOneRadio>
@@ -115,12 +109,10 @@
 					id="saveButton"
 					styleClass="active"
 					value="#{msgs.gb_setup_save}"
-					action="#{gradebookSetupBean.processSaveGradebookSetup}"
-					onclick="javascript:reEnableCategoryDropInputs();"/>
+					action="#{gradebookSetupBean.processSaveGradebookSetup}"/>
 				<h:commandButton
 					value="#{msgs.gb_setup_cancel}"
-					action="#{gradebookSetupBean.processCancelGradebookSetup}" immediate="true"
-					onclick="javascript:reEnableCategoryDropInputs();"/>
+					action="#{gradebookSetupBean.processCancelGradebookSetup}" immediate="true"/>
 			</div>
 			
 			<%
