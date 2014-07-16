@@ -29,7 +29,10 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.gradebook.GradebookDefinition;
+import org.sakaiproject.component.gradebook.VersionedExternalizable;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.gradebook.entity.Category;
 import org.sakaiproject.gradebook.entity.Course;
 import org.sakaiproject.gradebook.entity.Gradebook;
 import org.sakaiproject.gradebook.entity.GradebookItem;
@@ -37,6 +40,7 @@ import org.sakaiproject.gradebook.entity.GradebookItemScore;
 import org.sakaiproject.gradebook.entity.Student;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -420,6 +424,20 @@ public class ExternalLogic {
          ***/
         return students;
     }
+    
+    public List<Category> getCaterogiesForCourse(String gbID) {
+    	List<Category> categories = new ArrayList<Category>();
+        List<CategoryDefinition> categoryDef = gradebookService.getCategoryDefinitions(gbID);
+        
+        for (CategoryDefinition categoryDefinition : categoryDef) {
+        	Category category=new Category(categoryDefinition.getName(), 
+        			categoryDefinition.getWeight().toString(),categoryDefinition.getDrop_lowest().toString(),
+        			categoryDefinition.getDropHighest().toString(),categoryDefinition.getKeepHighest().toString());
+        	categories.add(category);
+        }
+       
+        return categories;
+    }
 
     /**
      * @param userId
@@ -511,7 +529,12 @@ public class ExternalLogic {
             } else {
                 throw new IllegalArgumentException("Invalid gradebook item name ("+gbItemName+"), no item with this name found in cource ("+siteId+")");
             }
+            
         }
+        gb.category=getCaterogiesForCourse(gbID);
+        String gradebookDefinitionXml = gradebookService.getGradebookDefinitionXml(gbID);
+		GradebookDefinition gradebookDefinition = (GradebookDefinition)VersionedExternalizable.fromXml(gradebookDefinitionXml);
+        gb.gradeBookItemsToStudentFlag=gradebookDefinition.isDisplayReleasedGradeItemsToStudents();
         return gb;
     }
 

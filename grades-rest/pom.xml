@@ -51,6 +51,11 @@
 <!--             <groupId>org.sakaiproject</groupId> -->
 <!--             <artifactId>sakai-gradebook-service-api</artifactId> -->
         </dependency>
+        
+         <dependency>
+        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+    <artifactId>gradebook-service-impl</artifactId>
+     </dependency>
 
         <!-- shared external dependencies -->
         <dependency>
