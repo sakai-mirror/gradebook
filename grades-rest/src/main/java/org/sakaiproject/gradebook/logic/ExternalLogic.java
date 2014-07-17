@@ -424,15 +424,20 @@ public class ExternalLogic {
          ***/
         return students;
     }
+    /**
+     * Get the category information 
+     * @param gbID
+     * @return
+     */
     
-    public List<Category> getCaterogiesForCourse(String gbID) {
+    public List<Category> getCategoriesForCourse(String gbID) {
     	List<Category> categories = new ArrayList<Category>();
         List<CategoryDefinition> categoryDef = gradebookService.getCategoryDefinitions(gbID);
         
         for (CategoryDefinition categoryDefinition : categoryDef) {
         	Category category=new Category(categoryDefinition.getName(), 
-        			categoryDefinition.getWeight().toString(),categoryDefinition.getDrop_lowest().toString(),
-        			categoryDefinition.getDropHighest().toString(),categoryDefinition.getKeepHighest().toString());
+        			categoryDefinition.getWeight(),categoryDefinition.getDrop_lowest(),
+        			categoryDefinition.getDropHighest(),categoryDefinition.getKeepHighest());
         	categories.add(category);
         }
        
@@ -531,13 +536,20 @@ public class ExternalLogic {
             }
             
         }
-        gb.category=getCaterogiesForCourse(gbID);
+        gb.category=getCategoriesForCourse(gbID);
         String gradebookDefinitionXml = gradebookService.getGradebookDefinitionXml(gbID);
 		GradebookDefinition gradebookDefinition = (GradebookDefinition)VersionedExternalizable.fromXml(gradebookDefinitionXml);
-        gb.gradeBookItemsToStudentFlag=gradebookDefinition.isDisplayReleasedGradeItemsToStudents();
+        gb.displayReleasedGradeItemsToStudents=gradebookDefinition.isDisplayReleasedGradeItemsToStudents();
+        gb.gradebookScale=gradebookDefinition.getGradeScale();
+        int gradeType = gradebookDefinition.getGradeType();
+        if(gradeType==1) {
+        	gb.isPointFlag=true;
+        }else if(gradeType==2) {
+        	gb.isPercentFlag=true;
+        }
         return gb;
     }
-
+    
     private GradebookItem makeGradebookItemFromAssignment(String gbID, Assignment assignment,
             Map<String, String> studentUserIds, ArrayList<String> studentIds) {
         // build up the items listing

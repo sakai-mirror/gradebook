@@ -15,14 +15,21 @@
 
 package org.sakaiproject.gradebook.entity;
 
+
+/**
+ * This class hold the category information of the Grade book 
+ * @author pushyami
+ *
+ */
+
 public class Category {
 	public String name;
-	public String weight;
-	public String drop_lowest;
-	public String dropHighest;
-	public String keepHighest;
+	public Double weight;
+	public Integer drop_lowest;
+	public Integer dropHighest;
+	public Integer keepHighest;
 	
-	public Category(String name, String weight,String drop_lowest, String dropHighest,String keepHighest) {
+	public Category(String name, Double weight,Integer drop_lowest, Integer dropHighest,Integer keepHighest) {
 		this.name=name;
 		this.weight=weight;
 		this.drop_lowest=drop_lowest;
@@ -38,35 +45,35 @@ public class Category {
 		this.name = name;
 	}
 
-	public String getWeight() {
+	public Double getWeight() {
 		return weight;
 	}
 
-	public void setWeight(String weight) {
+	public void setWeight(Double weight) {
 		this.weight = weight;
 	}
 
-	public String getDrop_lowest() {
+	public Integer getDrop_lowest() {
 		return drop_lowest;
 	}
 
-	public void setDrop_lowest(String drop_lowest) {
+	public void setDrop_lowest(Integer drop_lowest) {
 		this.drop_lowest = drop_lowest;
 	}
 
-	public String getDropHighest() {
+	public Integer getDropHighest() {
 		return dropHighest;
 	}
 
-	public void setDropHighest(String dropHighest) {
+	public void setDropHighest(Integer dropHighest) {
 		this.dropHighest = dropHighest;
 	}
 
-	public String getKeepHighest() {
+	public Integer getKeepHighest() {
 		return keepHighest;
 	}
 
-	public void setKeepHighest(String keepHighest) {
+	public void setKeepHighest(Integer keepHighest) {
 		this.keepHighest = keepHighest;
 	}
 
