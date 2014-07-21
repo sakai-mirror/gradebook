@@ -35,6 +35,7 @@ public class Gradebook {
     public String gradebookScale=null;
     public boolean isPointFlag=false;
     public boolean isPercentFlag=false;
+    public boolean isLetterGradeFlag=false;
 
     public Gradebook(String id) {
         this.id = id;

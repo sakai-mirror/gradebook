@@ -542,10 +542,12 @@ public class ExternalLogic {
         gb.displayReleasedGradeItemsToStudents=gradebookDefinition.isDisplayReleasedGradeItemsToStudents();
         gb.gradebookScale=gradebookDefinition.getGradeScale();
         int gradeType = gradebookDefinition.getGradeType();
-        if(gradeType==1) {
+        if(gradeType==GradebookService.GRADE_TYPE_POINTS) {
         	gb.isPointFlag=true;
-        }else if(gradeType==2) {
+        }else if(gradeType==GradebookService.GRADE_TYPE_PERCENTAGE) {
         	gb.isPercentFlag=true;
+        }else if(gradeType==GradebookService.GRADE_TYPE_LETTER) {
+                gb.isLetterGradeFlag=true;
         }
         return gb;
     }
