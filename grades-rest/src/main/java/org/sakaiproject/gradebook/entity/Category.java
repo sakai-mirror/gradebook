@@ -15,6 +15,10 @@
 
 package org.sakaiproject.gradebook.entity;
 
+import java.util.List;
+import java.util.Vector;
+
+
 
 /**
  * This class hold the category information of the Grade book 
@@ -28,13 +32,15 @@ public class Category {
 	public Integer drop_lowest;
 	public Integer dropHighest;
 	public Integer keepHighest;
+	public List<Assignments> assignmentsInCategory=new Vector<Assignments>();
 	
-	public Category(String name, Double weight,Integer drop_lowest, Integer dropHighest,Integer keepHighest) {
+	public Category(String name, Double weight,Integer drop_lowest, Integer dropHighest,Integer keepHighest, List<Assignments> assignmentsInCategory) {
 		this.name=name;
 		this.weight=weight;
 		this.drop_lowest=drop_lowest;
 		this.dropHighest=dropHighest;
 		this.keepHighest=keepHighest;
+		this.assignmentsInCategory=assignmentsInCategory;
 	}
 
 	public String getName() {
@@ -75,6 +81,14 @@ public class Category {
 
 	public void setKeepHighest(Integer keepHighest) {
 		this.keepHighest = keepHighest;
+	}
+
+	public List<Assignments> getAssignmentsInCategory() {
+		return assignmentsInCategory;
+	}
+
+	public void setAssignmentsInCategory(List<Assignments> assignmentsInCategory) {
+		this.assignmentsInCategory = assignmentsInCategory;
 	}
 
 }

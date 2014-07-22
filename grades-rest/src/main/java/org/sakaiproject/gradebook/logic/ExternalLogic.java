@@ -29,9 +29,8 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.gradebook.GradebookDefinition;
-import org.sakaiproject.component.gradebook.VersionedExternalizable;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.gradebook.entity.Assignments;
 import org.sakaiproject.gradebook.entity.Category;
 import org.sakaiproject.gradebook.entity.Course;
 import org.sakaiproject.gradebook.entity.Gradebook;
@@ -43,6 +42,7 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -425,6 +425,7 @@ public class ExternalLogic {
         return students;
     }
     /**
+     * 
      * Get the category information 
      * @param gbID
      * @return
@@ -432,17 +433,32 @@ public class ExternalLogic {
     
     public List<Category> getCategoriesForCourse(String gbID) {
     	List<Category> categories = new ArrayList<Category>();
-        List<CategoryDefinition> categoryDef = gradebookService.getCategoryDefinitions(gbID);
-        
-        for (CategoryDefinition categoryDefinition : categoryDef) {
-        	Category category=new Category(categoryDefinition.getName(), 
+        for (CategoryDefinition categoryDefinition : gradebookService.getCategoryDefinitions(gbID)) {
+        	List<Assignments> assignmentsRest = getAssignmentsForCategories(categoryDefinition);
+        	Category categoryRest=new Category(categoryDefinition.getName(), 
         			categoryDefinition.getWeight(),categoryDefinition.getDrop_lowest(),
-        			categoryDefinition.getDropHighest(),categoryDefinition.getKeepHighest());
-        	categories.add(category);
+        			categoryDefinition.getDropHighest(),categoryDefinition.getKeepHighest(),assignmentsRest);
+        	categories.add(categoryRest);
         }
        
         return categories;
     }
+    /**
+     * Purpose of this is to return the assignment names in a particular category.
+     * @param categoryDefinition
+     * @return
+     */
+
+	private List<Assignments> getAssignmentsForCategories(
+			CategoryDefinition categoryDefinition) {
+		List<Assignment> assignmentList = categoryDefinition.getAssignmentList();
+		List<Assignments> assignmentsRest = new ArrayList<Assignments>();
+		for (Assignment assignment : assignmentList) {
+			Assignments assignments = new Assignments(assignment.getName());
+			assignmentsRest.add(assignments);
+		}
+		return assignmentsRest;
+	}
 
     /**
      * @param userId
@@ -537,14 +553,14 @@ public class ExternalLogic {
             
         }
         gb.category=getCategoriesForCourse(gbID);
-        String gradebookDefinitionXml = gradebookService.getGradebookDefinitionXml(gbID);
-		GradebookDefinition gradebookDefinition = (GradebookDefinition)VersionedExternalizable.fromXml(gradebookDefinitionXml);
-        gb.displayReleasedGradeItemsToStudents=gradebookDefinition.isDisplayReleasedGradeItemsToStudents();
-        gb.gradebookScale=gradebookDefinition.getGradeScale();
-        int gradeType = gradebookDefinition.getGradeType();
+        GradebookInformation gradebookInformation = gradebookService.getGradebookInformation(gbID);
+        gb.displayReleasedGradeItemsToStudents=gradebookInformation.isDisplayReleasedGradeItemsToStudents();
+        gb.gradebookScale=gradebookInformation.getGradeScale();
+        int gradeType = gradebookInformation.getGradeType();
         if(gradeType==GradebookService.GRADE_TYPE_POINTS) {
         	gb.isPointFlag=true;
-        }else if(gradeType==GradebookService.GRADE_TYPE_PERCENTAGE) {
+        }else if(gradeType==GradebookService.GRADE_TYPE_PERCENTAGE)
+        {
         	gb.isPercentFlag=true;
         }else if(gradeType==GradebookService.GRADE_TYPE_LETTER) {
                 gb.isLetterGradeFlag=true;
