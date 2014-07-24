@@ -30,12 +30,12 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.gradebook.entity.Assignments;
 import org.sakaiproject.gradebook.entity.Category;
 import org.sakaiproject.gradebook.entity.Course;
 import org.sakaiproject.gradebook.entity.Gradebook;
 import org.sakaiproject.gradebook.entity.GradebookItem;
 import org.sakaiproject.gradebook.entity.GradebookItemScore;
+import org.sakaiproject.gradebook.entity.SparseGradebookItem;
 import org.sakaiproject.gradebook.entity.Student;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -434,7 +434,7 @@ public class ExternalLogic {
     public List<Category> getCategoriesForCourse(String gbID) {
     	List<Category> categories = new ArrayList<Category>();
         for (CategoryDefinition categoryDefinition : gradebookService.getCategoryDefinitions(gbID)) {
-        	List<Assignments> assignmentsRest = getAssignmentsForCategories(categoryDefinition);
+        	List<SparseGradebookItem> assignmentsRest = getAssignmentsForCategories(categoryDefinition);
         	Category categoryRest=new Category(categoryDefinition.getName(), 
         			categoryDefinition.getWeight(),categoryDefinition.getDrop_lowest(),
         			categoryDefinition.getDropHighest(),categoryDefinition.getKeepHighest(),assignmentsRest);
@@ -443,22 +443,22 @@ public class ExternalLogic {
        
         return categories;
     }
+    
     /**
-     * Purpose of this is to return the assignment names in a particular category.
+     * 
      * @param categoryDefinition
-     * @return
+     * @return basic information for assignments in the given category
      */
+    private List<SparseGradebookItem> getAssignmentsForCategories(CategoryDefinition categoryDefinition) {
+        List<Assignment> assignmentList = categoryDefinition.getAssignmentList();
+        List<SparseGradebookItem> assignmentsRest = new ArrayList<SparseGradebookItem>();
+        for (Assignment assign : assignmentList) {
+            SparseGradebookItem gbItem = new SparseGradebookItem(assign.getId(), assign.getName());
+            assignmentsRest.add(gbItem);
+        }
 
-	private List<Assignments> getAssignmentsForCategories(
-			CategoryDefinition categoryDefinition) {
-		List<Assignment> assignmentList = categoryDefinition.getAssignmentList();
-		List<Assignments> assignmentsRest = new ArrayList<Assignments>();
-		for (Assignment assignment : assignmentList) {
-			Assignments assignments = new Assignments(assignment.getName());
-			assignmentsRest.add(assignments);
-		}
-		return assignmentsRest;
-	}
+        return assignmentsRest;
+    }
 
     /**
      * @param userId

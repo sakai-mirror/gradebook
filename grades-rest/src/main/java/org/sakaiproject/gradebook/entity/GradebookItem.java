@@ -25,11 +25,9 @@ import java.util.Vector;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com) (azeckoski @ vt.edu) (azeckoski @ unicon.net)
  */
-public class GradebookItem {
-    public Long id;
+public class GradebookItem extends SparseGradebookItem {
     public String eid;
-    public String gradebookId;
-    public String name;
+    public String gradebookId; // note, this is the gradebook uid/site id, not the actual gradebook id
     public Double pointsPossible;
     public Date dueDate;
     public String type = "internal"; // this is the externalAppName or "internal"
@@ -68,15 +66,14 @@ public class GradebookItem {
         this(gradebookId, name, null, null, null, false);
     }
     public GradebookItem(String gradebookId, String name, Double pointsPossible,
-            Date dueDate, String type, boolean released) {
+            Date dueDate, String type, boolean released) { 
+        super(null, name);
+
         if (gradebookId == null || "".equals(gradebookId)) {
             throw new IllegalArgumentException("gradebookId must be set");
         }
-        if (name == null || "".equals(name)) {
-            throw new IllegalArgumentException("name must be set");
-        }
         this.gradebookId = gradebookId;
-        this.name = name;
+        
         if (pointsPossible != null && pointsPossible > 0d) {
             this.pointsPossible = new Double(pointsPossible.doubleValue());
         }

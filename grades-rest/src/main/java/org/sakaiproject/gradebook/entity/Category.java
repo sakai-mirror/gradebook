@@ -32,9 +32,9 @@ public class Category {
 	public Integer drop_lowest;
 	public Integer dropHighest;
 	public Integer keepHighest;
-	public List<Assignments> assignmentsInCategory=new Vector<Assignments>();
+	public List<SparseGradebookItem> assignmentsInCategory=new Vector<SparseGradebookItem>();
 	
-	public Category(String name, Double weight,Integer drop_lowest, Integer dropHighest,Integer keepHighest, List<Assignments> assignmentsInCategory) {
+	public Category(String name, Double weight,Integer drop_lowest, Integer dropHighest,Integer keepHighest, List<SparseGradebookItem> assignmentsInCategory) {
 		this.name=name;
 		this.weight=weight;
 		this.drop_lowest=drop_lowest;
@@ -83,11 +83,11 @@ public class Category {
 		this.keepHighest = keepHighest;
 	}
 
-	public List<Assignments> getAssignmentsInCategory() {
+	public List<SparseGradebookItem> getAssignmentsInCategory() {
 		return assignmentsInCategory;
 	}
 
-	public void setAssignmentsInCategory(List<Assignments> assignmentsInCategory) {
+	public void setAssignmentsInCategory(List<SparseGradebookItem> assignmentsInCategory) {
 		this.assignmentsInCategory = assignmentsInCategory;
 	}
 

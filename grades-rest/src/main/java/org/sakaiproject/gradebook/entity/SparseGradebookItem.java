@@ -14,26 +14,25 @@
  */
 package org.sakaiproject.gradebook.entity;
 
+import org.sakaiproject.gradebook.entity.GradebookItem;
+
 /**
- * This class is used to hold the Assignment names. 
- * This is mainly used in the by category class to get the Assignment names stored in a particular Category 
- * @author pushyami
- *
+ * This represents the basic information for a gradebook item. See {@link GradebookItem} for additional
+ * properties
  */
+public class SparseGradebookItem {
+    public Long id;
+    public String name;
 
-public class Assignments {
-	private String assignmentName;
-
-	public Assignments(String name) {
-		this.assignmentName=name;
-	}
-
-	public String getAssignmentName() {
-		return assignmentName;
-	}
-
-	public void setAssignmentName(String assignmentName) {
-		this.assignmentName = assignmentName;
-	}
+    protected SparseGradebookItem() {}
+    public SparseGradebookItem(Long id, String name) {
+        this.id = id;
+        
+        if (name == null || "".equals(name)) {
+            throw new IllegalArgumentException("name must be set");
+        }
+        
+        this.name = name;
+    }
 
 }
