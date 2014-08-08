@@ -27,7 +27,8 @@ import java.util.Vector;
  */
 public class GradebookItem extends SparseGradebookItem {
     public String eid;
-    public String gradebookId; // note, this is the gradebook uid/site id, not the actual gradebook id
+ // gradebookId==siteId in this context. There is another gradebookID which is Long Id that is the id of the gradebook entry in the Database.
+    public String gradebookId;  
     public Double pointsPossible;
     public Date dueDate;
     public String type = "internal"; // this is the externalAppName or "internal"
