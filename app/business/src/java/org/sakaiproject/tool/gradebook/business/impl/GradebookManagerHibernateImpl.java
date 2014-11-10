@@ -2589,7 +2589,14 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
      */
     private List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, 
             String categorySort, boolean categoryAscending, List<AssignmentGradeRecord> gradeRecs,
-            List<Assignment> assignmentsWithStats) {
+            List<Assignment> assignmentsWithStats){
+    	Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
+    	return getCategoriesWithStats(gradebookId, assignmentSort, assignAscending, categorySort, categoryAscending, gradeRecs, assignmentsWithStats, studentUids);
+	}
+    
+    private List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, 
+            String categorySort, boolean categoryAscending, List<AssignmentGradeRecord> gradeRecs,
+            List<Assignment> assignmentsWithStats, Set studentUids) {
         List categories = getCategories(gradebookId);
 
         Map cateMap = new HashMap();
@@ -2634,7 +2641,6 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
         else
             sortCategories(categories, Category.SORT_BY_NAME, categoryAscending);
 
-        Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
         CourseGrade courseGrade = getCourseGrade(gradebookId);
         Map gradeRecordMap = new HashMap();
         addToGradeRecordMap(gradeRecordMap, gradeRecs);
@@ -2654,21 +2660,27 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     public List getCategoriesWithStats(Long gradebookId, String assignmentSort,
 			boolean assignAscending, String categorySort,
 			boolean categoryAscending, boolean includeDroppedScores){
-    	Set allStudentUids = getAllStudentUids(getGradebookUid(gradebookId));
+        Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
+        return getCategoriesWithStats(gradebookId, assignmentSort, assignAscending, categorySort, categoryAscending, includeDroppedScores, studentUids);
+    }
+    
+    public List getCategoriesWithStats(Long gradebookId, String assignmentSort,
+			boolean assignAscending, String categorySort,
+			boolean categoryAscending, boolean includeDroppedScores, Set studentUids){
     	List allAssignments;
     	
     	if (assignmentSort == null) {
     	    assignmentSort = Assignment.DEFAULT_SORT;
     	}
     	
-        List gradeRecords = getAllAssignmentGradeRecords(gradebookId, allStudentUids);
+        List gradeRecords = getAllAssignmentGradeRecords(gradebookId, studentUids);
         if(!includeDroppedScores) {
             applyDropScores(gradeRecords);
         }
     	allAssignments = getAssignmentsWithStats(gradebookId, assignmentSort, assignAscending, gradeRecords);
     	
     	return getCategoriesWithStats(gradebookId, assignmentSort, assignAscending, 
-    	        categorySort, categoryAscending, gradeRecords, allAssignments);
+    	        categorySort, categoryAscending, gradeRecords, allAssignments, studentUids);
     }
 
     private void sortCategories(List categories, String sortBy, boolean ascending) 
